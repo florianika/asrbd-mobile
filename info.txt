@@ -1,0 +1,36 @@
+📂 lib/
+│── 📂 core/              # Core functionalities (shared across the app)
+│   │── 📂 api/           # API clients (Dio, Http, GraphQL, etc.)
+│   │── 📂 config/        # App-wide configurations, environment, themes
+│   │── 📂 constants/     # Constant values (e.g., API endpoints, keys)
+│   │── 📂 enums/         # Enums used across the app
+│   │── 📂 errors/        # Custom exceptions and error handling
+│   │── 📂 helpers/       # Utility functions (date formatter, etc.)
+│   │── 📂 local_storage/ # SharedPreferences, Hive, SQLite helpers
+│   │── 📂 models/        # Data models (freezed, json_serializable, etc.)
+│   │── 📂 services/      # Business logic, Firebase, notifications, etc.
+│   │── 📂 themes/        # App themes, colors, typography
+│   │── 📂 widgets/       # Reusable UI components
+│
+│── 📂 features/          # Feature-based organization (modular structure)
+│   │── 📂 auth/          # Authentication module
+│   │   │── 📂 data/      # Data layer (repository, API calls)
+│   │   │── 📂 domain/    # Business logic (use cases)
+│   │   │── 📂 presentation/ # UI Layer (pages, widgets, controllers)
+│   │   │── auth_module.dart  # Module exports for easy imports
+│   │
+│   │── 📂 home/          # Home screen module
+│   │── 📂 profile/       # Profile module
+│   │── 📂 settings/      # Settings module
+│
+│── 📂 routing/           # App routes, navigation management
+│── 📂 localization/      # Localization (intl, translations)
+│── 📂 main.dart          # Entry point of the app
+│
+📂 test/                  # Unit and widget tests
+📂 assets/                # Images, fonts, etc.
+📂 pubspec.yaml           # Dependencies and configurations
+
+
+
+  circular_menu: ^4.0.0
