@@ -1,0 +1,51 @@
+# Flutter/Dart/Pub related
+**/.dart_tool/
+**/build/
+**/.pub/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/pubspec.lock
+
+# Android related
+**/.android/
+**/android/.gradle/
+**/android/app/debug/
+**/android/app/release/
+**/android/.idea/
+**/android/local.properties
+**/android/*.iml
+
+# iOS related
+**/.ios/
+**/ios/Flutter/.flutter-plugins
+**/ios/Flutter/.flutter-plugins-dependencies
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/FlutterPluginRegistrant/
+**/ios/Runner/GeneratedPluginRegistrant.h
+**/ios/Runner/GeneratedPluginRegistrant.m
+**/ios/Runner/Info.plist
+
+# VS Code related
+.vscode/
+
+# IntelliJ related
+.idea/
+
+# Dart/Flutter generated files
+*.dart_tool/
+*.pub-cache/
+*.packages
+*.flutter-plugins
+*.flutter-plugins-dependencies
+
+# User-specific files
+*.iml
+*.ipr
+*.iws
+
+# Miscellaneous
+.DS_Store
+*.log
