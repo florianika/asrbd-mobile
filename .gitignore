@@ -49,3 +49,10 @@
 # Miscellaneous
 .DS_Store
 *.log
+
+#arcgis library
+arcgis_maps_core/*
+
+dropbox_upload.py
+info.txt
+.env
