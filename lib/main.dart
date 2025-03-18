@@ -9,9 +9,11 @@ import 'core/local_storage/local_storage_service.dart';
 import 'routing/route_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   await LocalStorageService().init();
   initAuthModule();
   runApp(const MyApp());
