@@ -95,6 +95,12 @@ class _HomeViewState extends State<HomeView>
     final portal = Portal(Uri.parse(EsriConfig.portalUrl),
         connection: PortalConnection.authenticated);
 
+    await portal.load();
+
+    final licenseInfo = await portal.fetchLicenseInfo();
+
+    ArcGISEnvironment.setLicenseUsingInfo(licenseInfo);
+
     final portalItem = PortalItem.withPortalAndItemId(
       portal: portal,
       itemId: EsriConfig.baseMapItemId,
