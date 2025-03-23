@@ -21,7 +21,7 @@ class ApiClient {
       ),
     );
 
-    // Add interceptors (e.g., authentication, logging)
+
     dio.interceptors.add(LogInterceptor(responseBody: true));
   }
 
@@ -35,9 +35,9 @@ class ApiClient {
   }
 
   // POST Request
-  Future<Response> post(String endpoint, {dynamic data}) async {
+  Future<Response> post(String endpoint, {dynamic data, Options? options}) async {
     try {
-      return await dio.post(endpoint, data: data);
+      return await dio.post(endpoint, data: data, options: options);
     } catch (e) {
       throw ApiExceptions.handleError(e);
     }

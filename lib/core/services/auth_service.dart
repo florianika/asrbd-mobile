@@ -1,23 +1,29 @@
 import 'package:asrdb/core/api/auth_api.dart';
-import 'package:asrdb/core/models/user_model.dart';
+import 'package:asrdb/core/models/auth_response.dart';
+
 
 class AuthService {
   final AuthApi authApi;
+
   AuthService(this.authApi);
-  // Login method
-  Future<UserModel> login(String email, String password) async {
+
+  Future<AuthResponse> login(String email, String password) async {
     try {
       final response = await authApi.login(email, password);
 
-      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
-        return UserModel.fromJson(
-            response.data); // Assuming you return user data on successful login
+        return AuthResponse.fromJson(response.data);
       } else {
-        throw Exception('Failed to login');
+        String errorMessage = 'Server Error: ${response.statusCode}';
+
+        if (response.data is Map<String, dynamic> && response.data.containsKey('message')) {
+          errorMessage = response.data['message'];
+        }
+
+        throw Exception(errorMessage);
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception(e.toString().replaceAll("Exception: ", ""));
     }
   }
 }

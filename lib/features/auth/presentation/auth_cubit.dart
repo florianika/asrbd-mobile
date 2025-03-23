@@ -22,18 +22,20 @@ class AuthCubit extends Cubit<AuthState> {
 
   // Login method
   Future<void> login(String email, String password) async {
-    emit(AuthLoading());
-    try {
-      final success = await authUseCases.login(email, password);
-      if (success.id > 0) {
-        emit(AuthAuthenticated());
-      } else {
-        emit(AuthError("Invalid credentials"));
-      }
-    } catch (e) {
-      emit(AuthError(e.toString()));
+  emit(AuthLoading());
+  try {
+    final authResponse = await authUseCases.login(email, password);
+
+    if (authResponse.accessToken.isNotEmpty) {
+      emit(AuthAuthenticated());
+    } else {
+      emit(AuthError("Invalid credentials"));
     }
+  } catch (e) {
+    emit(AuthError(e.toString().replaceAll("Exception: ", "")));
   }
+}
+
 
   // Logout method
   // void logout() {

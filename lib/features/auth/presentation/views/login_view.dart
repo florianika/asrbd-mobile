@@ -11,7 +11,7 @@ class LoginView extends StatelessWidget {
     return Scaffold(body: LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < AppConfig.tabletBreakpoint) {
-          return LoginMobile(); // Mobile layout
+          return const LoginMobile(); // Mobile layout
         } else {
           return LoginTablet(); // Tablet layout
         }

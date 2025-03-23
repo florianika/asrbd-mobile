@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
             ],
-            initialRoute: RouteManager.homeRoute,
+            initialRoute: RouteManager.loginRoute,
           );
         },
       ),
