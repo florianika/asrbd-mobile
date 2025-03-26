@@ -61,6 +61,9 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
   var _canRedo = false;
   var _isLoading = false;
 
+  late OfflineMapSyncTask _offlineMapSyncTask;
+  late OfflineMapSyncParameters _mapSyncParameters;
+
   Feature? _selectedFeature;
 
   late final SimpleFillSymbol _polygonSymbol;
@@ -114,51 +117,45 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
   }
 
   Future<void> identifyAndSelectFeature(Offset localPosition) async {
-    // Disable the UI while the async operations are in progress.
     setState(() => _ready = false);
 
     try {
-      var layers = _webMap.operationalLayers;
-      _showMessageDialog(layers.length.toString());
-      _showMessageDialog(layers[0].subLayerContents[0].name);
+      // _showMessageDialog(_mapViewController.arcGISMap!.tables[0].displayName);
+      // Debug: Print the number of operational layers
+      final layers = _mapViewController.arcGISMap?.operationalLayers;
+      _showMessageDialog('Total Operational Layers: ${layers?.length ?? 0}');
 
-      FeatureLayer buildings = layers[0].subLayerContents[0] as FeatureLayer;
-      // (layers.firstWhere((x) => x.id == "64658d3e33d74e6ab47fc0725f1e93af")
-      //     as FeatureLayer);
+      if (layers == null || layers.isEmpty) {
+        _showMessageDialog('No operational layers found');
+        return;
+      }
 
-      // Unselect any previously selected feature.
-      // if (_selectedFeature != null) {
-      //   buildings.unselectFeature(_selectedFeature!);
-
-      //   setState(() {
-      //     _selectedFeature = null;
-      //   });
-      // }
-
-      // Perform an identify operation on the feature layer at the tapped location.
-      final identifyResult = await _mapViewController.identifyLayer(
-        buildings as Layer,
+      final identifyLayerResults = await _mapViewController.identifyLayers(
         screenPoint: localPosition,
         tolerance: 12.0,
-        maximumResults: 1,
+        maximumResultsPerLayer: 1,
       );
 
-      if (identifyResult.geoElements.isNotEmpty) {
-        // If a feature is identified, select it.
-        final feature = identifyResult.geoElements.first as ArcGISFeature;
-        // buildings.
-        buildings.selectFeature(feature);
+      var identifyTotal = 0;
+      final layerCounts = <String>[];
+      for (final result in identifyLayerResults) {
+        final layerTotal = result.geoElements.length;
+        identifyTotal += layerTotal;
+        if (layerTotal > 0) {
+          var fLayer = result.layerContent as FeatureLayer;
+          final feature = result.geoElements.first as ArcGISFeature;
 
-        setState(() {
-          _selectedFeature = feature;
-          showInfo = true;
-        });
+          fLayer.selectFeature(feature);
+        }
+        layerCounts.add('${result.layerContent.name}: $layerTotal');
       }
+
+      _showMessageDialog(layerCounts.join('\n'));
     } catch (error) {
-      _showMessageDialog(error.toString());
+      _showMessageDialog('Identify error: $error');
+    } finally {
+      setState(() => _ready = true);
     }
-    // Re-enable the UI.
-    setState(() => _ready = true);
   }
 
   void _showMessageDialog(String message) {
@@ -181,6 +178,10 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
       // Get the geometry from the editor
       final geometry = _geometryEditor.stop();
 
+      // FeatureLayer layer = _mapViewController
+      //     .arcGISMap!.operationalLayers[0].subLayerContents[0] as FeatureLayer;
+      // var feature = layer.featureTable!.createFeature();
+
       if (geometry != null) {
         // Create a feature
         final feature = _polygonServiceFeatureTable.createFeature();
@@ -200,6 +201,7 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
 
         // Add feature to the local table
         await _polygonFeatureLayer.featureTable!.addFeature(feature);
+        // await feature.featureTable!.addFeature(feature);
 
         // Apply edits to sync with the server
         await _polygonServiceFeatureTable.serviceGeodatabase!.applyEdits();
@@ -314,6 +316,27 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
     );
   }
 
+  Future<void> syncUpdates() async {
+    final mapSyncJob =
+        _offlineMapSyncTask.syncOfflineMap(parameters: _mapSyncParameters);
+    try {
+      await mapSyncJob.run();
+      final result = mapSyncJob.result;
+      // if (result != null && result.isMobileMapPackageReopenRequired) {
+      //   await _loadMapPackageMap();
+      // }
+    } catch (err) {
+      if (mounted) {
+        _showMessageDialog(
+          'The offline map sync failed with error: {$err}.',
+        );
+      }
+    } finally {
+      // Refresh the update status.
+      // await _checkForUpdates();
+    }
+  }
+
   void onMapViewReady() async {
     // Configure the directory to download offline maps to.
     _downloadDirectory = await createDownloadDirectory();
@@ -350,6 +373,31 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
 
     // Initially set the web map to the map view controller.
     _mapViewController.arcGISMap = _webMap;
+
+    // ServiceGeodatabase serviceGeodatabase;
+    // try {
+    //   serviceGeodatabase = ServiceGeodatabase.withPortalItem(_portalItem);
+    //   await serviceGeodatabase.load();
+    // } catch (e) {
+    //   _showMessageDialog('Error serviceGeodatabase: $e');
+    //   return;
+    // }
+
+    // try {
+    //   // // Get the feature table from the service geodatabase
+    //   _polygonServiceFeatureTable =
+    //       serviceGeodatabase.getTable(layerId: EsriConfig.buildingLayerId)!;
+    //   await _polygonServiceFeatureTable.load();
+    // } catch (e) {
+    //   _showMessageDialog('Error _polygonServiceFeatureTable: $e');
+    // }
+
+    // try {
+    //   _polygonFeatureLayer =
+    //       FeatureLayer.withFeatureTable(_polygonServiceFeatureTable);
+    // } catch (e) {
+    //   _showMessageDialog('Error _polygonFeatureLayer: $e');
+    // }
 
     final outlineSymbol = SimpleLineSymbol(
       style: SimpleLineSymbolStyle.solid,
@@ -535,9 +583,20 @@ class _DownloadPreplannedMapAreaState extends State<DownloadPreplannedMapArea>
   }
 
   // Sets the provided map to the map view and updates the viewpoint.
-  void setMapAndViewpoint(ArcGISMap map) {
+  Future<void> setMapAndViewpoint(ArcGISMap map) async {
     // Set the map to the map view and update the UI to reflect the newly selected map.
     _mapViewController.arcGISMap = map;
+
+    _offlineMapSyncTask =
+        OfflineMapSyncTask.withMap(_mapViewController.arcGISMap!);
+
+    _mapSyncParameters =
+        await _offlineMapSyncTask.createDefaultOfflineMapSyncParameters()
+          ..syncDirection = SyncDirection.upload
+          ..preplannedScheduledUpdatesOption =
+              PreplannedScheduledUpdatesOption.downloadAllUpdates
+          ..rollbackOnFailure = true;
+
     setState(() {});
 
     if (map != _webMap) {
