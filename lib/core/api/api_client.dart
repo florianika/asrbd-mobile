@@ -4,24 +4,26 @@ import 'api_exceptions.dart';
 import 'package:asrdb/core/config/app_config.dart';
 
 class ApiClient {
-  static final ApiClient _instance = ApiClient._internal();
-  factory ApiClient() => _instance;
+  static ApiClient? _instance;
 
   late Dio dio;
 
-  ApiClient._internal() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: AppConfig.apiBaseUrl,
-        connectTimeout: const Duration(seconds: AppConfig.apiTimeout),
-        receiveTimeout: const Duration(seconds: AppConfig.apiTimeout),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      ),
-    );
+  factory ApiClient(String baseUrl) {
+    _instance ??= ApiClient._internal(baseUrl);
+    return _instance!;
+  }
 
-    // Add interceptors (e.g., authentication, logging)
+  ApiClient._internal(String baseUrl)
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: AppConfig.apiBaseUrl,
+            connectTimeout: const Duration(seconds: AppConfig.apiTimeout),
+            receiveTimeout: const Duration(seconds: AppConfig.apiTimeout),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          ),
+        ) {
     dio.interceptors.add(LogInterceptor(responseBody: true));
   }
 

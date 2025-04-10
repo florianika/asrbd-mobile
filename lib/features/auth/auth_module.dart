@@ -5,9 +5,8 @@ import 'package:asrdb/features/auth/data/auth_repository.dart';
 import 'package:asrdb/features/auth/domain/auth_usecases.dart';
 import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 
-final sl = GetIt.instance; // Service locator instance
-
-void initAuthModule() {
+void initAuthModule(GetIt sl) {
+  // final sl = GetIt.instance; // Service locator instance
   // Register API client
   sl.registerLazySingleton<AuthApi>(() => AuthApi());
 

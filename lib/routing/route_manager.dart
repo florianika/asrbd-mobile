@@ -1,9 +1,8 @@
-import 'package:asrdb/features/offline/presentation/views/generate_offline_map.dart';
-import 'package:asrdb/features/offline/presentation/views/load_offline_map.dart';
-import 'package:asrdb/features/offline/presentation/views/pre_planed_map.dart';
+import 'package:asrdb/features/home/presentation/views/view_map.dart';
+import 'package:asrdb/features/offline/presentation/views/open_maps_test.dart';
+import 'package:asrdb/features/offline/presentation/views/open_maps_test_dowload.dart';
 import 'package:flutter/material.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
-import 'package:asrdb/features/home/presentation/views/home_view.dart';
 
 class RouteManager {
   static const String homeRoute = '/home';
@@ -15,7 +14,7 @@ class RouteManager {
       case loginRoute:
         return MaterialPageRoute(builder: (_) => const LoginView());
       case homeRoute:
-        return MaterialPageRoute(builder: (_) => const DownloadPreplannedMapArea());
+        return MaterialPageRoute(builder: (_) => const ViewMap());
       default:
         return _errorRoute();
     }
