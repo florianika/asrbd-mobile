@@ -25,7 +25,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final success = await authUseCases.login(email, password);
-      if (success.id > 0) {
+      if (success.accessToken != '') {
         emit(AuthAuthenticated());
       } else {
         emit(AuthError("Invalid credentials"));

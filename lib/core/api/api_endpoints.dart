@@ -2,6 +2,8 @@ import 'package:asrdb/core/config/esri_config.dart';
 
 class ApiEndpoints {
   static const String login = '/auth/login';
+  static const String loginEsri = '/auth/gis/login';
+  static const String refreshToken = '/auth/refreshToken';
   static const String register = '/auth/register';
   static const String userProfile = '/user/profile';
 
@@ -52,7 +54,6 @@ class ApiEndpoints {
       'featureEncoding': 'esriDefault',
       'datumTransformation': '',
       'f': 'geojson',
-      'token': 'PlxKQBrHT_kay-oB4GGujJ0WWzT6HeuMx9mOygPeUnaKqV4XNcntNAKeD9lBrE-hsu8KJxc_u3vz2ov8xrN-VJZQVFEFZmcikhnw2I72evZX-xQHRkNdChfr4rQNKhEfnwIhsokXEqK4Z5jfBW_vi5FZAJVaS3dKAk7hB9wRvyY.',
     },
   ).toString();
 }
