@@ -4,7 +4,7 @@ import 'api_client.dart';
 import 'api_endpoints.dart';
 
 class EntranceApi {
-  final ApiClient _apiClient = ApiClient(EsriConfig.portalBaseUrl);
+  final ApiClient _apiClient = ApiClient(baseUrl: EsriConfig.portalBaseUrl);
 
   Future<Response> getEntrances(String esriToken) async {
     return await _apiClient

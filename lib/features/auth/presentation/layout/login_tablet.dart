@@ -11,11 +11,18 @@ import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:asrdb/core/config/app_config.dart';
 
-class LoginTablet extends StatelessWidget {
+class LoginTablet extends StatefulWidget {
   LoginTablet({super.key});
 
+  @override
+  State<LoginTablet> createState() => _LoginTabletState();
+}
+
+class _LoginTabletState extends State<LoginTablet> {
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passwordController = TextEditingController();
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _onLogin(BuildContext context) {
@@ -60,7 +67,7 @@ class LoginTablet extends StatelessWidget {
                       isLoading: state is AuthLoading,
                       child: Center(
                         child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.3,
+                          width: MediaQuery.of(context).size.width * 0.5,
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [

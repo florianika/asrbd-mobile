@@ -14,6 +14,4 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(key);
   }
-
-  // Other methods for storing data like int, bool, etc.
 }

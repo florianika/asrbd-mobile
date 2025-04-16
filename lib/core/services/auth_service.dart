@@ -33,9 +33,9 @@ class AuthService {
   }
 
   Future<AuthEsriResponse> loginEsri() async {
-    try {
       String? accessToken = await _storage.getString(StorageKeys.accessToken);
-      if (accessToken == null) throw Exception('Failed to login');
+    try {
+      if (accessToken == null) throw Exception('Failed to login to esri!!');
 
       final response = await authApi.loginEsri(accessToken);
 
@@ -48,10 +48,10 @@ class AuthService {
 
         return authResponse;
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Failed to login to esri!!!');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Failed to login to esri!!!!: $e');
     }
   }
 
