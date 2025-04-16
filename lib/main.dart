@@ -1,4 +1,6 @@
+import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/entrance_module.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +23,7 @@ void main() async {
   await LocalStorageService().init();
   initAuthModule(sl);
   initEntranceModule(sl);
+  initBuildingModule(sl);
   runApp(const MyApp());
 }
 
@@ -38,6 +41,7 @@ class _MyAppState extends State<MyApp> {
       providers: [
         BlocProvider(create: (context) => sl<AuthCubit>()),
         BlocProvider(create: (context) => sl<EntranceCubit>()),
+        BlocProvider(create: (context) => sl<BuildingCubit>()),
         BlocProvider(
             create: (context) => LangCubit()), // Provide LangCubit here
       ],

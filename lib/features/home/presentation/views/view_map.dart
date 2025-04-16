@@ -1,5 +1,5 @@
-
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,17 +27,17 @@ class _ViewMapState extends State<ViewMap> {
     defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
   );
 
+  GeoJsonParser buildinGeoJsonParser = GeoJsonParser(
+    defaultMarkerColor: Colors.red,
+    defaultPolygonBorderColor: Colors.red,
+    defaultPolygonFillColor: Colors.red.withOpacity(0.1),
+    defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
+  );
+
   Future<void> _initialize() async {
-    // Directory tileDir = await getApplicationDocumentsDirectory();
-    // tileDirPath = '${tileDir.path}/tiles';
-
-    // _loadGeoJsonData();
-    // setState(() => _isInitialized = true);
-
+    context.read<BuildingCubit>().getBuildings();
     context.read<EntranceCubit>().getEntrances();
   }
-
-
 
   void handleMarkerTap(Map<String, dynamic> data) {
     // _showPopup(context, data[EntranceFields.objectID].toString());
@@ -57,48 +57,61 @@ class _ViewMapState extends State<ViewMap> {
     return Scaffold(
       appBar: AppBar(title: const Text("Map")),
       drawer: const SideMenu(),
-      body: BlocConsumer<EntranceCubit, EntranceState>(
+      body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
-          if (state is Entrances) {
+          if (state is Buildings) {
             setState(() {
-              entranceGeoJsonParser.parseGeoJson(state.entrances);
-
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.entrances.length.toString())),
+                SnackBar(content: Text(state.buildings.length.toString())),
               );
+
+              buildinGeoJsonParser.parseGeoJson(state.buildings);
             });
-          } else if (state is EntranceError) {
+          } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
           }
         },
         builder: (context, state) {
-          return Stack(
-            children: [
-              FlutterMap(
-                mapController: mapController,
-                options: const MapOptions(
-                  initialCenter: LatLng(40.534406, 19.6338131),
-                  initialZoom: 13.0,
-                ),
+          return BlocConsumer<EntranceCubit, EntranceState>(
+            listener: (context, state) {
+              if (state is Entrances) {
+                setState(() {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.entrances.length.toString())),
+                  );
+
+                  entranceGeoJsonParser.parseGeoJson(state.entrances);
+                });
+              } else if (state is EntranceError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              }
+            },
+            builder: (context, state) {
+              return Stack(
                 children: [
-                  TileLayer(
-                    tileProvider: _ft.FileTileProvider(tileDirPath, false),
+                  FlutterMap(
+                    mapController: mapController,
+                    options: const MapOptions(
+                      initialCenter: LatLng(40.534406, 19.6338131),
+                      initialZoom: 13.0,
+                    ),
+                    children: [
+                      TileLayer(
+                        tileProvider: _ft.FileTileProvider(tileDirPath, false),
+                      ),
+                      MarkerLayer(markers: entranceGeoJsonParser.markers),
+                      PolygonLayer(
+                        polygons: buildinGeoJsonParser.polygons,
+                      ),
+                    ],
                   ),
-                  MarkerLayer(markers: entranceGeoJsonParser.markers)
                 ],
-              ),
-              Positioned(
-                bottom: 20,
-                left: 20,
-                child: FloatingActionButton.extended(
-                  onPressed: () => {},
-                  label: const Text("Download Tiles"),
-                  icon: const Icon(Icons.download),
-                ),
-              ),
-            ],
+              );
+            },
           );
         },
       ),

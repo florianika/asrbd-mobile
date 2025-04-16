@@ -32,10 +32,4 @@ class EntranceCubit extends Cubit<EntranceState> {
       emit(EntranceError(e.toString()));
     }
   }
-
-  // Logout method
-  // void logout() {
-  //   EntranceUseCases.logout();
-  //   emit(EntranceInitial());
-  // }
 }
