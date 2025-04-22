@@ -78,9 +78,9 @@ class _ViewMapState extends State<ViewMap> {
             listener: (context, state) {
               if (state is Entrances) {
                 setState(() {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.entrances.length.toString())),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text(state.entrances.length.toString())),
+                  // );
 
                   entranceGeoJsonParser.parseGeoJson(state.entrances);
                 });
@@ -103,9 +103,9 @@ class _ViewMapState extends State<ViewMap> {
                       TileLayer(
                         tileProvider: _ft.FileTileProvider(tileDirPath, false),
                       ),
-                      MarkerLayer(markers: entranceGeoJsonParser.markers),
+                      MarkerLayer(markers: entranceGeoJsonParser.markers ),
                       PolygonLayer(
-                        polygons: buildinGeoJsonParser.polygons,
+                        polygons: buildinGeoJsonParser.polygons.where((singlePolygon) => singlePolygon.points.isNotEmpty).toList(),
                       ),
                     ],
                   ),
