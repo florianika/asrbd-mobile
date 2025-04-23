@@ -103,11 +103,69 @@ class _ViewMapState extends State<ViewMap> {
                       TileLayer(
                         tileProvider: _ft.FileTileProvider(tileDirPath, false),
                       ),
-                      MarkerLayer(markers: entranceGeoJsonParser.markers ),
+                      MarkerLayer(markers: entranceGeoJsonParser.markers),
                       PolygonLayer(
-                        polygons: buildinGeoJsonParser.polygons.where((singlePolygon) => singlePolygon.points.isNotEmpty).toList(),
+                        polygons: buildinGeoJsonParser.polygons
+                            .where((singlePolygon) =>
+                                singlePolygon.points.isNotEmpty)
+                            .toList(),
                       ),
                     ],
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    child: Column(
+                      children: [
+                        FloatingActionButton(
+                          heroTag: 'zoom_in',
+                          mini: true,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          onPressed: () {
+                            mapController.move(mapController.camera.center,
+                                mapController.camera.zoom + 1);
+                          },
+                          child: const Icon(Icons.zoom_in),
+                        ),
+                        const SizedBox(height: 8),
+                        FloatingActionButton(
+                          heroTag: 'zoom_out',
+                          mini: true,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          onPressed: () {
+                            mapController.move(mapController.camera.center,
+                                mapController.camera.zoom - 1);
+                          },
+                          child: const Icon(Icons.zoom_out),
+                        ),
+                        const SizedBox(height: 8),
+                        FloatingActionButton(
+                          heroTag: 'zoom_out',
+                          mini: true,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          onPressed: () {
+                            mapController.move(mapController.camera.center,
+                                mapController.camera.zoom - 1);
+                          },
+                          child: const Icon(Icons.rectangle_outlined),
+                        ),
+                        const SizedBox(height: 8),
+                        FloatingActionButton(
+                          heroTag: 'zoom_out',
+                          mini: true,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          onPressed: () {
+                            mapController.move(mapController.camera.center,
+                                mapController.camera.zoom - 1);
+                          },
+                          child: const Icon(Icons.sensor_door_outlined),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               );
