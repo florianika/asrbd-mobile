@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'dynamic_form.dart';
 
 class TabletFormView extends StatefulWidget {
-  final String url;
+  final String entity;
 
-  const TabletFormView({super.key, required this.url});
+  const TabletFormView({super.key, required this.entity});
 
   @override
   State<TabletFormView> createState() => _TabletFormViewState();
@@ -17,10 +17,11 @@ class _TabletFormViewState extends State<TabletFormView> {
   @override
   void initState() {
     super.initState();
-    fetchFields(widget.url).then((fields) {
-      final entity = getEntityFromUrl(widget.url);
+    final url = getUrlFromEntity(widget.entity);
+    fetchFields(url).then((fields) {
+      final entityName = getEntityFromUrl(url);
       final filtered = fields
-          .where((f) => entityFieldWhitelist[entity]?.contains(f.name) ?? false)
+          .where((f) => entityFieldWhitelist[entityName]?.contains(f.name) ?? false)
           .toList();
       setState(() {
         _schema = filtered;
@@ -32,7 +33,7 @@ class _TabletFormViewState extends State<TabletFormView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Tablet Form - ${getEntityFromUrl(widget.url).toUpperCase()}")),
+      appBar: AppBar(title: Text("Tablet Form - ${widget.entity.toUpperCase()}")),
       body: Row(
         children: [
           Expanded(

@@ -1,35 +1,12 @@
-import 'package:asrdb/core/widgets/phone_form_view.dart';
-import 'package:asrdb/core/widgets/tablet_form_view.dart';
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart'; // <-- using Dio now
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-
+// ---- URLs for each entity ----
 const entranceUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0';
 const buildingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1';
 const dwellingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/2';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Dynamic Form',
-      home: const HomeScreen(),
-      routes: {
-        '/entrance': (_) => const FormScreen(layerUrl: entranceUrl),
-        '/building': (_) => const FormScreen(layerUrl: buildingUrl),
-        '/dwelling': (_) => const FormScreen(layerUrl: dwellingUrl),
-      },
-    );
-  }
-}
-
-
+// ---- Whitelisted fields per entity ----
 const entityFieldWhitelist = {
   'entrance': [
     'EntStreet', 'EntCensus2023', 'external_creator_date', 'external_editor_date',
@@ -65,47 +42,43 @@ String getEntityFromUrl(String url) {
   return 'unknown';
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  Widget _btn(BuildContext context, String label, String url) {
-    final isTablet = MediaQuery.of(context).size.width > 800;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: ElevatedButton(
-        onPressed: () {
-          if (isTablet) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => TabletFormView(url: url),
-              ),
-            );
-          } else {
-            phoneFormView(context, url);
-          }
-        },
-        child: Text(label),
-      ),
-    );
+String getUrlFromEntity(String entity) {
+  switch (entity) {
+    case 'entrance':
+      return entranceUrl;
+    case 'building':
+      return buildingUrl;
+    case 'dwelling':
+      return dwellingUrl;
+    default:
+      throw Exception('Unknown entity: $entity');
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Choose API Entity")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _btn(context, "Entrance", entranceUrl),
-            _btn(context, "Building", buildingUrl),
-            _btn(context, "Dwelling", dwellingUrl),
-          ],
-        ),
-      ),
+Future<List<FieldSchema>> fetchFields(String layerUrl) async {
+  const token = '';//We should add token here
+
+  final Dio dio = Dio();
+
+  try {
+    final response = await dio.get(
+      '$layerUrl?f=json&token=$token',
     );
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      if (data['fields'] == null) {
+        throw Exception('Missing "fields" key in response: $data');
+      }
+
+      return (data['fields'] as List)
+          .map((e) => FieldSchema.fromJson(e))
+          .toList();
+    } else {
+      throw Exception('Schema fetch failed: ${response.statusCode} - ${response.data}');
+    }
+  } catch (e) {
+    throw Exception('Failed to fetch fields: $e');
   }
 }
 
@@ -144,78 +117,6 @@ class FieldSchema {
   }
 }
 
-
-final Dio _dio = Dio();
-
-Future<List<FieldSchema>> fetchFields(String layerUrl) async {
-  const token = '';//We should take the token and put it here.
-
-  try {
-    final response = await _dio.get(
-      layerUrl,
-      queryParameters: {
-        'f': 'json',
-        'token': token,
-      },
-    );
-
-    final data = response.data;
-
-    if (data['fields'] == null) {
-      throw Exception('Missing "fields" key in response: ${response.data}');
-    }
-
-    return (data['fields'] as List)
-        .map((e) => FieldSchema.fromJson(e))
-        .toList();
-  } on DioException catch (e) {
-    throw Exception('Schema fetch failed: ${e.response?.statusCode} - ${e.response?.data}');
-  }
-}
-
-class FormScreen extends StatefulWidget {
-  final String layerUrl;
-  final Map<String, dynamic>? initialData;
-
-  const FormScreen({required this.layerUrl, this.initialData, super.key});
-
-  @override
-  State<FormScreen> createState() => _FormScreenState();
-}
-
-class _FormScreenState extends State<FormScreen> {
-  List<FieldSchema> _schema = [];
-  bool _loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchFields(widget.layerUrl).then((fields) {
-      final entity = getEntityFromUrl(widget.layerUrl);
-      final filtered = fields.where((f) => entityFieldWhitelist[entity]?.contains(f.name) ?? false).toList();
-      setState(() {
-        _schema = filtered;
-        _loading = false;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Form for ${getEntityFromUrl(widget.layerUrl).toUpperCase()}"),
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: DynamicForm(schema: _schema, initialData: widget.initialData),
-      ),
-    );
-  }
-}
-
 class DynamicForm extends StatefulWidget {
   final List<FieldSchema> schema;
   final Map<String, dynamic>? initialData;
@@ -239,8 +140,6 @@ class _DynamicFormState extends State<DynamicForm> {
   Widget build(BuildContext context) {
     return Column(
       children: widget.schema.map((field) {
-        if (!field.editable) return const SizedBox.shrink();
-
         final value = formValues[field.name] ?? field.defaultValue;
 
         if (field.codedValues != null) {
@@ -249,18 +148,27 @@ class _DynamicFormState extends State<DynamicForm> {
             value: value,
             items: field.codedValues!
                 .map((code) => DropdownMenuItem(
-              value: code['code'],
-              child: Text(code['name'].toString()),
-            ))
+                      value: code['code'],
+                      child: Text(code['name'].toString()),
+                    ))
                 .toList(),
-            onChanged: (val) => setState(() => formValues[field.name] = val),
+            onChanged: field.editable
+                ? (val) => setState(() => formValues[field.name] = val)
+                : null,
+            disabledHint: Text(
+              value != null ? value.toString() : '',
+              style: const TextStyle(color: Colors.black45),
+            ),
           );
         }
 
         return TextFormField(
           decoration: InputDecoration(labelText: field.alias),
           initialValue: value?.toString() ?? '',
-          onChanged: (val) => formValues[field.name] = val,
+          onChanged: field.editable
+              ? (val) => setState(() => formValues[field.name] = val)
+              : null,
+          enabled: field.editable,
         );
       }).toList(),
     );

@@ -1,4 +1,6 @@
+import 'package:asrdb/core/widgets/phone_form_view.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/core/widgets/tablet_form_view.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
@@ -163,6 +165,29 @@ class _ViewMapState extends State<ViewMap> {
                                 mapController.camera.zoom - 1);
                           },
                           child: const Icon(Icons.sensor_door_outlined),
+                        ),
+                         const SizedBox(height: 8),                 
+                        FloatingActionButton(
+                          heroTag: 'open_form',
+                          mini: true,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          onPressed: () {
+                            const String selectedEntity = 'entrance';
+                            final isTablet = MediaQuery.of(context).size.width > 800;
+
+                            if (isTablet) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const TabletFormView(entity: selectedEntity),
+                                ),
+                              );
+                            } else {
+                              phoneFormView(context, selectedEntity);
+                            }
+                          },
+                          child: const Icon(Icons.add_location_alt_outlined),
                         ),
                       ],
                     ),
