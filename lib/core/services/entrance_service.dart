@@ -5,7 +5,7 @@ import 'package:asrdb/core/services/storage_service.dart';
 class EntranceService {
   final EntranceApi entranceApi;
   EntranceService(this.entranceApi);
-  
+
   final StorageService _storage = StorageService();
   // Login method
   Future<Map<String, dynamic>> getEntrances() async {
@@ -17,12 +17,17 @@ class EntranceService {
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception('Error fetching entrances: ${mapData['error']['message']}');
+        } else {
+          return mapData;
+        }
       } else {
         throw Exception('Failed to login');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception(e);
     }
   }
 }

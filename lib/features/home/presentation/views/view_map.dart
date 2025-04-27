@@ -1,3 +1,8 @@
+import 'dart:math';
+
+import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
+import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -18,6 +23,8 @@ class ViewMap extends StatefulWidget {
 class _ViewMapState extends State<ViewMap> {
   bool _isInitialized = true;
   late String tileDirPath = '';
+  bool _isDrawing = false;
+  List<LatLng> _newPolygonPoints = [];
 
   MapController mapController = MapController();
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
@@ -52,6 +59,72 @@ class _ViewMapState extends State<ViewMap> {
     entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
   }
 
+  void _onAddPolygon(LatLng position) {
+    setState(() {
+      _newPolygonPoints.add(position);
+    });
+  }
+
+  void enableDrawing(ShapeType type) {
+    setState(() {
+      _isDrawing = true;
+    });
+  
+  }
+
+  void _onClose() {
+    setState(() {
+      _isDrawing = false;
+      _newPolygonPoints.clear();
+    });
+  }
+
+  void _onUndo(List<LatLng> newPolygonPoints) {
+    setState(() {
+      _newPolygonPoints = newPolygonPoints;
+    });
+  }
+
+
+  List<Marker> _buildMarkers() {
+    return _newPolygonPoints.map((point) {
+      return Marker(
+        width: 50.0,
+        height: 50.0,
+        point: point,
+        child: Draggable(
+          feedback:
+              Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
+          childWhenDragging: Container(), // Hide original marker during drag
+          onDragEnd: (details) {
+            setState(() {
+              int index = _newPolygonPoints.indexOf(point);
+
+              // Get the RenderBox of the map
+              final RenderBox mapRenderBox =
+                  context.findRenderObject() as RenderBox;
+
+              // Get the top-left position of the map in global coordinates
+              final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
+
+              // Convert global drag position to local map-relative position
+              final localDropPosition = details.offset - mapPosition;
+
+              // Convert local screen position to LatLng
+              final newPoint = mapController.camera.pointToLatLng(
+                Point(localDropPosition.dx, localDropPosition.dy),
+              );
+
+              // Update the point in the polygon list
+              _newPolygonPoints[index] = newPoint;
+            });
+          },
+          child: const Icon(Icons.circle, size: 20, color: Colors.red),
+        ),
+      );
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,13 +150,7 @@ class _ViewMapState extends State<ViewMap> {
           return BlocConsumer<EntranceCubit, EntranceState>(
             listener: (context, state) {
               if (state is Entrances) {
-                setState(() {
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text(state.entrances.length.toString())),
-                  // );
-
-                  entranceGeoJsonParser.parseGeoJson(state.entrances);
-                });
+                entranceGeoJsonParser.parseGeoJson(state.entrances);
               } else if (state is EntranceError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -95,14 +162,33 @@ class _ViewMapState extends State<ViewMap> {
                 children: [
                   FlutterMap(
                     mapController: mapController,
-                    options: const MapOptions(
-                      initialCenter: LatLng(40.534406, 19.6338131),
+                    options: MapOptions(
+                      initialCenter: const LatLng(40.534406, 19.6338131),
                       initialZoom: 13.0,
+                      onTap: (tapPosition, point) =>
+                          {if (_isDrawing) _onAddPolygon(point)},
                     ),
                     children: [
                       TileLayer(
                         tileProvider: _ft.FileTileProvider(tileDirPath, false),
                       ),
+                      _newPolygonPoints.isNotEmpty
+                          ? PolygonLayer(
+                              polygons: [
+                                Polygon(
+                                  points: _newPolygonPoints,
+                                  color: Colors.blue.withOpacity(0.4),
+                                  borderColor: Colors.blue,
+                                  borderStrokeWidth: 2,
+                                ),
+                              ],
+                            )
+                          : const SizedBox(),
+                      _newPolygonPoints.isNotEmpty
+                          ? MarkerLayer(
+                              markers: _buildMarkers(),
+                            )
+                          : const SizedBox(),
                       MarkerLayer(markers: entranceGeoJsonParser.markers),
                       PolygonLayer(
                         polygons: buildinGeoJsonParser.polygons
@@ -115,57 +201,16 @@ class _ViewMapState extends State<ViewMap> {
                   Positioned(
                     bottom: 16,
                     left: 16,
-                    child: Column(
-                      children: [
-                        FloatingActionButton(
-                          heroTag: 'zoom_in',
-                          mini: true,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          onPressed: () {
-                            mapController.move(mapController.camera.center,
-                                mapController.camera.zoom + 1);
-                          },
-                          child: const Icon(Icons.zoom_in),
-                        ),
-                        const SizedBox(height: 8),
-                        FloatingActionButton(
-                          heroTag: 'zoom_out',
-                          mini: true,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          onPressed: () {
-                            mapController.move(mapController.camera.center,
-                                mapController.camera.zoom - 1);
-                          },
-                          child: const Icon(Icons.zoom_out),
-                        ),
-                        const SizedBox(height: 8),
-                        FloatingActionButton(
-                          heroTag: 'zoom_out',
-                          mini: true,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          onPressed: () {
-                            mapController.move(mapController.camera.center,
-                                mapController.camera.zoom - 1);
-                          },
-                          child: const Icon(Icons.rectangle_outlined),
-                        ),
-                        const SizedBox(height: 8),
-                        FloatingActionButton(
-                          heroTag: 'zoom_out',
-                          mini: true,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          onPressed: () {
-                            mapController.move(mapController.camera.center,
-                                mapController.camera.zoom - 1);
-                          },
-                          child: const Icon(Icons.sensor_door_outlined),
-                        ),
-                      ],
-                    ),
+                    child: !_isDrawing
+                        ? MapActionButtons(
+                            mapController: mapController,
+                            enableDrawing: enableDrawing,
+                          )
+                        : MapActionEvents(
+                            onClose: _onClose,
+                            onUndo: _onUndo,
+                            newPolygonPoints: [..._newPolygonPoints],
+                          ),
                   ),
                 ],
               );
