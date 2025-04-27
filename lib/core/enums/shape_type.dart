@@ -1,0 +1,4 @@
+enum ShapeType {
+  polygon,
+  point,
+}
