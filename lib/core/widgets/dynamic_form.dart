@@ -1,3 +1,5 @@
+import 'package:asrdb/core/local_storage/storage_keys.dart';
+import 'package:asrdb/core/services/storage_service.dart';
 import 'package:dio/dio.dart'; // <-- using Dio now
 import 'package:flutter/material.dart';
 
@@ -55,14 +57,16 @@ String getUrlFromEntity(String entity) {
   }
 }
 
+  final StorageService _storage = StorageService();
 Future<List<FieldSchema>> fetchFields(String layerUrl) async {
-  const token = '';//We should add token here
+   String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+  //const token = esriToken;//We should add token here
 
   final Dio dio = Dio();
 
   try {
     final response = await dio.get(
-      '$layerUrl?f=json&token=$token',
+      '$layerUrl?f=json&token=$esriToken',
     );
 
     if (response.statusCode == 200) {
