@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/widgets/dynamic_form.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
+import 'package:asrdb/core/widgets/phone_form_view.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -40,6 +42,7 @@ class _ViewMapState extends State<ViewMap> {
     defaultPolygonFillColor: Colors.red.withOpacity(0.1),
     defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
   );
+  bool _isPropertyVisibile=false;
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildings();
@@ -84,6 +87,14 @@ class _ViewMapState extends State<ViewMap> {
       _newPolygonPoints = newPolygonPoints;
     });
   }
+    void _onSave() {
+    // setState(() {
+    //   _isPropertyVisibile=true;
+    // });
+
+    phoneFormView(context, "building");
+  }
+
 
 
   List<Marker> _buildMarkers() {
@@ -209,9 +220,11 @@ class _ViewMapState extends State<ViewMap> {
                         : MapActionEvents(
                             onClose: _onClose,
                             onUndo: _onUndo,
+                            onSave: _onSave,
                             newPolygonPoints: [..._newPolygonPoints],
                           ),
                   ),
+                  // phoneFormView(context, "buidings")
                 ],
               );
             },

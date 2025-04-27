@@ -56,7 +56,7 @@ class MapActionEvents extends StatelessWidget {
           mini: true,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          onPressed: () => {},
+          onPressed: onSave != null ? () => onSave!() : null,
           child: const Icon(Icons.save),
         ),
         const SizedBox(height: 8),

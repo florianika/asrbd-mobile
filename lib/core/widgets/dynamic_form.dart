@@ -1,40 +1,22 @@
 import 'package:asrdb/core/local_storage/storage_keys.dart';
+import 'package:asrdb/core/models/building/building_fields.dart';
+import 'package:asrdb/core/models/dwelling/dwelling_fields.dart';
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/services/storage_service.dart';
-import 'package:dio/dio.dart'; // <-- using Dio now
+import 'package:dio/dio.dart'; 
 import 'package:flutter/material.dart';
 
-// ---- URLs for each entity ----
+
 const entranceUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0';
 const buildingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1';
 const dwellingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/2';
 
-// ---- Whitelisted fields per entity ----
+
+
 const entityFieldWhitelist = {
-  'entrance': [
-    'EntStreet', 'EntCensus2023', 'external_creator_date', 'external_editor_date',
-    'EntBuildingID', 'EntAddressID', 'EntQuality', 'EntLatitude', 'EntLongitude',
-    'EntPointStatus', 'EntBuildingNumber', 'EntEntranceNumber', 'EntTown',
-    'EntZipCode', 'EntDwellingRecs', 'EntDwellingExpec', 'external_creator',
-    'external_editor'
-  ],
-  'building': [
-    'BldCensus2023', 'BldQuality', 'BldMunicipality', 'BldEnumArea', 'BldLatitude',
-    'BldLongitude', 'BldCadastralZone', 'BldProperty', 'BldPermitNumber',
-    'BldPermitDate', 'BldStatus', 'BldYearConstruction', 'BldYearDemolition',
-    'BldType', 'BldClass', 'BldArea', 'BldFloorsAbove', 'BldFloorsUnder', 'BldHeight',
-    'BldVolume', 'BldPipedWater', 'BldRainWater', 'BldWasteWater', 'BldElectricity',
-    'BldPipedGas', 'BldElevator', 'BldCentroidStatus', 'BldDwellingRecs',
-    'BldEntranceRecs', 'BldAddressID', 'external_creator', 'external_editor',
-    'external_creator_date', 'external_editor_date'
-  ],
-  'dwelling': [
-    'external_creator_date', 'external_editor_date', 'DwlEntranceID', 'DwlCensus2023',
-    'DwlAddressID', 'DwlQuality', 'DwlFloor', 'DwlApartNumber', 'DwlStatus',
-    'DwlYearConstruction', 'DwlYearElimination', 'DwlType', 'DwlOwnership',
-    'DwlOccupancy', 'DwlSurface', 'DwlWaterSupply', 'DwlToilet', 'DwlBath',
-    'DwlHeatingFacility', 'DwlHeatingEnergy', 'DwlAirConditioner', 'DwlSolarPanel',
-    'external_creator', 'external_editor'
-  ]
+   'entrance': EntranceFields.all,
+   'building': BuildingFields.all,
+   'dwelling': DwellingFields.all,
 };
 
 String getEntityFromUrl(String url) {
@@ -60,7 +42,7 @@ String getUrlFromEntity(String entity) {
   final StorageService _storage = StorageService();
 Future<List<FieldSchema>> fetchFields(String layerUrl) async {
    String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-  //const token = esriToken;//We should add token here
+
 
   final Dio dio = Dio();
 
