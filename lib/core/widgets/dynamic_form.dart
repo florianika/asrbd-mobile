@@ -6,12 +6,9 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:dio/dio.dart'; 
 import 'package:flutter/material.dart';
 
-
 const entranceUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0';
 const buildingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1';
 const dwellingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/2';
-
-
 
 const entityFieldWhitelist = {
    'entrance': EntranceFields.all,
@@ -106,8 +103,14 @@ class FieldSchema {
 class DynamicForm extends StatefulWidget {
   final List<FieldSchema> schema;
   final Map<String, dynamic>? initialData;
+  final void Function(Map<String, dynamic>)? onSave;
 
-  const DynamicForm({required this.schema, this.initialData, super.key});
+  const DynamicForm({
+    required this.schema,
+    this.initialData,
+    this.onSave,
+    super.key,
+  });
 
   @override
   State<DynamicForm> createState() => _DynamicFormState();
@@ -122,41 +125,52 @@ class _DynamicFormState extends State<DynamicForm> {
     formValues.addAll(widget.initialData ?? {});
   }
 
+  void _handleSave() {
+    if (widget.onSave != null) {
+      widget.onSave!(formValues);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: widget.schema.map((field) {
-        final value = formValues[field.name] ?? field.defaultValue;
-
-        if (field.codedValues != null) {
-          return DropdownButtonFormField(
+      children: [
+        ...widget.schema.map((field) {
+          final value = formValues[field.name] ?? field.defaultValue;
+          if (field.codedValues != null) {
+            return DropdownButtonFormField(
+              decoration: InputDecoration(labelText: field.alias),
+              value: value,
+              items: field.codedValues!
+                  .map((code) => DropdownMenuItem(
+                        value: code['code'],
+                        child: Text(code['name'].toString()),
+                      ))
+                  .toList(),
+              onChanged: field.editable
+                  ? (val) => setState(() => formValues[field.name] = val)
+                  : null,
+              disabledHint: Text(
+                value != null ? value.toString() : '',
+                style: const TextStyle(color: Colors.black45),
+              ),
+            );
+          }
+          return TextFormField(
             decoration: InputDecoration(labelText: field.alias),
-            value: value,
-            items: field.codedValues!
-                .map((code) => DropdownMenuItem(
-                      value: code['code'],
-                      child: Text(code['name'].toString()),
-                    ))
-                .toList(),
+            initialValue: value?.toString() ?? '',
             onChanged: field.editable
                 ? (val) => setState(() => formValues[field.name] = val)
                 : null,
-            disabledHint: Text(
-              value != null ? value.toString() : '',
-              style: const TextStyle(color: Colors.black45),
-            ),
+            enabled: field.editable,
           );
-        }
-
-        return TextFormField(
-          decoration: InputDecoration(labelText: field.alias),
-          initialValue: value?.toString() ?? '',
-          onChanged: field.editable
-              ? (val) => setState(() => formValues[field.name] = val)
-              : null,
-          enabled: field.editable,
-        );
-      }).toList(),
+        }).toList(),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: _handleSave,
+          child: const Text('Save'),
+        ),
+      ],
     );
   }
 }
