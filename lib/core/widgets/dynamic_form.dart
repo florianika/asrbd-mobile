@@ -37,8 +37,8 @@ String getUrlFromEntity(String entity) {
 }
 
   final StorageService _storage = StorageService();
-Future<List<FieldSchema>> fetchFields(String layerUrl) async {
-   String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+  Future<List<FieldSchema>> fetchFields(String layerUrl) async {
+  String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
 
 
   final Dio dio = Dio();
