@@ -33,32 +33,26 @@ class _TabletFormViewState extends State<TabletFormView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Tablet Form - ${widget.entity.toUpperCase()}")),
       body: Row(
         children: [
-          Expanded(
-            flex: 1,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Text("Tablet Menu", style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text("Back"),
-                ),
-              ],
-            ),
-          ),
+          
           const VerticalDivider(width: 1),
           Expanded(
             flex: 2,
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: DynamicForm(schema: _schema),
-            ),
+                    padding: const EdgeInsets.all(16),
+                    child: DynamicForm(
+                      schema: _schema,
+                      onSave: (formValues) {
+                        final json = {
+                          "attributes": formValues,
+                        };
+                        debugPrint('Generated JSON: $json');
+                      },
+                    ),
+                  ),
           ),
         ],
       ),

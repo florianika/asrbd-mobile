@@ -6,6 +6,7 @@ import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/phone_form_view.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/core/widgets/tablet_form_view.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,8 @@ class ViewMap extends StatefulWidget {
 
 class _ViewMapState extends State<ViewMap> {
   bool _isInitialized = true;
+  bool _showForm = false;
+  String _formEntity = "";
   late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
@@ -88,12 +91,18 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
     void _onSave() {
-    // setState(() {
-    //   _isPropertyVisibile=true;
-    // });
+  final isTablet = MediaQuery.of(context).size.width >= 600; // You can adjust 600
 
-    phoneFormView(context, "building");
+  if (isTablet) {
+    setState(() {
+      _showForm = true;
+      _formEntity = "building"; // or "entrance", depends on your logic
+    });
+  } else {
+    phoneFormView(context, "building"); // fallback to phone modal
   }
+}
+
 
 
 
@@ -168,66 +177,81 @@ class _ViewMapState extends State<ViewMap> {
                 );
               }
             },
-            builder: (context, state) {
-              return Stack(
-                children: [
-                  FlutterMap(
-                    mapController: mapController,
-                    options: MapOptions(
-                      initialCenter: const LatLng(40.534406, 19.6338131),
-                      initialZoom: 13.0,
-                      onTap: (tapPosition, point) =>
-                          {if (_isDrawing) _onAddPolygon(point)},
-                    ),
-                    children: [
-                      TileLayer(
-                        tileProvider: _ft.FileTileProvider(tileDirPath, false),
-                      ),
-                      _newPolygonPoints.isNotEmpty
-                          ? PolygonLayer(
-                              polygons: [
-                                Polygon(
-                                  points: _newPolygonPoints,
-                                  color: Colors.blue.withOpacity(0.4),
-                                  borderColor: Colors.blue,
-                                  borderStrokeWidth: 2,
-                                ),
-                              ],
-                            )
-                          : const SizedBox(),
-                      _newPolygonPoints.isNotEmpty
-                          ? MarkerLayer(
-                              markers: _buildMarkers(),
-                            )
-                          : const SizedBox(),
-                      MarkerLayer(markers: entranceGeoJsonParser.markers),
-                      PolygonLayer(
-                        polygons: buildinGeoJsonParser.polygons
-                            .where((singlePolygon) =>
-                                singlePolygon.points.isNotEmpty)
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: !_isDrawing
-                        ? MapActionButtons(
-                            mapController: mapController,
-                            enableDrawing: enableDrawing,
-                          )
-                        : MapActionEvents(
-                            onClose: _onClose,
-                            onUndo: _onUndo,
-                            onSave: _onSave,
-                            newPolygonPoints: [..._newPolygonPoints],
+           builder: (context, state) {
+  return Row(
+    children: [
+      Expanded(
+        flex: _showForm ? 1 : 1,
+        child: Stack(
+          children: [
+            FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                initialCenter: const LatLng(40.534406, 19.6338131),
+                initialZoom: 13.0,
+                onTap: (tapPosition, point) =>
+                    {if (_isDrawing) _onAddPolygon(point)},
+              ),
+              children: [
+                TileLayer(
+                  tileProvider: _ft.FileTileProvider(tileDirPath, false),
+                ),
+                _newPolygonPoints.isNotEmpty
+                    ? PolygonLayer(
+                        polygons: [
+                          Polygon(
+                            points: _newPolygonPoints,
+                            color: Colors.blue.withOpacity(0.4),
+                            borderColor: Colors.blue,
+                            borderStrokeWidth: 2,
                           ),
-                  ),
-                  // phoneFormView(context, "buidings")
-                ],
-              );
-            },
+                        ],
+                      )
+                    : const SizedBox(),
+                _newPolygonPoints.isNotEmpty
+                    ? MarkerLayer(
+                        markers: _buildMarkers(),
+                      )
+                    : const SizedBox(),
+                MarkerLayer(markers: entranceGeoJsonParser.markers),
+                PolygonLayer(
+                  polygons: buildinGeoJsonParser.polygons
+                      .where((singlePolygon) =>
+                          singlePolygon.points.isNotEmpty)
+                      .toList(),
+                ),
+              ],
+            ),
+            Positioned(
+              bottom: 16,
+              left: 16,
+              child: !_isDrawing
+                  ? MapActionButtons(
+                      mapController: mapController,
+                      enableDrawing: enableDrawing,
+                    )
+                  : MapActionEvents(
+                      onClose: _onClose,
+                      onUndo: _onUndo,
+                      onSave: _onSave,
+                      newPolygonPoints: [..._newPolygonPoints],
+                    ),
+            ),
+          ],
+        ),
+      ),
+      if (_showForm)
+        Expanded(
+          flex: 1,
+          child: Container(
+            color: Colors.white,
+            child: TabletFormView(entity: _formEntity),
+          ),
+        ),
+    ],
+  );
+},
+
           );
         },
       ),
