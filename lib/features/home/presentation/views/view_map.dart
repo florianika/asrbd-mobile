@@ -240,7 +240,7 @@ class _ViewMapState extends State<ViewMap> {
           ],
         ),
       ),
-      if (_showForm)
+      if (_showForm) 
         Expanded(
           flex: 1,
           child: Container(
