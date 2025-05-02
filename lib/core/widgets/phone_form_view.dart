@@ -22,7 +22,7 @@ void phoneFormView(BuildContext context, String entity) {
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return Container(
-                    color: const Color.fromARGB(255, 22, 21, 21),
+                    color: Colors.white,
                     child: const Center(child: CircularProgressIndicator()),
                   );
                 }
@@ -33,7 +33,7 @@ void phoneFormView(BuildContext context, String entity) {
                     .toList();
 
                 return Container(
-                  color: const Color.fromARGB(255, 204, 121, 121),
+                  color: Colors.white,
                   padding: const EdgeInsets.all(16),
                   child: SingleChildScrollView(
                     controller: scrollController,
@@ -41,18 +41,28 @@ void phoneFormView(BuildContext context, String entity) {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Center(
-                          child: Icon(Icons.drag_handle, color: Color.fromARGB(255, 24, 23, 23)),
+                          child: Icon(Icons.drag_handle, color: Colors.black),
                         ),
                         const SizedBox(height: 10),
-                        DynamicForm(
-                          schema: filtered,
-                          onSave: (formValues) {
-                            final json = {
-                              "attributes": formValues,
-                            };
-                            debugPrint('Generated JSON: $json');
-                            Navigator.of(context).pop();
-                          },
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            inputDecorationTheme: const InputDecorationTheme(
+                              labelStyle: TextStyle(color: Colors.black),
+                            ),
+                            textTheme: const TextTheme(
+                              bodyMedium: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          child: DynamicForm(
+                            schema: filtered,
+                            onSave: (formValues) {
+                              final json = {
+                                "attributes": formValues,
+                              };
+                              debugPrint('Generated JSON: $json');
+                              Navigator.of(context).pop();
+                            },
+                          ),
                         ),
                       ],
                     ),

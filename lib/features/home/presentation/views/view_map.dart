@@ -222,36 +222,42 @@ class _ViewMapState extends State<ViewMap> {
                 ),
               ],
             ),
-            Positioned(
-              bottom: 16,
-              left: 16,
-              child: !_isDrawing
-                  ? MapActionButtons(
-                      mapController: mapController,
-                      enableDrawing: enableDrawing,
-                    )
-                  : MapActionEvents(
-                      onClose: _onClose,
-                      onUndo: _onUndo,
-                      onSave: _onSave,
-                      newPolygonPoints: [..._newPolygonPoints],
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          child: !_isDrawing
+                              ? MapActionButtons(
+                                  mapController: mapController,
+                                  enableDrawing: enableDrawing,
+                                )
+                              : MapActionEvents(
+                                  onClose: _onClose,
+                                  onUndo: _onUndo,
+                                  onSave: _onSave,
+                                  newPolygonPoints: [..._newPolygonPoints],
+                                ),
+                        ),
+                      ],
                     ),
-            ),
-          ],
-        ),
-      ),
-      if (_showForm)
-        Expanded(
-          flex: 1,
-          child: Container(
-            color: Colors.white,
-            child: TabletFormView(entity: _formEntity),
-          ),
-        ),
-    ],
-  );
-},
-
+                  ),
+                  if (_showForm)
+                    Expanded(
+                      flex: 1,
+                      child: Container(
+                        color: Colors.white,
+                        child: TabletFormView(
+                          entity: _formEntity,
+                          onClose: () {
+                            setState(() {
+                              _showForm = false;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           );
         },
       ),
