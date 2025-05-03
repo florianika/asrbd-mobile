@@ -73,7 +73,7 @@ class ApiEndpoints {
       'distance': '',
       'units': 'esriSRUnit_Foot',
       'relationParam': '',
-      'outFields': EsriConfig.entranceProperties.join(','),
+      // 'outFields': EsriConfig.entranceProperties.join(','),
       'returnGeometry': 'true',
       'maxAllowableOffset': '',
       'geometryPrecision': '',
