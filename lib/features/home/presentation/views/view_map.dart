@@ -24,6 +24,7 @@ class ViewMap extends StatefulWidget {
 }
 
 class _ViewMapState extends State<ViewMap> {
+  bool _isInitialized = true;
   bool _showForm = false;
   String _formEntity = "";
   late String tileDirPath = '';
@@ -46,13 +47,7 @@ class _ViewMapState extends State<ViewMap> {
     defaultPolygonFillColor: Colors.red.withOpacity(0.1),
     defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
   );
-
-  @override
-  void initState() {
-    super.initState();
-    _initialize();
-    entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
-  }
+  bool _isPropertyVisibile=false;
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildings();
@@ -60,13 +55,22 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
-    // TODO: implement marker popup
+    // _showPopup(context, data[EntranceFields.objectID].toString());
+    //TODO: show  popup
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+
+    entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
   }
 
   void _onAddPolygon(LatLng position) {
     setState(() {
-      _undoStack.add(List.from(_newPolygonPoints));
-      _redoStack.clear();
+      _undoStack.add(List.from(_newPolygonPoints)); // Save current state
+      _redoStack.clear(); // Clear redo on new action
       _newPolygonPoints.add(position);
     });
   }
@@ -86,14 +90,30 @@ class _ViewMapState extends State<ViewMap> {
 
   void _onUndo() {
     if (_undoStack.isEmpty) return;
+
     setState(() {
       _redoStack.add(List.from(_newPolygonPoints));
       _newPolygonPoints = _undoStack.removeLast();
     });
   }
+    void _onSave() {
+  final isTablet = MediaQuery.of(context).size.width >= 600; // You can adjust 600
+
+  if (isTablet) {
+    setState(() {
+      _showForm = true;
+      _formEntity = "building"; // or "entrance", depends on your logic
+    });
+  } else {
+    phoneFormView(context, "building"); // fallback to phone modal
+  }
+}
+
+
 
   void _onRedo() {
     if (_redoStack.isEmpty) return;
+
     setState(() {
       _undoStack.add(List.from(_newPolygonPoints));
       _newPolygonPoints = _redoStack.removeLast();
@@ -101,15 +121,11 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave() {
-    final isTablet = MediaQuery.of(context).size.width >= 600;
-    if (isTablet) {
-      setState(() {
-        _showForm = true;
-        _formEntity = "building";
-      });
-    } else {
-      phoneFormView(context, "building");
-    }
+    // setState(() {
+    //   _isPropertyVisibile=true;
+    // });
+
+    // phoneFormView(context, "building");
   }
 
   List<Marker> _buildMarkers() {
@@ -121,17 +137,27 @@ class _ViewMapState extends State<ViewMap> {
         child: Draggable(
           feedback:
               Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
-          childWhenDragging: Container(),
+          childWhenDragging: Container(), // Hide original marker during drag
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
+
+              // Get the RenderBox of the map
               final RenderBox mapRenderBox =
                   context.findRenderObject() as RenderBox;
+
+              // Get the top-left position of the map in global coordinates
               final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
+
+              // Convert global drag position to local map-relative position
               final localDropPosition = details.offset - mapPosition;
+
+              // Convert local screen position to LatLng
               final newPoint = mapController.camera.pointToLatLng(
                 Point(localDropPosition.dx, localDropPosition.dy),
               );
+
+              // Update the point in the polygon list
               _newPolygonPoints[index] = newPoint;
             });
           },
@@ -149,7 +175,9 @@ class _ViewMapState extends State<ViewMap> {
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
           if (state is Buildings) {
-            buildinGeoJsonParser.parseGeoJson(state.buildings);
+           
+              buildinGeoJsonParser.parseGeoJson(state.buildings);
+           
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -175,31 +203,35 @@ class _ViewMapState extends State<ViewMap> {
                     options: MapOptions(
                       initialCenter: const LatLng(40.534406, 19.6338131),
                       initialZoom: 13.0,
-                      onTap: (tapPosition, point) {
-                        if (_isDrawing) _onAddPolygon(point);
-                      },
+                      onTap: (tapPosition, point) =>
+                          {if (_isDrawing) _onAddPolygon(point)},
                     ),
                     children: [
                       TileLayer(
                         tileProvider: _ft.FileTileProvider(tileDirPath, false),
                       ),
-                      if (_newPolygonPoints.isNotEmpty)
-                        PolygonLayer(
-                          polygons: [
-                            Polygon(
-                              points: _newPolygonPoints,
-                              color: Colors.blue.withOpacity(0.4),
-                              borderColor: Colors.blue,
-                              borderStrokeWidth: 2,
-                            ),
-                          ],
-                        ),
-                      if (_newPolygonPoints.isNotEmpty)
-                        MarkerLayer(markers: _buildMarkers()),
+                      _newPolygonPoints.isNotEmpty
+                          ? PolygonLayer(
+                              polygons: [
+                                Polygon(
+                                  points: _newPolygonPoints,
+                                  color: Colors.blue.withOpacity(0.4),
+                                  borderColor: Colors.blue,
+                                  borderStrokeWidth: 2,
+                                ),
+                              ],
+                            )
+                          : const SizedBox(),
+                      _newPolygonPoints.isNotEmpty
+                          ? MarkerLayer(
+                              markers: _buildMarkers(),
+                            )
+                          : const SizedBox(),
                       MarkerLayer(markers: entranceGeoJsonParser.markers),
                       PolygonLayer(
                         polygons: buildinGeoJsonParser.polygons
-                            .where((p) => p.points.isNotEmpty)
+                            .where((singlePolygon) =>
+                                singlePolygon.points.isNotEmpty)
                             .toList(),
                       ),
                     ],
@@ -214,18 +246,49 @@ class _ViewMapState extends State<ViewMap> {
                           )
                         : MapActionEvents(
                             onClose: _onClose,
-                            onUndo: _onUndo,
+                            onUndo: (_) => _onUndo(),
                             onRedo: _onRedo,
                             onSave: _onSave,
                             newPolygonPoints: [..._newPolygonPoints],
                           ),
+                        ],
+                      )
+                    : const SizedBox(),
+                _newPolygonPoints.isNotEmpty
+                    ? MarkerLayer(
+                        markers: _buildMarkers(),
+                      )
+                    : const SizedBox(),
+                MarkerLayer(markers: entranceGeoJsonParser.markers),
+                PolygonLayer(
+                  polygons: buildinGeoJsonParser.polygons
+                      .where((singlePolygon) =>
+                          singlePolygon.points.isNotEmpty)
+                      .toList(),
+                ),
+              ],
+            ),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          child: !_isDrawing
+                              ? MapActionButtons(
+                                  mapController: mapController,
+                                  enableDrawing: enableDrawing,
+                                )
+                              : MapActionEvents(
+                                  onClose: _onClose,
+                                  onUndo: _onUndo,
+                                  onSave: _onSave,
+                                  newPolygonPoints: [..._newPolygonPoints],
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
                   if (_showForm)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      width: MediaQuery.of(context).size.width * 0.4,
+                    Expanded(
+                      flex: 1,
                       child: Container(
                         color: Colors.white,
                         child: TabletFormView(
