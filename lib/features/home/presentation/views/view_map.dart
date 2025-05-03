@@ -30,8 +30,6 @@ class _ViewMapState extends State<ViewMap> {
   late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
-  final List<List<LatLng>> _undoStack = [];
-  final List<List<LatLng>> _redoStack = [];
 
   MapController mapController = MapController();
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
@@ -69,8 +67,6 @@ class _ViewMapState extends State<ViewMap> {
 
   void _onAddPolygon(LatLng position) {
     setState(() {
-      _undoStack.add(List.from(_newPolygonPoints)); // Save current state
-      _redoStack.clear(); // Clear redo on new action
       _newPolygonPoints.add(position);
     });
   }
@@ -79,6 +75,7 @@ class _ViewMapState extends State<ViewMap> {
     setState(() {
       _isDrawing = true;
     });
+  
   }
 
   void _onClose() {
@@ -88,12 +85,9 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _onUndo() {
-    if (_undoStack.isEmpty) return;
-
+  void _onUndo(List<LatLng> newPolygonPoints) {
     setState(() {
-      _redoStack.add(List.from(_newPolygonPoints));
-      _newPolygonPoints = _undoStack.removeLast();
+      _newPolygonPoints = newPolygonPoints;
     });
   }
     void _onSave() {
@@ -111,22 +105,6 @@ class _ViewMapState extends State<ViewMap> {
 
 
 
-  void _onRedo() {
-    if (_redoStack.isEmpty) return;
-
-    setState(() {
-      _undoStack.add(List.from(_newPolygonPoints));
-      _newPolygonPoints = _redoStack.removeLast();
-    });
-  }
-
-  void _onSave() {
-    // setState(() {
-    //   _isPropertyVisibile=true;
-    // });
-
-    // phoneFormView(context, "building");
-  }
 
   List<Marker> _buildMarkers() {
     return _newPolygonPoints.map((point) {
@@ -175,9 +153,13 @@ class _ViewMapState extends State<ViewMap> {
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
           if (state is Buildings) {
-           
+            setState(() {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.buildings.length.toString())),
+              );
+
               buildinGeoJsonParser.parseGeoJson(state.buildings);
-           
+            });
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -195,61 +177,33 @@ class _ViewMapState extends State<ViewMap> {
                 );
               }
             },
-            builder: (context, state) {
-              return Stack(
-                children: [
-                  FlutterMap(
-                    mapController: mapController,
-                    options: MapOptions(
-                      initialCenter: const LatLng(40.534406, 19.6338131),
-                      initialZoom: 13.0,
-                      onTap: (tapPosition, point) =>
-                          {if (_isDrawing) _onAddPolygon(point)},
-                    ),
-                    children: [
-                      TileLayer(
-                        tileProvider: _ft.FileTileProvider(tileDirPath, false),
-                      ),
-                      _newPolygonPoints.isNotEmpty
-                          ? PolygonLayer(
-                              polygons: [
-                                Polygon(
-                                  points: _newPolygonPoints,
-                                  color: Colors.blue.withOpacity(0.4),
-                                  borderColor: Colors.blue,
-                                  borderStrokeWidth: 2,
-                                ),
-                              ],
-                            )
-                          : const SizedBox(),
-                      _newPolygonPoints.isNotEmpty
-                          ? MarkerLayer(
-                              markers: _buildMarkers(),
-                            )
-                          : const SizedBox(),
-                      MarkerLayer(markers: entranceGeoJsonParser.markers),
-                      PolygonLayer(
-                        polygons: buildinGeoJsonParser.polygons
-                            .where((singlePolygon) =>
-                                singlePolygon.points.isNotEmpty)
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: !_isDrawing
-                        ? MapActionButtons(
-                            mapController: mapController,
-                            enableDrawing: enableDrawing,
-                          )
-                        : MapActionEvents(
-                            onClose: _onClose,
-                            onUndo: (_) => _onUndo(),
-                            onRedo: _onRedo,
-                            onSave: _onSave,
-                            newPolygonPoints: [..._newPolygonPoints],
+           builder: (context, state) {
+  return Row(
+    children: [
+      Expanded(
+        flex: _showForm ? 1 : 1,
+        child: Stack(
+          children: [
+            FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                initialCenter: const LatLng(40.534406, 19.6338131),
+                initialZoom: 13.0,
+                onTap: (tapPosition, point) =>
+                    {if (_isDrawing) _onAddPolygon(point)},
+              ),
+              children: [
+                TileLayer(
+                  tileProvider: _ft.FileTileProvider(tileDirPath, false),
+                ),
+                _newPolygonPoints.isNotEmpty
+                    ? PolygonLayer(
+                        polygons: [
+                          Polygon(
+                            points: _newPolygonPoints,
+                            color: Colors.blue.withOpacity(0.4),
+                            borderColor: Colors.blue,
+                            borderStrokeWidth: 2,
                           ),
                         ],
                       )

@@ -47,14 +47,12 @@ class MapActionEvents extends StatelessWidget {
           mini: true,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
-          onPressed: newPolygonPoints.isNotEmpty && onRedo != null
-              ? () => onRedo!()
-              : null,
+          onPressed: () {},
           child: const Icon(Icons.redo),
         ),
         const SizedBox(height: 8),
         FloatingActionButton(
-          heroTag: 'done',
+          heroTag: 'save',
           mini: true,
           backgroundColor: Colors.white,
           foregroundColor: Colors.black,
