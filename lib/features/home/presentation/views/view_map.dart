@@ -1,6 +1,10 @@
 import 'dart:math';
 
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/widgets/element_attribute/element_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
@@ -27,6 +31,11 @@ class _ViewMapState extends State<ViewMap> {
   List<LatLng> _newPolygonPoints = [];
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
+  Map<String, dynamic>? vanillaGeoJson;
+  EntityType entityType = EntityType.entrance;
+
+  List<FieldSchema> _schema = [];
+  Map<String, dynamic> _initialData = {};
 
   MapController mapController = MapController();
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
@@ -50,8 +59,11 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
-    // _showPopup(context, data[EntranceFields.objectID].toString());
-    //TODO: show  popup
+    setState(() {
+      _isPropertyVisibile = true;
+      _initialData = data;
+      entityType = EntityType.entrance;
+    });
   }
 
   @override
@@ -60,6 +72,19 @@ class _ViewMapState extends State<ViewMap> {
     _initialize();
 
     entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
+
+    final url = getUrlFromEntity(EntityType.entrance);
+    fetchFields(url).then((fields) {
+      final entityName = getEntityFromUrl(url);
+      final filtered = fields
+          .where((f) =>
+              entityFieldWhitelist[entityName]?.contains(f.name) ?? false)
+          .toList();
+      setState(() {
+        _schema = filtered;
+        // _loading = false;
+      });
+    });
   }
 
   void _onAddPolygon(LatLng position) {
@@ -109,6 +134,36 @@ class _ViewMapState extends State<ViewMap> {
     // phoneFormView(context, "building");
   }
 
+  void handleOnTap(TapPosition tapPosition, LatLng point) {
+    try {
+      var selectedFeatureManual = buildinGeoJsonParser.polygons
+          .where(
+            (feature) => GeometryHelper.isPointInPolygon(point, feature.points),
+          )
+          .firstOrNull;
+
+      if (selectedFeatureManual != null) {
+        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
+            vanillaGeoJson!, selectedFeatureManual.points);
+
+        if (response != null) {
+          setState(() {
+            entityType = EntityType.building;
+            _isPropertyVisibile = true;
+            _initialData = response;
+          });
+        }
+
+        // if (response != null)
+        //   _showPopup(context, response!['BldQuality'].toString());
+        // else
+        //   _showPopup(context, "proprety not found");
+      }
+    } catch (e) {
+      // _showPopup(context, e.toString());
+    }
+  }
+
   List<Marker> _buildMarkers() {
     return _newPolygonPoints.map((point) {
       return Marker(
@@ -156,9 +211,8 @@ class _ViewMapState extends State<ViewMap> {
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
           if (state is Buildings) {
-           
-              buildinGeoJsonParser.parseGeoJson(state.buildings);
-           
+            buildinGeoJsonParser.parseGeoJson(state.buildings);
+            vanillaGeoJson = state.buildings;
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -177,63 +231,84 @@ class _ViewMapState extends State<ViewMap> {
               }
             },
             builder: (context, state) {
-              return Stack(
+              return Row(
                 children: [
-                  FlutterMap(
-                    mapController: mapController,
-                    options: MapOptions(
-                      initialCenter: const LatLng(40.534406, 19.6338131),
-                      initialZoom: 13.0,
-                      onTap: (tapPosition, point) =>
-                          {if (_isDrawing) _onAddPolygon(point)},
-                    ),
-                    children: [
-                      TileLayer(
-                        tileProvider: _ft.FileTileProvider(tileDirPath, false),
-                      ),
-                      _newPolygonPoints.isNotEmpty
-                          ? PolygonLayer(
-                              polygons: [
-                                Polygon(
-                                  points: _newPolygonPoints,
-                                  color: Colors.blue.withOpacity(0.4),
-                                  borderColor: Colors.blue,
-                                  borderStrokeWidth: 2,
-                                ),
-                              ],
-                            )
-                          : const SizedBox(),
-                      _newPolygonPoints.isNotEmpty
-                          ? MarkerLayer(
-                              markers: _buildMarkers(),
-                            )
-                          : const SizedBox(),
-                      MarkerLayer(markers: entranceGeoJsonParser.markers),
-                      PolygonLayer(
-                        polygons: buildinGeoJsonParser.polygons
-                            .where((singlePolygon) =>
-                                singlePolygon.points.isNotEmpty)
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 16,
-                    left: 16,
-                    child: !_isDrawing
-                        ? MapActionButtons(
-                            mapController: mapController,
-                            enableDrawing: enableDrawing,
-                          )
-                        : MapActionEvents(
-                            onClose: _onClose,
-                            onUndo: (_) => _onUndo(),
-                            onRedo: _onRedo,
-                            onSave: _onSave,
-                            newPolygonPoints: [..._newPolygonPoints],
+                  Expanded(
+                    flex: _isPropertyVisibile ? 2 : 1,
+                    child: Stack(
+                      children: [
+                        FlutterMap(
+                          mapController: mapController,
+                          options: MapOptions(
+                            initialCenter: const LatLng(40.534406, 19.6338131),
+                            initialZoom: 13.0,
+                            onTap: (tapPosition, point) {
+                              if (_isDrawing) {
+                                _onAddPolygon(point);
+                              } else {
+                                handleOnTap(tapPosition, point);
+                              }
+                            },
                           ),
+                          children: [
+                            TileLayer(
+                              tileProvider:
+                                  _ft.FileTileProvider(tileDirPath, false),
+                            ),
+                            if (_newPolygonPoints.isNotEmpty)
+                              PolygonLayer(
+                                polygons: [
+                                  Polygon(
+                                    points: _newPolygonPoints,
+                                    color: Colors.blue.withOpacity(0.4),
+                                    borderColor: Colors.blue,
+                                    borderStrokeWidth: 2,
+                                  ),
+                                ],
+                              ),
+                            if (_newPolygonPoints.isNotEmpty)
+                              MarkerLayer(markers: _buildMarkers()),
+                            MarkerLayer(markers: entranceGeoJsonParser.markers),
+                            PolygonLayer(
+                              polygons: buildinGeoJsonParser.polygons
+                                  .where((singlePolygon) =>
+                                      singlePolygon.points.isNotEmpty)
+                                  .toList(),
+                            ),
+                          ],
+                        ),
+                        Positioned(
+                          bottom: 16,
+                          left: 16,
+                          child: !_isDrawing
+                              ? MapActionButtons(
+                                  mapController: mapController,
+                                  enableDrawing: enableDrawing,
+                                )
+                              : MapActionEvents(
+                                  onClose: _onClose,
+                                  onUndo: _onUndo,
+                                  onSave: _onSave,
+                                  newPolygonPoints: [..._newPolygonPoints],
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
-                  // phoneFormView(context, "buidings")
+                  Visibility(
+                    visible: _isPropertyVisibile,
+                    child: Expanded(
+                        flex: 1,
+                        child: TabletFormView(
+                          entity: entityType,
+                          initialData: _initialData,
+                          onClose: () => {
+                            setState(() {
+                              _isPropertyVisibile = false;
+                            })
+                          },
+                        )),
+                  ),
                 ],
               );
             },
