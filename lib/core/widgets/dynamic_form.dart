@@ -6,12 +6,9 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-const entranceUrl =
-    'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0';
-const buildingUrl =
-    'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1';
-const dwellingUrl =
-    'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/2';
+const entranceUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0';
+const buildingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1';
+const dwellingUrl = 'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/2';
 
 const entityFieldWhitelist = {
   'entrance': EntranceFields.all,
@@ -42,20 +39,15 @@ String getUrlFromEntity(String entity) {
 final StorageService _storage = StorageService();
 Future<List<FieldSchema>> fetchFields(String layerUrl) async {
   String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-
   final Dio dio = Dio();
 
   try {
-    final response = await dio.get(
-      '$layerUrl?f=json&token=$esriToken',
-    );
-
+    final response = await dio.get('$layerUrl?f=json&token=$esriToken');
     if (response.statusCode == 200) {
       final data = response.data;
       if (data['fields'] == null) {
         throw Exception('Missing "fields" key in response: $data');
       }
-
       return (data['fields'] as List)
           .map((e) => FieldSchema.fromJson(e))
           .toList();
@@ -109,7 +101,6 @@ class DynamicForm extends StatefulWidget {
   final List<FieldSchema> schema;
   final Map<String, dynamic>? initialData;
   final void Function(Map<String, dynamic>)? onSave;
-
   final void Function()? onClose;
 
   const DynamicForm({
@@ -126,6 +117,7 @@ class DynamicForm extends StatefulWidget {
 
 class _DynamicFormState extends State<DynamicForm> {
   final Map<String, dynamic> formValues = {};
+  final Map<String, String> _validationStatus = {};
 
   @override
   void initState() {
@@ -139,50 +131,103 @@ class _DynamicFormState extends State<DynamicForm> {
     }
   }
 
+  void _handleValidate() {
+    setState(() {
+      _validationStatus.clear();
+      _validationStatus.addAll({
+        'BldLatitude': 'valid',
+        'BldLongitude': 'error',
+        'BldHeight': 'valid',
+        'BldFloorsAbove': 'error',
+        'BldCensus2023': 'valid',
+        'BldPermitDate': 'error',
+      });
+    });
+  }
+
+  Widget _buildValidationIcon(String fieldName) {
+    if (!_validationStatus.containsKey(fieldName)) {
+      return const SizedBox.shrink();
+    }
+
+    final status = _validationStatus[fieldName];
+    final isError = status == 'error';
+
+    return Tooltip(
+      message: isError ? 'Error found' : 'No error found',
+      triggerMode: TooltipTriggerMode.tap,
+      preferBelow: false,
+      verticalOffset: 20,
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      textStyle: const TextStyle(color: Colors.white),
+      child: Icon(
+        isError ? Icons.error : Icons.info,
+        color: isError ? Colors.red : Colors.green,
+        size: 20,
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ...widget.schema.map((field) {
           final value = formValues[field.name] ?? field.defaultValue;
-          if (field.codedValues != null) {
-            return DropdownButtonFormField(
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: field.alias,
-                labelStyle: const TextStyle(color: Colors.black),
-              ),
-              value: value,
-              items: field.codedValues!
-                  .map((code) => DropdownMenuItem(
-                        value: code['code'],
-                        child: Text(
-                          code['name'].toString(),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                      ))
-                  .toList(),
-              onChanged: field.editable
-                  ? (val) => setState(() => formValues[field.name] = val)
-                  : null,
-              disabledHint: Text(
-                value != null ? value.toString() : '',
-                style: const TextStyle(color: Colors.black45),
-              ),
-            );
-          }
-          return TextFormField(
-            decoration: InputDecoration(
-              labelText: field.alias,
-              labelStyle: const TextStyle(color: Colors.black),
+
+          final inputWidget = field.codedValues != null
+              ? DropdownButtonFormField(
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: field.alias,
+                    labelStyle: const TextStyle(color: Colors.black),
+                  ),
+                  value: value,
+                  items: field.codedValues!
+                      .map((code) => DropdownMenuItem(
+                            value: code['code'],
+                            child: Text(
+                              code['name'].toString(),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: field.editable
+                      ? (val) => setState(() => formValues[field.name] = val)
+                      : null,
+                  disabledHint: Text(
+                    value != null ? value.toString() : '',
+                    style: const TextStyle(color: Colors.black45),
+                  ),
+                )
+              : TextFormField(
+                  decoration: InputDecoration(
+                    labelText: field.alias,
+                    labelStyle: const TextStyle(color: Colors.black),
+                  ),
+                  style: const TextStyle(color: Colors.black),
+                  initialValue: value?.toString() ?? '',
+                  onChanged: field.editable
+                      ? (val) => setState(() => formValues[field.name] = val)
+                      : null,
+                  enabled: field.editable,
+                );
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: inputWidget),
+                const SizedBox(width: 4),
+                _buildValidationIcon(field.name),
+              ],
             ),
-            style: const TextStyle(color: Colors.black),
-            initialValue: value?.toString() ?? '',
-            onChanged: field.editable
-                ? (val) => setState(() => formValues[field.name] = val)
-                : null,
-            enabled: field.editable,
           );
         }).toList(),
         const SizedBox(height: 20),
@@ -203,22 +248,40 @@ class _DynamicFormState extends State<DynamicForm> {
                 side: const BorderSide(color: Colors.black),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
               ),
             ),
-            ElevatedButton.icon(
-              onPressed: _handleSave,
-              icon: const Icon(Icons.save),
-              label: const Text('Save'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _handleValidate,
+                  icon: const Icon(Icons.error_outline),
+                  label: const Text('Validate'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                ElevatedButton.icon(
+                  onPressed: _handleSave,
+                  icon: const Icon(Icons.save),
+                  label: const Text('Save'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
