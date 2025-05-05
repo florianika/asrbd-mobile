@@ -16,17 +16,17 @@ class MapActionEvents extends StatelessWidget {
       this.onClose,
       this.newPolygonPoints = const []});
 
-  void onUndoHandler() {
-    List<LatLng> points = List.from(newPolygonPoints);
-    if (points.isEmpty) {
-      return;
-    }
+  // void onUndoHandler() {
+  //   List<LatLng> points = List.from(newPolygonPoints);
+  //   if (points.isEmpty) {
+  //     return;
+  //   }
 
-    points.removeLast();
-    if (onUndo != null) {
-      onUndo!(points);
-    }
-  }
+  //   points.removeLast();
+  //   if (onUndo != null) {
+  //     onUndo!(points);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,9 @@ class MapActionEvents extends StatelessWidget {
           backgroundColor: Colors.white,
           foregroundColor:
               newPolygonPoints.isNotEmpty ? Colors.black : Colors.grey,
-          onPressed: onUndoHandler,
+          onPressed: newPolygonPoints.isNotEmpty && onUndo != null
+              ? () => onUndo!()
+              : null,
           child: const Icon(Icons.undo),
         ),
         const SizedBox(height: 8),

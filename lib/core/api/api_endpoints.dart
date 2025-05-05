@@ -7,10 +7,16 @@ class ApiEndpoints {
   static const String register = '/auth/register';
   static const String userProfile = '/user/profile';
 
-  static String esriBulding = Uri(
+  static Uri esriBaseUri = Uri(
     scheme: 'https',
-    host: 'salstatstaging.tddev.it',
-    path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/1/query',
+    host: "salstatstaging.tddev.it",
+    path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/',
+  );
+
+  static String esriBulding = Uri(
+    scheme: esriBaseUri.scheme,
+    host: esriBaseUri.host,
+    path: '${esriBaseUri.path}/1/query',
     queryParameters: {
       'where': '1=1',
       'objectIds': '',
@@ -58,9 +64,9 @@ class ApiEndpoints {
   ).toString();
 
   static String esriEntrance = Uri(
-    scheme: 'https',
-    host: "salstatstaging.tddev.it",
-    path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/0/query',
+    scheme: esriBaseUri.scheme,
+    host: esriBaseUri.host,
+    path: '${esriBaseUri.path}/0/query',
     queryParameters: {
       'where': '1=1',
       'objectIds': '',

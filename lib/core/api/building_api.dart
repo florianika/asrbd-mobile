@@ -8,4 +8,8 @@ class BuildingApi {
   Future<Response> getBuildings(String esriToken) async {
     return await _apiClient.get('${ApiEndpoints.esriBulding}&token=$esriToken');
   }
+
+   Future<Response> getBuildingAttributes(String esriToken) async {
+    return await _apiClient.get('${ApiEndpoints.esriBaseUri.toString()}/1?f=json&token=$esriToken');
+  }
 }

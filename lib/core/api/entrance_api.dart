@@ -9,4 +9,8 @@ class EntranceApi {
     return await _apiClient
         .get('${ApiEndpoints.esriEntrance}&token=$esriToken');
   }
+
+   Future<Response> getEntranceAttributes(String esriToken) async {
+    return await _apiClient.get('${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
+  }
 }

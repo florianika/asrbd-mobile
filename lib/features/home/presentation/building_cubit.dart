@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,6 +12,11 @@ class BuildingLoading extends BuildingState {}
 class Buildings extends BuildingState {
   final Map<String, dynamic> buildings;
   Buildings(this.buildings);
+}
+
+class BuildingAttributes extends BuildingState {
+  final List<FieldSchema> attributes;
+  BuildingAttributes(this.attributes);
 }
 
 class BuildingError extends BuildingState {
@@ -28,6 +34,15 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(BuildingLoading());
     try {
       emit(Buildings(await buildingUseCases.getBuildings()));
+    } catch (e) {
+      emit(BuildingError(e.toString()));
+    }
+  }
+
+  Future<void> getBuildingAttibutes() async {
+    emit(BuildingLoading());
+    try {
+      emit(BuildingAttributes(await buildingUseCases.getBuildingAttibutes()));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }

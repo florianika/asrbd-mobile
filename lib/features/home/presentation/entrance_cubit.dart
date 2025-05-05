@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,6 +12,11 @@ class EntranceLoading extends EntranceState {}
 class Entrances extends EntranceState {
   final Map<String, dynamic> entrances;
   Entrances(this.entrances);
+}
+
+class EntranceAttributes extends EntranceState {
+  final List<FieldSchema> attributes;
+  EntranceAttributes(this.attributes);
 }
 
 class EntranceError extends EntranceState {
@@ -28,6 +34,15 @@ class EntranceCubit extends Cubit<EntranceState> {
     emit(EntranceLoading());
     try {
       emit(Entrances(await entranceUseCases.getEntrances()));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  Future<void> getEntranceAttributes() async {
+    emit(EntranceLoading());
+    try {
+      emit(EntranceAttributes(await entranceUseCases.getEntranceAttributes()));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

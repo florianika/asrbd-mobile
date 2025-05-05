@@ -1,9 +1,11 @@
 import 'dart:math';
 
+import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
-import 'package:asrdb/core/widgets/element_attribute/element_attribute.dart';
+import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
@@ -15,7 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:asrdb/core/widgets/file_tile_provider.dart' as _ft;
+import 'package:asrdb/core/widgets/file_tile_provider.dart' as ft;
 
 class ViewMap extends StatefulWidget {
   const ViewMap({super.key});
@@ -33,6 +35,8 @@ class _ViewMapState extends State<ViewMap> {
   final List<List<LatLng>> _redoStack = [];
   Map<String, dynamic>? vanillaGeoJson;
   EntityType entityType = EntityType.entrance;
+  List<FieldSchema> _buildingSchema = [];
+  List<FieldSchema> _entranceSchema = [];
 
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
@@ -51,18 +55,27 @@ class _ViewMapState extends State<ViewMap> {
     defaultPolygonFillColor: Colors.red.withOpacity(0.1),
     defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
   );
+
   bool _isPropertyVisibile = false;
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildings();
     context.read<EntranceCubit>().getEntrances();
+
+    context.read<BuildingCubit>().getBuildingAttibutes();
+    context.read<EntranceCubit>().getEntranceAttributes();
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
     setState(() {
-      _isPropertyVisibile = true;
       _initialData = data;
-      entityType = EntityType.entrance;
+      _schema = _entranceSchema;
+
+      if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
+        mobileElementAttribute(context, _entranceSchema);
+      } else {
+        _isPropertyVisibile = true;
+      }
     });
   }
 
@@ -72,19 +85,6 @@ class _ViewMapState extends State<ViewMap> {
     _initialize();
 
     entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
-
-    final url = getUrlFromEntity(EntityType.entrance);
-    fetchFields(url).then((fields) {
-      final entityName = getEntityFromUrl(url);
-      final filtered = fields
-          .where((f) =>
-              entityFieldWhitelist[entityName]?.contains(f.name) ?? false)
-          .toList();
-      setState(() {
-        _schema = filtered;
-        // _loading = false;
-      });
-    });
   }
 
   void _onAddPolygon(LatLng position) {
@@ -147,17 +147,16 @@ class _ViewMapState extends State<ViewMap> {
             vanillaGeoJson!, selectedFeatureManual.points);
 
         if (response != null) {
-          setState(() {
-            entityType = EntityType.building;
-            _isPropertyVisibile = true;
-            _initialData = response;
-          });
+          if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
+            mobileElementAttribute(context, _entranceSchema);
+          } else {
+            setState(() {            
+              _schema = _buildingSchema;
+              _isPropertyVisibile = true;
+              _initialData = response;
+            });
+          }
         }
-
-        // if (response != null)
-        //   _showPopup(context, response!['BldQuality'].toString());
-        // else
-        //   _showPopup(context, "proprety not found");
       }
     } catch (e) {
       // _showPopup(context, e.toString());
@@ -213,6 +212,8 @@ class _ViewMapState extends State<ViewMap> {
           if (state is Buildings) {
             buildinGeoJsonParser.parseGeoJson(state.buildings);
             vanillaGeoJson = state.buildings;
+          } else if (state is BuildingAttributes) {
+            _buildingSchema = state.attributes;
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -224,6 +225,8 @@ class _ViewMapState extends State<ViewMap> {
             listener: (context, state) {
               if (state is Entrances) {
                 entranceGeoJsonParser.parseGeoJson(state.entrances);
+              } else if (state is EntranceAttributes) {
+                _entranceSchema = state.attributes;
               } else if (state is EntranceError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -253,7 +256,7 @@ class _ViewMapState extends State<ViewMap> {
                           children: [
                             TileLayer(
                               tileProvider:
-                                  _ft.FileTileProvider(tileDirPath, false),
+                                  ft.FileTileProvider(tileDirPath, false),
                             ),
                             if (_newPolygonPoints.isNotEmpty)
                               PolygonLayer(
@@ -288,6 +291,7 @@ class _ViewMapState extends State<ViewMap> {
                               : MapActionEvents(
                                   onClose: _onClose,
                                   onUndo: _onUndo,
+                                  onRedo: _onRedo,
                                   onSave: _onSave,
                                   newPolygonPoints: [..._newPolygonPoints],
                                 ),
@@ -298,16 +302,17 @@ class _ViewMapState extends State<ViewMap> {
                   Visibility(
                     visible: _isPropertyVisibile,
                     child: Expanded(
-                        flex: 1,
-                        child: TabletFormView(
-                          entity: entityType,
-                          initialData: _initialData,
-                          onClose: () => {
-                            setState(() {
-                              _isPropertyVisibile = false;
-                            })
-                          },
-                        )),
+                      flex: 1,
+                      child: TabletElementAttribute(
+                        schema: _schema,
+                        initialData: _initialData,
+                        onClose: () => {
+                          setState(() {
+                            _isPropertyVisibile = false;
+                          })
+                        },
+                      ),
+                    ),
                   ),
                 ],
               );
