@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -27,7 +29,7 @@ class ViewMap extends StatefulWidget {
 }
 
 class _ViewMapState extends State<ViewMap> {
-  bool _isInitialized = true;
+  // bool _isInitialized = true;
   late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
@@ -38,13 +40,15 @@ class _ViewMapState extends State<ViewMap> {
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
 
+  Timer? _debounce;
+
   final GlobalKey _appBarKey = GlobalKey();
 
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
 
   MapController mapController = MapController();
-  
+
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
     defaultMarkerColor: Colors.red,
     defaultPolygonBorderColor: Colors.red,
@@ -62,11 +66,14 @@ class _ViewMapState extends State<ViewMap> {
   bool _isPropertyVisibile = false;
 
   Future<void> _initialize() async {
-    context.read<BuildingCubit>().getBuildings();
-    context.read<EntranceCubit>().getEntrances();
-
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
@@ -204,19 +211,45 @@ class _ViewMapState extends State<ViewMap> {
     }).toList();
   }
 
+  double? _previousZoom;
+  void _onPositionChanged(MapCamera camera, bool hasGesture) {
+    // Check if zoom has changed
+    final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
+    _previousZoom = camera.zoom;
+
+    // Trigger only if the user moved the map or zoomed in/out
+    if (!hasGesture && !zoomChanged) return;
+
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      context
+          .read<BuildingCubit>()
+          .getBuildings(camera.visibleBounds, camera.zoom);
+      context
+          .read<EntranceCubit>()
+          .getEntrances(camera.visibleBounds, camera.zoom);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         key: _appBarKey,
-        title: const Text("Map"),
+        title: Text("Map -${buildinGeoJsonParser.polygons.length}"),
       ),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
           if (state is Buildings) {
-            buildinGeoJsonParser.parseGeoJson(state.buildings);
-            vanillaGeoJson = state.buildings;
+            if (state.buildings.isNotEmpty) {
+              setState(() {
+                buildinGeoJsonParser.polygons.clear();
+                buildinGeoJsonParser.parseGeoJson(state.buildings);
+              });
+
+              vanillaGeoJson = state.buildings;
+            }
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
           } else if (state is BuildingError) {
@@ -229,7 +262,10 @@ class _ViewMapState extends State<ViewMap> {
           return BlocConsumer<EntranceCubit, EntranceState>(
             listener: (context, state) {
               if (state is Entrances) {
-                entranceGeoJsonParser.parseGeoJson(state.entrances);
+                if (state.entrances.isNotEmpty) {
+                  entranceGeoJsonParser.markers.clear();
+                  entranceGeoJsonParser.parseGeoJson(state.entrances);
+                }
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
               } else if (state is EntranceError) {
@@ -249,7 +285,16 @@ class _ViewMapState extends State<ViewMap> {
                           mapController: mapController,
                           options: MapOptions(
                             initialCenter: const LatLng(40.534406, 19.6338131),
-                            initialZoom: 13.0,
+                            initialZoom: EsriConfig.minZoom,
+                            onMapReady: () => {
+                              context.read<BuildingCubit>().getBuildings(
+                                  mapController.camera.visibleBounds,
+                                  EsriConfig.minZoom),
+                              context.read<EntranceCubit>().getEntrances(
+                                  mapController.camera.visibleBounds,
+                                  EsriConfig.minZoom)
+                            },
+                            onPositionChanged: _onPositionChanged,
                             onTap: (tapPosition, point) {
                               if (_isDrawing) {
                                 _onAddPolygon(point);

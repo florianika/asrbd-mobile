@@ -1,6 +1,7 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 // Define Buildingentication states
 abstract class BuildingState {}
@@ -30,10 +31,10 @@ class BuildingCubit extends Cubit<BuildingState> {
   BuildingCubit(this.buildingUseCases) : super(BuildingInitial());
 
   // Login method
-  Future<void> getBuildings() async {
+  Future<void> getBuildings(LatLngBounds? bounds, double zoom) async {
     emit(BuildingLoading());
     try {
-      emit(Buildings(await buildingUseCases.getBuildings()));
+      emit(Buildings(await buildingUseCases.getBuildings(bounds, zoom)));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }

@@ -1,6 +1,7 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 // Define Entranceentication states
 abstract class EntranceState {}
@@ -30,10 +31,10 @@ class EntranceCubit extends Cubit<EntranceState> {
   EntranceCubit(this.entranceUseCases) : super(EntranceInitial());
 
   // Login method
-  Future<void> getEntrances() async {
+  Future<void> getEntrances(LatLngBounds? bounds, double zoom) async {
     emit(EntranceLoading());
     try {
-      emit(Entrances(await entranceUseCases.getEntrances()));
+      emit(Entrances(await entranceUseCases.getEntrances(bounds, zoom)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

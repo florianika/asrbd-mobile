@@ -2,6 +2,7 @@ import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 class EntranceService {
   final EntranceApi entranceApi;
@@ -9,12 +10,15 @@ class EntranceService {
 
   final StorageService _storage = StorageService();
   // Login method
-  Future<Map<String, dynamic>> getEntrances() async {
+  Future<Map<String, dynamic>> getEntrances(
+      LatLngBounds bounds, double zoom) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await entranceApi.getEntrances(esriToken);
+      final bbox =
+          '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
+      final response = await entranceApi.getEntrances(esriToken, bbox);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
