@@ -2,7 +2,8 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:flutter/material.dart';
 
-void mobileElementAttribute(BuildContext context, List<FieldSchema> schema) {
+void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
+    Map<String, dynamic> initialData) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -39,6 +40,7 @@ void mobileElementAttribute(BuildContext context, List<FieldSchema> schema) {
                       ),
                       child: DynamicElementAttribute(
                         schema: schema,
+                        initialData: initialData,
                         onSave: (formValues) {
                           final json = {
                             "attributes": formValues,

@@ -38,10 +38,13 @@ class _ViewMapState extends State<ViewMap> {
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
 
+  final GlobalKey _appBarKey = GlobalKey();
+
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
 
   MapController mapController = MapController();
+  
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
     defaultMarkerColor: Colors.red,
     defaultPolygonBorderColor: Colors.red,
@@ -72,7 +75,7 @@ class _ViewMapState extends State<ViewMap> {
       _schema = _entranceSchema;
 
       if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-        mobileElementAttribute(context, _entranceSchema);
+        mobileElementAttribute(context, _entranceSchema, data);
       } else {
         _isPropertyVisibile = true;
       }
@@ -127,11 +130,7 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave() {
-    // setState(() {
-    //   _isPropertyVisibile=true;
-    // });
-
-    // phoneFormView(context, "building");
+    //TODO: implement save operation
   }
 
   void handleOnTap(TapPosition tapPosition, LatLng point) {
@@ -148,9 +147,9 @@ class _ViewMapState extends State<ViewMap> {
 
         if (response != null) {
           if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-            mobileElementAttribute(context, _entranceSchema);
+            mobileElementAttribute(context, _entranceSchema, response);
           } else {
-            setState(() {            
+            setState(() {
               _schema = _buildingSchema;
               _isPropertyVisibile = true;
               _initialData = response;
@@ -164,6 +163,8 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   List<Marker> _buildMarkers() {
+    final RenderBox box =
+        _appBarKey.currentContext?.findRenderObject() as RenderBox;
     return _newPolygonPoints.map((point) {
       return Marker(
         width: 50.0,
@@ -184,8 +185,9 @@ class _ViewMapState extends State<ViewMap> {
               // Get the top-left position of the map in global coordinates
               final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
 
-              // Convert global drag position to local map-relative position
-              final localDropPosition = details.offset - mapPosition;
+              final appBarHeight = box.size.height;
+              final localDropPosition =
+                  details.offset - mapPosition - Offset(0, appBarHeight);
 
               // Convert local screen position to LatLng
               final newPoint = mapController.camera.pointToLatLng(
@@ -205,7 +207,10 @@ class _ViewMapState extends State<ViewMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Map")),
+      appBar: AppBar(
+        key: _appBarKey,
+        title: const Text("Map"),
+      ),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
