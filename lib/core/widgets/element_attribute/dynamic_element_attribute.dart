@@ -23,11 +23,12 @@ class DynamicElementAttribute extends StatefulWidget {
 
 class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
+  final Map<String, TextEditingController> _controllers = {};
 
   @override
   void initState() {
     super.initState();
-    formValues.addAll(widget.initialData ?? {});
+    _initializeForm(widget.initialData ?? {});
   }
 
   @override
@@ -35,11 +36,32 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
     super.didUpdateWidget(oldWidget);
     if (widget.initialData != oldWidget.initialData &&
         widget.initialData != null) {
-      setState(() {
-        formValues.clear();
-        formValues.addAll(widget.initialData!);
-      });
+      _initializeForm(widget.initialData!);
     }
+  }
+
+  void _initializeForm(Map<String, dynamic> data) {
+    formValues.clear();
+    formValues.addAll(data);
+
+    for (var field in widget.schema) {
+      final value = data[field.name]?.toString() ?? '';
+      if (_controllers.containsKey(field.name)) {
+        _controllers[field.name]!.text = value;
+      } else {
+        _controllers[field.name] = TextEditingController(text: value);
+      }
+    }
+
+    setState(() {}); // Trigger rebuild
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   void _handleSave() {
@@ -53,7 +75,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
     return Column(
       children: [
         ...widget.schema.map((field) {
-          final value = formValues[field.name] ?? field.defaultValue;
+          // final value = formValues[field.name] ?? field.defaultValue;
           if (field.codedValues != null) {
             // Deduplicate by 'code' and ensure all 'code' values are not null
             final seenCodes = <dynamic>{};
@@ -71,7 +93,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             final effectiveValue = valueExists ? selectedValue : null;
 
             return DropdownButtonFormField(
-              key: ValueKey('${field.name}_$effectiveValue'),
+              key: ValueKey(field.name),
               isExpanded: true,
               decoration: InputDecoration(
                 labelText: field.alias,
@@ -88,9 +110,8 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                         ),
                       ))
                   .toList(),
-              onChanged: field.editable
-                  ? (val) => setState(() => formValues[field.name] = val)
-                  : null,
+              onChanged:
+                  field.editable ? (val) => formValues[field.name] = val : null,
               disabledHint: Text(
                 effectiveValue != null ? effectiveValue.toString() : '',
                 style: const TextStyle(color: Colors.black45),
@@ -98,16 +119,15 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             );
           }
           return TextFormField(
-            key: ValueKey('${field.name}_${formValues[field.name]}'),
+            key: ValueKey(field.name),
+            controller: _controllers[field.name],
             decoration: InputDecoration(
               labelText: field.alias,
               labelStyle: const TextStyle(color: Colors.black),
             ),
             style: const TextStyle(color: Colors.black),
-            initialValue: value?.toString() ?? '',
-            onChanged: field.editable
-                ? (val) => setState(() => formValues[field.name] = val)
-                : null,
+            onChanged:
+                field.editable ? (val) => formValues[field.name] = val : null,
             enabled: field.editable,
           );
         }),
