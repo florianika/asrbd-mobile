@@ -27,14 +27,11 @@ class ViewMap extends StatefulWidget {
 }
 
 class _ViewMapState extends State<ViewMap> {
-  bool _isInitialized = true;
-  late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
   Map<String, dynamic>? vanillaGeoJson;
-  EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
 
@@ -44,7 +41,7 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, dynamic> _initialData = {};
 
   MapController mapController = MapController();
-  
+
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
     defaultMarkerColor: Colors.red,
     defaultPolygonBorderColor: Colors.red,
@@ -61,39 +58,71 @@ class _ViewMapState extends State<ViewMap> {
 
   bool _isPropertyVisibile = false;
 
+  LatLng? _selectedEntrancePoint;
+  List<LatLng>? _selectedBuildingPolygon;
+
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildings();
     context.read<EntranceCubit>().getEntrances();
-
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
-    setState(() {
-      _initialData = data;
-      _schema = _entranceSchema;
+    final coords = data['geometry']?['coordinates'];
+    if (coords != null && coords.length >= 2) {
+      final latlng = LatLng(coords[1], coords[0]);
+      setState(() {
+        _selectedEntrancePoint = latlng;
+        _selectedBuildingPolygon = null;
+        _initialData = data;
+        _schema = _entranceSchema;
 
-      if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-        mobileElementAttribute(context, _entranceSchema, data);
-      } else {
-        _isPropertyVisibile = true;
+        if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
+          mobileElementAttribute(context, _entranceSchema, data);
+        } else {
+          _isPropertyVisibile = true;
+        }
+      });
+    }
+  }
+
+  void handleOnTap(TapPosition tapPosition, LatLng point) {
+    try {
+      var selectedFeatureManual = buildinGeoJsonParser.polygons
+          .where((feature) => GeometryHelper.isPointInPolygon(point, feature.points))
+          .firstOrNull;
+
+      if (selectedFeatureManual != null) {
+        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
+          vanillaGeoJson!, selectedFeatureManual.points);
+
+        if (response != null) {
+          setState(() {
+            _selectedBuildingPolygon = selectedFeatureManual.points;
+            _selectedEntrancePoint = null;
+            _schema = _buildingSchema;
+            _isPropertyVisibile = true;
+            _initialData = response;
+          });
+        }
       }
-    });
+    } catch (e) {
+      // Handle error if needed
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _initialize();
-
     entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
   }
 
   void _onAddPolygon(LatLng position) {
     setState(() {
-      _undoStack.add(List.from(_newPolygonPoints)); // Save current state
-      _redoStack.clear(); // Clear redo on new action
+      _undoStack.add(List.from(_newPolygonPoints));
+      _redoStack.clear();
       _newPolygonPoints.add(position);
     });
   }
@@ -130,36 +159,7 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave() {
-    //TODO: implement save operation
-  }
-
-  void handleOnTap(TapPosition tapPosition, LatLng point) {
-    try {
-      var selectedFeatureManual = buildinGeoJsonParser.polygons
-          .where(
-            (feature) => GeometryHelper.isPointInPolygon(point, feature.points),
-          )
-          .firstOrNull;
-
-      if (selectedFeatureManual != null) {
-        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
-            vanillaGeoJson!, selectedFeatureManual.points);
-
-        if (response != null) {
-          if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-            mobileElementAttribute(context, _entranceSchema, response);
-          } else {
-            setState(() {
-              _schema = _buildingSchema;
-              _isPropertyVisibile = true;
-              _initialData = response;
-            });
-          }
-        }
-      }
-    } catch (e) {
-      // _showPopup(context, e.toString());
-    }
+    // TODO: implement save operation
   }
 
   List<Marker> _buildMarkers() {
@@ -171,30 +171,19 @@ class _ViewMapState extends State<ViewMap> {
         height: 50.0,
         point: point,
         child: Draggable(
-          feedback:
-              Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
-          childWhenDragging: Container(), // Hide original marker during drag
+          feedback: Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
+          childWhenDragging: Container(),
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
-
-              // Get the RenderBox of the map
-              final RenderBox mapRenderBox =
-                  context.findRenderObject() as RenderBox;
-
-              // Get the top-left position of the map in global coordinates
+              final RenderBox mapRenderBox = context.findRenderObject() as RenderBox;
               final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
-
               final appBarHeight = box.size.height;
               final localDropPosition =
                   details.offset - mapPosition - Offset(0, appBarHeight);
-
-              // Convert local screen position to LatLng
               final newPoint = mapController.camera.pointToLatLng(
                 Point(localDropPosition.dx, localDropPosition.dy),
               );
-
-              // Update the point in the polygon list
               _newPolygonPoints[index] = newPoint;
             });
           },
@@ -219,10 +208,6 @@ class _ViewMapState extends State<ViewMap> {
             vanillaGeoJson = state.buildings;
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
-          } else if (state is BuildingError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
           }
         },
         builder: (context, state) {
@@ -232,10 +217,6 @@ class _ViewMapState extends State<ViewMap> {
                 entranceGeoJsonParser.parseGeoJson(state.entrances);
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
-              } else if (state is EntranceError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
               }
             },
             builder: (context, state) {
@@ -260,8 +241,7 @@ class _ViewMapState extends State<ViewMap> {
                           ),
                           children: [
                             TileLayer(
-                              tileProvider:
-                                  ft.FileTileProvider(tileDirPath, false),
+                              tileProvider: ft.FileTileProvider('', false),
                             ),
                             if (_newPolygonPoints.isNotEmpty)
                               PolygonLayer(
@@ -276,11 +256,43 @@ class _ViewMapState extends State<ViewMap> {
                               ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
-                            MarkerLayer(markers: entranceGeoJsonParser.markers),
+                            MarkerLayer(
+                              markers: entranceGeoJsonParser.markers.map((marker) {
+                                final isSelected = marker.point == _selectedEntrancePoint;
+                                return Marker(
+                                  point: marker.point,
+                                  width: marker.width,
+                                  height: marker.height,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      entranceGeoJsonParser.onMarkerTapCallback?.call({
+                                        'geometry': {
+                                          'coordinates': [marker.point.longitude, marker.point.latitude]
+                                        }
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.location_pin,
+                                      size: 30,
+                                      color: isSelected ? Colors.green : Colors.red,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                             PolygonLayer(
                               polygons: buildinGeoJsonParser.polygons
-                                  .where((singlePolygon) =>
-                                      singlePolygon.points.isNotEmpty)
+                                  .where((p) => p.points.isNotEmpty)
+                                  .map((p) => Polygon(
+                                        points: p.points,
+                                        color: p.points == _selectedBuildingPolygon
+                                            ? Colors.green.withOpacity(0.4)
+                                            : Colors.red.withOpacity(0.1),
+                                        borderColor: p.points == _selectedBuildingPolygon
+                                            ? Colors.green
+                                            : Colors.red,
+                                        borderStrokeWidth: 2,
+                                      ))
                                   .toList(),
                             ),
                           ],
