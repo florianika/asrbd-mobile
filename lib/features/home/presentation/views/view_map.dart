@@ -68,8 +68,7 @@ class _ViewMapState extends State<ViewMap> {
   List<LatLng>? _selectedBuildingPolygon;
 
   Future<void> _initialize() async {
-    context.read<BuildingCubit>().getBuildings();
-    context.read<EntranceCubit>().getEntrances();
+
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
   }
