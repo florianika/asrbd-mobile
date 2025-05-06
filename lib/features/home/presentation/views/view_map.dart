@@ -172,40 +172,84 @@ class _ViewMapState extends State<ViewMap> {
   List<Marker> _buildMarkers() {
     final RenderBox box =
         _appBarKey.currentContext?.findRenderObject() as RenderBox;
+
     return _newPolygonPoints.map((point) {
       return Marker(
-        width: 50.0,
-        height: 50.0,
+        width: 25.0,
+        height: 25.0,
         point: point,
         child: Draggable(
-          feedback:
-              Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
+          feedback: Transform.translate(
+            offset: const Offset(0, -30),
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+                border: Border.all(color: Colors.red, width: 2),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(width: 18, height: 1, color: Colors.red),
+                  Container(width: 1, height: 18, color: Colors.red),
+                ],
+              ),
+            ),
+          ),
           childWhenDragging: Container(), // Hide original marker during drag
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
 
-              // Get the RenderBox of the map
               final RenderBox mapRenderBox =
                   context.findRenderObject() as RenderBox;
-
-              // Get the top-left position of the map in global coordinates
               final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
 
               final appBarHeight = box.size.height;
-              final localDropPosition =
-                  details.offset - mapPosition - Offset(0, appBarHeight);
+              final topPadding = MediaQuery.of(context).padding.top;
+              final localDropPosition = details.offset -
+                  mapPosition -
+                  Offset(0, appBarHeight + topPadding);
 
-              // Convert local screen position to LatLng
               final newPoint = mapController.camera.pointToLatLng(
                 Point(localDropPosition.dx, localDropPosition.dy),
               );
 
-              // Update the point in the polygon list
               _newPolygonPoints[index] = newPoint;
             });
           },
-          child: const Icon(Icons.circle, size: 20, color: Colors.red),
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withOpacity(0.1),
+              border: Border.all(color: Colors.red, width: 1.5),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 3,
+                  offset: Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(width: 12, height: 1, color: Colors.red),
+                Container(width: 1, height: 12, color: Colors.red),
+              ],
+            ),
+          ),
         ),
       );
     }).toList();
@@ -313,9 +357,12 @@ class _ViewMapState extends State<ViewMap> {
                                 polygons: [
                                   Polygon(
                                     points: _newPolygonPoints,
-                                    color: Colors.blue.withOpacity(0.4),
-                                    borderColor: Colors.blue,
-                                    borderStrokeWidth: 2,
+                                    color: Colors.blue
+                                        .withOpacity(0.3), // lighter fill
+                                    borderColor:
+                                        Colors.blueAccent, // more vivid border
+                                    borderStrokeWidth:
+                                        3, // slightly thicker border
                                   ),
                                 ],
                               ),
