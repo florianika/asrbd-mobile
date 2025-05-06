@@ -7,6 +7,7 @@ class EsriConfig {
   static const double defaultLatitude = 41.3351224;
   static const double defaultLongitude = 19.8276994;
   static const double scale = 72000;
+  static const double minZoom = 15.0;
 
   static const int entranceLayerId = 0;
   static const int buildingLayerId = 1;
