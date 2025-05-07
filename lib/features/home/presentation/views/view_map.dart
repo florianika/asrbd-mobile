@@ -208,7 +208,7 @@ class _ViewMapState extends State<ViewMap> {
               color: Colors.red,
             ),
           ),
-          childWhenDragging: Container(), // Hide original marker during drag
+          childWhenDragging: Container(), 
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
@@ -220,9 +220,9 @@ class _ViewMapState extends State<ViewMap> {
               final topPadding = MediaQuery.of(context).padding.top;
 
               final dropOffset = details.offset +
-                  const Offset(0, -90) // offset used during drag feedback
+                  const Offset(0, -90) 
                   +
-                  const Offset(18, 36 + 18); // center of the 36x36 feedback
+                  const Offset(18, 36 + 18); 
 
               final localDropPosition = dropOffset -
                   mapPosition -
@@ -248,7 +248,7 @@ class _ViewMapState extends State<ViewMap> {
               final topPadding = MediaQuery.of(context).padding.top;
 
               final dropOffset = details.globalPosition +
-                  const Offset(0, -72); // your effective vertical offset
+                  const Offset(0, -72); 
 
               final localDropPosition = dropOffset -
                   mapPosition -
@@ -270,11 +270,11 @@ class _ViewMapState extends State<ViewMap> {
 
   double? _previousZoom;
   void _onPositionChanged(MapCamera camera, bool hasGesture) {
-    // Check if zoom has changed
+   
     final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
     _previousZoom = camera.zoom;
 
-    // Trigger only if the user moved the map or zoomed in/out
+   
     if (!hasGesture && !zoomChanged) return;
 
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -362,11 +362,11 @@ class _ViewMapState extends State<ViewMap> {
                                   Polygon(
                                     points: _newPolygonPoints,
                                     color: Colors.blue
-                                        .withOpacity(0.3), // lighter fill
+                                        .withOpacity(0.3), 
                                     borderColor:
-                                        Colors.blueAccent, // more vivid border
+                                        Colors.blueAccent, 
                                     borderStrokeWidth:
-                                        3, // slightly thicker border
+                                        3, 
                                   ),
                                 ],
                               ),
