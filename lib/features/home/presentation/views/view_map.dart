@@ -167,33 +167,30 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleOnTap(TapPosition tapPosition, LatLng point) {
-    try {
-      var selectedFeatureManual = buildinGeoJsonParser.polygons
-          .where(
-            (feature) => GeometryHelper.isPointInPolygon(point, feature.points),
-          )
-          .firstOrNull;
+  try {
+    var selectedFeatureManual = buildinGeoJsonParser.polygons
+        .where((feature) => GeometryHelper.isPointInPolygon(point, feature.points))
+        .firstOrNull;
 
-      if (selectedFeatureManual != null) {
-        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
-            vanillaGeoJson!, selectedFeatureManual.points);
+    if (selectedFeatureManual != null) {
+      var response = GeometryHelper.findPolygonPropertiesByCoordinates(
+        vanillaGeoJson!, selectedFeatureManual.points);
 
-        if (response != null) {
-          if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-            mobileElementAttribute(context, _entranceSchema, response);
-          } else {
-            setState(() {
-              _schema = _buildingSchema;
-              _isPropertyVisibile = true;
-              _initialData = response;
-            });
-          }
-        }
+      if (response != null) {
+        setState(() {
+          _selectedBuildingPolygon = selectedFeatureManual.points;
+          _selectedEntrancePoint = null;
+          _schema = _buildingSchema;
+          _isPropertyVisibile = true;
+          _initialData = response;
+        });
       }
-    } catch (e) {
-      // _showPopup(context, e.toString());
     }
+  } catch (e) {
+    // _showPopup(context, e.toString());
   }
+}
+
 
   List<Marker> _buildMarkers() {
     final RenderBox box =
