@@ -10,6 +10,7 @@ import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginTablet extends StatefulWidget {
   LoginTablet({super.key});
@@ -33,6 +34,14 @@ class _LoginTabletState extends State<LoginTablet> {
             passwordController.text.trim(),
           );
     }
+  }
+
+    @override
+  void initState() {
+    super.initState();
+
+    emailController.text = dotenv.env['TEST_USERNAME'] ?? "";
+    passwordController.text = dotenv.env['TEST_PASSWORD'] ?? "";
   }
 
   @override

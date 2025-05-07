@@ -11,6 +11,7 @@ import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.da
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
+import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -46,6 +47,8 @@ class _ViewMapState extends State<ViewMap> {
 
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
+
+  ShapeType _selectedShapeType = ShapeType.point;
 
   MapController mapController = MapController();
 
@@ -97,7 +100,12 @@ class _ViewMapState extends State<ViewMap> {
     entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
   }
 
-  void _onAddPolygon(LatLng position) {
+  void _onAddShape(LatLng position) {
+    if (_selectedShapeType == ShapeType.point &&
+        _newPolygonPoints.length == 1) {
+      return;
+    }
+
     setState(() {
       _undoStack.add(List.from(_newPolygonPoints)); // Save current state
       _redoStack.clear(); // Clear redo on new action
@@ -107,7 +115,13 @@ class _ViewMapState extends State<ViewMap> {
 
   void enableDrawing(ShapeType type) {
     setState(() {
+      if (type == ShapeType.polygon) {
+        _schema = _buildingSchema;
+      } else {
+        _schema = _entranceSchema;
+      }
       _isDrawing = true;
+      _selectedShapeType = type;
     });
   }
 
@@ -137,7 +151,11 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave() {
-    //TODO: implement save operation
+    if (_newPolygonPoints.isEmpty) return;
+
+    setState(() {
+      _isPropertyVisibile = true;
+    });
   }
 
   void handleOnTap(TapPosition tapPosition, LatLng point) {
@@ -175,34 +193,14 @@ class _ViewMapState extends State<ViewMap> {
 
     return _newPolygonPoints.map((point) {
       return Marker(
-        width: 25.0,
-        height: 25.0,
+        width: 36.0,
+        height: 36.0,
         point: point,
         child: Draggable(
           feedback: Transform.translate(
-            offset: const Offset(0, -30),
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
-                border: Border.all(color: Colors.red, width: 2),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(width: 18, height: 1, color: Colors.red),
-                  Container(width: 1, height: 18, color: Colors.red),
-                ],
-              ),
+            offset: const Offset(0, -90),
+            child: const TargetMarker(
+              color: Colors.red,
             ),
           ),
           childWhenDragging: Container(), // Hide original marker during drag
@@ -216,9 +214,16 @@ class _ViewMapState extends State<ViewMap> {
 
               final appBarHeight = box.size.height;
               final topPadding = MediaQuery.of(context).padding.top;
-              final localDropPosition = details.offset -
+
+              final dropOffset = details.offset +
+                  const Offset(0, -90) // offset used during drag feedback
+                  +
+                  const Offset(18, 36 + 18); // center of the 36x36 feedback
+
+              final localDropPosition = dropOffset -
                   mapPosition -
-                  Offset(0, appBarHeight + topPadding);
+                  Offset(MediaQuery.of(context).padding.left,
+                      appBarHeight + topPadding);
 
               final newPoint = mapController.camera.pointToLatLng(
                 Point(localDropPosition.dx, localDropPosition.dy),
@@ -227,29 +232,33 @@ class _ViewMapState extends State<ViewMap> {
               _newPolygonPoints[index] = newPoint;
             });
           },
-          child: Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.1),
-              border: Border.all(color: Colors.red, width: 1.5),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 3,
-                  offset: Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(width: 12, height: 1, color: Colors.red),
-                Container(width: 1, height: 12, color: Colors.red),
-              ],
-            ),
-          ),
+          onDragUpdate: (details) {
+            setState(() {
+              int index = _newPolygonPoints.indexOf(point);
+
+              final RenderBox mapRenderBox =
+                  context.findRenderObject() as RenderBox;
+              final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
+
+              final appBarHeight = box.size.height;
+              final topPadding = MediaQuery.of(context).padding.top;
+
+              final dropOffset = details.globalPosition +
+                  const Offset(0, -72); // your effective vertical offset
+
+              final localDropPosition = dropOffset -
+                  mapPosition -
+                  Offset(MediaQuery.of(context).padding.left,
+                      appBarHeight + topPadding);
+
+              final newPoint = mapController.camera.pointToLatLng(
+                Point(localDropPosition.dx, localDropPosition.dy),
+              );
+
+              _newPolygonPoints[index] = newPoint;
+            });
+          },
+          child: const TargetMarker(),
         ),
       );
     }).toList();
@@ -341,7 +350,7 @@ class _ViewMapState extends State<ViewMap> {
                             onPositionChanged: _onPositionChanged,
                             onTap: (tapPosition, point) {
                               if (_isDrawing) {
-                                _onAddPolygon(point);
+                                _onAddShape(point);
                               } else {
                                 handleOnTap(tapPosition, point);
                               }
