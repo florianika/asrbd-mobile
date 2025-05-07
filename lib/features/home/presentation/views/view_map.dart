@@ -52,6 +52,9 @@ class _ViewMapState extends State<ViewMap> {
 
   MapController mapController = MapController();
 
+  LatLng? _selectedEntrancePoint;
+  List<LatLng>? _selectedBuildingPolygon;
+
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
     defaultMarkerColor: Colors.red,
     defaultPolygonBorderColor: Colors.red,
@@ -80,16 +83,23 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
-    setState(() {
-      _initialData = data;
-      _schema = _entranceSchema;
+    final coords = data['geometry']?['coordinates'];
+    if (coords != null && coords.length >= 2) {
+      final latlng = LatLng(coords[1], coords[0]);
+      setState(() {
+        _initialData = data;
+        _schema = _entranceSchema;
 
-      if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-        mobileElementAttribute(context, _entranceSchema, data);
-      } else {
-        _isPropertyVisibile = true;
-      }
-    });
+        _selectedEntrancePoint = latlng;
+        _selectedBuildingPolygon = null;
+
+        if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
+          mobileElementAttribute(context, _entranceSchema, data);
+        } else {
+          _isPropertyVisibile = true;
+        }
+      });
+    }
   }
 
   @override
@@ -175,6 +185,9 @@ class _ViewMapState extends State<ViewMap> {
             mobileElementAttribute(context, _entranceSchema, response);
           } else {
             setState(() {
+              _selectedBuildingPolygon = selectedFeatureManual.points;
+              _selectedEntrancePoint = null;
+
               _schema = _buildingSchema;
               _isPropertyVisibile = true;
               _initialData = response;
@@ -377,11 +390,53 @@ class _ViewMapState extends State<ViewMap> {
                               ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
-                            MarkerLayer(markers: entranceGeoJsonParser.markers),
+                            MarkerLayer(
+                              markers:
+                                  entranceGeoJsonParser.markers.map((marker) {
+                                final isSelected =
+                                    marker.point == _selectedEntrancePoint;
+                                return Marker(
+                                  point: marker.point,
+                                  width: marker.width,
+                                  height: marker.height,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      entranceGeoJsonParser.onMarkerTapCallback
+                                          ?.call({
+                                        'geometry': {
+                                          'coordinates': [
+                                            marker.point.longitude,
+                                            marker.point.latitude
+                                          ]
+                                        }
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.location_pin,
+                                      size: 30,
+                                      color: isSelected
+                                          ? Colors.green
+                                          : Colors.red,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                             PolygonLayer(
                               polygons: buildinGeoJsonParser.polygons
-                                  .where((singlePolygon) =>
-                                      singlePolygon.points.isNotEmpty)
+                                  .where((p) => p.points.isNotEmpty)
+                                  .map((p) => Polygon(
+                                        points: p.points,
+                                        color:
+                                            p.points == _selectedBuildingPolygon
+                                                ? Colors.green.withOpacity(0.4)
+                                                : Colors.red.withOpacity(0.1),
+                                        borderColor:
+                                            p.points == _selectedBuildingPolygon
+                                                ? Colors.green
+                                                : Colors.red,
+                                        borderStrokeWidth: 2,
+                                      ))
                                   .toList(),
                             ),
                           ],
