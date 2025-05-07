@@ -15,6 +15,7 @@ import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -66,6 +67,8 @@ class _ViewMapState extends State<ViewMap> {
   );
 
   bool _isPropertyVisibile = false;
+  bool _longPressActive = false;
+
 
   LatLng? _selectedEntrancePoint;
   List<LatLng>? _selectedBuildingPolygon;
@@ -189,6 +192,66 @@ class _ViewMapState extends State<ViewMap> {
   } catch (e) {
     // _showPopup(context, e.toString());
   }
+}
+
+OverlayEntry? _circularMenuOverlay;
+
+void _showCircularMenu(Offset globalPosition) {
+  _removeCircularMenu();
+
+  final overlay = Overlay.of(context);
+  final renderBox = context.findRenderObject() as RenderBox;
+  final localOffset = renderBox.globalToLocal(globalPosition);
+
+  _circularMenuOverlay = OverlayEntry(
+    builder: (context) => GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: _removeCircularMenu,
+      child: Stack(
+        children: [
+          Positioned(
+            left: localOffset.dx - 100,
+            top: localOffset.dy - 100,
+            width: 200,
+            height: 200,
+            child: Material(
+              color: Colors.transparent,
+              child: CircularMenu(
+                alignment: Alignment.center,
+                backgroundWidget: const SizedBox.shrink(),
+                toggleButtonColor: Colors.transparent,
+                toggleButtonIconColor: Colors.transparent,
+                toggleButtonBoxShadow: const [],
+                toggleButtonMargin: 0,
+                toggleButtonPadding: 0,
+                startingAngleInRadian: 0,
+                endingAngleInRadian: 2 * pi,
+                animationDuration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
+                items: [
+                  CircularMenuItem(icon: Icons.print, color: Colors.blue, onTap: () => debugPrint('Print')),
+                  CircularMenuItem(icon: Icons.camera_alt, color: Colors.brown, onTap: () => debugPrint('Camera')),
+                  CircularMenuItem(icon: Icons.chat, color: Colors.orange, onTap: () => debugPrint('Chat')),
+                  CircularMenuItem(icon: Icons.star, color: Colors.grey, onTap: () => debugPrint('Star')),
+                  CircularMenuItem(icon: Icons.close, color: Colors.pink, onTap: _removeCircularMenu),
+                  CircularMenuItem(icon: Icons.home, color: Colors.green, onTap: () => debugPrint('Home')),
+                  CircularMenuItem(icon: Icons.search, color: Colors.amber, onTap: () => debugPrint('Search')),
+                  CircularMenuItem(icon: Icons.settings, color: Colors.purple, onTap: () => debugPrint('Settings')),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  overlay.insert(_circularMenuOverlay!);
+}
+
+void _removeCircularMenu() {
+  _circularMenuOverlay?.remove();
+  _circularMenuOverlay = null;
 }
 
 
@@ -345,12 +408,33 @@ class _ViewMapState extends State<ViewMap> {
                             },
                             onPositionChanged: _onPositionChanged,
                             onTap: (tapPosition, point) {
+                              if (_longPressActive) {
+                                _longPressActive = false;
+                                return;
+                              }
+
                               if (_isDrawing) {
                                 _onAddShape(point);
                               } else {
                                 handleOnTap(tapPosition, point);
                               }
                             },
+                            onLongPress: (tapPosition, point) {
+                            _longPressActive = true;
+
+                            final matchedPolygon = buildinGeoJsonParser.polygons.firstWhere(
+                              (polygon) => GeometryHelper.isPointInPolygon(point, polygon.points),
+                              orElse: () => Polygon(points: []),
+                            );
+
+                            if (matchedPolygon.points.isNotEmpty) {
+                              _showCircularMenu(tapPosition.global);
+                            }
+
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              _longPressActive = false;
+                            });
+                          },
                           ),
                           children: [
                             TileLayer(
@@ -381,10 +465,21 @@ class _ViewMapState extends State<ViewMap> {
                                   height: marker.height,
                                   child: GestureDetector(
                                     onTap: () {
+                                      if (_longPressActive) {
+                                        _longPressActive = false;
+                                        return;
+                                      }
                                       entranceGeoJsonParser.onMarkerTapCallback?.call({
                                         'geometry': {
                                           'coordinates': [marker.point.longitude, marker.point.latitude]
                                         }
+                                      });
+                                    },
+                                    onLongPressStart: (details) {
+                                      _longPressActive = true;
+                                      _showCircularMenu(details.globalPosition);
+                                      Future.delayed(const Duration(milliseconds: 300), () {
+                                        _longPressActive = false;
                                       });
                                     },
                                     child: Icon(
@@ -442,6 +537,8 @@ class _ViewMapState extends State<ViewMap> {
                         onClose: () => {
                           setState(() {
                             _isPropertyVisibile = false;
+                            _selectedBuildingPolygon = null;
+                            _selectedEntrancePoint = null;
                           })
                         },
                       ),
