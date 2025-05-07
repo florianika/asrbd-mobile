@@ -101,31 +101,6 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  void handleOnTap(TapPosition tapPosition, LatLng point) {
-    try {
-      var selectedFeatureManual = buildinGeoJsonParser.polygons
-          .where((feature) => GeometryHelper.isPointInPolygon(point, feature.points))
-          .firstOrNull;
-
-      if (selectedFeatureManual != null) {
-        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
-          vanillaGeoJson!, selectedFeatureManual.points);
-
-        if (response != null) {
-          setState(() {
-            _selectedBuildingPolygon = selectedFeatureManual.points;
-            _selectedEntrancePoint = null;
-            _schema = _buildingSchema;
-            _isPropertyVisibile = true;
-            _initialData = response;
-          });
-        }
-      }
-    } catch (e) {
-      // Handle error if needed
-    }
-  }
-
   @override
   void initState() {
     super.initState();
