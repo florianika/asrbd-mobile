@@ -38,6 +38,8 @@ class _ViewMapState extends State<ViewMap> {
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
   Map<String, dynamic>? vanillaGeoJson;
+  Map<String, dynamic>? vanillaGeoJsonMarker;
+  EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
 
@@ -51,6 +53,9 @@ class _ViewMapState extends State<ViewMap> {
   ShapeType _selectedShapeType = ShapeType.point;
 
   MapController mapController = MapController();
+
+  LatLng? _selectedEntrancePoint;
+  List<LatLng>? _selectedBuildingPolygon;
 
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
     defaultMarkerColor: Colors.red,
@@ -90,10 +95,12 @@ class _ViewMapState extends State<ViewMap> {
     if (coords != null && coords.length >= 2) {
       final latlng = LatLng(coords[1], coords[0]);
       setState(() {
+        
+        _initialData = data['attributes'];
+        _schema = _entranceSchema;
+
         _selectedEntrancePoint = latlng;
         _selectedBuildingPolygon = null;
-        _initialData = data;
-        _schema = _entranceSchema;
 
         if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
           mobileElementAttribute(context, _entranceSchema, data);
@@ -179,14 +186,20 @@ class _ViewMapState extends State<ViewMap> {
       var response = GeometryHelper.findPolygonPropertiesByCoordinates(
         vanillaGeoJson!, selectedFeatureManual.points);
 
-      if (response != null) {
-        setState(() {
-          _selectedBuildingPolygon = selectedFeatureManual.points;
-          _selectedEntrancePoint = null;
-          _schema = _buildingSchema;
-          _isPropertyVisibile = true;
-          _initialData = response;
-        });
+        if (response != null) {
+          if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
+            mobileElementAttribute(context, _entranceSchema, response);
+          } else {
+            setState(() {
+              _selectedBuildingPolygon = selectedFeatureManual.points;
+              _selectedEntrancePoint = null;
+
+              _schema = _buildingSchema;
+              _isPropertyVisibile = true;
+              _initialData = response;
+            });
+          }
+        }
       }
     }
   } catch (e) {
@@ -381,6 +394,7 @@ void _removeCircularMenu() {
                 if (state.entrances.isNotEmpty) {
                   entranceGeoJsonParser.markers.clear();
                   entranceGeoJsonParser.parseGeoJson(state.entrances);
+                  vanillaGeoJsonMarker = state.entrances;
                 }
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
@@ -457,35 +471,59 @@ void _removeCircularMenu() {
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
                             MarkerLayer(
-                              markers: entranceGeoJsonParser.markers.map((marker) {
-                                final isSelected = marker.point == _selectedEntrancePoint;
+                              markers:
+                                  entranceGeoJsonParser.markers.map((marker) {
+                                final features = vanillaGeoJsonMarker!['features']
+                                    as List<dynamic>;
+                                final matchingFeature = features.firstWhere(
+                                  (feature) {
+                                    final coords = feature['geometry']
+                                        ['coordinates'] as List<dynamic>;
+                                    var found = coords[0] == marker.point.longitude &&
+                                        coords[1] == marker.point.latitude;
+
+                                        return found;
+                                  },
+                                  orElse: () => null,
+                                );
+
+                                final isSelected =
+                                    marker.point == _selectedEntrancePoint;
                                 return Marker(
                                   point: marker.point,
                                   width: marker.width,
                                   height: marker.height,
                                   child: GestureDetector(
                                     onTap: () {
-                                      if (_longPressActive) {
-                                        _longPressActive = false;
-                                        return;
-                                      }
-                                      entranceGeoJsonParser.onMarkerTapCallback?.call({
+                                      // entranceGeoJsonParser.onMarkerTapCallback
+                                      //     ?.call({
+                                      //   'attributes':
+                                      //       matchingFeature?['properties'],
+                                      //   'geometry': {
+                                      //     'coordinates': [
+                                      //       marker.point.longitude,
+                                      //       marker.point.latitude
+                                      //     ]
+                                      //   }
+                                      // });
+
+                                      handleMarkerTap({
+                                        'attributes':
+                                            matchingFeature?['properties'],
                                         'geometry': {
-                                          'coordinates': [marker.point.longitude, marker.point.latitude]
+                                          'coordinates': [
+                                            marker.point.longitude,
+                                            marker.point.latitude
+                                          ]
                                         }
-                                      });
-                                    },
-                                    onLongPressStart: (details) {
-                                      _longPressActive = true;
-                                      _showCircularMenu(details.globalPosition);
-                                      Future.delayed(const Duration(milliseconds: 300), () {
-                                        _longPressActive = false;
                                       });
                                     },
                                     child: Icon(
                                       Icons.location_pin,
                                       size: 30,
-                                      color: isSelected ? Colors.green : Colors.red,
+                                      color: isSelected
+                                          ? Colors.green
+                                          : Colors.red,
                                     ),
                                   ),
                                 );
@@ -496,12 +534,14 @@ void _removeCircularMenu() {
                                   .where((p) => p.points.isNotEmpty)
                                   .map((p) => Polygon(
                                         points: p.points,
-                                        color: p.points == _selectedBuildingPolygon
-                                            ? Colors.green.withOpacity(0.4)
-                                            : Colors.red.withOpacity(0.1),
-                                        borderColor: p.points == _selectedBuildingPolygon
-                                            ? Colors.green
-                                            : Colors.red,
+                                        color:
+                                            p.points == _selectedBuildingPolygon
+                                                ? Colors.green.withOpacity(0.4)
+                                                : Colors.red.withOpacity(0.1),
+                                        borderColor:
+                                            p.points == _selectedBuildingPolygon
+                                                ? Colors.green
+                                                : Colors.red,
                                         borderStrokeWidth: 2,
                                       ))
                                   .toList(),
