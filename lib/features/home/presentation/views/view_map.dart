@@ -37,6 +37,7 @@ class _ViewMapState extends State<ViewMap> {
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
   Map<String, dynamic>? vanillaGeoJson;
+  Map<String, dynamic>? vanillaGeoJsonMarker;
   EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
@@ -87,7 +88,8 @@ class _ViewMapState extends State<ViewMap> {
     if (coords != null && coords.length >= 2) {
       final latlng = LatLng(coords[1], coords[0]);
       setState(() {
-        _initialData = data;
+        
+        _initialData = data['attributes'];
         _schema = _entranceSchema;
 
         _selectedEntrancePoint = latlng;
@@ -331,6 +333,7 @@ class _ViewMapState extends State<ViewMap> {
                 if (state.entrances.isNotEmpty) {
                   entranceGeoJsonParser.markers.clear();
                   entranceGeoJsonParser.parseGeoJson(state.entrances);
+                  vanillaGeoJsonMarker = state.entrances;
                 }
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
@@ -393,6 +396,20 @@ class _ViewMapState extends State<ViewMap> {
                             MarkerLayer(
                               markers:
                                   entranceGeoJsonParser.markers.map((marker) {
+                                final features = vanillaGeoJsonMarker!['features']
+                                    as List<dynamic>;
+                                final matchingFeature = features.firstWhere(
+                                  (feature) {
+                                    final coords = feature['geometry']
+                                        ['coordinates'] as List<dynamic>;
+                                    var found = coords[0] == marker.point.longitude &&
+                                        coords[1] == marker.point.latitude;
+
+                                        return found;
+                                  },
+                                  orElse: () => null,
+                                );
+
                                 final isSelected =
                                     marker.point == _selectedEntrancePoint;
                                 return Marker(
@@ -401,8 +418,21 @@ class _ViewMapState extends State<ViewMap> {
                                   height: marker.height,
                                   child: GestureDetector(
                                     onTap: () {
-                                      entranceGeoJsonParser.onMarkerTapCallback
-                                          ?.call({
+                                      // entranceGeoJsonParser.onMarkerTapCallback
+                                      //     ?.call({
+                                      //   'attributes':
+                                      //       matchingFeature?['properties'],
+                                      //   'geometry': {
+                                      //     'coordinates': [
+                                      //       marker.point.longitude,
+                                      //       marker.point.latitude
+                                      //     ]
+                                      //   }
+                                      // });
+
+                                      handleMarkerTap({
+                                        'attributes':
+                                            matchingFeature?['properties'],
                                         'geometry': {
                                           'coordinates': [
                                             marker.point.longitude,
