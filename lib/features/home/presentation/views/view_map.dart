@@ -15,6 +15,7 @@ import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -82,6 +83,70 @@ class _ViewMapState extends State<ViewMap> {
     _debounce?.cancel();
     super.dispose();
   }
+
+OverlayEntry? _circularMenuOverlay;
+
+void _showCircularMenu(Offset globalPosition) {
+  _hideCircularMenu();
+
+  final overlay = Overlay.of(context);
+  if (overlay == null) return;
+
+  _circularMenuOverlay = OverlayEntry(
+    builder: (context) => GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: _hideCircularMenu,
+      child: Stack(
+        children: [
+          // Dismiss background
+          Positioned.fill(
+            child: Container(color: Colors.transparent),
+          ),
+          // Circular menu positioned on map
+          Positioned(
+            left: globalPosition.dx - 100, // adjust to center the menu
+            top: globalPosition.dy - 100,
+            width: 200,
+            height: 200,
+            child: Material(
+              color: Colors.transparent,
+              child: CircularMenu(
+                alignment: Alignment.center,
+                toggleButtonColor: Colors.transparent,
+                toggleButtonIconColor: Colors.transparent,
+                toggleButtonBoxShadow: const [],
+                toggleButtonMargin: 0,
+                toggleButtonPadding: 0,
+                backgroundWidget: const SizedBox.shrink(),
+                startingAngleInRadian: 0,
+                endingAngleInRadian: 2 * pi,
+                animationDuration: const Duration(milliseconds: 200),
+                items: [
+                  CircularMenuItem(icon: Icons.close, color: Colors.pink, onTap: _hideCircularMenu),
+                  CircularMenuItem(icon: Icons.settings, color: Colors.purple, onTap: () => print('Settings')),
+                  CircularMenuItem(icon: Icons.home, color: Colors.green, onTap: () => print('Home')),
+                  CircularMenuItem(icon: Icons.search, color: Colors.orange, onTap: () => print('Search')),
+                  CircularMenuItem(icon: Icons.star, color: Colors.grey, onTap: () => print('Star')),
+                  CircularMenuItem(icon: Icons.camera_alt, color: Colors.brown, onTap: () => print('Camera')),
+                  CircularMenuItem(icon: Icons.chat, color: Colors.amber, onTap: () => print('Chat')),
+                  CircularMenuItem(icon: Icons.print, color: Colors.blue, onTap: () => print('Print')),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+
+  overlay.insert(_circularMenuOverlay!);
+}
+
+void _hideCircularMenu() {
+  _circularMenuOverlay?.remove();
+  _circularMenuOverlay = null;
+}
+
 
   void handleMarkerTap(Map<String, dynamic> data) {
     final coords = data['geometry']?['coordinates'];
@@ -371,6 +436,19 @@ class _ViewMapState extends State<ViewMap> {
                                 handleOnTap(tapPosition, point);
                               }
                             },
+                  onLongPress: (tapPosition, point) {
+  final match = buildinGeoJsonParser.polygons.firstWhere(
+    (polygon) => GeometryHelper.isPointInPolygon(point, polygon.points),
+    orElse: () => Polygon(points: []),
+  );
+
+  if (match.points.isNotEmpty) {
+    _showCircularMenu(tapPosition.global); // ← pass global position
+  }
+}
+
+
+
                           ),
                           children: [
                             TileLayer(
@@ -441,6 +519,10 @@ class _ViewMapState extends State<ViewMap> {
                                         }
                                       });
                                     },
+                             onLongPressStart: (details) {
+  _showCircularMenu(details.globalPosition); // ✅ should work now
+},
+
                                     child: Icon(
                                       Icons.location_pin,
                                       size: 30,
@@ -500,6 +582,8 @@ class _ViewMapState extends State<ViewMap> {
                         onClose: () => {
                           setState(() {
                             _isPropertyVisibile = false;
+                            _selectedEntrancePoint = null;
+                            _selectedBuildingPolygon = null;
                           })
                         },
                       ),
