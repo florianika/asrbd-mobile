@@ -185,13 +185,32 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _onDrawFinished() {
-    if (_newPolygonPoints.isEmpty) return;
+void _onDrawFinished() {
+  if (_newPolygonPoints.isEmpty || buildingsData == null) return;
 
-    setState(() {
-      _isPropertyVisibile = true;
-    });
+  final existingFeatures =
+      List<Map<String, dynamic>>.from(buildingsData!['features']);
+
+  final intersects = existingFeatures.any((feature) {
+    final geom = feature['geometry'];
+    if (geom['type'] != 'Polygon') return false;
+
+    final existingPolygon = GeometryHelper.parseCoordinates(geom);
+
+    return GeometryHelper.doPolygonsIntersect(_newPolygonPoints, existingPolygon);
+  });
+
+  if (intersects) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Ky poligon ndërpritet me një ekzistues. Krijimi nuk lejohet.")),
+    );
+    return;
   }
+  setState(() {
+    _isPropertyVisibile = true;
+  });
+}
+
 
   void _onSave(Map<String, dynamic> data) {
     context.read<EntranceCubit>().addEntranceFeauture(data);
