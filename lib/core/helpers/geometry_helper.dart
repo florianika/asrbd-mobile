@@ -56,4 +56,19 @@ class GeometryHelper {
     }
     return null; // Return null if no matching polygon is found
   }
+
+  static List<LatLng> parseCoordinates(Map<String, dynamic> geometry) {
+    if (geometry['type'] == 'Polygon') {
+      // GeoJSON polygons are List<List<List<double>>>
+      final List coords =
+          geometry['coordinates'][0]; // First ring (outer boundary)
+      return coords.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+    } else if (geometry['type'] == 'Point') {
+      final coord = geometry['coordinates'];
+      return [LatLng(coord[1], coord[0])];
+    } else {
+      throw UnsupportedError(
+          'Geometry type not supported: ${geometry['type']}');
+    }
+  }
 }

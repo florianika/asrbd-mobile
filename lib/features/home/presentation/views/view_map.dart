@@ -9,8 +9,11 @@ import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/widgets/legend/map_legend.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
+import 'package:asrdb/core/widgets/markers/building_marker.dart';
+import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
@@ -18,7 +21,6 @@ import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_map_geojson/flutter_map_geojson.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:asrdb/core/widgets/file_tile_provider.dart' as ft;
 
@@ -36,8 +38,8 @@ class _ViewMapState extends State<ViewMap> {
   List<LatLng> _newPolygonPoints = [];
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
-  Map<String, dynamic>? vanillaGeoJson;
-  Map<String, dynamic>? vanillaGeoJsonMarker;
+  Map<String, dynamic>? buildingsData;
+  Map<String, dynamic>? entranceData;
   EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
@@ -50,24 +52,9 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, dynamic> _initialData = {};
 
   ShapeType _selectedShapeType = ShapeType.point;
+  int _selectedObjectId = -1;
 
   MapController mapController = MapController();
-
-  GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
-    defaultMarkerColor: const Color.fromARGB(255, 13, 102, 175),
-    defaultMarkerIcon: Icons.radio_button_checked,
-  );
-
-  GeoJsonParser buildinGeoJsonParser = GeoJsonParser(
-    defaultPolygonBorderColor: const Color.fromARGB(255, 13, 102, 175),
-    defaultPolygonFillColor:
-        const Color.fromARGB(255, 60, 145, 214).withOpacity(0.1),
-  );
-
-  GeoJsonParser selectedGeoJsonParser = GeoJsonParser(
-      defaultMarkerColor: Colors.red,
-      defaultPolygonBorderColor: Colors.red,
-      defaultPolygonFillColor: Colors.red);
 
   bool _isPropertyVisibile = false;
 
@@ -76,49 +63,76 @@ class _ViewMapState extends State<ViewMap> {
     context.read<EntranceCubit>().getEntranceAttributes();
   }
 
+  final String _styleAttribute = 'CATEGORY';
+  Map<String, Color> _getCurrentLegendItems() {
+    switch (_styleAttribute) {
+      case 'CATEGORY':
+        return {
+          'Të dhëna pa gabime': Colors.blue.withOpacity(0.7),
+          'Mungesa në të dhënat': Colors.purple.withOpacity(0.7),
+          'Të dhëna kontradiktore': Colors.brown.withOpacity(0.7),
+          '<Per tu pare>': Colors.teal.withOpacity(0.7),
+          '<Per tu pare>2':
+              const Color.fromARGB(255, 60, 145, 214).withOpacity(0.7),
+        };
+      case 'CONDITION':
+        return {
+          'Good': Colors.green,
+          'Fair': Colors.amber,
+          'Poor': Colors.red,
+          'Unknown': const Color.fromARGB(255, 13, 102, 175),
+        };
+      case 'HEIGHT':
+        return {
+          'Low (< 10m)': Colors.blue.withOpacity(0.7),
+          'Medium (10-30m)': Colors.green.withOpacity(0.7),
+          'High (30-100m)': Colors.orange.withOpacity(0.7),
+          'Skyscraper (> 100m)': Colors.red.withOpacity(0.7),
+        };
+      default:
+        return {
+          'Default': const Color.fromARGB(255, 60, 145, 214).withOpacity(0.7),
+        };
+    }
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
   }
 
-  void handleMarkerTap(Map<String, dynamic> data) {
-    setState(() {
-      try {
+  void handleEntranceTap(Map<String, dynamic> data) {
+    try {
+      // Determine if the device is using a small screen (mobile)
+      final bool isMobile =
+          MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
+
+      // Update state accordingly
+      setState(() {
         _initialData = data;
         _schema = _entranceSchema;
+        _selectedShapeType = ShapeType.point;
+        _selectedObjectId = data['OBJECTID'];
+        _isPropertyVisibile = !isMobile;
+      });
 
-        selectedGeoJsonParser.markers.clear();
-        selectedGeoJsonParser.polygons.clear();
-
-        final tappedFeature = (vanillaGeoJsonMarker!['features'] as List)
-            .cast<Map<String, dynamic>>()
-            .firstWhere((f) => f['properties']['OBJECTID'] == data['OBJECTID']);
-
-        selectedGeoJsonParser.parseGeoJson({
-          "type": "FeatureCollection",
-          "features": [tappedFeature],
-        });
-
-        if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-          mobileElementAttribute(context, _entranceSchema, data, _onSave);
-        } else {
-          _isPropertyVisibile = true;
-        }
-      } on Exception catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
+      // For mobile devices, show the mobile attribute UI
+      if (isMobile) {
+        mobileElementAttribute(context, _entranceSchema, data, _onSave);
       }
-    });
+    } catch (e) {
+      // Display error message to the user in case of exception
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   @override
   void initState() {
     super.initState();
     _initialize();
-
-    entranceGeoJsonParser.onMarkerTapCallback = handleMarkerTap;
   }
 
   void _onAddShape(LatLng position) {
@@ -183,48 +197,48 @@ class _ViewMapState extends State<ViewMap> {
     context.read<EntranceCubit>().addEntranceFeauture(data);
   }
 
-  void handleOnTap(TapPosition tapPosition, LatLng point) {
+  void handleBuildingOnTap(TapPosition tapPosition, LatLng point) {
+    if (buildingsData == null) return;
+
     try {
-      selectedGeoJsonParser.markers.clear();
-      selectedGeoJsonParser.polygons.clear();
+      final features =
+          List<Map<String, dynamic>>.from(buildingsData!['features']);
 
-      var selectedFeatureManual = buildinGeoJsonParser.polygons
-          .where(
-            (feature) => GeometryHelper.isPointInPolygon(point, feature.points),
-          )
-          .firstOrNull;
+      final tappedFeature = features.firstWhere(
+        (feature) {
+          final geometry = feature['geometry'];
+          final polygonPoints = GeometryHelper.parseCoordinates(geometry);
+          return GeometryHelper.isPointInPolygon(point, polygonPoints);
+        },
+        orElse: () => {},
+      );
 
-      if (selectedFeatureManual != null) {
-        var features = GeometryHelper.findPolygonPropertiesByCoordinates(
-            vanillaGeoJson!, selectedFeatureManual.points);
+      if (tappedFeature.isEmpty) return;
 
-        if (features != null) {
-          if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-            setState(() {
-              selectedGeoJsonParser.parseGeoJson({
-                "type": "FeatureCollection",
-                "features": [features],
-              });
-            });
+      final props = tappedFeature['properties'];
+      final objectId = props['OBJECTID'];
 
-            mobileElementAttribute(
-                context, _entranceSchema, features['properties'], _onSave);
-          } else {
-            setState(() {
-              selectedGeoJsonParser.parseGeoJson({
-                "type": "FeatureCollection",
-                "features": [features],
-              });
+      final isMobile =
+          MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
 
-              _schema = _buildingSchema;
-              _isPropertyVisibile = true;
-              _initialData = features['properties'];
-            });
-          }
+      setState(() {
+        _selectedShapeType = ShapeType.polygon;
+        _selectedObjectId = objectId;
+
+        if (!isMobile) {
+          _schema = _buildingSchema;
+          _isPropertyVisibile = true;
+          _initialData = props;
         }
+      });
+
+      if (isMobile) {
+        mobileElementAttribute(context, _entranceSchema, props, _onSave);
       }
     } catch (e) {
-      // _showPopup(context, e.toString());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
     }
   }
 
@@ -330,19 +344,14 @@ class _ViewMapState extends State<ViewMap> {
     return Scaffold(
       appBar: AppBar(
         key: _appBarKey,
-        title: Text("Map -${buildinGeoJsonParser.polygons.length}"),
+        // title: Text("Map -${buildinGeoJsonParser.polygons.length}"),
       ),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
           if (state is Buildings) {
             if (state.buildings.isNotEmpty) {
-              setState(() {
-                buildinGeoJsonParser.polygons.clear();
-                buildinGeoJsonParser.parseGeoJson(state.buildings);
-              });
-
-              vanillaGeoJson = state.buildings;
+              buildingsData = state.buildings;
             }
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
@@ -357,9 +366,7 @@ class _ViewMapState extends State<ViewMap> {
             listener: (context, state) {
               if (state is Entrances) {
                 if (state.entrances.isNotEmpty) {
-                  entranceGeoJsonParser.markers.clear();
-                  entranceGeoJsonParser.parseGeoJson(state.entrances);
-                  vanillaGeoJsonMarker = state.entrances;
+                  entranceData = state.entrances;
                 }
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
@@ -394,7 +401,7 @@ class _ViewMapState extends State<ViewMap> {
                               if (_isDrawing) {
                                 _onAddShape(point);
                               } else {
-                                handleOnTap(tapPosition, point);
+                                handleBuildingOnTap(tapPosition, point);
                               }
                             },
                           ),
@@ -403,35 +410,29 @@ class _ViewMapState extends State<ViewMap> {
                               tileProvider:
                                   ft.FileTileProvider(tileDirPath, false),
                             ),
-                            if (_newPolygonPoints.isNotEmpty)
-                              PolygonLayer(
-                                polygons: [
-                                  Polygon(
-                                    points: _newPolygonPoints,
-                                    color: Colors.blue
-                                        .withOpacity(0.3), // lighter fill
-                                    borderColor:
-                                        Colors.blueAccent, // more vivid border
-                                    borderStrokeWidth:
-                                        3, // slightly thicker border
-                                  ),
-                                ],
-                              ),
+                            EntranceMarker(
+                              entranceData: entranceData,
+                              onTap: handleEntranceTap,
+                              selectedObjectId: _selectedObjectId,
+                              selectedShapeType: _selectedShapeType,
+                              mapController: mapController,
+                            ),
+                            BuildingMarker(
+                              buildingsData: buildingsData,
+                              onTap: handleEntranceTap,
+                              selectedObjectId: _selectedObjectId,
+                              selectedShapeType: _selectedShapeType,
+                            ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
-                            MarkerLayer(
-                              markers: [
-                                ...entranceGeoJsonParser.markers,
-                                ...selectedGeoJsonParser.markers
-                              ],
-                            ),
-                            PolygonLayer(
-                              polygons: [
-                                ...buildinGeoJsonParser.polygons,
-                                ...selectedGeoJsonParser.polygons
-                              ],
-                            ),
-                            
+                            if (_newPolygonPoints.isNotEmpty)
+                              PolygonLayer(polygons: [
+                                Polygon(
+                                  points: _newPolygonPoints,
+                                  color: Colors.grey,
+                                  borderStrokeWidth: 1.0,
+                                )
+                              ]),
                           ],
                         ),
                         Positioned(
@@ -449,6 +450,14 @@ class _ViewMapState extends State<ViewMap> {
                                   onSave: _onDrawFinished,
                                   newPolygonPoints: [..._newPolygonPoints],
                                 ),
+                        ),
+                        Positioned(
+                          bottom: 16,
+                          left: 75,
+                          child: MapLegend(
+                            legendItems: _getCurrentLegendItems(),
+                            title: "Legjenda",
+                          ),
                         ),
                       ],
                     ),
