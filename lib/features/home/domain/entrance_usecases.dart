@@ -24,4 +24,8 @@ class EntranceUseCases {
   Future<List<FieldSchema>> getEntranceAttributes() async {
     return await _entranceRepository.getEntranceAttributes();
   }
+
+  Future<bool> addEntranceFeauture(Map<String, dynamic> data) async {
+    return await _entranceRepository.addEntranceFeauture(data);
+  }
 }

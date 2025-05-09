@@ -53,22 +53,21 @@ class _ViewMapState extends State<ViewMap> {
 
   MapController mapController = MapController();
 
-  LatLng? _selectedEntrancePoint;
-  List<LatLng>? _selectedBuildingPolygon;
-
   GeoJsonParser entranceGeoJsonParser = GeoJsonParser(
-    defaultMarkerColor: Colors.red,
-    defaultPolygonBorderColor: Colors.red,
-    defaultPolygonFillColor: Colors.red.withOpacity(0.1),
-    defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
+    defaultMarkerColor: const Color.fromARGB(255, 13, 102, 175),
+    defaultMarkerIcon: Icons.radio_button_checked,
   );
 
   GeoJsonParser buildinGeoJsonParser = GeoJsonParser(
-    defaultMarkerColor: Colors.red,
-    defaultPolygonBorderColor: Colors.red,
-    defaultPolygonFillColor: Colors.red.withOpacity(0.1),
-    defaultCircleMarkerColor: Colors.red.withOpacity(0.25),
+    defaultPolygonBorderColor: const Color.fromARGB(255, 13, 102, 175),
+    defaultPolygonFillColor:
+        const Color.fromARGB(255, 60, 145, 214).withOpacity(0.1),
   );
+
+  GeoJsonParser selectedGeoJsonParser = GeoJsonParser(
+      defaultMarkerColor: Colors.red,
+      defaultPolygonBorderColor: Colors.red,
+      defaultPolygonFillColor: Colors.red);
 
   bool _isPropertyVisibile = false;
 
@@ -84,24 +83,34 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleMarkerTap(Map<String, dynamic> data) {
-    final coords = data['geometry']?['coordinates'];
-    if (coords != null && coords.length >= 2) {
-      final latlng = LatLng(coords[1], coords[0]);
-      setState(() {
-        
-        _initialData = data['attributes'];
+    setState(() {
+      try {
+        _initialData = data;
         _schema = _entranceSchema;
 
-        _selectedEntrancePoint = latlng;
-        _selectedBuildingPolygon = null;
+        selectedGeoJsonParser.markers.clear();
+        selectedGeoJsonParser.polygons.clear();
+
+        final tappedFeature = (vanillaGeoJsonMarker!['features'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((f) => f['properties']['OBJECTID'] == data['OBJECTID']);
+
+        selectedGeoJsonParser.parseGeoJson({
+          "type": "FeatureCollection",
+          "features": [tappedFeature],
+        });
 
         if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-          mobileElementAttribute(context, _entranceSchema, data);
+          mobileElementAttribute(context, _entranceSchema, data, _onSave);
         } else {
           _isPropertyVisibile = true;
         }
-      });
-    }
+      } on Exception catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
+    });
   }
 
   @override
@@ -162,7 +171,7 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _onSave() {
+  void _onDrawFinished() {
     if (_newPolygonPoints.isEmpty) return;
 
     setState(() {
@@ -170,8 +179,15 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
+  void _onSave(Map<String, dynamic> data) {
+    context.read<EntranceCubit>().addEntranceFeauture(data);
+  }
+
   void handleOnTap(TapPosition tapPosition, LatLng point) {
     try {
+      selectedGeoJsonParser.markers.clear();
+      selectedGeoJsonParser.polygons.clear();
+
       var selectedFeatureManual = buildinGeoJsonParser.polygons
           .where(
             (feature) => GeometryHelper.isPointInPolygon(point, feature.points),
@@ -179,20 +195,30 @@ class _ViewMapState extends State<ViewMap> {
           .firstOrNull;
 
       if (selectedFeatureManual != null) {
-        var response = GeometryHelper.findPolygonPropertiesByCoordinates(
+        var features = GeometryHelper.findPolygonPropertiesByCoordinates(
             vanillaGeoJson!, selectedFeatureManual.points);
 
-        if (response != null) {
+        if (features != null) {
           if (MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint) {
-            mobileElementAttribute(context, _entranceSchema, response);
+            setState(() {
+              selectedGeoJsonParser.parseGeoJson({
+                "type": "FeatureCollection",
+                "features": [features],
+              });
+            });
+
+            mobileElementAttribute(
+                context, _entranceSchema, features['properties'], _onSave);
           } else {
             setState(() {
-              _selectedBuildingPolygon = selectedFeatureManual.points;
-              _selectedEntrancePoint = null;
+              selectedGeoJsonParser.parseGeoJson({
+                "type": "FeatureCollection",
+                "features": [features],
+              });
 
               _schema = _buildingSchema;
               _isPropertyVisibile = true;
-              _initialData = response;
+              _initialData = features['properties'];
             });
           }
         }
@@ -394,81 +420,18 @@ class _ViewMapState extends State<ViewMap> {
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
                             MarkerLayer(
-                              markers:
-                                  entranceGeoJsonParser.markers.map((marker) {
-                                final features = vanillaGeoJsonMarker!['features']
-                                    as List<dynamic>;
-                                final matchingFeature = features.firstWhere(
-                                  (feature) {
-                                    final coords = feature['geometry']
-                                        ['coordinates'] as List<dynamic>;
-                                    var found = coords[0] == marker.point.longitude &&
-                                        coords[1] == marker.point.latitude;
-
-                                        return found;
-                                  },
-                                  orElse: () => null,
-                                );
-
-                                final isSelected =
-                                    marker.point == _selectedEntrancePoint;
-                                return Marker(
-                                  point: marker.point,
-                                  width: marker.width,
-                                  height: marker.height,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      // entranceGeoJsonParser.onMarkerTapCallback
-                                      //     ?.call({
-                                      //   'attributes':
-                                      //       matchingFeature?['properties'],
-                                      //   'geometry': {
-                                      //     'coordinates': [
-                                      //       marker.point.longitude,
-                                      //       marker.point.latitude
-                                      //     ]
-                                      //   }
-                                      // });
-
-                                      handleMarkerTap({
-                                        'attributes':
-                                            matchingFeature?['properties'],
-                                        'geometry': {
-                                          'coordinates': [
-                                            marker.point.longitude,
-                                            marker.point.latitude
-                                          ]
-                                        }
-                                      });
-                                    },
-                                    child: Icon(
-                                      Icons.location_pin,
-                                      size: 30,
-                                      color: isSelected
-                                          ? Colors.green
-                                          : Colors.red,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+                              markers: [
+                                ...entranceGeoJsonParser.markers,
+                                ...selectedGeoJsonParser.markers
+                              ],
                             ),
                             PolygonLayer(
-                              polygons: buildinGeoJsonParser.polygons
-                                  .where((p) => p.points.isNotEmpty)
-                                  .map((p) => Polygon(
-                                        points: p.points,
-                                        color:
-                                            p.points == _selectedBuildingPolygon
-                                                ? Colors.green.withOpacity(0.4)
-                                                : Colors.red.withOpacity(0.1),
-                                        borderColor:
-                                            p.points == _selectedBuildingPolygon
-                                                ? Colors.green
-                                                : Colors.red,
-                                        borderStrokeWidth: 2,
-                                      ))
-                                  .toList(),
+                              polygons: [
+                                ...buildinGeoJsonParser.polygons,
+                                ...selectedGeoJsonParser.polygons
+                              ],
                             ),
+                            
                           ],
                         ),
                         Positioned(
@@ -483,7 +446,7 @@ class _ViewMapState extends State<ViewMap> {
                                   onClose: _onClose,
                                   onUndo: _onUndo,
                                   onRedo: _onRedo,
-                                  onSave: _onSave,
+                                  onSave: _onDrawFinished,
                                   newPolygonPoints: [..._newPolygonPoints],
                                 ),
                         ),
@@ -497,6 +460,7 @@ class _ViewMapState extends State<ViewMap> {
                       child: TabletElementAttribute(
                         schema: _schema,
                         initialData: _initialData,
+                        save: _onSave,
                         onClose: () => {
                           setState(() {
                             _isPropertyVisibile = false;

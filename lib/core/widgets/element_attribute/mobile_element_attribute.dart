@@ -3,7 +3,7 @@ import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.d
 import 'package:flutter/material.dart';
 
 void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
-    Map<String, dynamic> initialData) {
+    Map<String, dynamic> initialData, Function onSave) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -41,12 +41,10 @@ void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
                       child: DynamicElementAttribute(
                         schema: schema,
                         initialData: initialData,
-                        onSave: (formValues) {
-                          final json = {
-                            "attributes": formValues,
-                          };
-                          debugPrint('Generated JSON: $json');
-                          Navigator.of(context).pop();
+                        onSave: (formValues) {                         
+                          onSave(formValues);
+                          // debugPrint('Generated JSON: $json');
+                          // Navigator.of(context).pop();
                         },
                       ),
                     ),

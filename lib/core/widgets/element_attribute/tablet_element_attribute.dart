@@ -6,12 +6,15 @@ class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
+  final Function save;
 
-  const TabletElementAttribute(
-      {super.key,
-      required this.schema,
-      required this.onClose,
-      required this.initialData});
+  const TabletElementAttribute({
+    super.key,
+    required this.schema,
+    required this.onClose,
+    required this.initialData,
+    required this.save,
+  });
 
   @override
   State<TabletElementAttribute> createState() =>
@@ -45,10 +48,11 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                     schema: widget.schema,
                     initialData: widget.initialData,
                     onSave: (formValues) {
-                      final json = {
-                        "attributes": formValues,
-                      };
-                      debugPrint('Generated JSON: $json');
+                      // final json = {
+                      //   "attributes": formValues,
+                      // };
+                      // debugPrint('Generated JSON: $json');
+                      widget.save(formValues);
                     },
                     onClose: widget.onClose,
                   ),

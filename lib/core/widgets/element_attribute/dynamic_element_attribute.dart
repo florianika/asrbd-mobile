@@ -74,8 +74,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ...widget.schema.map((field) {
-          // final value = formValues[field.name] ?? field.defaultValue;
+        ...widget.schema.map((field) {        
           if (field.codedValues != null) {
             // Deduplicate by 'code' and ensure all 'code' values are not null
             final seenCodes = <dynamic>{};
@@ -92,35 +91,40 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                 uniqueCodedValues.any((item) => item['code'] == selectedValue);
             final effectiveValue = valueExists ? selectedValue : null;
 
-            return DropdownButtonFormField(
-              key: ValueKey(field.name),
-              isExpanded: true,
-              decoration: InputDecoration(
-                labelText: field.alias,
-                labelStyle: const TextStyle(color: Colors.black),
-              ),
-              value: effectiveValue,
-              items: uniqueCodedValues
-                  .map((code) => DropdownMenuItem(
-                        value: code['code'],
-                        child: Text(
-                          code['name'].toString(),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                      ))
-                  .toList(),
-              onChanged:
-                  field.editable ? (val) => formValues[field.name] = val : null,
-              disabledHint: Text(
-                effectiveValue != null ? effectiveValue.toString() : '',
-                style: const TextStyle(color: Colors.black45),
+            return AbsorbPointer(
+              absorbing: !field.editable,
+              child: DropdownButtonFormField(
+                key: ValueKey(field.name),
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: field.alias,
+                  labelStyle: const TextStyle(color: Colors.black),
+                ),
+                value: effectiveValue,
+                items: uniqueCodedValues
+                    .map((code) => DropdownMenuItem(
+                          value: code['code'],
+                          child: Text(
+                            code['name'].toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: field.editable
+                    ? (val) => formValues[field.name] = val
+                    : null,
+                disabledHint: Text(
+                  effectiveValue != null ? effectiveValue.toString() : '',
+                  style: const TextStyle(color: Colors.black45),
+                ),
               ),
             );
           }
           return TextFormField(
             key: ValueKey(field.name),
             controller: _controllers[field.name],
+            readOnly: !field.editable,
             decoration: InputDecoration(
               labelText: field.alias,
               labelStyle: const TextStyle(color: Colors.black),

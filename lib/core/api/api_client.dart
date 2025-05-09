@@ -19,8 +19,9 @@ class ApiClient {
 
   ApiClient._internal(String baseUrl, {Map<String, String>? headers}) {
     final mergedHeaders = {
-      'Content-Type': 'application/json',
       if (headers != null) ...headers,
+      if (headers == null || !headers.containsKey('Content-Type'))
+        'Content-Type': 'application/json',
     };
 
     dio = Dio(

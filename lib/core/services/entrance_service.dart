@@ -62,4 +62,20 @@ class EntranceService {
       throw Exception('Login failed: $e');
     }
   }
+
+  Future<bool> addEntranceFeauture(Map<String, dynamic> data) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response = await entranceApi.addEntranceFeauture(esriToken, data);      
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
 }

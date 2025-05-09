@@ -20,6 +20,11 @@ class EntranceAttributes extends EntranceState {
   EntranceAttributes(this.attributes);
 }
 
+class EntranceAddResponse extends EntranceState {
+  final bool isAdded;
+  EntranceAddResponse(this.isAdded);
+}
+
 class EntranceError extends EntranceState {
   final String message;
   EntranceError(this.message);
@@ -44,6 +49,15 @@ class EntranceCubit extends Cubit<EntranceState> {
     emit(EntranceLoading());
     try {
       emit(EntranceAttributes(await entranceUseCases.getEntranceAttributes()));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  Future<void> addEntranceFeauture(Map<String, dynamic> data) async {
+    emit(EntranceLoading());
+    try {
+      emit(EntranceAddResponse(await entranceUseCases.addEntranceFeauture(data)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

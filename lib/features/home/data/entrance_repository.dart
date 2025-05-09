@@ -8,11 +8,16 @@ class EntranceRepository {
   EntranceRepository(this.entranceService);
 
   // Login method
-  Future<Map<String, dynamic>> getEntrances(LatLngBounds bounds, double zoom) async {
+  Future<Map<String, dynamic>> getEntrances(
+      LatLngBounds bounds, double zoom) async {
     return await entranceService.getEntrances(bounds, zoom);
   }
 
   Future<List<FieldSchema>> getEntranceAttributes() async {
     return await entranceService.getEntranceAttributes();
+  }
+
+  Future<bool> addEntranceFeauture(Map<String, dynamic> data) async {
+    return await entranceService.addEntranceFeauture(data);
   }
 }

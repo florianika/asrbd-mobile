@@ -1,3 +1,6 @@
+import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/enums/entity_type.dart';
+
 class ApiEndpoints {
   static const String login = '/auth/login';
   static const String loginEsri = '/auth/gis/login';
@@ -112,6 +115,30 @@ class ApiEndpoints {
         'datumTransformation': '',
         'f': 'geojson',
       },
+    ).toString();
+  }
+
+  static String addEsriFeauture(EntityType entityType) {
+    int layerId = EsriConfig.entranceLayerId;
+
+    switch (entityType) {
+      case EntityType.building:
+        layerId = EsriConfig.buildingLayerId;
+        break;
+
+      case EntityType.entrance:
+        layerId = EsriConfig.entranceLayerId;
+        break;
+
+      case EntityType.dwelling:
+        layerId = EsriConfig.dwellingLayerId;
+        break;
+    }
+
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/$layerId/addFeatures',
     ).toString();
   }
 }

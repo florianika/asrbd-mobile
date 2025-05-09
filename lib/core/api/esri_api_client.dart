@@ -14,12 +14,16 @@ class EsriApiClient {
     return _instance!;
   }
 
-  EsriApiClient._internal() {
-  
+  EsriApiClient._internal({Map<String, String>? headers}) {
+    final mergedHeaders = {
+      if (headers != null) ...headers,
+    };
+
     dio = Dio(
-      BaseOptions(    
+      BaseOptions(
         connectTimeout: const Duration(seconds: AppConfig.apiTimeout),
         receiveTimeout: const Duration(seconds: AppConfig.apiTimeout),
+        headers: mergedHeaders,
       ),
     );
 
@@ -50,6 +54,21 @@ class EsriApiClient {
     ));
 
     dio.interceptors.add(LogInterceptor(responseBody: true));
+  }
+
+  /// Manually update or add new headers (e.g., after login)
+  void setHeaders(Map<String, String> newHeaders) {
+    dio.options.headers.addAll(newHeaders);
+  }
+
+  /// Optional: Remove a header
+  void removeHeader(String key) {
+    dio.options.headers.remove(key);
+  }
+
+  /// Optional: Reset entire header set
+  void clearHeaders() {
+    dio.options.headers.clear();
   }
 
   /// GET request

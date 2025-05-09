@@ -50,7 +50,7 @@ class GeometryHelper {
 
         // Compare the LatLng list (ignoring the order for simplicity)
         if (compareLatLngLists(polygonLatLngList, searchCoordinates)) {
-          return feature['properties'];
+          return feature;
         }
       }
     }
