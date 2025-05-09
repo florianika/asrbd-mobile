@@ -98,13 +98,12 @@ void _showCircularMenu(Offset globalPosition) {
       onTap: _hideCircularMenu,
       child: Stack(
         children: [
-          // Dismiss background
+       
           Positioned.fill(
             child: Container(color: Colors.transparent),
-          ),
-          // Circular menu positioned on map
+          ), 
           Positioned(
-            left: globalPosition.dx - 100, // adjust to center the menu
+            left: globalPosition.dx - 100, 
             top: globalPosition.dy - 100,
             width: 200,
             height: 200,
@@ -184,8 +183,8 @@ void _hideCircularMenu() {
     }
 
     setState(() {
-      _undoStack.add(List.from(_newPolygonPoints)); // Save current state
-      _redoStack.clear(); // Clear redo on new action
+      _undoStack.add(List.from(_newPolygonPoints)); 
+      _redoStack.clear(); 
       _newPolygonPoints.add(position);
     });
   }
@@ -226,14 +225,29 @@ void _hideCircularMenu() {
       _newPolygonPoints = _redoStack.removeLast();
     });
   }
+  
+void _onSave() {
+  if (_newPolygonPoints.isEmpty) return;
 
-  void _onSave() {
-    if (_newPolygonPoints.isEmpty) return;
+ final intersects = buildinGeoJsonParser.polygons.any(
+  (existing) => GeometryHelper.doPolygonsIntersect(_newPolygonPoints, existing.points),
+);
 
-    setState(() {
-      _isPropertyVisibile = true;
-    });
-  }
+if (intersects) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text("Intersection with existing polygon is not allowed.")),
+  );
+  return;
+}
+
+
+  // Proceed with saving
+  setState(() {
+    _isPropertyVisibile = true;
+    // Add new polygon to your data if needed
+  });
+}
+
 
   void handleOnTap(TapPosition tapPosition, LatLng point) {
     try {
@@ -283,7 +297,7 @@ void _hideCircularMenu() {
               color: Colors.red,
             ),
           ),
-          childWhenDragging: Container(), // Hide original marker during drag
+          childWhenDragging: Container(), 
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
@@ -296,9 +310,9 @@ void _hideCircularMenu() {
               final topPadding = MediaQuery.of(context).padding.top;
 
               final dropOffset = details.offset +
-                  const Offset(0, -90) // offset used during drag feedback
+                  const Offset(0, -90) 
                   +
-                  const Offset(18, 36 + 18); // center of the 36x36 feedback
+                  const Offset(18, 36 + 18); 
 
               final localDropPosition = dropOffset -
                   mapPosition -
@@ -324,7 +338,7 @@ void _hideCircularMenu() {
               final topPadding = MediaQuery.of(context).padding.top;
 
               final dropOffset = details.globalPosition +
-                  const Offset(0, -72); // your effective vertical offset
+                  const Offset(0, -72); 
 
               final localDropPosition = dropOffset -
                   mapPosition -
@@ -346,11 +360,11 @@ void _hideCircularMenu() {
 
   double? _previousZoom;
   void _onPositionChanged(MapCamera camera, bool hasGesture) {
-    // Check if zoom has changed
+   
     final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
     _previousZoom = camera.zoom;
 
-    // Trigger only if the user moved the map or zoomed in/out
+  
     if (!hasGesture && !zoomChanged) return;
 
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -443,7 +457,7 @@ void _hideCircularMenu() {
   );
 
   if (match.points.isNotEmpty) {
-    _showCircularMenu(tapPosition.global); // ← pass global position
+    _showCircularMenu(tapPosition.global); 
   }
 }
 
@@ -461,11 +475,11 @@ void _hideCircularMenu() {
                                   Polygon(
                                     points: _newPolygonPoints,
                                     color: Colors.blue
-                                        .withOpacity(0.3), // lighter fill
+                                        .withOpacity(0.3), 
                                     borderColor:
-                                        Colors.blueAccent, // more vivid border
+                                        Colors.blueAccent, 
                                     borderStrokeWidth:
-                                        3, // slightly thicker border
+                                        3, 
                                   ),
                                 ],
                               ),
@@ -495,19 +509,7 @@ void _hideCircularMenu() {
                                   width: marker.width,
                                   height: marker.height,
                                   child: GestureDetector(
-                                    onTap: () {
-                                      // entranceGeoJsonParser.onMarkerTapCallback
-                                      //     ?.call({
-                                      //   'attributes':
-                                      //       matchingFeature?['properties'],
-                                      //   'geometry': {
-                                      //     'coordinates': [
-                                      //       marker.point.longitude,
-                                      //       marker.point.latitude
-                                      //     ]
-                                      //   }
-                                      // });
-
+                                    onTap: () {                                    
                                       handleMarkerTap({
                                         'attributes':
                                             matchingFeature?['properties'],
@@ -519,10 +521,9 @@ void _hideCircularMenu() {
                                         }
                                       });
                                     },
-                             onLongPressStart: (details) {
-  _showCircularMenu(details.globalPosition); // ✅ should work now
-},
-
+                                    onLongPressStart: (details) {
+                                    _showCircularMenu(details.globalPosition); 
+                                  },
                                     child: Icon(
                                       Icons.location_pin,
                                       size: 30,
