@@ -419,7 +419,6 @@ class _ViewMapState extends State<ViewMap> {
                             ),
                             BuildingMarker(
                               buildingsData: buildingsData,
-                              onTap: handleEntranceTap,
                               selectedObjectId: _selectedObjectId,
                               selectedShapeType: _selectedShapeType,
                             ),

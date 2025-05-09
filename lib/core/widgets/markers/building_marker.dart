@@ -7,13 +7,12 @@ class BuildingMarker extends StatelessWidget {
   final Map<String, dynamic>? buildingsData;
   final int? selectedObjectId;
   final ShapeType? selectedShapeType;
-  final Function onTap;
-  const BuildingMarker(
-      {super.key,
-      this.buildingsData,
-      this.selectedObjectId,
-      this.selectedShapeType,
-      required this.onTap});
+  const BuildingMarker({
+    super.key,
+    this.buildingsData,
+    this.selectedObjectId,
+    this.selectedShapeType,
+  });
 
   @override
   Widget build(BuildContext context) {
