@@ -25,16 +25,23 @@ class EntranceApi {
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    final data = {
+    final Map<String, dynamic> feature = {
       'geometry': {
         'x': points[0].longitude,
         'y': points[0].latitude,
+        'spatialReference': {'wkid': 4326},
       },
-      'attributes': jsonEncode(attributes)
+      'attributes': attributes,
     };
 
-    final payload = {'f': 'json', 'adds': data, 'token': esriToken};
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken
+    };
 
+    _apiClient.clearHeaders();
     _apiClient.setHeaders(contentType);
 
     return _apiClient.post(ApiEndpoints.addEsriFeauture(EntityType.entrance),

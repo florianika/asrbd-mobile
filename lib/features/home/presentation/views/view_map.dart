@@ -185,35 +185,47 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-void _onDrawFinished() {
-  if (_newPolygonPoints.isEmpty || buildingsData == null) return;
+  void _onDrawFinished() {
+    if (_newPolygonPoints.isEmpty || buildingsData == null) return;
 
-  final existingFeatures =
-      List<Map<String, dynamic>>.from(buildingsData!['features']);
+    final existingFeatures =
+        List<Map<String, dynamic>>.from(buildingsData!['features']);
 
-  final intersects = existingFeatures.any((feature) {
-    final geom = feature['geometry'];
-    if (geom['type'] != 'Polygon') return false;
+    final intersects = existingFeatures.any((feature) {
+      final geom = feature['geometry'];
+      if (geom['type'] != 'Polygon') return false;
 
-    final existingPolygon = GeometryHelper.parseCoordinates(geom);
+      final existingPolygon = GeometryHelper.parseCoordinates(geom);
 
-    return GeometryHelper.doPolygonsIntersect(_newPolygonPoints, existingPolygon);
-  });
+      return GeometryHelper.doPolygonsIntersect(
+          _newPolygonPoints, existingPolygon);
+    });
 
-  if (intersects) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Ky poligon ndërpritet me një ekzistues. Krijimi nuk lejohet.")),
-    );
-    return;
+    if (intersects) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                "Ky poligon ndërpritet me një ekzistues. Krijimi nuk lejohet.")),
+      );
+      return;
+    }
+    setState(() {
+      if (_selectedShapeType == ShapeType.point) {
+        _initialData['EntLatitude'] = _newPolygonPoints[0].latitude;
+        _initialData['EntLongitude'] = _newPolygonPoints[0].longitude;
+      } else {
+        //initialize with centroid of polygon
+        //   _initialData['BldLatitude']= newPoint.latitude;
+        // _initialData['BldLongitude']= newPoint.longitude;
+      }
+      _isPropertyVisibile = true;
+    });
   }
-  setState(() {
-    _isPropertyVisibile = true;
-  });
-}
-
 
   void _onSave(Map<String, dynamic> attributes) {
-    context.read<EntranceCubit>().addEntranceFeature(attributes, _newPolygonPoints);
+    context
+        .read<EntranceCubit>()
+        .addEntranceFeature(attributes, _newPolygonPoints);
   }
 
   void handleBuildingOnTap(TapPosition tapPosition, LatLng point) {
@@ -280,7 +292,14 @@ void _onDrawFinished() {
           childWhenDragging: Container(), // Hide original marker during drag
           onDragEnd: (details) {
             setState(() {
-              int index = _newPolygonPoints.indexOf(point);
+              // int index = _newPolygonPoints.indexOf(point);
+
+              int index = _newPolygonPoints.indexWhere(
+                (p) =>
+                    p.latitude == point.latitude &&
+                    p.longitude == point.longitude,
+              );
+              if (index == -1) return;
 
               final RenderBox mapRenderBox =
                   context.findRenderObject() as RenderBox;
@@ -304,11 +323,27 @@ void _onDrawFinished() {
               );
 
               _newPolygonPoints[index] = newPoint;
+
+              // if (_selectedShapeType == ShapeType.point) {
+              //   _initialData['EntLatitude'] = newPoint.latitude;
+              //   _initialData['EntLongitude'] = newPoint.longitude;
+              // } else {
+              //initialize with centroid of polygon
+              //   _initialData['BldLatitude']= newPoint.latitude;
+              // _initialData['BldLongitude']= newPoint.longitude;
+              // }
             });
           },
           onDragUpdate: (details) {
             setState(() {
-              int index = _newPolygonPoints.indexOf(point);
+              // int index = _newPolygonPoints.indexOf(point);
+
+              int index = _newPolygonPoints.indexWhere(
+                (p) =>
+                    p.latitude == point.latitude &&
+                    p.longitude == point.longitude,
+              );
+              if (index == -1) return;
 
               final RenderBox mapRenderBox =
                   context.findRenderObject() as RenderBox;
@@ -330,6 +365,15 @@ void _onDrawFinished() {
               );
 
               _newPolygonPoints[index] = newPoint;
+
+              // if (_selectedShapeType == ShapeType.point) {
+              //   _initialData['EntLatitude'] = newPoint.latitude;
+              //   _initialData['EntLongitude'] = newPoint.longitude;
+              // } else {
+              //initialize with centroid of polygon
+              //   _initialData['BldLatitude']= newPoint.latitude;
+              // _initialData['BldLongitude']= newPoint.longitude;
+              // }
             });
           },
           child: const TargetMarker(),

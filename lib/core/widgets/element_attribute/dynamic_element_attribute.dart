@@ -1,5 +1,6 @@
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:flutter/material.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
@@ -30,6 +31,8 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   @override
   void initState() {
     super.initState();
+    widget.schema.removeWhere(
+        (field) => EntranceFields.hiddenAttributes.contains(field.name));
     _initializeForm(widget.initialData ?? {});
   }
 
@@ -47,7 +50,8 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
     formValues.addAll(data);
 
     for (var field in widget.schema) {
-      final value = data[field.name]?.toString() ?? field.defaultValue ?? '';
+      final value = data[field.name]?.toString() ??
+          (field.defaultValue != null ? field.defaultValue.toString() : '');
       if (_controllers.containsKey(field.name)) {
         _controllers[field.name]!.text = value;
       } else {
@@ -99,8 +103,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                 .toList();
 
             // Get current value
-            final selectedValue =
-                formValues[field.name];
+            final selectedValue = formValues[field.name];
 
             // Ensure the selected value is in the unique list
             final valueExists =
@@ -130,7 +133,8 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                         ))
                     .toList(),
                 onChanged: field.editable
-                    ? (val) => EsriTypeConversion.convert(field.type, val)
+                    ? (val) => formValues[field.name] =
+                        EsriTypeConversion.convert(field.type, val)
                     : null,
                 disabledHint: Text(
                   effectiveValue != null ? effectiveValue.toString() : '',
