@@ -24,6 +24,7 @@ class DynamicElementAttribute extends StatefulWidget {
 
 class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
+  final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
 
   @override
@@ -46,7 +47,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
     formValues.addAll(data);
 
     for (var field in widget.schema) {
-      final value = data[field.name]?.toString() ?? '';
+      final value = data[field.name]?.toString() ?? field.defaultValue ?? '';
       if (_controllers.containsKey(field.name)) {
         _controllers[field.name]!.text = value;
       } else {
@@ -66,7 +67,20 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   }
 
   void _handleSave() {
-    if (widget.onSave != null) {
+    bool passedValidation = true;
+    validationErrors.clear();
+
+    for (var field in widget.schema) {
+      final value = formValues[field.name];
+      if (!field.nullable && (value == null || value.toString().isEmpty)) {
+        passedValidation = false;
+        validationErrors[field.name] = '${field.alias} is required';
+      }
+    }
+
+    setState(() {}); // Refresh UI with error messages
+
+    if (passedValidation && widget.onSave != null) {
       widget.onSave!(formValues);
     }
   }
@@ -85,12 +99,14 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                 .toList();
 
             // Get current value
-            final selectedValue = formValues[field.name];
+            final selectedValue =
+                formValues[field.name];
 
             // Ensure the selected value is in the unique list
             final valueExists =
                 uniqueCodedValues.any((item) => item['code'] == selectedValue);
-            final effectiveValue = valueExists ? selectedValue : null;
+            final effectiveValue =
+                valueExists ? selectedValue : field.defaultValue;
 
             return AbsorbPointer(
               absorbing: !field.editable,
@@ -100,6 +116,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                 decoration: InputDecoration(
                   labelText: field.alias,
                   labelStyle: const TextStyle(color: Colors.black),
+                  errorText: validationErrors[field.name],
                 ),
                 value: effectiveValue,
                 items: uniqueCodedValues
@@ -129,6 +146,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             decoration: InputDecoration(
               labelText: field.alias,
               labelStyle: const TextStyle(color: Colors.black),
+              errorText: validationErrors[field.name],
             ),
             style: const TextStyle(color: Colors.black),
             onChanged: field.editable
