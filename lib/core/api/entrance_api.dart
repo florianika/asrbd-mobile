@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:asrdb/core/api/esri_api_client.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:dio/dio.dart';
+import 'package:latlong2/latlong.dart';
 import 'api_endpoints.dart';
 
 class EntranceApi {
@@ -18,17 +19,21 @@ class EntranceApi {
         '${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
   }
 
-  Future<Response> addEntranceFeauture(
-      String esriToken, Map<String, dynamic> data) async {
+  Future<Response> addEntranceFeature(String esriToken,
+      Map<String, dynamic> attributes, List<LatLng> points) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    final payload = {
-      'f': 'json',
-      'adds': jsonEncode(data),
-      'token': esriToken
+    final data = {
+      'geometry': {
+        'x': points[0].longitude,
+        'y': points[0].latitude,
+      },
+      'attributes': jsonEncode(attributes)
     };
+
+    final payload = {'f': 'json', 'adds': data, 'token': esriToken};
 
     _apiClient.setHeaders(contentType);
 

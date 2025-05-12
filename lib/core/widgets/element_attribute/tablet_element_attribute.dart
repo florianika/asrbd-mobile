@@ -48,10 +48,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                     schema: widget.schema,
                     initialData: widget.initialData,
                     onSave: (formValues) {
-                      // final json = {
-                      //   "attributes": formValues,
-                      // };
-                      // debugPrint('Generated JSON: $json');
                       widget.save(formValues);
                     },
                     onClose: widget.onClose,

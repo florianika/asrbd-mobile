@@ -3,6 +3,7 @@ import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class EntranceService {
   final EntranceApi entranceApi;
@@ -63,12 +64,12 @@ class EntranceService {
     }
   }
 
-  Future<bool> addEntranceFeauture(Map<String, dynamic> data) async {
+  Future<bool> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await entranceApi.addEntranceFeauture(esriToken, data);      
+      final response = await entranceApi.addEntranceFeature(esriToken, attributes, points);      
       if (response.statusCode == 200) {
         return true;
       } else {

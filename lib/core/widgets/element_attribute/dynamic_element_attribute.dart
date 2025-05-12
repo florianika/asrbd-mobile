@@ -1,3 +1,4 @@
+import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:flutter/material.dart';
 
@@ -74,7 +75,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ...widget.schema.map((field) {        
+        ...widget.schema.map((field) {
           if (field.codedValues != null) {
             // Deduplicate by 'code' and ensure all 'code' values are not null
             final seenCodes = <dynamic>{};
@@ -112,7 +113,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                         ))
                     .toList(),
                 onChanged: field.editable
-                    ? (val) => formValues[field.name] = val
+                    ? (val) => EsriTypeConversion.convert(field.type, val)
                     : null,
                 disabledHint: Text(
                   effectiveValue != null ? effectiveValue.toString() : '',
@@ -130,8 +131,10 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
               labelStyle: const TextStyle(color: Colors.black),
             ),
             style: const TextStyle(color: Colors.black),
-            onChanged:
-                field.editable ? (val) => formValues[field.name] = val : null,
+            onChanged: field.editable
+                ? (val) => formValues[field.name] =
+                    EsriTypeConversion.convert(field.type, val)
+                : null,
             enabled: field.editable,
           );
         }),

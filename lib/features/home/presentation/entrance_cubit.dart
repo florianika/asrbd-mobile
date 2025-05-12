@@ -2,6 +2,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 // Define Entranceentication states
 abstract class EntranceState {}
@@ -54,10 +55,10 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> addEntranceFeauture(Map<String, dynamic> data) async {
+  Future<void> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(EntranceLoading());
     try {
-      emit(EntranceAddResponse(await entranceUseCases.addEntranceFeauture(data)));
+      emit(EntranceAddResponse(await entranceUseCases.addEntranceFeature(attributes, points)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

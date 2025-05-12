@@ -2,6 +2,7 @@ import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/data/entrance_repository.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class EntranceUseCases {
   final EntranceRepository _entranceRepository;
@@ -25,7 +26,7 @@ class EntranceUseCases {
     return await _entranceRepository.getEntranceAttributes();
   }
 
-  Future<bool> addEntranceFeauture(Map<String, dynamic> data) async {
-    return await _entranceRepository.addEntranceFeauture(data);
+  Future<bool> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
+    return await _entranceRepository.addEntranceFeature(attributes, points);
   }
 }

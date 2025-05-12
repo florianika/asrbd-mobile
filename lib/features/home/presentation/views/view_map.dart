@@ -212,8 +212,8 @@ void _onDrawFinished() {
 }
 
 
-  void _onSave(Map<String, dynamic> data) {
-    context.read<EntranceCubit>().addEntranceFeauture(data);
+  void _onSave(Map<String, dynamic> attributes) {
+    context.read<EntranceCubit>().addEntranceFeature(attributes, _newPolygonPoints);
   }
 
   void handleBuildingOnTap(TapPosition tapPosition, LatLng point) {
