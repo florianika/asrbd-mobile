@@ -1,6 +1,11 @@
 import 'package:latlong2/latlong.dart';
+import 'dart:math';
 
 class GeometryHelper {
+
+  static double _degToRad(double deg) => deg * pi / 180.0;
+  static const double _earthRadius = 6378137.0;
+
   static bool isPointInPolygon(LatLng point, List<LatLng> polygon) {
     bool inside = false;
     int j = polygon.length - 1;
@@ -19,11 +24,11 @@ class GeometryHelper {
     return inside;
   }
 
-  // Helper function to compare two lists of LatLng objects
+  
   static bool compareLatLngLists(List<LatLng> list1, List<LatLng> list2) {
     if (list1.length != list2.length) return false;
 
-    // Compare each LatLng element
+    
     for (int i = 0; i < list1.length; i++) {
       if (list1[i].latitude != list2[i].latitude ||
           list1[i].longitude != list2[i].longitude) {
@@ -40,28 +45,28 @@ class GeometryHelper {
 
       if (geom['type'] == 'Polygon') {
         var polygonCoordinates =
-            geom['coordinates'][0]; // Outer boundary coordinates
+            geom['coordinates'][0]; 
 
-        // Convert polygon coordinates to LatLng list
+        
         List<LatLng> polygonLatLngList = polygonCoordinates
             .map<LatLng>((coords) => LatLng(coords[1],
-                coords[0])) // Converting [longitude, latitude] to LatLng
+                coords[0])) 
             .toList();
 
-        // Compare the LatLng list (ignoring the order for simplicity)
+      
         if (compareLatLngLists(polygonLatLngList, searchCoordinates)) {
           return feature;
         }
       }
     }
-    return null; // Return null if no matching polygon is found
+    return null; 
   }
 
   static List<LatLng> parseCoordinates(Map<String, dynamic> geometry) {
     if (geometry['type'] == 'Polygon') {
-      // GeoJSON polygons are List<List<List<double>>>
+     
       final List coords =
-          geometry['coordinates'][0]; // First ring (outer boundary)
+          geometry['coordinates'][0]; 
       return coords.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
     } else if (geometry['type'] == 'Point') {
       final coord = geometry['coordinates'];
@@ -134,5 +139,39 @@ static bool _areSamePolygon(List<LatLng> a, List<LatLng> b) {
     return (b.longitude - a.longitude) * (c.latitude - a.latitude) -
            (b.latitude - a.latitude) * (c.longitude - a.longitude);
   }
+  
+  static double calculatePolygonArea(List<LatLng> polygon) {
+    if (polygon.length < 3) return 0.0;
 
+    double area = 0.0;
+
+    for (int i = 0; i < polygon.length; i++) {
+      final LatLng p1 = polygon[i];
+      final LatLng p2 = polygon[(i + 1) % polygon.length];
+
+      final double lat1 = _degToRad(p1.latitude);
+      final double lon1 = _degToRad(p1.longitude);
+      final double lat2 = _degToRad(p2.latitude);
+      final double lon2 = _degToRad(p2.longitude);
+
+      area += (lon2 - lon1) * (2 + sin(lat1) + sin(lat2));
+    }
+
+    return (area * _earthRadius * _earthRadius / 2.0).abs();
+  }
+
+   static LatLng getPolygonCentroid(List<LatLng> polygon) {
+    double sumLat = 0.0;
+    double sumLng = 0.0;
+
+    for (final point in polygon) {
+      sumLat += point.latitude;
+      sumLng += point.longitude;
+    }
+
+    final double centroidLat = sumLat / polygon.length;
+    final double centroidLng = sumLng / polygon.length;
+
+    return LatLng(centroidLat, centroidLng);
+  }
 }
