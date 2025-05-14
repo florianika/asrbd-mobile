@@ -7,6 +7,7 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/legend/map_legend.dart';
@@ -43,6 +44,7 @@ class _ViewMapState extends State<ViewMap> {
   EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
+  List<dynamic> highilghGlobalIds = [];
 
   Timer? _debounce;
 
@@ -110,6 +112,7 @@ class _ViewMapState extends State<ViewMap> {
 
       // Update state accordingly
       setState(() {
+        highilghGlobalIds = [];
         _initialData = data;
         _schema = _entranceSchema;
         _selectedShapeType = ShapeType.point;
@@ -247,14 +250,47 @@ class _ViewMapState extends State<ViewMap> {
       if (tappedFeature.isEmpty) return;
 
       final props = tappedFeature['properties'];
-      final objectId = props['OBJECTID'];
+      final objectId = props[EntranceFields.objectID];
+      final globalId = props[EntranceFields.globalID];
 
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(globalId)),
+      );
       final isMobile =
           MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
 
       setState(() {
         _selectedShapeType = ShapeType.polygon;
         _selectedObjectId = objectId;
+
+        //find entrances of the selected building
+        if (entranceData != null) {
+          final features = entranceData?['features'] as List<dynamic>?;
+
+          if (features != null) {
+            final List<dynamic>? features = entranceData?['features'];
+
+            if (features != null) {
+              highilghGlobalIds = features
+                  .whereType<Map<String, dynamic>>()
+                  .where((feature) {
+                    final props =
+                        feature['properties'] as Map<String, dynamic>?;
+                    return props != null &&
+                        props['EntBldGlobalID']
+                                ?.toString()
+                                .toLowerCase()
+                                .replaceAll(RegExp(r'[{}]'), '') ==
+                            globalId
+                                .toLowerCase()
+                                .replaceAll(RegExp(r'[{}]'), '');
+                  })
+                  .map((feature) => feature['properties']?['OBJECTID'])
+                  .where((id) => id != null)
+                  .toList();
+            }
+          }
+        }
 
         if (!isMobile) {
           _schema = _buildingSchema;
@@ -479,6 +515,7 @@ class _ViewMapState extends State<ViewMap> {
                               selectedObjectId: _selectedObjectId,
                               selectedShapeType: _selectedShapeType,
                               mapController: mapController,
+                              highilghGlobalIds: highilghGlobalIds,
                             ),
                             BuildingMarker(
                               buildingsData: buildingsData,

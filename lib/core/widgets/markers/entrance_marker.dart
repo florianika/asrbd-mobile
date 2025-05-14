@@ -1,5 +1,6 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -9,6 +10,7 @@ class EntranceMarker extends StatelessWidget {
   final ShapeType? selectedShapeType;
   final Function onTap;
   final MapController mapController; // Add MapController to control zoom
+  final List<dynamic> highilghGlobalIds;
 
   const EntranceMarker({
     super.key,
@@ -16,7 +18,8 @@ class EntranceMarker extends StatelessWidget {
     this.selectedObjectId,
     this.selectedShapeType,
     required this.onTap,
-    required this.mapController, // Ensure you pass the map controller
+    required this.mapController,
+    required this.highilghGlobalIds,
   });
 
   @override
@@ -27,6 +30,7 @@ class EntranceMarker extends StatelessWidget {
                 .map((feature) {
               final props = feature['properties'] as Map<String, dynamic>;
               final value = props['EntQuality'];
+              final objectId = props[EntranceFields.objectID];            
 
               // Dynamically adjust marker size based on zoom level
               final zoomLevel = mapController.camera.zoom;
@@ -38,7 +42,7 @@ class EntranceMarker extends StatelessWidget {
 
               Color fillColor;
               if (selectedShapeType == ShapeType.point &&
-                  selectedObjectId == props['OBJECTID']) {
+                  selectedObjectId == objectId) {
                 fillColor = Colors.red;
               } else if (value == 1) {
                 fillColor = Colors.blue.withOpacity(0.7);
@@ -62,13 +66,28 @@ class EntranceMarker extends StatelessWidget {
                   onTap: () {
                     onTap(props);
                   },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: fillColor,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.black, width: 1),
-                    ),
-                  ),
+                  child: highilghGlobalIds.contains(objectId)
+                      ? Container(
+                          decoration: BoxDecoration(
+                              color: fillColor,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.black, width: 1),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      Colors.red.withOpacity(0.6), // glow color
+                                  blurRadius: 10,
+                                  spreadRadius: 3,
+                                ),
+                              ]),
+                        )
+                      : Container(
+                          decoration: BoxDecoration(
+                            color: fillColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.black, width: 1),
+                          ),
+                        ),
                 ),
               );
             }).toList(),
