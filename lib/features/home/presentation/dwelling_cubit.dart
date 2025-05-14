@@ -10,8 +10,8 @@ class DwellingInitial extends DwellingState {}
 class DwellingLoading extends DwellingState {}
 
 class Dwellings extends DwellingState {
-  final Map<String, dynamic> buildings;
-  Dwellings(this.buildings);
+  final Map<String, dynamic> dwellings;
+  Dwellings(this.dwellings);
 }
 
 class DwellingAttributes extends DwellingState {
@@ -25,15 +25,15 @@ class DwellingError extends DwellingState {
 }
 
 class DwellingCubit extends Cubit<DwellingState> {
-  final DwellingUseCases buildingUseCases;
+  final DwellingUseCases dwellingUseCases;
 
-  DwellingCubit(this.buildingUseCases) : super(DwellingInitial());
+  DwellingCubit(this.dwellingUseCases) : super(DwellingInitial());
 
   // Login method
   Future<void> getDwellings(LatLngBounds? bounds, double zoom) async {
     emit(DwellingLoading());
     try {
-      emit(Dwellings(await buildingUseCases.getDwellings(bounds, zoom)));
+      emit(Dwellings(await dwellingUseCases.getDwellings(bounds, zoom)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
@@ -42,7 +42,7 @@ class DwellingCubit extends Cubit<DwellingState> {
   Future<void> getDwellingAttibutes() async {
     emit(DwellingLoading());
     try {
-      emit(DwellingAttributes(await buildingUseCases.getDwellingAttibutes()));
+      emit(DwellingAttributes(await dwellingUseCases.getDwellingAttibutes()));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }

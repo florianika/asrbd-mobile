@@ -3,15 +3,15 @@ import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class DwellingRepository {
-  final DwellingService buildingService;
+  final DwellingService dwellingService;
 
-  DwellingRepository(this.buildingService);
+  DwellingRepository(this.dwellingService);
 
   Future<Map<String, dynamic>> getDwellings(LatLngBounds bounds, double zoom) async {
-    return await buildingService.getDwellings(bounds, zoom);
+    return await dwellingService.getDwellings(bounds, zoom);
   }
 
   Future<List<FieldSchema>> getDwellingAttributes() async {
-    return await buildingService.getDwellingAttributes();
+    return await dwellingService.getDwellingAttributes();
   }
 }
