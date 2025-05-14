@@ -51,6 +51,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                       widget.save(formValues);
                     },
                     onClose: widget.onClose,
+                    onDwelling: _openNewDwellingForm, // 👈 NEW FORM
                   ),
                 ),
               ),
@@ -59,5 +60,74 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
         ],
       ),
     );
+  }
+
+  void _openNewDwellingForm() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            title: const Text('Dwelling Form', style: TextStyle(color: Colors.black)),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: const InputDecorationTheme(
+                  labelStyle: TextStyle(color: Colors.black),
+                ),
+                textTheme: const TextTheme(
+                  bodyMedium: TextStyle(color: Colors.black),
+                ),
+              ),
+              child: DynamicElementAttribute(
+                schema: _getDwellingSchema(),
+                initialData: {}, // 👈 Totally empty
+                onSave: (dwellingData) {
+                  Navigator.of(context).pop(); // Close dwelling form
+                  debugPrint('Saved dwelling: $dwellingData');
+                },
+                onClose: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<FieldSchema> _getDwellingSchema() {
+    // Replace this with real dwelling schema
+    return [
+      FieldSchema(
+        name: 'DwlCode',
+        alias: 'Dwelling Code',
+        type: 'esriFieldTypeString',
+        editable: true,
+        nullable: false,
+      ),
+      FieldSchema(
+        name: 'DwlType',
+        alias: 'Dwelling Type',
+        type: 'esriFieldTypeInteger',
+        editable: true,
+        nullable: true,
+        codedValues: [
+          {'code': 1, 'name': 'Apartment'},
+          {'code': 2, 'name': 'House'},
+        ],
+      ),
+      FieldSchema(
+        name: 'NumRooms',
+        alias: 'Number of Rooms',
+        type: 'esriFieldTypeInteger',
+        editable: true,
+        nullable: true,
+      ),
+    ];
   }
 }

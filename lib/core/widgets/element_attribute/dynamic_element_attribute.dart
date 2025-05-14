@@ -9,12 +9,14 @@ class DynamicElementAttribute extends StatefulWidget {
   final void Function(Map<String, dynamic>)? onSave;
 
   final void Function()? onClose;
+  final void Function()? onDwelling;
 
   const DynamicElementAttribute({
     required this.schema,
     this.initialData,
     this.onSave,
     this.onClose,
+    this.onDwelling,
     super.key,
   });
 
@@ -27,6 +29,10 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
+
+  bool get isEntranceForm {
+    return widget.schema.any((field) => field.name == 'EntCensus2023');
+  }
 
   @override
   void initState() {
@@ -59,7 +65,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
       }
     }
 
-    setState(() {}); // Trigger rebuild
+    setState(() {});
   }
 
   @override
@@ -82,7 +88,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
       }
     }
 
-    setState(() {}); // Refresh UI with error messages
+    setState(() {});
 
     if (passedValidation && widget.onSave != null) {
       widget.onSave!(formValues);
@@ -95,17 +101,12 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
       children: [
         ...widget.schema.map((field) {
           if (field.codedValues != null) {
-            // Deduplicate by 'code' and ensure all 'code' values are not null
             final seenCodes = <dynamic>{};
             final uniqueCodedValues = field.codedValues!
                 .where((item) =>
                     item['code'] != null && seenCodes.add(item['code']))
                 .toList();
-
-            // Get current value
             final selectedValue = formValues[field.name];
-
-            // Ensure the selected value is in the unique list
             final valueExists =
                 uniqueCodedValues.any((item) => item['code'] == selectedValue);
             final effectiveValue =
@@ -182,6 +183,20 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
+            if (isEntranceForm && widget.onDwelling != null)
+              OutlinedButton.icon(
+               onPressed: widget.onDwelling,
+               icon: const Icon(Icons.home_work, color: Colors.black),
+               label: const Text('Manage Dwelling',
+               style: TextStyle(color: Colors.black)),
+               style: OutlinedButton.styleFrom(
+               side: const BorderSide(color: Colors.black),
+               shape: RoundedRectangleBorder(
+               borderRadius: BorderRadius.circular(8)),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+              ),
             ElevatedButton.icon(
               onPressed: _handleSave,
               icon: const Icon(Icons.save),
