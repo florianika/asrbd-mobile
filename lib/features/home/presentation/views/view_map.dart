@@ -132,6 +132,51 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
+void _showContextMenu(
+  BuildContext context,
+  Offset globalPosition,
+  EntityType type,
+  LatLng position,
+) async {
+  final selected = await showMenu(
+    context: context,
+    position: RelativeRect.fromLTRB(
+      globalPosition.dx,
+      globalPosition.dy,
+      globalPosition.dx,
+      globalPosition.dy,
+    ),
+    items: const [
+      PopupMenuItem(
+        value: 'view',
+        child: Text('View Properties'),
+      ),
+      PopupMenuItem(
+        value: 'delete',
+        child: Text('Delete'),
+      ),
+    ],
+  );
+
+  if (selected == 'view') {
+    if (type == EntityType.entrance) {
+      _schema = _entranceSchema;
+    } else {
+      _schema = _buildingSchema;
+    }
+
+    setState(() {
+      _initialData = {
+        'Lat': position.latitude,
+        'Lng': position.longitude,
+      };
+      _isPropertyVisibile = true;
+    });
+  } else if (selected == 'delete') {
+    // Handle delete if needed
+  }
+}
+
   @override
   void initState() {
     super.initState();
@@ -516,11 +561,13 @@ class _ViewMapState extends State<ViewMap> {
                               selectedShapeType: _selectedShapeType,
                               mapController: mapController,
                               highilghGlobalIds: highilghGlobalIds,
+                              onLongPressContextMenu: _showContextMenu,
                             ),
                             BuildingMarker(
                               buildingsData: buildingsData,
                               selectedObjectId: _selectedObjectId,
                               selectedShapeType: _selectedShapeType,
+                              onLongPressContextMenu: _showContextMenu,
                             ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),

@@ -1,8 +1,10 @@
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class EntranceMarker extends StatelessWidget {
   final Map<String, dynamic>? entranceData;
@@ -11,6 +13,13 @@ class EntranceMarker extends StatelessWidget {
   final Function onTap;
   final MapController mapController; // Add MapController to control zoom
   final List<dynamic> highilghGlobalIds;
+  final void Function(
+  BuildContext context,
+  Offset globalPosition,
+  EntityType type,
+  LatLng position,
+) onLongPressContextMenu;
+
 
   const EntranceMarker({
     super.key,
@@ -20,6 +29,7 @@ class EntranceMarker extends StatelessWidget {
     required this.onTap,
     required this.mapController,
     required this.highilghGlobalIds,
+    required this.onLongPressContextMenu,
   });
 
   @override
@@ -65,6 +75,15 @@ class EntranceMarker extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     onTap(props);
+                  },
+                  onLongPressStart: (details) {
+                    final position = GeometryHelper.parseCoordinates(feature['geometry']).first;
+                    onLongPressContextMenu(
+                      context,
+                      details.globalPosition,
+                      EntityType.entrance,
+                      position,
+                    );
                   },
                   child: highilghGlobalIds.contains(objectId)
                       ? Container(
