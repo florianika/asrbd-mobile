@@ -1,10 +1,13 @@
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
+  final ShapeType selectedShapeType;
   final Map<String, dynamic>? initialData;
   final void Function(Map<String, dynamic>)? onSave;
 
@@ -13,6 +16,7 @@ class DynamicElementAttribute extends StatefulWidget {
 
   const DynamicElementAttribute({
     required this.schema,
+    required this.selectedShapeType,
     this.initialData,
     this.onSave,
     this.onClose,
@@ -183,7 +187,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
-            if (isEntranceForm && widget.onDwelling != null)
+            if (widget.selectedShapeType==ShapeType.point)
               OutlinedButton.icon(
                onPressed: widget.onDwelling,
                icon: const Icon(Icons.home_work, color: Colors.black),

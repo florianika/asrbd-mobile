@@ -530,6 +530,7 @@ void _showContextMenu(
                       flex: 1,
                       child: TabletElementAttribute(
                         schema: _schema,
+                        selectedShapeType:_selectedShapeType,
                         initialData: _initialData,
                         save: _onSave,
                         onClose: () => {

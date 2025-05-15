@@ -1,3 +1,4 @@
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
                       ),
                       child: DynamicElementAttribute(
                         schema: schema,
+                        selectedShapeType: ShapeType.point,
                         initialData: initialData,
                         onSave: (formValues) {                         
                           onSave(formValues);

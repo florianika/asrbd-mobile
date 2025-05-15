@@ -1,9 +1,12 @@
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
+import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
+  final ShapeType selectedShapeType ;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -11,6 +14,7 @@ class TabletElementAttribute extends StatefulWidget {
   const TabletElementAttribute({
     super.key,
     required this.schema,
+    required this.selectedShapeType,
     required this.onClose,
     required this.initialData,
     required this.save,
@@ -46,6 +50,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   ),
                   child: DynamicElementAttribute(
                     schema: widget.schema,
+                    selectedShapeType:widget.selectedShapeType,
                     initialData: widget.initialData,
                     onSave: (formValues) {
                       widget.save(formValues);
@@ -86,6 +91,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ),
               child: DynamicElementAttribute(
                 schema: _getDwellingSchema(),
+                 selectedShapeType:widget.selectedShapeType,
                 initialData: {}, 
                 onSave: (dwellingData) {
                   Navigator.of(context).pop(); 
