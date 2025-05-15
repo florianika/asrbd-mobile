@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/constants/app_config.dart';
@@ -15,7 +14,6 @@ import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
-import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -207,6 +205,7 @@ void _showContextMenu(
       }
       _isDrawing = true;
       _selectedShapeType = type;
+      highilghGlobalIds = [];
     });
   }
 
@@ -260,6 +259,7 @@ void _showContextMenu(
       return;
     }
     setState(() {
+      // _isDrawing = false;
       if (_selectedShapeType == ShapeType.point) {
         _initialData['EntLatitude'] = _newPolygonPoints[0].latitude;
         _initialData['EntLongitude'] = _newPolygonPoints[0].longitude;
@@ -276,6 +276,10 @@ void _showContextMenu(
     context
         .read<EntranceCubit>()
         .addEntranceFeature(attributes, _newPolygonPoints);
+
+    setState(() {
+      _isDrawing = false;
+    });
   }
 
   void handleBuildingOnTap(TapPosition tapPosition, LatLng point) {
@@ -357,109 +361,17 @@ void _showContextMenu(
   }
 
   List<Marker> _buildMarkers() {
-    final RenderBox box =
-        _appBarKey.currentContext?.findRenderObject() as RenderBox;
-
     return _newPolygonPoints.map((point) {
       return Marker(
-        width: 36.0,
-        height: 36.0,
+        width: 30,
+        height: 30,
         point: point,
-        child: Draggable(
-          feedback: Transform.translate(
-            offset: const Offset(0, -90),
-            child: const TargetMarker(
-              color: Colors.red,
-            ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.orange,
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.black, width: 1),
           ),
-          childWhenDragging: Container(), // Hide original marker during drag
-          onDragEnd: (details) {
-            setState(() {
-              // int index = _newPolygonPoints.indexOf(point);
-
-              int index = _newPolygonPoints.indexWhere(
-                (p) =>
-                    p.latitude == point.latitude &&
-                    p.longitude == point.longitude,
-              );
-              if (index == -1) return;
-
-              final RenderBox mapRenderBox =
-                  context.findRenderObject() as RenderBox;
-              final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
-
-              final appBarHeight = box.size.height;
-              final topPadding = MediaQuery.of(context).padding.top;
-
-              final dropOffset = details.offset +
-                  const Offset(0, -90) // offset used during drag feedback
-                  +
-                  const Offset(18, 36 + 18); // center of the 36x36 feedback
-
-              final localDropPosition = dropOffset -
-                  mapPosition -
-                  Offset(MediaQuery.of(context).padding.left,
-                      appBarHeight + topPadding);
-
-              final newPoint = mapController.camera.pointToLatLng(
-                Point(localDropPosition.dx, localDropPosition.dy),
-              );
-
-              _newPolygonPoints[index] = newPoint;
-
-              // if (_selectedShapeType == ShapeType.point) {
-              //   _initialData['EntLatitude'] = newPoint.latitude;
-              //   _initialData['EntLongitude'] = newPoint.longitude;
-              // } else {
-              //initialize with centroid of polygon
-              //   _initialData['BldLatitude']= newPoint.latitude;
-              // _initialData['BldLongitude']= newPoint.longitude;
-              // }
-            });
-          },
-          onDragUpdate: (details) {
-            setState(() {
-              // int index = _newPolygonPoints.indexOf(point);
-
-              int index = _newPolygonPoints.indexWhere(
-                (p) =>
-                    p.latitude == point.latitude &&
-                    p.longitude == point.longitude,
-              );
-              if (index == -1) return;
-
-              final RenderBox mapRenderBox =
-                  context.findRenderObject() as RenderBox;
-              final mapPosition = mapRenderBox.localToGlobal(Offset.zero);
-
-              final appBarHeight = box.size.height;
-              final topPadding = MediaQuery.of(context).padding.top;
-
-              final dropOffset = details.globalPosition +
-                  const Offset(0, -72); // your effective vertical offset
-
-              final localDropPosition = dropOffset -
-                  mapPosition -
-                  Offset(MediaQuery.of(context).padding.left,
-                      appBarHeight + topPadding);
-
-              final newPoint = mapController.camera.pointToLatLng(
-                Point(localDropPosition.dx, localDropPosition.dy),
-              );
-
-              _newPolygonPoints[index] = newPoint;
-
-              // if (_selectedShapeType == ShapeType.point) {
-              //   _initialData['EntLatitude'] = newPoint.latitude;
-              //   _initialData['EntLongitude'] = newPoint.longitude;
-              // } else {
-              //initialize with centroid of polygon
-              //   _initialData['BldLatitude']= newPoint.latitude;
-              // _initialData['BldLongitude']= newPoint.longitude;
-              // }
-            });
-          },
-          child: const TargetMarker(),
         ),
       );
     }).toList();
@@ -544,9 +456,7 @@ void _showContextMenu(
                             },
                             onPositionChanged: _onPositionChanged,
                             onTap: (tapPosition, point) {
-                              if (_isDrawing) {
-                                _onAddShape(point);
-                              } else {
+                              if (!_isDrawing) {
                                 handleBuildingOnTap(tapPosition, point);
                               }
                             },
@@ -573,32 +483,36 @@ void _showContextMenu(
                             ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
-                            if (_newPolygonPoints.isNotEmpty)
+                            if (_newPolygonPoints.isNotEmpty &&
+                                _selectedShapeType == ShapeType.polygon)
                               PolygonLayer(polygons: [
                                 Polygon(
                                   points: _newPolygonPoints,
-                                  color: Colors.grey,
-                                  borderStrokeWidth: 1.0,
+                                  color: Colors.green.withOpacity(0.3),
+                                  borderStrokeWidth: 2.0,
+                                  borderColor: Colors.green,
                                 )
                               ]),
                           ],
                         ),
-                        Positioned(
-                          bottom: 16,
-                          left: 16,
-                          child: !_isDrawing
-                              ? MapActionButtons(
-                                  mapController: mapController,
-                                  enableDrawing: enableDrawing,
-                                )
-                              : MapActionEvents(
-                                  onClose: _onClose,
-                                  onUndo: _onUndo,
-                                  onRedo: _onRedo,
-                                  onSave: _onDrawFinished,
-                                  newPolygonPoints: [..._newPolygonPoints],
-                                ),
-                        ),
+                        _isDrawing
+                            ? MapActionEvents(
+                                onClose: _onClose,
+                                onUndo: _onUndo,
+                                onRedo: _onRedo,
+                                onSave: _onDrawFinished,
+                                newPolygonPoints: [..._newPolygonPoints],
+                                mapController: mapController,
+                                isEntrance:
+                                    _selectedShapeType == ShapeType.point,
+                                onMarkerPlaced: (LatLng position) {
+                                  _onAddShape(position);
+                                },
+                              )
+                            : MapActionButtons(
+                                mapController: mapController,
+                                enableDrawing: enableDrawing,
+                              ),
                         Positioned(
                           bottom: 16,
                           left: 75,
@@ -621,6 +535,7 @@ void _showContextMenu(
                         onClose: () => {
                           setState(() {
                             _isPropertyVisibile = false;
+                            _isDrawing = false;
                           })
                         },
                       ),
