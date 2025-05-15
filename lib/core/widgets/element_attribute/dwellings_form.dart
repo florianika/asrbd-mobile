@@ -1,3 +1,5 @@
+import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/enums/shape_type.dart';
@@ -14,8 +16,9 @@ class DwellingForm extends StatefulWidget {
 
 class _DwellingFormState extends State<DwellingForm> {
   final List<Map<String, dynamic>> _dwellingRows = [];
+  List<FieldSchema> _dwellingSchema = [];
+  bool _showDwellingForm = false;
 
-  // Column label mapping
   final Map<String, String> _columnLabels = {
     'DwlCensus2023': 'Census Code',
     'DwlType': 'Type',
@@ -33,7 +36,6 @@ class _DwellingFormState extends State<DwellingForm> {
     'last_edited_date': 'Edited Date',
   };
 
-  // Column order to show
   final List<String> _columnOrder = [
     'DwlCensus2023',
     'DwlType',
@@ -43,12 +45,6 @@ class _DwellingFormState extends State<DwellingForm> {
     'DwlToilet',
     'DwlBath',
     'DwlAirConditioner',
-   //'DwlHeatingFacility',
-   //'DwlSolarPanel',
-   //'created_user',
-   //'created_date',
-   //'last_edited_user',
-   //'last_edited_date',
   ];
 
   @override
@@ -69,6 +65,11 @@ class _DwellingFormState extends State<DwellingForm> {
               features.map((f) => Map<String, dynamic>.from(f['properties'])),
             );
           });
+        } else if (state is DwellingAttributes) {
+          setState(() {
+            _dwellingSchema = state.attributes;
+            _showDwellingForm = true;
+          });
         } else if (state is DwellingError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -87,43 +88,64 @@ class _DwellingFormState extends State<DwellingForm> {
           backgroundColor: Colors.white,
           body: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    const Spacer(),
-                    ElevatedButton.icon(
-                      onPressed: _onAddNewDwelling,
-                      icon: const Icon(Icons.add),
-                      label: const Text("New"),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                if (state is DwellingLoading)
-                  const Center(child: CircularProgressIndicator()),
-                if (_dwellingRows.isEmpty && state is! DwellingLoading)
-                  const Center(child: Text("No dwellings found.")),
-                if (_dwellingRows.isNotEmpty)
-                  Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Flexible(
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: DataTable(
-                            columns: _buildColumns(),
-                            rows: _dwellingRows.map(_buildDataRow).toList(),
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Spacer(),
+                          ElevatedButton.icon(
+                            onPressed: _onAddNewDwelling,
+                            icon: const Icon(Icons.add),
+                            label: const Text("New"),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      if (state is DwellingLoading)
+                        const Center(child: CircularProgressIndicator()),
+                      if (_dwellingRows.isEmpty && state is! DwellingLoading)
+                        const Center(child: Text("No dwellings found.")),
+                      if (_dwellingRows.isNotEmpty)
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: DataTable(
+                                columns: _buildColumns(),
+                                rows: _dwellingRows.map(_buildDataRow).toList(),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                if (_showDwellingForm)
+                  Expanded(
+                    flex: 1,
+                    child: TabletElementAttribute(
+                      schema: _dwellingSchema,
+                      selectedShapeType: ShapeType.noShape,
+                      initialData: const {},
+                      onClose: () {
+                        setState(() {
+                          _showDwellingForm = false;
+                        });
+                      },
+                      save: (formValues) {
+                        // TODO: send to API
+                        setState(() {
+                          _showDwellingForm = false;
+                        });
+                      },
+                    ),
+                  ),
               ],
             ),
           ),
@@ -131,6 +153,7 @@ class _DwellingFormState extends State<DwellingForm> {
       },
     );
   }
+
   List<DataColumn> _buildColumns() {
     return [
       const DataColumn(label: Text("Actions")),
@@ -189,8 +212,9 @@ class _DwellingFormState extends State<DwellingForm> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Close"))
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Close"),
+          ),
         ],
       ),
     );
@@ -203,8 +227,6 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void _onAddNewDwelling() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("New dwelling action clicked")),
-    );
+    context.read<DwellingCubit>().getDwellingAttibutes();
   }
 }
