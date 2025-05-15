@@ -117,18 +117,18 @@ class ApiEndpoints {
       },
     ).toString();
   }
- static String getEsriDwelling(String geometry) {
+ static String getEsriDwellings(String entranceGlobalId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/1/query',
+      path: '${esriBaseUri.path}/2/query',
       queryParameters: {
-        'where': '1=1',
+        'where': 'DwlEntGlobalID =\'$entranceGlobalId\'',
         'objectIds': '',
         'time': '',
-        'geometry': geometry,
+        'geometry':'',
         'geometryType': 'esriGeometryEnvelope',
-        'inSR': '4326',
+        'inSR': '',
         'defaultSR': '',
         'spatialRel': 'esriSpatialRelIntersects',
         'distance': '',
@@ -155,8 +155,6 @@ class ApiEndpoints {
         'resultOffset': '',
         'resultRecordCount': '',
         'returnTrueCurves': 'false',
-        'returnExceededLimitFeatures': 'false',
-        'quantizationParameters': '',
         'returnCentroid': 'false',
         'timeReferenceUnknownClient': 'false',
         'maxRecordCountFactor': '',
