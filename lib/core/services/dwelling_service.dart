@@ -11,14 +11,13 @@ class DwellingService {
   final StorageService _storage = StorageService();
 
   Future<Map<String, dynamic>> getDwellings(
-      LatLngBounds bounds, double zoom) async {
+     String entranceGlobalId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-      final bbox =
-          '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
+     
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await dwellingApi.getDwellings(esriToken, bbox);
+      final response = await dwellingApi.getDwellings(esriToken, entranceGlobalId);
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
       } else {

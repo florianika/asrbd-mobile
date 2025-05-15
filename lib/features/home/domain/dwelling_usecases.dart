@@ -8,15 +8,9 @@ class DwellingUseCases {
 
   DwellingUseCases(this._dwellingRepository);
   Future<Map<String, dynamic>> getDwellings(
-      LatLngBounds? bounds, double zoom) async {
-    if (bounds == null) {
-      return {};
-    }
-
-    if (zoom < EsriConfig.minZoom) {
-      return {};
-    }
-    return await _dwellingRepository.getDwellings(bounds, zoom);
+      String entranceGlobalId) async {
+  
+    return await _dwellingRepository.getDwellings(entranceGlobalId);
   }
 
   Future<List<FieldSchema>> getDwellingAttibutes() async {

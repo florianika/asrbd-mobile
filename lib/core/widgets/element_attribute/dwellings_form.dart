@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/enums/shape_type.dart';
+import '../../../features/home/presentation/dwelling_cubit.dart';
 
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
@@ -13,98 +15,196 @@ class DwellingForm extends StatefulWidget {
 class _DwellingFormState extends State<DwellingForm> {
   final List<Map<String, dynamic>> _dwellingRows = [];
 
-  void _addRow() {
-    setState(() {
-      _dwellingRows.add({
-        'DwlCode': '',
-        'DwlType': null,
-        'NumRooms': '',
-      });
-    });
-  }
+  // Column label mapping
+  final Map<String, String> _columnLabels = {
+    'DwlCensus2023': 'Census Code',
+    'DwlType': 'Type',
+    'DwlStatus': 'Status',
+    'DwlOwnership': 'Ownership',
+    'DwlOccupancy': 'Occupancy',
+    'DwlToilet': 'Toilet',
+    'DwlBath': 'Bath',
+    'DwlAirConditioner': 'AC',
+    'DwlHeatingFacility': 'Heating',
+    'DwlSolarPanel': 'Solar Panel',
+    'created_user': 'Created By',
+    'created_date': 'Created Date',
+    'last_edited_user': 'Edited By',
+    'last_edited_date': 'Edited Date',
+  };
 
+  // Column order to show
+  final List<String> _columnOrder = [
+    'DwlCensus2023',
+    'DwlType',
+    'DwlStatus',
+    'DwlOwnership',
+    'DwlOccupancy',
+    'DwlToilet',
+    'DwlBath',
+    'DwlAirConditioner',
+   //'DwlHeatingFacility',
+   //'DwlSolarPanel',
+   //'created_user',
+   //'created_date',
+   //'last_edited_user',
+   //'last_edited_date',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Dwelling Form", style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-      ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
+    return BlocConsumer<DwellingCubit, DwellingState>(
+      listener: (context, state) {
+        if (state is Dwellings) {
+          final features = state.dwellings['features'] as List<dynamic>;
+          setState(() {
+            _dwellingRows.clear();
+            _dwellingRows.addAll(
+              features.map((f) => Map<String, dynamic>.from(f['properties'])),
+            );
+          });
+        } else if (state is DwellingError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text("Dwellings"),
+            backgroundColor: Colors.white,
+            iconTheme: const IconThemeData(color: Colors.black),
+            titleTextStyle: const TextStyle(color: Colors.black, fontSize: 20),
+            elevation: 0,
+          ),
+          backgroundColor: Colors.white,
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                const Text("Dwellings", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: _addRow,
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add"),
+                Row(
+                  children: [
+                    const Spacer(),
+                    ElevatedButton.icon(
+                      onPressed: _onAddNewDwelling,
+                      icon: const Icon(Icons.add),
+                      label: const Text("New"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _dwellingRows.length,
-                itemBuilder: (context, index) {
-                  final row = _dwellingRows[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            initialValue: row['DwlCode'],
-                            decoration: const InputDecoration(labelText: 'Dwelling Code'),
-                            onChanged: (value) => row['DwlCode'] = value,
+                const SizedBox(height: 16),
+                if (state is DwellingLoading)
+                  const Center(child: CircularProgressIndicator()),
+                if (_dwellingRows.isEmpty && state is! DwellingLoading)
+                  const Center(child: Text("No dwellings found.")),
+                if (_dwellingRows.isNotEmpty)
+                  Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: DataTable(
+                            columns: _buildColumns(),
+                            rows: _dwellingRows.map(_buildDataRow).toList(),
                           ),
-                          const SizedBox(height: 12),
-                          DropdownButtonFormField<int>(
-                            value: row['DwlType'],
-                            decoration: const InputDecoration(labelText: 'Dwelling Type'),
-                            items: const [
-                              DropdownMenuItem(value: 1, child: Text('Apartment')),
-                              DropdownMenuItem(value: 2, child: Text('House')),
-                            ],
-                            onChanged: (value) => setState(() => row['DwlType'] = value),
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            initialValue: row['NumRooms'],
-                            decoration: const InputDecoration(labelText: 'Number of Rooms'),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) => row['NumRooms'] = value,
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _dwellingRows.removeAt(index);
-                                });
-                              },
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              label: const Text("Remove", style: TextStyle(color: Colors.red)),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
+              ],
             ),
-          ],
+          ),
+        );
+      },
+    );
+  }
+  List<DataColumn> _buildColumns() {
+    return [
+      const DataColumn(label: Text("Actions")),
+      ..._columnOrder.map((key) {
+        final label = _columnLabels[key] ?? key;
+        return DataColumn(
+          label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        );
+      }),
+    ];
+  }
+
+  DataRow _buildDataRow(Map<String, dynamic> row) {
+    return DataRow(
+      cells: [
+        DataCell(
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              if (value == 'view') {
+                _onViewDwelling(row);
+              } else if (value == 'edit') {
+                _onEditDwelling(row);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'view', child: Text('View Dwelling')),
+              const PopupMenuItem(value: 'edit', child: Text('Edit Dwelling')),
+            ],
+          ),
         ),
+        ..._columnOrder.map((key) {
+          final value = row[key];
+          return DataCell(Text(value?.toString() ?? ''));
+        }),
+      ],
+    );
+  }
+
+  void _onViewDwelling(Map<String, dynamic> row) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Dwelling Details'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: row.entries
+                .map((e) => ListTile(
+                      title: Text(e.key),
+                      subtitle: Text(e.value?.toString() ?? '-'),
+                    ))
+                .toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"))
+        ],
       ),
+    );
+  }
+
+  void _onEditDwelling(Map<String, dynamic> row) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Edit clicked for OBJECTID: ${row['OBJECTID']}")),
+    );
+  }
+
+  void _onAddNewDwelling() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("New dwelling action clicked")),
     );
   }
 }

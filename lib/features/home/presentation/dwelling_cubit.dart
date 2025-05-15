@@ -30,10 +30,10 @@ class DwellingCubit extends Cubit<DwellingState> {
   DwellingCubit(this.dwellingUseCases) : super(DwellingInitial());
 
   // Login method
-  Future<void> getDwellings(LatLngBounds? bounds, double zoom) async {
+  Future<void> getDwellings(String entranceGlobalId) async {
     emit(DwellingLoading());
     try {
-      emit(Dwellings(await dwellingUseCases.getDwellings(bounds, zoom)));
+      emit(Dwellings(await dwellingUseCases.getDwellings(entranceGlobalId)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
