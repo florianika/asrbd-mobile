@@ -2,7 +2,6 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:country_flags/country_flags.dart';
 import 'package:flutter/material.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
