@@ -86,9 +86,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ),
               child: DynamicElementAttribute(
                 schema: _getDwellingSchema(),
-                initialData: {}, // 👈 Totally empty
+                initialData: {}, 
                 onSave: (dwellingData) {
-                  Navigator.of(context).pop(); // Close dwelling form
+                  Navigator.of(context).pop(); 
                   debugPrint('Saved dwelling: $dwellingData');
                 },
                 onClose: () => Navigator.of(context).pop(),

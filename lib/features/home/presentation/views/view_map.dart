@@ -64,7 +64,7 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
-    context.read<DwellingCubit>().getDwellingAttibutes();
+    //context.read<DwellingCubit>().getDwellingAttibutes();
   }
 
   final String _styleAttribute = 'CATEGORY';
