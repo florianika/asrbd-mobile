@@ -33,10 +33,6 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
 
-  bool get isEntranceForm {
-    return widget.schema.any((field) => field.name == 'EntCensus2023');
-  }
-
   @override
   void initState() {
     super.initState();
