@@ -47,4 +47,60 @@ class EntranceApi {
     return _apiClient.post(ApiEndpoints.addEsriFeauture(EntityType.entrance),
         data: payload);
   }
+
+  Future<Response> updateEntranceFeature(String esriToken,
+      Map<String, dynamic> attributes, List<LatLng> points) async {
+    Map<String, String> contentType = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    final Map<String, dynamic> feature = {
+      'geometry': {
+        'x': points[0].longitude,
+        'y': points[0].latitude,
+        'spatialReference': {'wkid': 4326},
+      },
+      'attributes': attributes,
+    };
+
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+
+    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
+        data: payload);
+  }
+
+  Future<Response> deleteEntranceFeature(String esriToken,
+      String objectId) async {
+    Map<String, String> contentType = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    final payload = {
+      'objectIds': objectId,
+      'where': '',
+      'geometry': '',
+      'inSR': '',
+      'spatialRel': 'esriSpatialRelIntersects',
+      'gdbVersion': '',
+      'rollbackOnFailure': 'true',
+      'returnDeleteResults': 'false',
+      'async': 'false',
+      'f': 'pjson',
+      'token': esriToken
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+
+    return _apiClient.post(ApiEndpoints.deleteEsriFeauture(EntityType.entrance),
+        data: payload);
+  }
 }

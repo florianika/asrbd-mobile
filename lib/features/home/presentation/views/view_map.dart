@@ -402,6 +402,23 @@ class _ViewMapState extends State<ViewMap> {
     visibleBounds = mapController.camera.visibleBounds;
   }
 
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _handleEntranceResponse(
+      BuildContext context, bool isAdded, String actionName) {
+    _showSnackBar(
+      context,
+      isAdded ? "$actionName u krye" : "$actionName dështoi",
+    );
+    if (isAdded) {
+      context.read<EntranceCubit>().getEntrances(visibleBounds, zoom);
+      setState(() => _newPolygonPoints.clear());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -428,32 +445,20 @@ class _ViewMapState extends State<ViewMap> {
         builder: (context, state) {
           return BlocConsumer<EntranceCubit, EntranceState>(
             listener: (context, state) {
-              if (state is Entrances) {
-                if (state.entrances.isNotEmpty) {
-                  entranceData = state.entrances;
-                }
-              } else if (state is EntranceAttributes) {
-                _entranceSchema = state.attributes;
-              } else if (state is EntranceAddResponse) {
-                if (state.isAdded) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Shtimi i hyrjes u krye")),
-                  );
-                  context
-                      .read<EntranceCubit>()
-                      .getEntrances(visibleBounds, zoom);
-                  setState(() {
-                    _newPolygonPoints.clear();
-                  });
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Shtimi i hyrjes dështoi")),
-                  );
-                }
-              } else if (state is EntranceError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
+              switch (state) {
+                case Entrances(:final entrances):
+                  if (entrances.isNotEmpty) entranceData = entrances;
+                case EntranceAttributes(:final attributes):
+                  _entranceSchema = attributes;
+                case EntranceAddResponse(:final isAdded):
+                  _handleEntranceResponse(context, isAdded, "Shtimi i hyrjes");
+                case EntranceUpdateResponse(:final isAdded):
+                  _handleEntranceResponse(
+                      context, isAdded, "Perditesimi i hyrjes");
+                case EntranceDeleteResponse(:final isAdded):
+                  _handleEntranceResponse(context, isAdded, "Fshirja e hyrjes");
+                case EntranceError(:final message):
+                  _showSnackBar(context, message);
               }
             },
             builder: (context, state) {

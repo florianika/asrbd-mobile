@@ -64,12 +64,49 @@ class EntranceService {
     }
   }
 
-  Future<bool> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<bool> addEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await entranceApi.addEntranceFeature(esriToken, attributes, points);      
+      final response =
+          await entranceApi.addEntranceFeature(esriToken, attributes, points);
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<bool> updateEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response = await entranceApi.updateEntranceFeature(
+          esriToken, attributes, points);
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<bool> deleteEntranceFeature(String objectId) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response =
+          await entranceApi.deleteEntranceFeature(esriToken, objectId);
       if (response.statusCode == 200) {
         return true;
       } else {

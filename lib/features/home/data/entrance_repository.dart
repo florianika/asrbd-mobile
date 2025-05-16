@@ -18,7 +18,17 @@ class EntranceRepository {
     return await entranceService.getEntranceAttributes();
   }
 
-  Future<bool> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<bool> addEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
     return await entranceService.addEntranceFeature(attributes, points);
+  }
+
+  Future<bool> updateEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
+    return await entranceService.updateEntranceFeature(attributes, points);
+  }
+
+  Future<bool> deleteEntranceFeature(String objectId) async {
+    return await entranceService.deleteEntranceFeature(objectId);
   }
 }

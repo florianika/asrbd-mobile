@@ -141,4 +141,52 @@ class ApiEndpoints {
       path: '${esriBaseUri.path}/$layerId/addFeatures',
     ).toString();
   }
+
+
+  static String updateEsriFeauture(EntityType entityType) {
+    int layerId = EsriConfig.entranceLayerId;
+
+    switch (entityType) {
+      case EntityType.building:
+        layerId = EsriConfig.buildingLayerId;
+        break;
+
+      case EntityType.entrance:
+        layerId = EsriConfig.entranceLayerId;
+        break;
+
+      case EntityType.dwelling:
+        layerId = EsriConfig.dwellingLayerId;
+        break;
+    }
+
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/$layerId/updateFeatures',
+    ).toString();
+  }
+  static String deleteEsriFeauture(EntityType entityType) {
+    int layerId = EsriConfig.entranceLayerId;
+
+    switch (entityType) {
+      case EntityType.building:
+        layerId = EsriConfig.buildingLayerId;
+        break;
+
+      case EntityType.entrance:
+        layerId = EsriConfig.entranceLayerId;
+        break;
+
+      case EntityType.dwelling:
+        layerId = EsriConfig.dwellingLayerId;
+        break;
+    }
+
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/$layerId/deleteFeatures',
+    ).toString();
+  }
 }

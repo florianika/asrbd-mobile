@@ -26,6 +26,16 @@ class EntranceAddResponse extends EntranceState {
   EntranceAddResponse(this.isAdded);
 }
 
+class EntranceUpdateResponse extends EntranceState {
+  final bool isAdded;
+  EntranceUpdateResponse(this.isAdded);
+}
+
+class EntranceDeleteResponse extends EntranceState {
+  final bool isAdded;
+  EntranceDeleteResponse(this.isAdded);
+}
+
 class EntranceError extends EntranceState {
   final String message;
   EntranceError(this.message);
@@ -55,10 +65,33 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> addEntranceFeature(Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<void> addEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(EntranceLoading());
     try {
-      emit(EntranceAddResponse(await entranceUseCases.addEntranceFeature(attributes, points)));
+      emit(EntranceAddResponse(
+          await entranceUseCases.addEntranceFeature(attributes, points)));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  Future<void> updateEntranceFeature(
+      Map<String, dynamic> attributes, List<LatLng> points) async {
+    emit(EntranceLoading());
+    try {
+      emit(EntranceUpdateResponse(
+          await entranceUseCases.updateEntranceFeature(attributes, points)));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  Future<void> deleteEntranceFeature(String objectId) async {
+    emit(EntranceLoading());
+    try {
+      emit(EntranceDeleteResponse(
+          await entranceUseCases.deleteEntranceFeature(objectId)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
