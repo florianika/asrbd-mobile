@@ -44,6 +44,9 @@ class _ViewMapState extends State<ViewMap> {
   List<FieldSchema> _entranceSchema = [];
   List<dynamic> highilghGlobalIds = [];
 
+  LatLngBounds? visibleBounds;
+  double zoom = 0;
+
   Timer? _debounce;
 
   final GlobalKey _appBarKey = GlobalKey();
@@ -110,11 +113,11 @@ class _ViewMapState extends State<ViewMap> {
 
       // Update state accordingly
       setState(() {
+        _selectedObjectId = data['OBJECTID'];
         highilghGlobalIds = [];
         _initialData = data;
         _schema = _entranceSchema;
         _selectedShapeType = ShapeType.point;
-        _selectedObjectId = data['OBJECTID'];
         _isPropertyVisibile = !isMobile;
       });
 
@@ -130,50 +133,50 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-void _showContextMenu(
-  BuildContext context,
-  Offset globalPosition,
-  EntityType type,
-  LatLng position,
-) async {
-  final selected = await showMenu(
-    context: context,
-    position: RelativeRect.fromLTRB(
-      globalPosition.dx,
-      globalPosition.dy,
-      globalPosition.dx,
-      globalPosition.dy,
-    ),
-    items: const [
-      PopupMenuItem(
-        value: 'view',
-        child: Text('View Properties'),
+  void _showContextMenu(
+    BuildContext context,
+    Offset globalPosition,
+    EntityType type,
+    LatLng position,
+  ) async {
+    final selected = await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        globalPosition.dx,
+        globalPosition.dy,
+        globalPosition.dx,
+        globalPosition.dy,
       ),
-      PopupMenuItem(
-        value: 'delete',
-        child: Text('Delete'),
-      ),
-    ],
-  );
+      items: const [
+        PopupMenuItem(
+          value: 'view',
+          child: Text('View Properties'),
+        ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Text('Delete'),
+        ),
+      ],
+    );
 
-  if (selected == 'view') {
-    if (type == EntityType.entrance) {
-      _schema = _entranceSchema;
-    } else {
-      _schema = _buildingSchema;
+    if (selected == 'view') {
+      if (type == EntityType.entrance) {
+        _schema = _entranceSchema;
+      } else {
+        _schema = _buildingSchema;
+      }
+
+      setState(() {
+        _initialData = {
+          'Lat': position.latitude,
+          'Lng': position.longitude,
+        };
+        _isPropertyVisibile = true;
+      });
+    } else if (selected == 'delete') {
+      // Handle delete if needed
     }
-
-    setState(() {
-      _initialData = {
-        'Lat': position.latitude,
-        'Lng': position.longitude,
-      };
-      _isPropertyVisibile = true;
-    });
-  } else if (selected == 'delete') {
-    // Handle delete if needed
   }
-}
 
   @override
   void initState() {
@@ -271,6 +274,7 @@ void _showContextMenu(
   }
 
   void _onSave(Map<String, dynamic> attributes) {
+    if (_newPolygonPoints.isEmpty) return;
     context
         .read<EntranceCubit>()
         .addEntranceFeature(attributes, _newPolygonPoints);
@@ -393,6 +397,9 @@ void _showContextMenu(
           .read<EntranceCubit>()
           .getEntrances(camera.visibleBounds, camera.zoom);
     });
+
+    zoom = camera.zoom;
+    visibleBounds = mapController.camera.visibleBounds;
   }
 
   @override
@@ -400,7 +407,8 @@ void _showContextMenu(
     return Scaffold(
       appBar: AppBar(
         key: _appBarKey,
-        // title: Text("Map -${buildinGeoJsonParser.polygons.length}"),
+        title: Text(
+            "Map -${entranceData != null ? (entranceData?['features'] as List<dynamic>).length : 0}"),
       ),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(
@@ -426,6 +434,22 @@ void _showContextMenu(
                 }
               } else if (state is EntranceAttributes) {
                 _entranceSchema = state.attributes;
+              } else if (state is EntranceAddResponse) {
+                if (state.isAdded) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Shtimi i hyrjes u krye")),
+                  );
+                  context
+                      .read<EntranceCubit>()
+                      .getEntrances(visibleBounds, zoom);
+                  setState(() {
+                    _newPolygonPoints.clear();
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Shtimi i hyrjes dështoi")),
+                  );
+                }
               } else if (state is EntranceError) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -450,7 +474,10 @@ void _showContextMenu(
                                   EsriConfig.minZoom),
                               context.read<EntranceCubit>().getEntrances(
                                   mapController.camera.visibleBounds,
-                                  EsriConfig.minZoom)
+                                  EsriConfig.minZoom),
+                              zoom = EsriConfig.minZoom,
+                              visibleBounds =
+                                  mapController.camera.visibleBounds,
                             },
                             onPositionChanged: _onPositionChanged,
                             onTap: (tapPosition, point) {
@@ -464,6 +491,12 @@ void _showContextMenu(
                               tileProvider:
                                   ft.FileTileProvider(tileDirPath, false),
                             ),
+                            BuildingMarker(
+                              buildingsData: buildingsData,
+                              selectedObjectId: _selectedObjectId,
+                              selectedShapeType: _selectedShapeType,
+                              onLongPressContextMenu: _showContextMenu,
+                            ),
                             EntranceMarker(
                               entranceData: entranceData,
                               onTap: handleEntranceTap,
@@ -471,12 +504,6 @@ void _showContextMenu(
                               selectedShapeType: _selectedShapeType,
                               mapController: mapController,
                               highilghGlobalIds: highilghGlobalIds,
-                              onLongPressContextMenu: _showContextMenu,
-                            ),
-                            BuildingMarker(
-                              buildingsData: buildingsData,
-                              selectedObjectId: _selectedObjectId,
-                              selectedShapeType: _selectedShapeType,
                               onLongPressContextMenu: _showContextMenu,
                             ),
                             if (_newPolygonPoints.isNotEmpty)
@@ -512,8 +539,8 @@ void _showContextMenu(
                                 enableDrawing: enableDrawing,
                               ),
                         Positioned(
-                          bottom: 16,
-                          left: 75,
+                          top: 20,
+                          left: 20,
                           child: MapLegend(
                             legendItems: _getCurrentLegendItems(),
                             title: "Legjenda",
