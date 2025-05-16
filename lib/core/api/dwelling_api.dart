@@ -5,7 +5,7 @@ import 'api_endpoints.dart';
 class DwellingApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getDwellings(String esriToken, String entranceGlobalId) async {
+  Future<Response> getDwellings(String esriToken, String? entranceGlobalId) async {
     return await _apiClient
         .get('${ApiEndpoints.getEsriDwellings(entranceGlobalId)}&token=$esriToken');
   }

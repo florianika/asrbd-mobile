@@ -7,15 +7,17 @@ import 'package:flutter/material.dart';
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
+  final String? entranceGlobalId;
   final Map<String, dynamic>? initialData;
   final void Function(Map<String, dynamic>)? onSave;
 
   final void Function()? onClose;
-  final void Function()? onDwelling;
+  final void Function(String?)? onDwelling;
 
   const DynamicElementAttribute({
     required this.schema,
     required this.selectedShapeType,
+    this.entranceGlobalId,
     this.initialData,
     this.onSave,
     this.onClose,
@@ -184,7 +186,11 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             ),
             if (widget.selectedShapeType==ShapeType.point)
               OutlinedButton.icon(
-               onPressed: widget.onDwelling,
+                onPressed: () {
+                if (widget.onDwelling != null) {
+                  widget.onDwelling!(widget.entranceGlobalId);
+                }
+              },
                icon: const Icon(Icons.home_work, color: Colors.black),
                label: const Text('Manage Dwelling',
                style: TextStyle(color: Colors.black)),

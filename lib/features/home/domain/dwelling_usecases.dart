@@ -8,7 +8,7 @@ class DwellingUseCases {
 
   DwellingUseCases(this._dwellingRepository);
   Future<Map<String, dynamic>> getDwellings(
-      String entranceGlobalId) async {
+      String? entranceGlobalId) async {
   
     return await _dwellingRepository.getDwellings(entranceGlobalId);
   }

@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType ;
+  final String? entranceGlobalId;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -21,6 +22,7 @@ class TabletElementAttribute extends StatefulWidget {
     super.key,
     required this.schema,
     required this.selectedShapeType,
+    this.entranceGlobalId,
     required this.onClose,
     required this.initialData,
     required this.save,
@@ -73,7 +75,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
     );
   }
 
-  void _openNewDwellingForm() {
+  void _openNewDwellingForm(entranceGlobalId) {
  Navigator.push(
   context,
   MaterialPageRoute(
@@ -87,7 +89,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
           ),
         ),
       ),
-      child: DwellingForm(selectedShapeType: ShapeType.point),
+      child: DwellingForm(selectedShapeType: ShapeType.point,entranceGlobalId: widget.entranceGlobalId,),
     ),
   ),
 );

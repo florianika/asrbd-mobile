@@ -11,7 +11,7 @@ class DwellingService {
   final StorageService _storage = StorageService();
 
   Future<Map<String, dynamic>> getDwellings(
-     String entranceGlobalId) async {
+     String? entranceGlobalId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
      

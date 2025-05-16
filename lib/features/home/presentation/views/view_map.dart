@@ -530,6 +530,8 @@ void _showContextMenu(
                       child: TabletElementAttribute(
                         schema: _schema,
                         selectedShapeType:_selectedShapeType,
+                        entranceGlobalId:  _initialData['GlobalID']?.toString(),
+                        //entranceGlobalId:  _initialData['EntBldGlobalID']?.toString(),
                         initialData: _initialData,
                         save: _onSave,
                         onClose: () => {

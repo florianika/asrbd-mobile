@@ -117,7 +117,7 @@ class ApiEndpoints {
       },
     ).toString();
   }
- static String getEsriDwellings(String entranceGlobalId) {
+ static String getEsriDwellings(String? entranceGlobalId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,

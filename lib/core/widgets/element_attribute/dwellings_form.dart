@@ -7,8 +7,13 @@ import '../../../features/home/presentation/dwelling_cubit.dart';
 
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
+  final String? entranceGlobalId;
 
-  const DwellingForm({super.key, required this.selectedShapeType});
+  const DwellingForm(
+    {super.key, 
+    required this.selectedShapeType,
+     this.entranceGlobalId
+    });
 
   @override
   State<DwellingForm> createState() => _DwellingFormState();
@@ -50,7 +55,9 @@ class _DwellingFormState extends State<DwellingForm> {
   @override
   void initState() {
     super.initState();
-    context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
+     final id=widget.entranceGlobalId;
+    //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
+    context.read<DwellingCubit>().getDwellings(id);
   }
 
   @override

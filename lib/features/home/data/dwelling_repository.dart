@@ -7,7 +7,7 @@ class DwellingRepository {
 
   DwellingRepository(this.dwellingService);
 
-  Future<Map<String, dynamic>> getDwellings(String entranceGlobalId) async {
+  Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
     return await dwellingService.getDwellings(entranceGlobalId);
   }
 
