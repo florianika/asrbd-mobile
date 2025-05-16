@@ -13,7 +13,8 @@ class MapLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      color: Colors.white.withOpacity(0.5),
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -44,7 +45,7 @@ class MapLegend extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
