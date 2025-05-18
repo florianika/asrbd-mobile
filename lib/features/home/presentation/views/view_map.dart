@@ -7,6 +7,7 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/legend/map_legend.dart';
@@ -60,6 +61,7 @@ class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
+  bool _isDwellingVisible = false;
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
@@ -552,22 +554,37 @@ class _ViewMapState extends State<ViewMap> {
                   ),
                   Visibility(
                     visible: _isPropertyVisibile,
-                    child: Expanded(
-                      flex: 1,
-                      child: TabletElementAttribute(
-                        schema: _schema,
-                        selectedShapeType:_selectedShapeType,
-                        entranceGlobalId:  _initialData['GlobalID']?.toString(),
-                        //entranceGlobalId:  _initialData['EntBldGlobalID']?.toString(),
-                        initialData: _initialData,
-                        save: _onSave,
-                        onClose: () => {
-                          setState(() {
-                            _isPropertyVisibile = false;
-                            _isDrawing = false;
-                          })
-                        },
-                      ),
+                    child:Expanded(
+                      flex: _isDwellingVisible? 5 : 1,
+                      child: _isDwellingVisible
+                          ? DwellingForm(
+                              selectedShapeType: ShapeType.point,
+                              entranceGlobalId: _initialData['GlobalID']?.toString(),
+                              //entranceGlobalId:  _initialData['EntBldGlobalID']?.toString(),
+                              onBack: () {
+                                setState(() {
+                                  _isDwellingVisible = false;
+                                });
+                              },
+                            )
+                          : TabletElementAttribute(
+                              schema: _schema,
+                              selectedShapeType: _selectedShapeType,
+                              entranceGlobalId: _initialData['GlobalID']?.toString(),
+                              initialData: _initialData,
+                              save: _onSave,
+                              onClose: () {
+                                setState(() {
+                                  _isPropertyVisibile = false;
+                                  _isDrawing = false;
+                                });
+                              },
+                              onOpenDwelling: () {
+                                setState(() {
+                                  _isDwellingVisible = true;
+                                });
+                              },
+                            ),
                     ),
                   ),
                 ],

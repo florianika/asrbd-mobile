@@ -8,11 +8,13 @@ import '../../../features/home/presentation/dwelling_cubit.dart';
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
   final String? entranceGlobalId;
+  final VoidCallback onBack;
 
   const DwellingForm(
     {super.key, 
     required this.selectedShapeType,
-     this.entranceGlobalId
+     this.entranceGlobalId,
+     required this.onBack,
     });
 
   @override
@@ -86,6 +88,10 @@ class _DwellingFormState extends State<DwellingForm> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
+              leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: widget.onBack,
+            ),
             title: const Text("Dwellings"),
             backgroundColor: Colors.white,
             iconTheme: const IconThemeData(color: Colors.black),
