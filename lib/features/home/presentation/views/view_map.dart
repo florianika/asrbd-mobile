@@ -7,6 +7,7 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/legend/map_legend.dart';
@@ -16,6 +17,7 @@ import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -57,6 +59,9 @@ class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
+  bool _showDwellingUI = false;
+
+
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
@@ -526,19 +531,35 @@ void _showContextMenu(
                   Visibility(
                     visible: _isPropertyVisibile,
                     child: Expanded(
-                      flex: 1,
-                      child: TabletElementAttribute(
-                        schema: _schema,
-                        selectedShapeType:_selectedShapeType,
-                        initialData: _initialData,
-                        save: _onSave,
-                        onClose: () => {
-                          setState(() {
-                            _isPropertyVisibile = false;
-                            _isDrawing = false;
-                          })
-                        },
-                      ),
+                      flex: _showDwellingUI ? 5 : 1, 
+                      child: _showDwellingUI
+                          ? DwellingForm(
+                              selectedShapeType: ShapeType.point,
+                              onBack: () {
+                                setState(() {
+                                  _showDwellingUI = false;
+                                });
+                              },
+                            )
+                          : TabletElementAttribute(
+                              schema: _schema,
+                              selectedShapeType: _selectedShapeType,
+                              initialData: _initialData,
+                              save: _onSave,
+                              onClose: () {
+                                setState(() {
+                                  _isPropertyVisibile = false;
+                                  _isDrawing = false;
+                                });
+                              },
+                              onOpenDwelling: () {
+                                setState(() {
+                                  _showDwellingUI = true;
+                                });
+                                context.read<DwellingCubit>().getDwellings(
+                                    _initialData['EntGlobalID'] ?? '{DUMMY-GLOBAL-ID}');
+                              },
+                            ),
                     ),
                   ),
                 ],

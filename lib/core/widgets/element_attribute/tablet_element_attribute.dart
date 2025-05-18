@@ -16,6 +16,7 @@ class TabletElementAttribute extends StatefulWidget {
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
+  final void Function()? onOpenDwelling;
 
   const TabletElementAttribute({
     super.key,
@@ -24,6 +25,7 @@ class TabletElementAttribute extends StatefulWidget {
     required this.onClose,
     required this.initialData,
     required this.save,
+    this.onOpenDwelling,
   });
 
   @override
@@ -74,23 +76,8 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
   }
 
   void _openNewDwellingForm() {
- Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (_) => BlocProvider(
-      create: (_) => DwellingCubit(
-        DwellingUseCases(
-          DwellingRepository(
-            DwellingService(
-              DwellingApi(),
-            ),
-          ),
-        ),
-      ),
-      child: DwellingForm(selectedShapeType: ShapeType.point),
-    ),
-  ),
-);
-
+  if (widget.onOpenDwelling != null) {
+    widget.onOpenDwelling!();
+  }
 }
 }
