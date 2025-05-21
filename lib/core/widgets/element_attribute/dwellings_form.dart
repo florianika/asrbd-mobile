@@ -25,6 +25,14 @@ class _DwellingFormState extends State<DwellingForm> {
   final List<Map<String, dynamic>> _dwellingRows = [];
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
+  
+
+  void _onSaveDwelling(Map<String, dynamic> attributes) {
+    context.read<DwellingCubit>().addDwellingFeature(attributes);
+    setState(() {
+      _showDwellingForm = false;
+    });
+  }
 
   final Map<String, String> _columnLabels = {
     'DwlCensus2023': 'Census Code',
@@ -61,7 +69,8 @@ class _DwellingFormState extends State<DwellingForm> {
     //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
     context.read<DwellingCubit>().getDwellings(id);
   }
-
+   
+   
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DwellingCubit, DwellingState>(
@@ -152,7 +161,7 @@ class _DwellingFormState extends State<DwellingForm> {
                         });
                       },
                       save: (formValues) {
-                        // TODO: send to API
+                        _onSaveDwelling(formValues);
                         setState(() {
                           _showDwellingForm = false;
                         });
