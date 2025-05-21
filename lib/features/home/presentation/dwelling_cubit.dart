@@ -14,6 +14,11 @@ class Dwellings extends DwellingState {
   Dwellings(this.dwellings);
 }
 
+class DwellingAddResponse extends DwellingState {
+  final bool isAdded;
+  DwellingAddResponse(this.isAdded);
+}
+
 class DwellingAttributes extends DwellingState {
   final List<FieldSchema> attributes;
   DwellingAttributes(this.attributes);
@@ -43,6 +48,17 @@ class DwellingCubit extends Cubit<DwellingState> {
     emit(DwellingLoading());
     try {
       emit(DwellingAttributes(await dwellingUseCases.getDwellingAttibutes()));
+    } catch (e) {
+      emit(DwellingError(e.toString()));
+    }
+  }
+
+    Future<void> addDwellingFeature(
+      Map<String, dynamic> attributes,) async {
+    emit(DwellingLoading());
+    try {
+      emit(DwellingAddResponse(
+          await dwellingUseCases.addDwellingFeature(attributes)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }

@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:asrdb/core/api/esri_api_client.dart';
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:dio/dio.dart';
 import 'api_endpoints.dart';
 
@@ -13,5 +16,29 @@ class DwellingApi {
   Future<Response> getDwellingAttributes(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/2?f=json&token=$esriToken');
+  }
+
+    Future<Response> addDwellingFeature(String esriToken,
+      Map<String, dynamic> attributes, ) async {
+    Map<String, String> contentType = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    final Map<String, dynamic> feature = {
+      'attributes': attributes,
+    };
+
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+
+    return _apiClient.post(ApiEndpoints.addEsriFeauture(EntityType.dwelling),
+        data: payload);
   }
 }

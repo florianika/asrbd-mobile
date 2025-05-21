@@ -16,4 +16,9 @@ class DwellingUseCases {
   Future<List<FieldSchema>> getDwellingAttibutes() async {
     return await _dwellingRepository.getDwellingAttributes();
   }
+
+    Future<bool> addDwellingFeature(
+      Map<String, dynamic> attributes) async {
+    return await _dwellingRepository.addDwellingFeature(attributes);
+  }
 }
