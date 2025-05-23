@@ -114,20 +114,18 @@ class _ViewMapState extends State<ViewMap> {
       final bool isMobile =
           MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
 
-      // Update state accordingly
-      setState(() {
-        _selectedObjectId = data['OBJECTID'];
-        highilghGlobalIds = [];
-        _initialData = data;
-        _schema = _entranceSchema;
-        _selectedShapeType = ShapeType.point;
-        _isPropertyVisibile = !isMobile;
-      });
+      _selectedObjectId = data['OBJECTID'];
+      highilghGlobalIds = [];
+
+      _schema = _entranceSchema;
+      _selectedShapeType = ShapeType.point;
+
+      context.read<EntranceCubit>().getEntranceDetails(data['OBJECTID']);
 
       // For mobile devices, show the mobile attribute UI
-      if (isMobile) {
-        mobileElementAttribute(context, _entranceSchema, data, _onSave);
-      }
+      // if (isMobile) {
+      //   mobileElementAttribute(context, _entranceSchema, data, _onSave);
+      // }
     } catch (e) {
       // Display error message to the user in case of exception
       ScaffoldMessenger.of(context).showSnackBar(
@@ -291,10 +289,10 @@ class _ViewMapState extends State<ViewMap> {
     if (buildingsData == null) return;
 
     try {
-      final features =
+      final buildingFeatures =
           List<Map<String, dynamic>>.from(buildingsData!['features']);
 
-      final tappedFeature = features.firstWhere(
+      final tappedFeature = buildingFeatures.firstWhere(
         (feature) {
           final geometry = feature['geometry'];
           final polygonPoints = GeometryHelper.parseCoordinates(geometry);
@@ -309,9 +307,6 @@ class _ViewMapState extends State<ViewMap> {
       final objectId = props[EntranceFields.objectID];
       final globalId = props[EntranceFields.globalID];
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(globalId)),
-      );
       final isMobile =
           MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
 
@@ -321,30 +316,25 @@ class _ViewMapState extends State<ViewMap> {
 
         //find entrances of the selected building
         if (entranceData != null) {
-          final features = entranceData?['features'] as List<dynamic>?;
+          final entranceFeatures = entranceData?['features'] as List<dynamic>?;
 
-          if (features != null) {
-            final List<dynamic>? features = entranceData?['features'];
-
-            if (features != null) {
-              highilghGlobalIds = features
-                  .whereType<Map<String, dynamic>>()
-                  .where((feature) {
-                    final props =
-                        feature['properties'] as Map<String, dynamic>?;
-                    return props != null &&
-                        props['EntBldGlobalID']
-                                ?.toString()
-                                .toLowerCase()
-                                .replaceAll(RegExp(r'[{}]'), '') ==
-                            globalId
-                                .toLowerCase()
-                                .replaceAll(RegExp(r'[{}]'), '');
-                  })
-                  .map((feature) => feature['properties']?['OBJECTID'])
-                  .where((id) => id != null)
-                  .toList();
-            }
+          if (entranceFeatures != null) {
+            highilghGlobalIds = entranceFeatures
+                .whereType<Map<String, dynamic>>()
+                .where((feature) {
+                  final props = feature['properties'] as Map<String, dynamic>?;
+                  return props != null &&
+                      props['EntBldGlobalID']
+                              ?.toString()
+                              .toLowerCase()
+                              .replaceAll(RegExp(r'[{}]'), '') ==
+                          globalId
+                              .toLowerCase()
+                              .replaceAll(RegExp(r'[{}]'), '');
+                })
+                .map((feature) => feature['properties']?['OBJECTID'])
+                .where((id) => id != null)
+                .toList();
           }
         }
 
@@ -451,6 +441,18 @@ class _ViewMapState extends State<ViewMap> {
               switch (state) {
                 case Entrances(:final entrances):
                   if (entrances.isNotEmpty) entranceData = entrances;
+                case Entrance(:final entrance):
+                  if (entrance.isNotEmpty) {
+                    List<dynamic> features = entrance['features'];
+                    if (features.isNotEmpty &&
+                        features[0] is Map<String, dynamic>) {
+                      Map<String, dynamic> firstFeature = features[0];
+                      Map<String, dynamic> properties =
+                          firstFeature['properties'];
+                      _initialData = properties;
+                      _isPropertyVisibile = true;
+                    }
+                  }
                 case EntranceAttributes(:final attributes):
                   _entranceSchema = attributes;
                 case EntranceAddResponse(:final isAdded):
@@ -468,7 +470,7 @@ class _ViewMapState extends State<ViewMap> {
               return Row(
                 children: [
                   Expanded(
-                    flex: _isPropertyVisibile ? 2 : 1,
+                    flex: _isPropertyVisibile ? 3 : 2,
                     child: Stack(
                       children: [
                         FlutterMap(
@@ -488,6 +490,7 @@ class _ViewMapState extends State<ViewMap> {
                                   mapController.camera.visibleBounds,
                             },
                             onPositionChanged: _onPositionChanged,
+                            onLongPress: (tapPosition, point) => (),
                             onTap: (tapPosition, point) {
                               if (!_isDrawing) {
                                 handleBuildingOnTap(tapPosition, point);
@@ -559,12 +562,13 @@ class _ViewMapState extends State<ViewMap> {
                   ),
                   Visibility(
                     visible: _isPropertyVisibile,
-                    child:Expanded(
-                      flex: _isDwellingVisible? 5 : 1,
+                    child: Expanded(
+                      flex: _isDwellingVisible ? 5 : 1,
                       child: _isDwellingVisible
                           ? DwellingForm(
                               selectedShapeType: ShapeType.point,
-                              entranceGlobalId: _initialData['GlobalID']?.toString(),
+                              entranceGlobalId:
+                                  _initialData['GlobalID']?.toString(),
                               //entranceGlobalId:  _initialData['EntBldGlobalID']?.toString(),
                               onBack: () {
                                 setState(() {
@@ -575,7 +579,8 @@ class _ViewMapState extends State<ViewMap> {
                           : TabletElementAttribute(
                               schema: _schema,
                               selectedShapeType: _selectedShapeType,
-                              entranceGlobalId: _initialData['GlobalID']?.toString(),
+                              // entranceGlobalId:
+                              //     _initialData['GlobalID']?.toString(),
                               initialData: _initialData,
                               save: _onSave,
                               onClose: () {

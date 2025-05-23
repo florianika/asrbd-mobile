@@ -1,19 +1,12 @@
-import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/dwelling_service.dart';
-import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
-import 'package:asrdb/features/home/data/dwelling_repository.dart';
-import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
-import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
-  final ShapeType selectedShapeType ;
-  final String? entranceGlobalId;
+  final ShapeType selectedShapeType;
+  // final String? entranceGlobalId;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -23,7 +16,7 @@ class TabletElementAttribute extends StatefulWidget {
     super.key,
     required this.schema,
     required this.selectedShapeType,
-    this.entranceGlobalId,
+    // this.entranceGlobalId,
     required this.onClose,
     required this.initialData,
     required this.save,
@@ -60,7 +53,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   ),
                   child: DynamicElementAttribute(
                     schema: widget.schema,
-                    selectedShapeType:widget.selectedShapeType,
+                    selectedShapeType: widget.selectedShapeType,
                     initialData: widget.initialData,
                     onSave: (formValues) {
                       widget.save(formValues);
@@ -77,9 +70,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
     );
   }
 
-void _openNewDwellingForm(String? entranceGlobalId) {
-  if (widget.onOpenDwelling != null) {
-    widget.onOpenDwelling!();
+  void _openNewDwellingForm(String? entranceGlobalId) {
+    if (widget.onOpenDwelling != null) {
+      widget.onOpenDwelling!();
+    }
   }
-}
 }

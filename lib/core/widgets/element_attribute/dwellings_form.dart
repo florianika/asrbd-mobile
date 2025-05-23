@@ -1,21 +1,21 @@
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../core/enums/shape_type.dart';
-import '../../../features/home/presentation/dwelling_cubit.dart';
 
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
   final String? entranceGlobalId;
   final VoidCallback onBack;
 
-  const DwellingForm(
-    {super.key, 
+  const DwellingForm({
+    super.key,
     required this.selectedShapeType,
-     this.entranceGlobalId,
-     required this.onBack,
-    });
+    this.entranceGlobalId,
+    required this.onBack,
+  });
 
   @override
   State<DwellingForm> createState() => _DwellingFormState();
@@ -25,7 +25,7 @@ class _DwellingFormState extends State<DwellingForm> {
   final List<Map<String, dynamic>> _dwellingRows = [];
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
-  
+  Map<String, dynamic> _initialData = {};
 
   void _onSaveDwelling(Map<String, dynamic> attributes) {
     context.read<DwellingCubit>().addDwellingFeature(attributes);
@@ -65,12 +65,14 @@ class _DwellingFormState extends State<DwellingForm> {
   @override
   void initState() {
     super.initState();
-     final id=widget.entranceGlobalId;
+    final id = widget.entranceGlobalId;
+    _initialData['DwlEntGlobalID'] = id;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
+
     //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
     context.read<DwellingCubit>().getDwellings(id);
   }
-   
-   
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DwellingCubit, DwellingState>(
@@ -97,7 +99,7 @@ class _DwellingFormState extends State<DwellingForm> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-              leading: IconButton(
+            leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: widget.onBack,
             ),
@@ -154,7 +156,7 @@ class _DwellingFormState extends State<DwellingForm> {
                     child: TabletElementAttribute(
                       schema: _dwellingSchema,
                       selectedShapeType: ShapeType.noShape,
-                      initialData: const {},
+                      initialData: _initialData,
                       onClose: () {
                         setState(() {
                           _showDwellingForm = false;
@@ -182,7 +184,8 @@ class _DwellingFormState extends State<DwellingForm> {
       ..._columnOrder.map((key) {
         final label = _columnLabels[key] ?? key;
         return DataColumn(
-          label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          label:
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         );
       }),
     ];

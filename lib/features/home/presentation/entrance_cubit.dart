@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-// Define Entranceentication states
 abstract class EntranceState {}
 
 class EntranceInitial extends EntranceState {}
@@ -14,6 +13,11 @@ class EntranceLoading extends EntranceState {}
 class Entrances extends EntranceState {
   final Map<String, dynamic> entrances;
   Entrances(this.entrances);
+}
+
+class Entrance extends EntranceState {
+  final Map<String, dynamic> entrance;
+  Entrance(this.entrance);
 }
 
 class EntranceAttributes extends EntranceState {
@@ -46,11 +50,19 @@ class EntranceCubit extends Cubit<EntranceState> {
 
   EntranceCubit(this.entranceUseCases) : super(EntranceInitial());
 
-  // Login method
   Future<void> getEntrances(LatLngBounds? bounds, double zoom) async {
     emit(EntranceLoading());
     try {
       emit(Entrances(await entranceUseCases.getEntrances(bounds, zoom)));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  Future<void> getEntranceDetails(int objectId) async {
+    emit(EntranceLoading());
+    try {
+      emit(Entrance(await entranceUseCases.getEntranceDetails(objectId)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

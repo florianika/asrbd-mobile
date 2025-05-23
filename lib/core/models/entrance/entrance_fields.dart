@@ -14,18 +14,18 @@ class EntranceFields {
   static const String lastEditedDate = 'last_edited_date'; 
 
   static const List<String> hiddenAttributes = [
-    globalID,
-    objectID,
-    externalCreator,
-    externalEditor,
-    entBldGlobalID,
-    entLatitude,
-    entLongitude,
-    entAddressID,
-    entStrGlobalID,
-    createdUser,
-    createdDate,
-    lastEditedUser,
-    lastEditedDate
+    // globalID,
+    // objectID,
+    // externalCreator,
+    // externalEditor,
+    // entBldGlobalID,
+    // entLatitude,
+    // entLongitude,
+    // entAddressID,
+    // entStrGlobalID,
+    // createdUser,
+    // createdDate,
+    // lastEditedUser,
+    // lastEditedDate
   ];
 }

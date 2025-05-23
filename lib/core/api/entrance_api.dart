@@ -14,6 +14,11 @@ class EntranceApi {
         .get('${ApiEndpoints.getEsriEntrance(geometry)}&token=$esriToken');
   }
 
+  Future<Response> getEntranceDetails(String esriToken, int objectId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriEntranceByObjectId(objectId)}&token=$esriToken');
+  }
+
   Future<Response> getEntranceAttributes(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
@@ -77,8 +82,8 @@ class EntranceApi {
         data: payload);
   }
 
-  Future<Response> deleteEntranceFeature(String esriToken,
-      String objectId) async {
+  Future<Response> deleteEntranceFeature(
+      String esriToken, String objectId) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };

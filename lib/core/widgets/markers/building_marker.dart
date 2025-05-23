@@ -61,32 +61,32 @@ class BuildingMarker extends StatelessWidget {
             );
           }).toList(),
         ),
-        MarkerLayer(
-          markers: features.map((feature) {
-            final polygonPoints =
-                GeometryHelper.parseCoordinates(feature['geometry']);
-            final center = GeometryHelper.getPolygonCentroid(polygonPoints);
+        // MarkerLayer(
+        //   markers: features.map((feature) {
+        //     final polygonPoints =
+        //         GeometryHelper.parseCoordinates(feature['geometry']);
+        //     final center = GeometryHelper.getPolygonCentroid(polygonPoints);
 
-            return Marker(
-              point: center,
-              width: 100,
-              height: 100,
-              child: GestureDetector(
-                onLongPressStart: (details) {
-                  onLongPressContextMenu(
-                    context,
-                    details.globalPosition,
-                    EntityType.building,
-                    center,
-                  );
-                },
-                child: Container(
-                  color: Colors.transparent,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
+        //     return Marker(
+        //       point: center,
+        //       width: 100,
+        //       height: 100,
+        //       child: GestureDetector(
+        //         onLongPressStart: (details) {
+        //           onLongPressContextMenu(
+        //             context,
+        //             details.globalPosition,
+        //             EntityType.building,
+        //             center,
+        //           );
+        //         },
+        //         child: Container(
+        //           color: Colors.black,
+        //         ),
+        //       ),
+        //     );
+        //   }).toList(),
+        // ),
       ],
     );
   }
