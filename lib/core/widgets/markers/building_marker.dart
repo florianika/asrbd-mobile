@@ -1,15 +1,19 @@
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class BuildingMarker extends StatelessWidget {
+class BuildingMarker extends StatefulWidget {
   final Map<String, dynamic>? buildingsData;
   final int? selectedObjectId;
   final ShapeType? selectedShapeType;
-   final void Function(
+  final String attributeLegend;
+  final void Function(
     BuildContext context,
     Offset globalPosition,
     EntityType type,
@@ -20,15 +24,23 @@ class BuildingMarker extends StatelessWidget {
     this.buildingsData,
     this.selectedObjectId,
     this.selectedShapeType,
-     required this.onLongPressContextMenu,
+    required this.onLongPressContextMenu,
+    required this.attributeLegend,
   });
 
   @override
+  State<BuildingMarker> createState() => _BuildingMarkerState();
+}
+
+class _BuildingMarkerState extends State<BuildingMarker> {
+  final legendService = sl<LegendService>();
+
+  @override
   Widget build(BuildContext context) {
-    if (buildingsData == null) return const SizedBox();
+    if (widget.buildingsData == null) return const SizedBox();
 
     final features =
-        List<Map<String, dynamic>>.from(buildingsData!['features']);
+        List<Map<String, dynamic>>.from(widget.buildingsData!['features']);
 
     return Stack(
       children: [
@@ -37,21 +49,12 @@ class BuildingMarker extends StatelessWidget {
             final props = feature['properties'] as Map<String, dynamic>;
             final value = props['BldQuality'];
 
-            Color fillColor;
-            if (selectedShapeType == ShapeType.polygon &&
-                selectedObjectId == props['OBJECTID']) {
+            Color fillColor = legendService.getColorForValue(
+                    LegendType.building, widget.attributeLegend, value) ??
+                Colors.black;
+            if (widget.selectedShapeType == ShapeType.polygon &&
+                widget.selectedObjectId == props['OBJECTID']) {
               fillColor = Colors.red;
-            } else if (value == 1) {
-              fillColor = Colors.blue.withOpacity(0.7);
-            } else if (value == 2) {
-              fillColor = Colors.purple.withOpacity(0.7);
-            } else if (value == 3) {
-              fillColor = Colors.brown.withOpacity(0.7);
-            } else if (value == 4) {
-              fillColor = Colors.teal.withOpacity(0.7);
-            } else {
-              fillColor =
-                  const Color.fromARGB(255, 60, 145, 214).withOpacity(0.7);
             }
 
             return Polygon(

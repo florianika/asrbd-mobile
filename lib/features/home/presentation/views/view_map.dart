@@ -3,13 +3,17 @@ import 'dart:async';
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/models/legend/legend.dart';
+import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/legend/map_legend.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
@@ -18,6 +22,7 @@ import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -44,6 +49,7 @@ class _ViewMapState extends State<ViewMap> {
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
   List<dynamic> highilghGlobalIds = [];
+  String attributeLegend = 'quality';
 
   LatLngBounds? visibleBounds;
   double zoom = 0;
@@ -58,48 +64,39 @@ class _ViewMapState extends State<ViewMap> {
   ShapeType _selectedShapeType = ShapeType.point;
   int _selectedObjectId = -1;
 
+  Map<String, List<Legend>> buildingLegends = {};
+  List<Legend> entranceLegends = [];
+
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
   bool _isDwellingVisible = false;
 
+  final legendService = sl<LegendService>();
+
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
     //context.read<DwellingCubit>().getDwellingAttibutes();
-  }
+    // await legendService.loadLegendConfigs();
+    // final items = legendService.get('BUILDING');
+    // setState(() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(legendService
+              .getLegendForStyle(LegendType.building, 'quality')
+              .length
+              .toString())),
+    );
+    buildingLegends = {
+      'quality':
+          legendService.getLegendForStyle(LegendType.building, 'quality'),
+      'review': legendService.getLegendForStyle(LegendType.building, 'review'),
+    };
 
-  final String _styleAttribute = 'CATEGORY';
-  Map<String, Color> _getCurrentLegendItems() {
-    switch (_styleAttribute) {
-      case 'CATEGORY':
-        return {
-          'Të dhëna pa gabime': Colors.blue.withOpacity(0.7),
-          'Mungesa në të dhënat': Colors.purple.withOpacity(0.7),
-          'Të dhëna kontradiktore': Colors.brown.withOpacity(0.7),
-          '<Per tu pare>': Colors.teal.withOpacity(0.7),
-          '<Per tu pare>2':
-              const Color.fromARGB(255, 60, 145, 214).withOpacity(0.7),
-        };
-      case 'CONDITION':
-        return {
-          'Good': Colors.green,
-          'Fair': Colors.amber,
-          'Poor': Colors.red,
-          'Unknown': const Color.fromARGB(255, 13, 102, 175),
-        };
-      case 'HEIGHT':
-        return {
-          'Low (< 10m)': Colors.blue.withOpacity(0.7),
-          'Medium (10-30m)': Colors.green.withOpacity(0.7),
-          'High (30-100m)': Colors.orange.withOpacity(0.7),
-          'Skyscraper (> 100m)': Colors.red.withOpacity(0.7),
-        };
-      default:
-        return {
-          'Default': const Color.fromARGB(255, 60, 145, 214).withOpacity(0.7),
-        };
-    }
+    entranceLegends =
+        legendService.getLegendForStyle(LegendType.entrance, 'quality');
+    //  });
   }
 
   @override
@@ -400,6 +397,14 @@ class _ViewMapState extends State<ViewMap> {
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void onLegendChangeAttribute(String seletedAttribute) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(seletedAttribute)));
+    setState(() {
+      attributeLegend = seletedAttribute;
+    });
+  }
+
   void _handleEntranceResponse(
       BuildContext context, bool isAdded, String actionName) {
     _showSnackBar(
@@ -507,6 +512,7 @@ class _ViewMapState extends State<ViewMap> {
                               selectedObjectId: _selectedObjectId,
                               selectedShapeType: _selectedShapeType,
                               onLongPressContextMenu: _showContextMenu,
+                              attributeLegend: attributeLegend,
                             ),
                             EntranceMarker(
                               entranceData: entranceData,
@@ -552,9 +558,11 @@ class _ViewMapState extends State<ViewMap> {
                         Positioned(
                           top: 20,
                           left: 20,
-                          child: MapLegend(
-                            legendItems: _getCurrentLegendItems(),
-                            title: "Legjenda",
+                          child: CombinedLegendWidget(
+                            buildingLegends: buildingLegends,
+                            initialBuildingAttribute: 'quality',
+                            entranceLegends: entranceLegends,
+                            onChange: onLegendChangeAttribute,
                           ),
                         ),
                       ],

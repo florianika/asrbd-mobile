@@ -1,5 +1,6 @@
 import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
+import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -26,6 +27,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await LocalStorageService().init();
+
+  final legendService = LegendService();
+  await legendService.loadLegendConfigs(); // Load asset data here
+  sl.registerSingleton<LegendService>(legendService);
+
   initAuthModule(sl);
   initEntranceModule(sl);
   initBuildingModule(sl);
@@ -47,11 +53,9 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<AuthCubit>()),
         BlocProvider(create: (context) => sl<EntranceCubit>()),
         BlocProvider(create: (context) => sl<BuildingCubit>()),
-        BlocProvider(create: (_) => DwellingCubit(
-          DwellingUseCases(
-            DwellingRepository(DwellingService(DwellingApi()))
-          )
-        )),
+        BlocProvider(
+            create: (_) => DwellingCubit(DwellingUseCases(
+                DwellingRepository(DwellingService(DwellingApi()))))),
         BlocProvider(
             create: (context) => LangCubit()), // Provide LangCubit here
       ],
