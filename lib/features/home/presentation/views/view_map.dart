@@ -77,17 +77,8 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
-    //context.read<DwellingCubit>().getDwellingAttibutes();
-    // await legendService.loadLegendConfigs();
-    // final items = legendService.get('BUILDING');
-    // setState(() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(legendService
-              .getLegendForStyle(LegendType.building, 'quality')
-              .length
-              .toString())),
-    );
+   
+   
     buildingLegends = {
       'quality':
           legendService.getLegendForStyle(LegendType.building, 'quality'),
@@ -96,7 +87,6 @@ class _ViewMapState extends State<ViewMap> {
 
     entranceLegends =
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
-    //  });
   }
 
   @override
@@ -557,7 +547,7 @@ class _ViewMapState extends State<ViewMap> {
                               ),
                         Positioned(
                           top: 20,
-                          left: 20,
+                          right: 20,
                           child: CombinedLegendWidget(
                             buildingLegends: buildingLegends,
                             initialBuildingAttribute: 'quality',

@@ -23,7 +23,7 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     with TickerProviderStateMixin {
   late String _currentBuildingAttribute;
   bool _isBuildingSectionExpanded = true;
-  bool _isEntranceSectionExpanded = true;
+  bool _isEntranceSectionExpanded = false;
   bool _isWholeLegendExpanded = true;
   late AnimationController _buildingAnimationController;
   late AnimationController _entranceAnimationController;
@@ -38,33 +38,33 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     _currentBuildingAttribute = widget.initialBuildingAttribute;
     
     _buildingAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     _entranceAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     _legendAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     
     _buildingAnimation = CurvedAnimation(
       parent: _buildingAnimationController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeOut,
     );
     _entranceAnimation = CurvedAnimation(
       parent: _entranceAnimationController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeOut,
     );
     _legendAnimation = CurvedAnimation(
       parent: _legendAnimationController,
-      curve: Curves.easeInOut,
+      curve: Curves.easeOut,
     );
     
     _buildingAnimationController.forward();
-    _entranceAnimationController.forward();
+    _entranceAnimationController.reverse();
     _legendAnimationController.forward();
   }
 
@@ -118,308 +118,223 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       alignment: Alignment.bottomRight,
       child: Container(
         margin: const EdgeInsets.all(16),
-        width: 340,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header with collapse button
+        child: _isWholeLegendExpanded 
+          ? // Expanded Legend
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 16, 16, 8),
+              width: 280,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.shade50,
-                    Colors.blue.shade300,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Row(
-                    children: [
-                      Icon(
-                        Icons.map_outlined,
-                        color: Colors.blue,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Map Legend',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.blue,
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Color(0xFFE5E7EB),
+                          width: 1,
                         ),
                       ),
-                    ],
-                  ),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: _toggleWholeLegend,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: AnimatedRotation(
-                          turns: _isWholeLegendExpanded ? 0 : 0.5,
-                          duration: const Duration(milliseconds: 300),
-                          child: const Icon(
-                            Icons.expand_less,
-                            color: Colors.blue,
-                            size: 20,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Legend',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Color(0xFF374151),
                           ),
                         ),
-                      ),
+                        InkWell(
+                          onTap: _toggleWholeLegend,
+                          borderRadius: BorderRadius.circular(4),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.close,
+                              color: Color(0xFF6B7280),
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Content
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Buildings Section
+                        _buildSection(
+                          title: 'Buildings',
+                          isExpanded: _isBuildingSectionExpanded,
+                          onToggle: _toggleBuildingSection,
+                          animation: _buildingAnimation,
+                          dropdown: DropdownButton<String>(
+                            value: _currentBuildingAttribute,
+                            underline: const SizedBox(),
+                            isDense: true,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            items: widget.buildingLegends.keys.map((attr) {
+                              return DropdownMenuItem(
+                                value: attr,
+                                child: Text(
+                                  attr[0].toUpperCase() + attr.substring(1),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  widget.onChange(val);
+                                  _currentBuildingAttribute = val;
+                                });
+                              }
+                            },
+                          ),
+                          content: buildingLegend.map((legend) => _buildLegendItem(legend, isBuilding: true)).toList(),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Entrances Section
+                        _buildSection(
+                          title: 'Entrances',
+                          isExpanded: _isEntranceSectionExpanded,
+                          onToggle: _toggleEntranceSection,
+                          animation: _entranceAnimation,
+                          content: widget.entranceLegends
+                              .map((legend) => _buildLegendItem(legend, isBuilding: false))
+                              .toList(),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-            
-            // Animated content
-            SizeTransition(
-              sizeFactor: _legendAnimation,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                child: Column(
-                  children: [
-                    /// 🏢 Buildings Section
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: _toggleBuildingSection,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Icon(
-                                          Icons.business,
-                                          color: Colors.orange,
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Buildings',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(
-                                              color: Colors.grey.shade300,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: _currentBuildingAttribute,
-                                            underline: const SizedBox(),
-                                            isDense: true,
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.black87,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            items: widget.buildingLegends.keys.map((attr) {
-                                              return DropdownMenuItem(
-                                                value: attr,
-                                                child: Text(
-                                                  attr[0].toUpperCase() + attr.substring(1),
-                                                ),
-                                              );
-                                            }).toList(),
-                                            onChanged: (val) {
-                                              if (val != null) {
-                                                setState(() {
-                                                  widget.onChange(val);
-                                                  _currentBuildingAttribute = val;
-                                                });
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        AnimatedRotation(
-                                          turns: _isBuildingSectionExpanded ? 0 : 0.5,
-                                          duration: const Duration(milliseconds: 300),
-                                          child: Icon(
-                                            Icons.expand_less,
-                                            color: Colors.grey.shade600,
-                                            size: 20,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizeTransition(
-                            sizeFactor: _buildingAnimation,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child: Column(
-                                children: buildingLegend.map(_buildLegendItem).toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    /// 🚪 Entrances Section
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.grey.shade200,
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: _toggleEntranceSection,
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Icon(
-                                          Icons.door_front_door,
-                                          color: Colors.green,
-                                          size: 18,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          'Entrances',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 15,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    AnimatedRotation(
-                                      turns: _isEntranceSectionExpanded ? 0 : 0.5,
-                                      duration: const Duration(milliseconds: 300),
-                                      child: Icon(
-                                        Icons.expand_less,
-                                        color: Colors.grey.shade600,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizeTransition(
-                            sizeFactor: _entranceAnimation,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child: Column(
-                                children: widget.entranceLegends
-                                    .map(_buildLegendItem)
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+            )
+          : // Collapsed Floating Button
+            FloatingActionButton(
+              onPressed: _toggleWholeLegend,
+              backgroundColor: Colors.white,
+              foregroundColor: const Color(0xFF374151),
+              elevation: 3,
+              child: const Icon(
+                Icons.map_outlined,
+                size: 22,
               ),
             ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildLegendItem(Legend legend) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Container(
-            width: 18,
-            height: 18,
-            decoration: BoxDecoration(
-              color: legend.color,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 2,
-                  offset: const Offset(0, 1),
+  Widget _buildSection({
+    required String title,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+    required Animation<double> animation,
+    Widget? dropdown,
+    required List<Widget> content,
+  }) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onToggle,
+          borderRadius: BorderRadius.circular(4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+                Row(
+                  children: [
+                    if (dropdown != null) ...[
+                      dropdown,
+                      const SizedBox(width: 8),
+                    ],
+                    AnimatedRotation(
+                      turns: isExpanded ? 0 : 0.5,
+                      duration: const Duration(milliseconds: 200),
+                      child: const Icon(
+                        Icons.expand_less,
+                        color: Color(0xFF9CA3AF),
+                        size: 18,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+        ),
+        SizeTransition(
+          sizeFactor: animation,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              children: content,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem(Legend legend, {bool isBuilding = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: isBuilding 
+              ? CustomPaint(
+                  painter: PolygonPainter(color: legend.color),
+                )
+              : Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: legend.color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               legend.label,
               style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+                fontSize: 13,
+                color: Color(0xFF6B7280),
               ),
             ),
           ),
@@ -427,4 +342,33 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       ),
     );
   }
+}
+
+class PolygonPainter extends CustomPainter {
+  final Color color;
+  
+  PolygonPainter({required this.color});
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    
+    final path = Path();
+    
+    // Create a shape similar to the building polygon in the image
+    // It looks like an angular, house-like shape
+    path.moveTo(size.width * 0.15, size.height * 0.3); // Left side start
+    path.lineTo(size.width * 0.5, size.height * 0.05); // Top peak
+    path.lineTo(size.width * 0.85, size.height * 0.3); // Right side
+    path.lineTo(size.width * 0.9, size.height * 0.85); // Bottom right
+    path.lineTo(size.width * 0.1, size.height * 0.9); // Bottom left
+    path.close();
+    
+    canvas.drawPath(path, paint);
+  }
+  
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
