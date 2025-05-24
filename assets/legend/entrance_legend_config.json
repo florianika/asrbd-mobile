@@ -1,0 +1,30 @@
+{
+    "quality": {
+        "Të dhëna pa gabime": {
+            "color": "#1B5E20F2",
+            "value": 1
+        },
+        "Mungesa në të dhënat": {
+            "color": "#263238F2",
+            "value": 2
+        },
+        "Të dhëna kontradiktore": {
+            "color": "#4A148CF2",
+            "value": 3
+        },
+        "Të dhëna të patestuara": {
+            "color": "#004D40F2",
+            "value": 9
+        },
+        "Të dhëna të fshira": {
+            "color": "#1A237EF2",
+            "value": 0
+        }
+    },
+    "DEFAULT": {
+        "Default": {
+            "color": "#3C91D6B3",
+            "value": 0
+        }
+    }
+}

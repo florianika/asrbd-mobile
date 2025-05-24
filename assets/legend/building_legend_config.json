@@ -1,0 +1,56 @@
+{
+    "quality": {
+        "Të dhëna pa gabime": {
+            "color": "#1B5E20F2",
+            "value": 1
+        },
+        "Mungesa në të dhënat": {
+            "color": "#263238F2",
+            "value": 2
+        },
+        "Të dhëna kontradiktore": {
+            "color": "#4A148CF2",
+            "value": 3
+        },
+        "Të dhëna të patestuara": {
+            "color": "#004D40F2",
+            "value": 9
+        },
+        "Të dhëna të fshira": {
+            "color": "#1A237EF2",
+            "value": 0
+        }
+    },
+    "review": {
+        "Nuk ka nevojë për rishikim": {
+            "color": "#4A90E2B3",
+            "value": 1
+        },
+        "Rishikimi i aprovuar": {
+            "color": "#9575CDB3",
+            "value": 2
+        },
+        "Rishikimi i ekzekutuar": {
+            "color": "#1E88E5B3",
+            "value": 3
+        },
+        "Rishikimi në pritje": {
+            "color": "#1A88E5B3",
+            "value": 4
+        },
+        "Rishikimi i rihapur": {
+            "color": "#64B5F6B3",
+            "value": 5
+        },
+        "Kërkohet rishikim": {
+            "color": "#B0838FB3",
+            "value": 6
+        }
+    },
+    "DEFAULT": {
+        "Default": {
+            "color": "#90A4AEB3",
+            "value": 0
+        }
+    }
+}
