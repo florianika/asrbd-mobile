@@ -14,6 +14,11 @@ class Dwellings extends DwellingState {
   Dwellings(this.dwellings);
 }
 
+class Dwelling extends DwellingState {
+  final Map<String, dynamic> dwelling;
+  Dwelling(this.dwelling);
+}
+
 class DwellingAddResponse extends DwellingState {
   final bool isAdded;
   DwellingAddResponse(this.isAdded);
@@ -63,4 +68,14 @@ class DwellingCubit extends Cubit<DwellingState> {
       emit(DwellingError(e.toString()));
     }
   }
+  
+  Future<void> getDwellingDetails(int objectId) async {
+    emit(DwellingLoading());
+    try {
+      emit(Dwelling(await dwellingUseCases.getDwellingDetails(objectId)));
+    } catch (e) {
+      emit(DwellingError(e.toString()));
+    }
+  }
+
 }

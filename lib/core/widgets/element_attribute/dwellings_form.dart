@@ -26,11 +26,13 @@ class _DwellingFormState extends State<DwellingForm> {
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
   Map<String, dynamic> _initialData = {};
+  bool _isEditMode = false;
 
   void _onSaveDwelling(Map<String, dynamic> attributes) {
     context.read<DwellingCubit>().addDwellingFeature(attributes);
     setState(() {
       _showDwellingForm = false;
+      _isEditMode = false;
     });
   }
 
@@ -160,18 +162,20 @@ class _DwellingFormState extends State<DwellingForm> {
                       onClose: () {
                         setState(() {
                           _showDwellingForm = false;
+                          _isEditMode = false;
                         });
                       },
                       save: (formValues) {
-                      _onSaveDwelling(formValues);
-                      final id = widget.entranceGlobalId;
-                      if (id != null) {
-                        context.read<DwellingCubit>().getDwellings(id);
-                      }
-                      setState(() {
-                        _showDwellingForm = false;
-                      });
-                    },
+                        _onSaveDwelling(formValues);
+                        final id = widget.entranceGlobalId;
+                        if (id != null) {
+                          context.read<DwellingCubit>().getDwellings(id);
+                        }
+                        setState(() {
+                          _showDwellingForm = false;
+                          _isEditMode = false;
+                        });
+                      },
                     ),
                   ),
               ],
@@ -250,12 +254,26 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void _onEditDwelling(Map<String, dynamic> row) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Edit clicked for OBJECTID: ${row['OBJECTID']}")),
-    );
+    final id = widget.entranceGlobalId;
+    if (id != null) {
+      row['DwlEntGlobalID'] = id;
+    }
+
+    setState(() {
+      _initialData = row;
+      _isEditMode = true;
+    });
+
+    context.read<DwellingCubit>().getDwellingAttibutes();
   }
 
   void _onAddNewDwelling() {
+    final id = widget.entranceGlobalId;
+    setState(() {
+      _initialData = {'DwlEntGlobalID': id};
+      _isEditMode = false;
+    });
+
     context.read<DwellingCubit>().getDwellingAttibutes();
   }
 }

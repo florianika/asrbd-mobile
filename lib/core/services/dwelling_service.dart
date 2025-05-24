@@ -52,6 +52,30 @@ class DwellingService {
     }
   }
 
+  Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response =
+          await dwellingApi.getDwellingDetails(esriToken, objectId);
+
+      // Here you would parse the response and handle tokens, errors, etc.
+      if (response.statusCode == 200) {
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception(
+              'Error fetching dwelling details: ${mapData['error']['message']}');
+        } else {
+          return mapData;
+        }
+      } else {
+        throw Exception('Failed to login');
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
   
   Future<bool> addDwellingFeature(
       Map<String, dynamic> attributes) async {

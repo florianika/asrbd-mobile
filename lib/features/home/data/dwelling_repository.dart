@@ -19,4 +19,8 @@ class DwellingRepository {
     return await dwellingService.addDwellingFeature(attributes);
   }
 
+  Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
+    return await dwellingService.getDwellingDetails(objectId);
+  }
+
 }

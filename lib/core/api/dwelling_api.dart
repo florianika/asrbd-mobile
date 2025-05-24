@@ -41,4 +41,10 @@ class DwellingApi {
     return _apiClient.post(ApiEndpoints.addEsriFeauture(EntityType.dwelling),
         data: payload);
   }
+  
+  Future<Response> getDwellingDetails(String esriToken, int objectId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriDwellingsByObjectId(objectId)}&token=$esriToken');
+  }
+
 }
