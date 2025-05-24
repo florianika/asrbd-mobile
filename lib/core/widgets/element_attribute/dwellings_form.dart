@@ -29,6 +29,9 @@ class _DwellingFormState extends State<DwellingForm> {
   bool _isEditMode = false;
 
   void _onSaveDwelling(Map<String, dynamic> attributes) {
+    if(_isEditMode){
+      context.read<DwellingCubit>().updateDwellingFeature(attributes);
+    }
     context.read<DwellingCubit>().addDwellingFeature(attributes);
     setState(() {
       _showDwellingForm = false;
@@ -70,7 +73,6 @@ class _DwellingFormState extends State<DwellingForm> {
     final id = widget.entranceGlobalId;
     _initialData['DwlEntGlobalID'] = id;
    // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
-
     //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
     context.read<DwellingCubit>().getDwellings(id);
   }

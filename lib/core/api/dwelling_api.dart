@@ -47,4 +47,25 @@ class DwellingApi {
         '${ApiEndpoints.getEsriDwellingsByObjectId(objectId)}&token=$esriToken');
   }
 
+   Future<Response> updateDwellingFeature(String esriToken,
+      Map<String, dynamic> attributes) async {
+    Map<String, String> contentType = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    final Map<String, dynamic> feature = {
+      'attributes': attributes,
+    };
+
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.dwelling),
+        data: payload);
+  }
 }

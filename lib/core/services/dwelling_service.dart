@@ -94,4 +94,22 @@ class DwellingService {
       throw Exception('Login failed: $e');
     }
   }
+
+   Future<bool> updateDwellingFeature(
+      Map<String, dynamic> attributes) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response = await dwellingApi.updateDwellingFeature(
+          esriToken, attributes);
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
 }

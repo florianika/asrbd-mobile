@@ -25,4 +25,9 @@ class DwellingUseCases {
     Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
     return await _dwellingRepository.getDwellingDetails(objectId);
   }
+
+   Future<bool> updateDwellingFeature(
+      Map<String, dynamic> attributes) async {
+    return await _dwellingRepository.updateDwellingFeature(attributes);
+  }
 }
