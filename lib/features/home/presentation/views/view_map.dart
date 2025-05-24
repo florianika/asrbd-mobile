@@ -62,6 +62,8 @@ class _ViewMapState extends State<ViewMap> {
 
   bool _isPropertyVisibile = false;
   bool _isDwellingVisible = false;
+  double _sidePanelFractionDefualt = 0.4;
+  final double _defaultDwellingWidthFraction = 0.8;
 
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
@@ -121,6 +123,9 @@ class _ViewMapState extends State<ViewMap> {
       _selectedShapeType = ShapeType.point;
 
       context.read<EntranceCubit>().getEntranceDetails(data['OBJECTID']);
+      setState(() {
+        _isDwellingVisible = false;
+      });
 
       // For mobile devices, show the mobile attribute UI
       // if (isMobile) {
@@ -313,6 +318,7 @@ class _ViewMapState extends State<ViewMap> {
       setState(() {
         _selectedShapeType = ShapeType.polygon;
         _selectedObjectId = objectId;
+        _isDwellingVisible = false;
 
         //find entrances of the selected building
         if (entranceData != null) {
@@ -560,16 +566,36 @@ class _ViewMapState extends State<ViewMap> {
                       ],
                     ),
                   ),
-                  Visibility(
-                    visible: _isPropertyVisibile,
-                    child: Expanded(
-                      flex: _isDwellingVisible ? 5 : 1,
+                 if (_isPropertyVisibile) ...[
+                    GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      onHorizontalDragUpdate: (details) {
+                        setState(() {
+                          _sidePanelFractionDefualt -= details.delta.dx / MediaQuery.of(context).size.width;
+                          _sidePanelFractionDefualt = _sidePanelFractionDefualt.clamp(0.2, 0.9);
+                        });
+                      },
+                      onDoubleTap: () {
+                        setState(() {
+                          _sidePanelFractionDefualt = 0.4;
+                        });
+                      },
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.resizeLeftRight,
+                        child: Container(
+                          width: 8,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                    ),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOut,
+                      width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
                       child: _isDwellingVisible
                           ? DwellingForm(
                               selectedShapeType: ShapeType.point,
-                              entranceGlobalId:
-                                  _initialData['GlobalID']?.toString(),
-                              //entranceGlobalId:  _initialData['EntBldGlobalID']?.toString(),
+                              entranceGlobalId: _initialData['GlobalID']?.toString(),
                               onBack: () {
                                 setState(() {
                                   _isDwellingVisible = false;
@@ -579,8 +605,6 @@ class _ViewMapState extends State<ViewMap> {
                           : TabletElementAttribute(
                               schema: _schema,
                               selectedShapeType: _selectedShapeType,
-                              // entranceGlobalId:
-                              //     _initialData['GlobalID']?.toString(),
                               initialData: _initialData,
                               save: _onSave,
                               onClose: () {
@@ -592,11 +616,12 @@ class _ViewMapState extends State<ViewMap> {
                               onOpenDwelling: () {
                                 setState(() {
                                   _isDwellingVisible = true;
+                                  _sidePanelFractionDefualt = _defaultDwellingWidthFraction;
                                 });
                               },
                             ),
                     ),
-                  ),
+                  ],
                 ],
               );
             },
