@@ -4,11 +4,25 @@ class AttributeSchema {
   AttributeSchema({required this.attributes});
 
   factory AttributeSchema.fromJson(Map<String, dynamic> json) {
-    return AttributeSchema(
-      attributes: (json['attributes'] as List<dynamic>)
-          .map((item) => SchemaAttribute.fromJson(item as Map<String, dynamic>))
-          .toList(),
-    );
+    final attributesList = (json['attributes'] as List<dynamic>)
+        .map((item) => SchemaAttribute.fromJson(item as Map<String, dynamic>))
+        .toList();
+
+    // Sort by order ascending
+    attributesList.sort((a, b) {
+      if (a.order == null && b.order == null) return 0;
+      if (a.order == null) return 1;
+      if (b.order == null) return -1;
+
+      final aOrder =
+          a.order is String ? int.tryParse(a.order) ?? 0 : a.order as int;
+      final bOrder =
+          b.order is String ? int.tryParse(b.order) ?? 0 : b.order as int;
+
+      return aOrder.compareTo(bOrder);
+    });
+
+    return AttributeSchema(attributes: attributesList);
   }
 
   Map<String, dynamic> toJson() {
@@ -50,7 +64,8 @@ class SchemaAttribute {
     return SchemaAttribute(
       name: json['name'] as String,
       label: AttributeLabel.fromJson(json['label'] as Map<String, dynamic>),
-      display: AttributeDisplay.fromJson(json['display'] as Map<String, dynamic>),
+      display:
+          AttributeDisplay.fromJson(json['display'] as Map<String, dynamic>),
       selectable: _parseBool(json['selectable']),
       internal: _parseBool(json['internal']),
       section: json['section'] as String,

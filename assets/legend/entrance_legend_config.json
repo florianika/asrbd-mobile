@@ -1,29 +1,29 @@
 {
     "quality": {
         "Të dhëna pa gabime": {
-            "color": "#1B5E20F2",
+            "color": "#1B5E20",
             "value": 1
         },
         "Mungesa në të dhënat": {
-            "color": "#263238F2",
+            "color": "#263238",
             "value": 2
         },
         "Të dhëna kontradiktore": {
-            "color": "#4A148CF2",
+            "color": "#4A148C",
             "value": 3
         },
         "Të dhëna të patestuara": {
-            "color": "#004D40F2",
+            "color": "#004D40",
             "value": 9
         },
         "Të dhëna të fshira": {
-            "color": "#1A237EF2",
+            "color": "#1A237E",
             "value": 0
         }
     },
     "DEFAULT": {
         "Default": {
-            "color": "#3C91D6B3",
+            "color": "#3C91D6",
             "value": 0
         }
     }

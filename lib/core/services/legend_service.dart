@@ -26,7 +26,7 @@ class LegendService {
         final config = entry.value as Map<String, dynamic>;
         return Legend(
           label: label,
-          color: _hexToColor(config['color']),
+          color: hexToColor(config['color']).withOpacity(0.5),
           value: config['value'],
         );
       }).toList();
@@ -55,5 +55,33 @@ class LegendService {
     hex = hex.replaceFirst('#', '');
     if (hex.length == 6) hex = 'FF$hex';
     return Color(int.parse(hex, radix: 16));
+  }
+
+  static Color hexToColor(String hexString, [double alpha = 1.0]) {
+    // Clean the hex string
+    String cleanHex = hexString.replaceAll('#', '').toUpperCase();
+    
+    // Handle 3-digit hex codes (expand to 6 digits)
+    if (cleanHex.length == 3) {
+      cleanHex = cleanHex.split('').map((char) => char + char).join();
+    }
+    
+    // Validate hex string
+    if (cleanHex.length != 6) {
+      throw ArgumentError('Invalid hex color format. Expected format: #RRGGBB or RRGGBB');
+    }
+    
+    // Clamp alpha value
+    alpha = alpha.clamp(0.0, 1.0);
+    
+    // Convert alpha to 0-255 range
+    int alphaInt = (alpha * 255).round();
+    
+    // Parse RGB values
+    int red = int.parse(cleanHex.substring(0, 2), radix: 16);
+    int green = int.parse(cleanHex.substring(2, 4), radix: 16);
+    int blue = int.parse(cleanHex.substring(4, 6), radix: 16);
+    
+    return Color.fromARGB(alphaInt, red, green, blue);
   }
 }
