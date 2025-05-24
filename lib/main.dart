@@ -1,6 +1,8 @@
 import 'package:asrdb/core/api/dwelling_api.dart';
+import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -32,9 +34,21 @@ void main() async {
   await legendService.loadLegendConfigs(); // Load asset data here
   sl.registerSingleton<LegendService>(legendService);
 
+  // Register API
+  sl.registerLazySingleton<SchemaApi>(() => SchemaApi());
+
+  // Register SchemaService as singleton
+  sl.registerSingleton<SchemaService>(
+    SchemaService(sl<SchemaApi>()),
+  );
+
+  // Initialize schemas immediately
+  await sl<SchemaService>().initialize();
+
   initAuthModule(sl);
   initEntranceModule(sl);
   initBuildingModule(sl);
+
   runApp(const MyApp());
 }
 

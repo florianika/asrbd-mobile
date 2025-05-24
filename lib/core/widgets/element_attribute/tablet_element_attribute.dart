@@ -1,6 +1,8 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 
 class TabletElementAttribute extends StatefulWidget {
@@ -31,6 +33,7 @@ class TabletElementAttribute extends StatefulWidget {
 class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       backgroundColor: Colors.white,
       body: Row(

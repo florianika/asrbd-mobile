@@ -5,6 +5,10 @@ class ApiEndpoints {
   static const String login = '/auth/login';
   static const String loginEsri = '/auth/gis/login';
   static const String refreshToken = '/auth/refreshToken';
+  static const String entranceSchema = '/admin/metadata/entity/entrance';
+  static const String buildingSchema = '/admin/metadata/entity/building';
+  static const String dwellingSchema = '/admin/metadata/entity/dwelling';
+
   static const String register = '/auth/register';
   static const String userProfile = '/user/profile';
 

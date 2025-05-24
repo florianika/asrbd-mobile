@@ -2,6 +2,8 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
@@ -98,70 +100,142 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
 
   @override
   Widget build(BuildContext context) {
+    final schemaService = sl<SchemaService>();
+    final schema = widget.selectedShapeType == ShapeType.point
+        ? schemaService.entranceSchema
+        : widget.selectedShapeType == ShapeType.polygon
+            ? schemaService.buildingSchema
+            : schemaService.dwellingSchema;
+
     return Column(
       children: [
-        ...widget.schema.map((field) {
-          if (field.codedValues != null) {
-            final seenCodes = <dynamic>{};
-            final uniqueCodedValues = field.codedValues!
-                .where((item) =>
-                    item['code'] != null && seenCodes.add(item['code']))
-                .toList();
-            final selectedValue = formValues[field.name];
-            final valueExists =
-                uniqueCodedValues.any((item) => item['code'] == selectedValue);
-            final effectiveValue =
-                valueExists ? selectedValue : field.defaultValue;
+        ...schema.attributes.map((attribute) {
+          if (attribute.display.enumerator != "none") {
+            final elementFound = widget.schema
+                .where((x) => x.name == attribute.name)
+                .firstOrNull;
+            if (elementFound == null) {
+              return const SizedBox();
+            }
 
-            return AbsorbPointer(
-              absorbing: !field.editable,
-              child: DropdownButtonFormField(
-                key: ValueKey(field.name),
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: field.alias,
-                  labelStyle: const TextStyle(color: Colors.black),
-                  errorText: validationErrors[field.name],
+            if (elementFound.type == "codedValue") {
+              return AbsorbPointer(
+                absorbing: attribute.display.enumerator == "read",
+                child: DropdownButtonFormField(
+                  key: ValueKey(elementFound.name),
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    labelText: elementFound.alias,
+                    labelStyle: const TextStyle(color: Colors.black),
+                    errorText: validationErrors[elementFound.name],
+                  ),
+                  value: elementFound,
+                  items: elementFound.codedValues!
+                      .map((code) => DropdownMenuItem(
+                            value: code['code'],
+                            child: Text(
+                              code['name'].toString(),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.black),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: elementFound.editable
+                      ? (val) => formValues[elementFound.name] =
+                          EsriTypeConversion.convert(elementFound.type, val)
+                      : null,
+                  disabledHint: Text(
+                    elementFound.alias,
+                    style: const TextStyle(color: Colors.black45),
+                  ),
                 ),
-                value: effectiveValue,
-                items: uniqueCodedValues
-                    .map((code) => DropdownMenuItem(
-                          value: code['code'],
-                          child: Text(
-                            code['name'].toString(),
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: field.editable
-                    ? (val) => formValues[field.name] =
-                        EsriTypeConversion.convert(field.type, val)
-                    : null,
-                disabledHint: Text(
-                  effectiveValue != null ? effectiveValue.toString() : '',
-                  style: const TextStyle(color: Colors.black45),
-                ),
+              );
+            }
+
+            return TextFormField(
+              key: ValueKey(elementFound.name),
+              controller: _controllers[elementFound.name],
+              readOnly: attribute.display.enumerator == "read",
+              decoration: InputDecoration(
+                labelText: elementFound.alias,
+                labelStyle: const TextStyle(color: Colors.black),
+                errorText: validationErrors[elementFound.name],
               ),
+              style: const TextStyle(color: Colors.black),
+              onChanged: elementFound.editable
+                  ? (val) => formValues[elementFound.name] =
+                      EsriTypeConversion.convert(elementFound.type, val)
+                  : null,
+              enabled: elementFound.editable,
             );
           }
-          return TextFormField(
-            key: ValueKey(field.name),
-            controller: _controllers[field.name],
-            readOnly: !field.editable,
-            decoration: InputDecoration(
-              labelText: field.alias,
-              labelStyle: const TextStyle(color: Colors.black),
-              errorText: validationErrors[field.name],
-            ),
-            style: const TextStyle(color: Colors.black),
-            onChanged: field.editable
-                ? (val) => formValues[field.name] =
-                    EsriTypeConversion.convert(field.type, val)
-                : null,
-            enabled: field.editable,
-          );
+
+          return const SizedBox();
         }),
+        // ...widget.schema.map((field) {
+        //   if (field.codedValues != null) {
+        //     final asbrdMetadata = schema.getByName(field.name);
+
+        //     final seenCodes = <dynamic>{};
+        //     final uniqueCodedValues = field.codedValues!
+        //         .where((item) =>
+        //             item['code'] != null && seenCodes.add(item['code']))
+        //         .toList();
+        //     final selectedValue = formValues[field.name];
+        //     final valueExists =
+        //         uniqueCodedValues.any((item) => item['code'] == selectedValue);
+        //     final effectiveValue =
+        //         valueExists ? selectedValue : field.defaultValue;
+
+        //     return AbsorbPointer(
+        //       absorbing: !field.editable,
+        //       child: DropdownButtonFormField(
+        //         key: ValueKey(field.name),
+        //         isExpanded: true,
+        //         decoration: InputDecoration(
+        //           labelText: field.alias,
+        //           labelStyle: const TextStyle(color: Colors.black),
+        //           errorText: validationErrors[field.name],
+        //         ),
+        //         value: effectiveValue,
+        //         items: uniqueCodedValues
+        //             .map((code) => DropdownMenuItem(
+        //                   value: code['code'],
+        //                   child: Text(
+        //                     code['name'].toString(),
+        //                     overflow: TextOverflow.ellipsis,
+        //                     style: const TextStyle(color: Colors.black),
+        //                   ),
+        //                 ))
+        //             .toList(),
+        //         onChanged: field.editable
+        //             ? (val) => formValues[field.name] =
+        //                 EsriTypeConversion.convert(field.type, val)
+        //             : null,
+        //         disabledHint: Text(
+        //           effectiveValue != null ? effectiveValue.toString() : '',
+        //           style: const TextStyle(color: Colors.black45),
+        //         ),
+        //       ),
+        //     );
+        //   }
+        //   return TextFormField(
+        //     key: ValueKey(field.name),
+        //     controller: _controllers[field.name],
+        //     readOnly: !field.editable,
+        //     decoration: InputDecoration(
+        //       labelText: field.alias,
+        //       labelStyle: const TextStyle(color: Colors.black),
+        //       errorText: validationErrors[field.name],
+        //     ),
+        //     style: const TextStyle(color: Colors.black),
+        //     onChanged: field.editable
+        //         ? (val) => formValues[field.name] =
+        //             EsriTypeConversion.convert(field.type, val)
+        //         : null,
+        //     enabled: field.editable,
+        //   );
+        // }),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,23 +258,23 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),
-            if (widget.selectedShapeType==ShapeType.point)
+            if (widget.selectedShapeType == ShapeType.point)
               OutlinedButton.icon(
                 onPressed: () {
-                if (widget.onDwelling != null) {
-                  widget.onDwelling!(widget.entranceGlobalId);
-                }
-              },
-               icon: const Icon(Icons.home_work, color: Colors.black),
-               label: const Text('Manage Dwelling',
-               style: TextStyle(color: Colors.black)),
-               style: OutlinedButton.styleFrom(
-               side: const BorderSide(color: Colors.black),
-               shape: RoundedRectangleBorder(
-               borderRadius: BorderRadius.circular(8)),
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
+                  if (widget.onDwelling != null) {
+                    widget.onDwelling!(widget.entranceGlobalId);
+                  }
+                },
+                icon: const Icon(Icons.home_work, color: Colors.black),
+                label: const Text('Manage Dwelling',
+                    style: TextStyle(color: Colors.black)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
               ),
             ElevatedButton.icon(
               onPressed: _handleSave,
