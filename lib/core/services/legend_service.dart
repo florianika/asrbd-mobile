@@ -51,12 +51,6 @@ class LegendService {
     return match.value == -999 ? null : match.color;
   }
 
-  Color _hexToColor(String hex) {
-    hex = hex.replaceFirst('#', '');
-    if (hex.length == 6) hex = 'FF$hex';
-    return Color(int.parse(hex, radix: 16));
-  }
-
   static Color hexToColor(String hexString, [double alpha = 1.0]) {
     // Clean the hex string
     String cleanHex = hexString.replaceAll('#', '').toUpperCase();

@@ -117,7 +117,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
               .firstOrNull;
           if (elementFound == null) return const SizedBox();
 
-          if (elementFound.type == "codedValue") {
+          if (elementFound.codedValues != null) {
             return AbsorbPointer(
               absorbing: attribute.display.enumerator == "read",
               child: DropdownButtonFormField(
@@ -128,7 +128,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                   labelStyle: const TextStyle(color: Colors.black),
                   errorText: validationErrors[elementFound.name],
                 ),
-                value: elementFound,
+                value: elementFound.defaultValue,
                 items: elementFound.codedValues!
                     .map((code) => DropdownMenuItem(
                           value: code['code'],
