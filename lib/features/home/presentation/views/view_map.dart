@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
@@ -14,7 +13,6 @@ import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
-import 'package:asrdb/core/widgets/legend/map_legend.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';

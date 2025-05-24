@@ -1,14 +1,11 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
-import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
-  // final String? entranceGlobalId;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -18,7 +15,6 @@ class TabletElementAttribute extends StatefulWidget {
     super.key,
     required this.schema,
     required this.selectedShapeType,
-    // this.entranceGlobalId,
     required this.onClose,
     required this.initialData,
     required this.save,
