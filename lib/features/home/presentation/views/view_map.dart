@@ -77,8 +77,7 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
-   
-   
+
     buildingLegends = {
       'quality':
           legendService.getLegendForStyle(LegendType.building, 'quality'),
@@ -388,8 +387,6 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void onLegendChangeAttribute(String seletedAttribute) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(seletedAttribute)));
     setState(() {
       attributeLegend = seletedAttribute;
     });
