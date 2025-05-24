@@ -67,7 +67,7 @@ class _DwellingFormState extends State<DwellingForm> {
     super.initState();
     final id = widget.entranceGlobalId;
     _initialData['DwlEntGlobalID'] = id;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
+   // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
 
     //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
     context.read<DwellingCubit>().getDwellings(id);
@@ -163,11 +163,15 @@ class _DwellingFormState extends State<DwellingForm> {
                         });
                       },
                       save: (formValues) {
-                        _onSaveDwelling(formValues);
-                        setState(() {
-                          _showDwellingForm = false;
-                        });
-                      },
+                      _onSaveDwelling(formValues);
+                      final id = widget.entranceGlobalId;
+                      if (id != null) {
+                        context.read<DwellingCubit>().getDwellings(id);
+                      }
+                      setState(() {
+                        _showDwellingForm = false;
+                      });
+                    },
                     ),
                   ),
               ],
