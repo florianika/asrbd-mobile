@@ -103,74 +103,70 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
     final schemaService = sl<SchemaService>();
     final schema = widget.selectedShapeType == ShapeType.point
         ? schemaService.entranceSchema
-        : widget.selectedShapeType == ShapeType.polygon
+        : (widget.selectedShapeType == ShapeType.polygon
             ? schemaService.buildingSchema
-            : schemaService.dwellingSchema;
+            : schemaService.dwellingSchema);
 
     return Column(
       children: [
         ...schema.attributes.map((attribute) {
-          if (attribute.display.enumerator != "none") {
-            final elementFound = widget.schema
-                .where((x) => x.name == attribute.name)
-                .firstOrNull;
-            if (elementFound == null) {
-              return const SizedBox();
-            }
+          if (attribute.display.enumerator == "none") return const SizedBox();
+          final elementFound = widget.schema
+              .where(
+                  (x) => x.name.toLowerCase() == attribute.name.toLowerCase())
+              .firstOrNull;
+          if (elementFound == null) return const SizedBox();
 
-            if (elementFound.type == "codedValue") {
-              return AbsorbPointer(
-                absorbing: attribute.display.enumerator == "read",
-                child: DropdownButtonFormField(
-                  key: ValueKey(elementFound.name),
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                    labelText: elementFound.alias,
-                    labelStyle: const TextStyle(color: Colors.black),
-                    errorText: validationErrors[elementFound.name],
-                  ),
-                  value: elementFound,
-                  items: elementFound.codedValues!
-                      .map((code) => DropdownMenuItem(
-                            value: code['code'],
-                            child: Text(
-                              code['name'].toString(),
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          ))
-                      .toList(),
-                  onChanged: elementFound.editable
-                      ? (val) => formValues[elementFound.name] =
-                          EsriTypeConversion.convert(elementFound.type, val)
-                      : null,
-                  disabledHint: Text(
-                    elementFound.alias,
-                    style: const TextStyle(color: Colors.black45),
-                  ),
+          if (elementFound.type == "codedValue") {
+            return AbsorbPointer(
+              absorbing: attribute.display.enumerator == "read",
+              child: DropdownButtonFormField(
+                key: ValueKey(elementFound.name),
+                isExpanded: true,
+                decoration: InputDecoration(
+                  labelText: elementFound.alias,
+                  labelStyle: const TextStyle(color: Colors.black),
+                  errorText: validationErrors[elementFound.name],
                 ),
-              );
-            }
-
-            return TextFormField(
-              key: ValueKey(elementFound.name),
-              controller: _controllers[elementFound.name],
-              readOnly: attribute.display.enumerator == "read",
-              decoration: InputDecoration(
-                labelText: elementFound.alias,
-                labelStyle: const TextStyle(color: Colors.black),
-                errorText: validationErrors[elementFound.name],
+                value: elementFound,
+                items: elementFound.codedValues!
+                    .map((code) => DropdownMenuItem(
+                          value: code['code'],
+                          child: Text(
+                            code['name'].toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: elementFound.editable
+                    ? (val) => formValues[elementFound.name] =
+                        EsriTypeConversion.convert(elementFound.type, val)
+                    : null,
+                disabledHint: Text(
+                  elementFound.alias,
+                  style: const TextStyle(color: Colors.black45),
+                ),
               ),
-              style: const TextStyle(color: Colors.black),
-              onChanged: elementFound.editable
-                  ? (val) => formValues[elementFound.name] =
-                      EsriTypeConversion.convert(elementFound.type, val)
-                  : null,
-              enabled: elementFound.editable,
             );
           }
 
-          return const SizedBox();
+          return TextFormField(
+            key: ValueKey(elementFound.name),
+            controller: _controllers[elementFound.name],
+            readOnly: attribute.display.enumerator == "read",
+            decoration: InputDecoration(
+              labelText: elementFound.alias,
+              labelStyle: const TextStyle(color: Colors.black),
+              errorText: validationErrors[elementFound.name],
+            ),
+            style: const TextStyle(color: Colors.black),
+            onChanged: elementFound.editable
+                ? (val) => formValues[elementFound.name] =
+                    EsriTypeConversion.convert(elementFound.type, val)
+                : null,
+            enabled: elementFound.editable,
+          );
         }),
         // ...widget.schema.map((field) {
         //   if (field.codedValues != null) {

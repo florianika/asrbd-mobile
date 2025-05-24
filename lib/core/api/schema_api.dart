@@ -10,10 +10,10 @@ class SchemaApi {
   }
 
   Future<Response> getBuildingSchema() async {
-    return await _apiClient.get(ApiEndpoints.entranceSchema);
+    return await _apiClient.get(ApiEndpoints.buildingSchema);
   }
 
   Future<Response> getDwellingSchema() async {
-    return await _apiClient.get(ApiEndpoints.entranceSchema);
+    return await _apiClient.get(ApiEndpoints.dwellingSchema);
   }
 }
