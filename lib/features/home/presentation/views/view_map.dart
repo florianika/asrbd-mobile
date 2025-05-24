@@ -570,7 +570,7 @@ class _ViewMapState extends State<ViewMap> {
                       onHorizontalDragUpdate: (details) {
                         setState(() {
                           _sidePanelFractionDefualt -= details.delta.dx / MediaQuery.of(context).size.width;
-                          _sidePanelFractionDefualt = _sidePanelFractionDefualt.clamp(0.2, 0.9);
+                          _sidePanelFractionDefualt = _sidePanelFractionDefualt.clamp(0.4, 0.9);
                         });
                       },
                       onDoubleTap: () {
