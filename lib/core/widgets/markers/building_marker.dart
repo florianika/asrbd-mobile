@@ -47,7 +47,9 @@ class _BuildingMarkerState extends State<BuildingMarker> {
         PolygonLayer(
           polygons: features.map((feature) {
             final props = feature['properties'] as Map<String, dynamic>;
-            final value = props['BldQuality'];
+            final value = widget.attributeLegend == 'quality'
+                ? props['BldQuality']
+                : props['BldReview'];
 
             Color fillColor = legendService.getColorForValue(
                     LegendType.building, widget.attributeLegend, value) ??
@@ -64,32 +66,6 @@ class _BuildingMarkerState extends State<BuildingMarker> {
             );
           }).toList(),
         ),
-        // MarkerLayer(
-        //   markers: features.map((feature) {
-        //     final polygonPoints =
-        //         GeometryHelper.parseCoordinates(feature['geometry']);
-        //     final center = GeometryHelper.getPolygonCentroid(polygonPoints);
-
-        //     return Marker(
-        //       point: center,
-        //       width: 100,
-        //       height: 100,
-        //       child: GestureDetector(
-        //         onLongPressStart: (details) {
-        //           onLongPressContextMenu(
-        //             context,
-        //             details.globalPosition,
-        //             EntityType.building,
-        //             center,
-        //           );
-        //         },
-        //         child: Container(
-        //           color: Colors.black,
-        //         ),
-        //       ),
-        //     );
-        //   }).toList(),
-        // ),
       ],
     );
   }

@@ -117,7 +117,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
               .firstOrNull;
           if (elementFound == null) return const SizedBox();
 
-          if (elementFound.type == "codedValue") {
+          if (elementFound.codedValues != null) {
             return AbsorbPointer(
               absorbing: attribute.display.enumerator == "read",
               child: DropdownButtonFormField(
@@ -128,7 +128,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                   labelStyle: const TextStyle(color: Colors.black),
                   errorText: validationErrors[elementFound.name],
                 ),
-                value: elementFound,
+                value: elementFound.defaultValue,
                 items: elementFound.codedValues!
                     .map((code) => DropdownMenuItem(
                           value: code['code'],
@@ -168,70 +168,6 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             enabled: elementFound.editable,
           );
         }),
-        // ...widget.schema.map((field) {
-        //   if (field.codedValues != null) {
-        //     final asbrdMetadata = schema.getByName(field.name);
-
-        //     final seenCodes = <dynamic>{};
-        //     final uniqueCodedValues = field.codedValues!
-        //         .where((item) =>
-        //             item['code'] != null && seenCodes.add(item['code']))
-        //         .toList();
-        //     final selectedValue = formValues[field.name];
-        //     final valueExists =
-        //         uniqueCodedValues.any((item) => item['code'] == selectedValue);
-        //     final effectiveValue =
-        //         valueExists ? selectedValue : field.defaultValue;
-
-        //     return AbsorbPointer(
-        //       absorbing: !field.editable,
-        //       child: DropdownButtonFormField(
-        //         key: ValueKey(field.name),
-        //         isExpanded: true,
-        //         decoration: InputDecoration(
-        //           labelText: field.alias,
-        //           labelStyle: const TextStyle(color: Colors.black),
-        //           errorText: validationErrors[field.name],
-        //         ),
-        //         value: effectiveValue,
-        //         items: uniqueCodedValues
-        //             .map((code) => DropdownMenuItem(
-        //                   value: code['code'],
-        //                   child: Text(
-        //                     code['name'].toString(),
-        //                     overflow: TextOverflow.ellipsis,
-        //                     style: const TextStyle(color: Colors.black),
-        //                   ),
-        //                 ))
-        //             .toList(),
-        //         onChanged: field.editable
-        //             ? (val) => formValues[field.name] =
-        //                 EsriTypeConversion.convert(field.type, val)
-        //             : null,
-        //         disabledHint: Text(
-        //           effectiveValue != null ? effectiveValue.toString() : '',
-        //           style: const TextStyle(color: Colors.black45),
-        //         ),
-        //       ),
-        //     );
-        //   }
-        //   return TextFormField(
-        //     key: ValueKey(field.name),
-        //     controller: _controllers[field.name],
-        //     readOnly: !field.editable,
-        //     decoration: InputDecoration(
-        //       labelText: field.alias,
-        //       labelStyle: const TextStyle(color: Colors.black),
-        //       errorText: validationErrors[field.name],
-        //     ),
-        //     style: const TextStyle(color: Colors.black),
-        //     onChanged: field.editable
-        //         ? (val) => formValues[field.name] =
-        //             EsriTypeConversion.convert(field.type, val)
-        //         : null,
-        //     enabled: field.editable,
-        //   );
-        // }),
         const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
