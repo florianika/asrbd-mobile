@@ -28,36 +28,58 @@ class _DwellingFormState extends State<DwellingForm> {
   Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
 
-  void _onSaveDwelling(Map<String, dynamic> attributes) {
-    if(_isEditMode){
-      context.read<DwellingCubit>().updateDwellingFeature(attributes);
-    }
-    else{
-      context.read<DwellingCubit>().addDwellingFeature(attributes);
-    }
-   
-    setState(() {
-      _showDwellingForm = false;
-      _isEditMode = false;
-    });
+  Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
+  if (_isEditMode) {
+    await context.read<DwellingCubit>().updateDwellingFeature(attributes);
+  } else {
+    await context.read<DwellingCubit>().addDwellingFeature(attributes);
   }
 
+  // 2) Only now that the save has returned, fetch the updated list
+  final id = widget.entranceGlobalId;
+  if (id != null) {
+    await context.read<DwellingCubit>().getDwellings(id);
+  }
+
+  // 3) Then hide the form
+  setState(() {
+    _showDwellingForm = false;
+    _isEditMode = false;
+  });
+}
+
   final Map<String, String> _columnLabels = {
-    'DwlCensus2023': 'Census Code',
-    'DwlType': 'Type',
-    'DwlStatus': 'Status',
-    'DwlOwnership': 'Ownership',
-    'DwlOccupancy': 'Occupancy',
-    'DwlToilet': 'Toilet',
-    'DwlBath': 'Bath',
-    'DwlAirConditioner': 'AC',
-    'DwlHeatingFacility': 'Heating',
-    'DwlSolarPanel': 'Solar Panel',
-    'created_user': 'Created By',
-    'created_date': 'Created Date',
-    'last_edited_user': 'Edited By',
-    'last_edited_date': 'Edited Date',
-  };
+  'external_creator_date': 'External Creator Date',
+  'external_editor_date': 'External Editor Date',
+  'OBJECTID': 'Object ID',
+  'GlobalID': 'Global ID',
+  'DwlEntGlobalID': 'Entrance Global ID',
+  'DwlCensus2023': 'Census Code',
+  'DwlAddressID': 'Address ID',
+  'DwlQuality': 'Quality',
+  'DwlFloor': 'Floor',
+  'DwlApartNumber': 'Apartment Number',
+  'DwlStatus': 'Status',
+  'DwlYearConstruction': 'Construction Year',
+  'DwlYearElimination': 'Elimination Year',
+  'DwlType': 'Type',
+  'DwlOwnership': 'Ownership',
+  'DwlOccupancy': 'Occupancy',
+  'DwlSurface': 'Surface',
+  'DwlToilet': 'Toilet',
+  'DwlBath': 'Bath',
+  'DwlHeatingFacility': 'Heating Facility',
+  'DwlHeatingEnergy': 'Heating Energy',
+  'DwlAirConditioner': 'AC',
+  'DwlSolarPanel': 'Solar Panel',
+  'created_user': 'Created By',
+  'created_date': 'Created Date',
+  'last_edited_user': 'Edited By',
+  'last_edited_date': 'Edited Date',
+  'external_creator': 'External Creator',
+  'external_editor': 'External Editor',
+};
+
 
   final List<String> _columnOrder = [
     'DwlCensus2023',
@@ -170,12 +192,8 @@ class _DwellingFormState extends State<DwellingForm> {
                           _isEditMode = false;
                         });
                       },
-                      save: (formValues) {
-                        _onSaveDwelling(formValues);
-                        final id = widget.entranceGlobalId;
-                        if (id != null) {
-                          context.read<DwellingCubit>().getDwellings(id);
-                        }
+                     save: (formValues) async {
+                        await _onSaveDwelling(formValues);                       
                         setState(() {
                           _showDwellingForm = false;
                           _isEditMode = false;
