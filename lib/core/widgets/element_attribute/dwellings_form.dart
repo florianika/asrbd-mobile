@@ -32,7 +32,10 @@ class _DwellingFormState extends State<DwellingForm> {
     if(_isEditMode){
       context.read<DwellingCubit>().updateDwellingFeature(attributes);
     }
-    context.read<DwellingCubit>().addDwellingFeature(attributes);
+    else{
+      context.read<DwellingCubit>().addDwellingFeature(attributes);
+    }
+   
     setState(() {
       _showDwellingForm = false;
       _isEditMode = false;
