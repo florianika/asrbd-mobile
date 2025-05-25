@@ -51,7 +51,10 @@ dependencies:
   flutter_map_tile_caching: ^10.0.0
   latlong2: ^0.9.1
   flutter_map_geojson: ^1.0.8
+  geolocator: ^9.0.1
 
+dependency_overrides:
+  geolocator_android: 4.6.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
