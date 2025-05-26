@@ -595,7 +595,7 @@ class _ViewMapState extends State<ViewMap> {
                     ),
                   ),
                  if (_isPropertyVisibile) ...[
-                    GestureDetector(
+                   GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onHorizontalDragUpdate: (details) {
                         setState(() {
@@ -613,11 +613,21 @@ class _ViewMapState extends State<ViewMap> {
                         child: Container(
                           width: 8,
                           color: Colors.grey.shade300,
+                          child: Center(
+                            child: Container(
+                              width: 10,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade600,
+                                borderRadius: BorderRadius.circular(1),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 600),
+                      duration: const Duration(milliseconds: 0),
                       curve: Curves.easeInOut,
                       width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
                       child: _isDwellingVisible
