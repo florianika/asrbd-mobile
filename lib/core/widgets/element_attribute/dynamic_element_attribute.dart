@@ -115,7 +115,19 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
               .where(
                   (x) => x.name.toLowerCase() == attribute.name.toLowerCase())
               .firstOrNull;
-          if (elementFound == null) return const SizedBox();
+          if (elementFound == null) {
+            print(attribute.name);
+            return const SizedBox();
+          }
+          // print(attribute.name + ' - ' + elementFound.name);
+
+          if (attribute.display.enumerator == "read") {
+            return Text(
+              '${attribute.label.al}: ${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+              key: ValueKey(elementFound.name),
+              style: const TextStyle(color: Colors.black, fontSize: 12),
+            );
+          }
 
           if (elementFound.codedValues != null) {
             return AbsorbPointer(
@@ -124,11 +136,12 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                 key: ValueKey(elementFound.name),
                 isExpanded: true,
                 decoration: InputDecoration(
-                  labelText: elementFound.alias,
+                  labelText: attribute.label.al,
                   labelStyle: const TextStyle(color: Colors.black),
                   errorText: validationErrors[elementFound.name],
                 ),
-                value: elementFound.defaultValue,
+                value: widget.initialData![elementFound.name] ??
+                    elementFound.defaultValue,
                 items: elementFound.codedValues!
                     .map((code) => DropdownMenuItem(
                           value: code['code'],
@@ -144,7 +157,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
                         EsriTypeConversion.convert(elementFound.type, val)
                     : null,
                 disabledHint: Text(
-                  elementFound.alias,
+                  attribute.label.al,
                   style: const TextStyle(color: Colors.black45),
                 ),
               ),
@@ -156,7 +169,7 @@ class _DynamicElementAttributeFormState extends State<DynamicElementAttribute> {
             controller: _controllers[elementFound.name],
             readOnly: attribute.display.enumerator == "read",
             decoration: InputDecoration(
-              labelText: elementFound.alias,
+              labelText: attribute.label.al,
               labelStyle: const TextStyle(color: Colors.black),
               errorText: validationErrors[elementFound.name],
             ),
