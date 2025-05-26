@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/locate_me.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -13,7 +14,7 @@ class MapActionButtons extends StatelessWidget {
     return Stack(
       children: [
         Positioned(
-          bottom: 210,
+          bottom: 270,
           left: 20,
           child: FloatingActionButton(
             heroTag: 'zoom_in',
@@ -28,7 +29,7 @@ class MapActionButtons extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 140,
+          bottom: 210,
           left: 20,
           child: FloatingActionButton(
             heroTag: 'zoom_out',
@@ -43,7 +44,16 @@ class MapActionButtons extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 80,
+          bottom: 150,
+          left: 20,
+          child: LocateMe(
+            mapController: mapController,
+            zoomLevel: mapController.camera.zoom,
+          ),
+        ),
+
+        Positioned(
+          bottom: 90,
           left: 20,
           child: FloatingActionButton(
             heroTag: 'rectangle',
@@ -55,7 +65,7 @@ class MapActionButtons extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 20,
+          bottom: 30,
           left: 20,
           child: FloatingActionButton(
             heroTag: 'entrance',

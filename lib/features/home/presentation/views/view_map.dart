@@ -47,6 +47,7 @@ class _ViewMapState extends State<ViewMap> {
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
   List<dynamic> highilghGlobalIds = [];
+  List<int> highlightedBuildingIds = [];
   String attributeLegend = 'quality';
 
   LatLngBounds? visibleBounds;
@@ -107,6 +108,37 @@ class _ViewMapState extends State<ViewMap> {
       _selectedShapeType = ShapeType.point;
 
       context.read<EntranceCubit>().getEntranceDetails(data['OBJECTID']);
+
+      final bldGlobalId = data['EntBldGlobalID']
+          ?.toString()
+          .toLowerCase()
+          .replaceAll(RegExp(r'[{}]'), '');
+
+      if (bldGlobalId != null && buildingsData != null) {
+        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
+
+        final matchedBuilding = buildingFeatures.firstWhere(
+          (feature) {
+            final props = feature['properties'] as Map<String, dynamic>;
+            final globalId = props['GlobalID']
+                ?.toString()
+                .toLowerCase()
+                .replaceAll(RegExp(r'[{}]'), '');
+            return globalId == bldGlobalId;
+          },
+          orElse: () => {},
+        );
+
+        if (matchedBuilding.isNotEmpty) {
+          final buildingProps = matchedBuilding['properties'];
+          final buildingObjectId = buildingProps['OBJECTID'];
+
+          setState(() {
+            highlightedBuildingIds = [buildingObjectId];
+          });
+        }
+      }
+
       setState(() {
         _isDwellingVisible = false;
       });
@@ -303,6 +335,8 @@ class _ViewMapState extends State<ViewMap> {
         _selectedShapeType = ShapeType.polygon;
         _selectedObjectId = objectId;
         _isDwellingVisible = false;
+        highlightedBuildingIds = [];
+        highilghGlobalIds = [];
 
         //find entrances of the selected building
         if (entranceData != null) {
@@ -504,6 +538,7 @@ class _ViewMapState extends State<ViewMap> {
                               selectedShapeType: _selectedShapeType,
                               onLongPressContextMenu: _showContextMenu,
                               attributeLegend: attributeLegend,
+                               highlightedBuildingIds: highlightedBuildingIds,
                             ),
                             EntranceMarker(
                               entranceData: entranceData,
@@ -560,7 +595,7 @@ class _ViewMapState extends State<ViewMap> {
                     ),
                   ),
                  if (_isPropertyVisibile) ...[
-                    GestureDetector(
+                   GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onHorizontalDragUpdate: (details) {
                         setState(() {
@@ -578,11 +613,21 @@ class _ViewMapState extends State<ViewMap> {
                         child: Container(
                           width: 8,
                           color: Colors.grey.shade300,
+                          child: Center(
+                            child: Container(
+                              width: 10,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade600,
+                                borderRadius: BorderRadius.circular(1),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 600),
+                      duration: const Duration(milliseconds: 0),
                       curve: Curves.easeInOut,
                       width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
                       child: _isDwellingVisible

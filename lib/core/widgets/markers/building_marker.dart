@@ -13,6 +13,7 @@ class BuildingMarker extends StatefulWidget {
   final int? selectedObjectId;
   final ShapeType? selectedShapeType;
   final String attributeLegend;
+  final List<dynamic> highlightedBuildingIds;
   final void Function(
     BuildContext context,
     Offset globalPosition,
@@ -26,6 +27,7 @@ class BuildingMarker extends StatefulWidget {
     this.selectedShapeType,
     required this.onLongPressContextMenu,
     required this.attributeLegend,
+    required this.highlightedBuildingIds,
   });
 
   @override
@@ -44,6 +46,20 @@ class _BuildingMarkerState extends State<BuildingMarker> {
 
     return Stack(
       children: [
+         PolygonLayer(
+          polygons: features.where((feature) {
+            final props = feature['properties'] as Map<String, dynamic>;
+            return widget.highlightedBuildingIds.contains(props['OBJECTID']);
+          }).map((feature) {
+            final coords = GeometryHelper.parseCoordinates(feature['geometry']);
+            return Polygon(
+              points: coords,
+              color: const Color.fromARGB(255, 222, 31, 17).withOpacity(0.01),
+              borderColor: const Color.fromARGB(255, 215, 25, 11).withOpacity(0.3),
+              borderStrokeWidth: 16.0,
+            );
+          }).toList(),
+        ),
         PolygonLayer(
           polygons: features.map((feature) {
             final props = feature['properties'] as Map<String, dynamic>;
