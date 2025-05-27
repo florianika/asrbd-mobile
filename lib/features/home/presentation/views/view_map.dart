@@ -262,39 +262,65 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave(Map<String, dynamic> attributes) {
-    // if (_newPolygonPoints.isEmpty) return;
+    final isNew = attributes['GlobalID'] == null;
+    final shapeType = _selectedShapeType;
+    final scaffold = ScaffoldMessenger.of(context);
 
-    if (_selectedShapeType == ShapeType.point) {
-      if (attributes['GlobalID'] == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('add entrance')),
-        );
-        context
-            .read<EntranceCubit>()
-            .addEntranceFeature(attributes, _newPolygonPoints);
+    if (shapeType == ShapeType.point) {
+      scaffold.showSnackBar(
+        SnackBar(content: Text(isNew ? 'add entrance' : 'update entrance')),
+      );
+
+      final entranceCubit = context.read<EntranceCubit>();
+
+      if (isNew) {
+        entranceCubit.addEntranceFeature(attributes, _newPolygonPoints);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('update entrance')),
-        );
         final entranceFeatures = entranceData!['features'] as List<dynamic>;
-        entranceFeatures.firstWhere(
-          (feature) {
-            final props = feature['properties'] as Map<String, dynamic>;
-            final globalId = props['GlobalID']?.toString();
-            return globalId == attributes['GlobalID'];
-          },
-          orElse: () => {},
+        final feature = entranceFeatures.firstWhere(
+          (f) =>
+              (f['properties']?['GlobalID']?.toString() ?? '') ==
+              attributes['GlobalID'],
+          orElse: () => null,
         );
 
-        List<double> coordinates =
-            entranceFeatures.first['geometry']['coordinates'] as List<double>;
+        if (feature != null) {
+          final coords = feature['geometry']['coordinates'] as List<dynamic>;
+          final latLng = LatLng(coords[0] as double, coords[1] as double);
+          entranceCubit.updateEntranceFeature(attributes, [latLng]);
+        }
+      }
+    } else if (shapeType == ShapeType.polygon) {
+      scaffold.showSnackBar(
+        SnackBar(content: Text(isNew ? 'add building' : 'update building')),
+      );
 
-        var latLng = LatLng(coordinates[0], coordinates[1]);
-        context
-            .read<EntranceCubit>()
-            .updateEntranceFeature(attributes, [latLng]);
+      final buildingCubit = context.read<BuildingCubit>();
+
+      if (isNew) {
+        buildingCubit.addBuildingFeature(attributes, _newPolygonPoints);
+      } else {
+        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
+        final feature = buildingFeatures.firstWhere(
+          (f) =>
+              (f['properties']?['GlobalID']?.toString() ?? '') ==
+              attributes['GlobalID'],
+          orElse: () => null,
+        );
+
+        if (feature != null) {
+          final coordinates =
+              feature['geometry']['coordinates'] as List<dynamic>;
+          final latLngList = coordinates
+              .map<LatLng>(
+                  (coord) => LatLng(coord[0] as double, coord[1] as double))
+              .toList();
+
+          buildingCubit.updateBuildingFeature(attributes, latLngList);
+        }
       }
     }
+
     setState(() {
       _isDrawing = false;
     });
@@ -427,14 +453,14 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _handleEntranceResponse(
-      BuildContext context, bool isAdded, String actionName) {
+  void _handleResponse(BuildContext context, bool isAdded, String actionName) {
     _showSnackBar(
       context,
       isAdded ? "$actionName u krye" : "$actionName dështoi",
     );
     if (isAdded) {
       context.read<EntranceCubit>().getEntrances(visibleBounds, zoom);
+      context.read<BuildingCubit>().getBuildings(visibleBounds, zoom);
       setState(() => _newPolygonPoints.clear());
     }
   }
@@ -456,6 +482,10 @@ class _ViewMapState extends State<ViewMap> {
             }
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
+          } else if (state is BuildingAddResponse) {
+            _handleResponse(context, state.isAdded, "Shtimi i nderteses");
+          } else if (state is BuildingUpdateResponse) {
+            _handleResponse(context, state.isAdded, "Perditesimi i nderteses");
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -483,12 +513,11 @@ class _ViewMapState extends State<ViewMap> {
                 case EntranceAttributes(:final attributes):
                   _entranceSchema = attributes;
                 case EntranceAddResponse(:final isAdded):
-                  _handleEntranceResponse(context, isAdded, "Shtimi i hyrjes");
+                  _handleResponse(context, isAdded, "Shtimi i hyrjes");
                 case EntranceUpdateResponse(:final isAdded):
-                  _handleEntranceResponse(
-                      context, isAdded, "Perditesimi i hyrjes");
+                  _handleResponse(context, isAdded, "Perditesimi i hyrjes");
                 case EntranceDeleteResponse(:final isAdded):
-                  _handleEntranceResponse(context, isAdded, "Fshirja e hyrjes");
+                  _handleResponse(context, isAdded, "Fshirja e hyrjes");
                 case EntranceError(:final message):
                   _showSnackBar(context, message);
               }
