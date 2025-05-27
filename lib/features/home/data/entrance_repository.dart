@@ -13,8 +13,8 @@ class EntranceRepository {
     return await entranceService.getEntrances(bounds, zoom);
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(int objectId) async {
-    return await entranceService.getEntranceDetails(objectId);
+  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
+    return await entranceService.getEntranceDetails(globalId);
   }
 
   Future<List<FieldSchema>> getEntranceAttributes() async {

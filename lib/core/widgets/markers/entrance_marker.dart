@@ -1,4 +1,3 @@
-import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
@@ -7,31 +6,23 @@ import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class EntranceMarker extends StatefulWidget {
   final Map<String, dynamic>? entranceData;
-  final int? selectedObjectId;
+  final String? selectedGlobalId;
   final ShapeType? selectedShapeType;
   final Function onTap;
   final MapController mapController; // Add MapController to control zoom
   final List<dynamic> highilghGlobalIds;
-  final void Function(
-    BuildContext context,
-    Offset globalPosition,
-    EntityType type,
-    LatLng position,
-  ) onLongPressContextMenu;
 
   const EntranceMarker({
     super.key,
     this.entranceData,
-    this.selectedObjectId,
+    this.selectedGlobalId,
     this.selectedShapeType,
     required this.onTap,
     required this.mapController,
     required this.highilghGlobalIds,
-    required this.onLongPressContextMenu,
   });
 
   @override
@@ -50,7 +41,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                 .map((feature) {
               final props = feature['properties'] as Map<String, dynamic>;
               final value = props['EntQuality'];
-              final objectId = props[EntranceFields.objectID];
+              final globalId = props[EntranceFields.globalID];
 
               // Dynamically adjust marker size based on zoom level
               final zoomLevel = widget.mapController.camera.zoom;
@@ -65,7 +56,8 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                   Colors.black;
 
               if (widget.selectedShapeType == ShapeType.point &&
-                  widget.selectedObjectId == objectId) {
+                  widget.selectedGlobalId != null &&
+                  widget.selectedGlobalId == globalId) {
                 fillColor = Colors.red;
               }
 
@@ -78,18 +70,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                   onTap: () {
                     widget.onTap(props);
                   },
-                  onLongPressStart: (details) {
-                    final position =
-                        GeometryHelper.parseCoordinates(feature['geometry'])
-                            .first;
-                    widget.onLongPressContextMenu(
-                      context,
-                      details.globalPosition,
-                      EntityType.entrance,
-                      position,
-                    );
-                  },
-                  child: widget.highilghGlobalIds.contains(objectId)
+                  child: widget.highilghGlobalIds.contains(globalId)
                       ? Container(
                           decoration: BoxDecoration(
                               color: fillColor,
