@@ -1,7 +1,9 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -48,59 +50,35 @@ class _DwellingFormState extends State<DwellingForm> {
   });
 }
 
-  final Map<String, String> _columnLabels = {
-  'external_creator_date': 'External Creator Date',
-  'external_editor_date': 'External Editor Date',
-  'OBJECTID': 'Object ID',
-  'GlobalID': 'Global ID',
-  'DwlEntGlobalID': 'Entrance Global ID',
-  'DwlCensus2023': 'Census Code',
-  'DwlAddressID': 'Address ID',
-  'DwlQuality': 'Quality',
-  'DwlFloor': 'Floor',
-  'DwlApartNumber': 'Apartment Number',
-  'DwlStatus': 'Status',
-  'DwlYearConstruction': 'Construction Year',
-  'DwlYearElimination': 'Elimination Year',
-  'DwlType': 'Type',
-  'DwlOwnership': 'Ownership',
-  'DwlOccupancy': 'Occupancy',
-  'DwlSurface': 'Surface',
-  'DwlToilet': 'Toilet',
-  'DwlBath': 'Bath',
-  'DwlHeatingFacility': 'Heating Facility',
-  'DwlHeatingEnergy': 'Heating Energy',
-  'DwlAirConditioner': 'AC',
-  'DwlSolarPanel': 'Solar Panel',
-  'created_user': 'Created By',
-  'created_date': 'Created Date',
-  'last_edited_user': 'Edited By',
-  'last_edited_date': 'Edited Date',
-  'external_creator': 'External Creator',
-  'external_editor': 'External Editor',
-};
+  late Map<String, String> _columnLabels ;
 
 
-  final List<String> _columnOrder = [
-    'DwlCensus2023',
-    'DwlType',
-    'DwlStatus',
-    'DwlOwnership',
-    'DwlOccupancy',
-    'DwlToilet',
-    'DwlBath',
-    'DwlAirConditioner',
-  ];
+  late List<String> _columnOrder;
 
-  @override
-  void initState() {
-    super.initState();
-    final id = widget.entranceGlobalId;
-    _initialData['DwlEntGlobalID'] = id;
-   // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
-    //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
-    context.read<DwellingCubit>().getDwellings(id);
-  }
+@override
+void initState() {
+  super.initState();
+
+  final id = widget.entranceGlobalId;
+  _initialData['DwlEntGlobalID'] = id;
+
+  final schemaService = sl<SchemaService>();
+  final dwellingSchema = schemaService.dwellingSchema;
+
+  _columnLabels = {
+    for (var attr in dwellingSchema.attributes)
+      attr.name: attr.label.al,
+  };
+
+  _columnOrder = dwellingSchema.attributes
+      .where((attr) => attr.display.enumerator != "none")
+      .map((attr) => attr.name)
+      .toList();
+
+  context.read<DwellingCubit>().getDwellings(id);
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -250,31 +228,32 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void _onViewDwelling(Map<String, dynamic> row) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Dwelling Details'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: row.entries
-                .map((e) => ListTile(
-                      title: Text(e.key),
-                      subtitle: Text(e.value?.toString() ?? '-'),
-                    ))
-                .toList(),
-          ),
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Dwelling Details'),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: ListView(
+          shrinkWrap: true,
+          children: _columnOrder
+              .map((key) => ListTile(
+                    title: Text(_columnLabels[key] ?? key),
+                    subtitle: Text(row[key]?.toString() ?? '-'),
+                  ))
+              .toList(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
-          ),
-        ],
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Close"),
+        ),
+      ],
+    ),
+  );
+}
+
 
   void _onEditDwelling(Map<String, dynamic> row) {
     final id = widget.entranceGlobalId;
