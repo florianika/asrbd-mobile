@@ -9,9 +9,11 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
@@ -70,9 +72,9 @@ class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
-  bool _isDwellingVisible = false;
-  double _sidePanelFractionDefualt = 0.4;
-  final double _defaultDwellingWidthFraction = 0.8;
+  // bool _isDwellingVisible = false;
+  // double _sidePanelFractionDefualt = 0.4;
+  // final double _defaultDwellingWidthFraction = 0.8;
 
   final legendService = sl<LegendService>();
 
@@ -98,10 +100,6 @@ class _ViewMapState extends State<ViewMap> {
 
   void handleEntranceTap(Map<String, dynamic> data) {
     try {
-      // Determine if the device is using a small screen (mobile)
-      // final bool isMobile =
-      //     MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
-
       _selectedGlobalId = data[EntranceFields.globalID];
 
       if (_selectedGlobalId == null) return;
@@ -115,14 +113,9 @@ class _ViewMapState extends State<ViewMap> {
       final bldGlobalId = data['EntBldGlobalID'];
 
       setState(() {
-        _isDwellingVisible = false;
+        // _isDwellingVisible = false;
         highlightedBuildingIds = bldGlobalId;
       });
-
-      // For mobile devices, show the mobile attribute UI
-      // if (isMobile) {
-      //   mobileElementAttribute(context, _entranceSchema, data, _onSave);
-      // }
     } catch (e) {
       // Display error message to the user in case of exception
       ScaffoldMessenger.of(context).showSnackBar(
@@ -318,13 +311,10 @@ class _ViewMapState extends State<ViewMap> {
       final props = tappedFeature['properties'];
       final globalId = props[EntranceFields.globalID];
 
-      final isMobile =
-          MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
-
       setState(() {
         _selectedShapeType = ShapeType.polygon;
         _selectedGlobalId = globalId;
-        _isDwellingVisible = false;
+        // _isDwellingVisible = false;
         highlightedBuildingIds = null;
         highlightMarkersGlobalId = [];
         _selectedBuildingId = globalId;
@@ -353,16 +343,10 @@ class _ViewMapState extends State<ViewMap> {
           }
         }
 
-        if (!isMobile) {
-          _schema = _buildingSchema;
-          _isPropertyVisibile = true;
-          _initialData = props;
-        }
+        _schema = _buildingSchema;
+        _isPropertyVisibile = true;
+        _initialData = props;
       });
-
-      if (isMobile) {
-        mobileElementAttribute(context, _entranceSchema, props, _onSave);
-      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -588,80 +572,41 @@ class _ViewMapState extends State<ViewMap> {
                             onChange: onLegendChangeAttribute,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  if (_isPropertyVisibile) ...[
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onHorizontalDragUpdate: (details) {
-                        setState(() {
-                          _sidePanelFractionDefualt -= details.delta.dx /
-                              MediaQuery.of(context).size.width;
-                          _sidePanelFractionDefualt =
-                              _sidePanelFractionDefualt.clamp(0.4, 0.9);
-                        });
-                      },
-                      onDoubleTap: () {
-                        setState(() {
-                          _sidePanelFractionDefualt = 0.4;
-                        });
-                      },
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.resizeLeftRight,
-                        child: Container(
-                          width: 8,
-                          color: Colors.grey.shade300,
-                          child: Center(
-                            child: Container(
-                              width: 10,
-                              height: 80,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade600,
-                                borderRadius: BorderRadius.circular(1),
+                        Visibility(
+                          visible: false,
+                          child: Positioned(
+                            top: 20,
+                            right: 150,
+                            child: FloatingActionButton(
+                              onPressed: () => {},
+                              backgroundColor: Colors.white,
+                              foregroundColor: const Color(0xFF374151),
+                              elevation: 3,
+                              child: const Icon(
+                                Icons.layers,
+                                size: 22,
                               ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 0),
-                      curve: Curves.easeInOut,
-                      width: MediaQuery.of(context).size.width *
-                          _sidePanelFractionDefualt,
-                      child: _isDwellingVisible
-                          ? DwellingForm(
-                              selectedShapeType: ShapeType.point,
-                              entranceGlobalId:
-                                  _initialData['GlobalID']?.toString(),
-                              onBack: () {
-                                setState(() {
-                                  _isDwellingVisible = false;
-                                });
-                              },
-                            )
-                          : TabletElementAttribute(
-                              schema: _schema,
-                              selectedShapeType: _selectedShapeType,
-                              initialData: _initialData,
-                              save: _onSave,
-                              onClose: () {
-                                setState(() {
-                                  _isPropertyVisibile = false;
-                                  _isDrawing = false;
-                                });
-                              },
-                              onOpenDwelling: () {
-                                setState(() {
-                                  _isDwellingVisible = true;
-                                  _sidePanelFractionDefualt =
-                                      _defaultDwellingWidthFraction;
-                                });
-                              },
-                            ),
+                  ),
+                  Visibility(
+                    visible: _isPropertyVisibile,
+                    child: ViewAttribute(
+                      schema: _schema,
+                      selectedShapeType: _selectedShapeType,
+                      initialData: _initialData,
+                      save: _onSave,
+                      onClose: () {
+                        setState(() {
+                          _isPropertyVisibile = false;
+                          _isDrawing = false;
+                        });
+                      },
                     ),
-                  ],
+                  )
                 ],
               );
             },

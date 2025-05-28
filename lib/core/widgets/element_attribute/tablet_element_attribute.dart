@@ -1,6 +1,7 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:flutter/material.dart';
 
 class TabletElementAttribute extends StatefulWidget {
@@ -27,7 +28,8 @@ class TabletElementAttribute extends StatefulWidget {
 }
 
 class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
-  final GlobalKey<DynamicElementAttributeState> _dynamicFormKey = GlobalKey<DynamicElementAttributeState>();
+  final GlobalKey<DynamicElementAttributeState> _dynamicFormKey =
+      GlobalKey<DynamicElementAttributeState>();
 
   @override
   Widget build(BuildContext context) {
@@ -82,52 +84,11 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 top: BorderSide(color: Colors.grey[300]!, width: 1),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: widget.onClose,
-                  icon: const Icon(Icons.close, color: Colors.black),
-                  label: const Text('Close', style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                if (widget.selectedShapeType == ShapeType.point)
-                  OutlinedButton.icon(
-                    onPressed: () => _openNewDwellingForm(null),
-                    icon: const Icon(Icons.home_work, color: Colors.black),
-                    label: const Text('Manage Dwelling',
-                        style: TextStyle(color: Colors.black)),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                  ),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // Call the save method from the child widget
-                    _dynamicFormKey.currentState?.handleSave();
-                  },
-                  icon: const Icon(Icons.save),
-                  label: const Text('Save'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
-                ),
-              ],
+            child: EventButtonAttribute(
+              onSave: () => _dynamicFormKey.currentState?.handleSave(),
+              onClose: () => widget.onClose(),
+              openDwelling: () => _openNewDwellingForm(null),
+              selectedShapeType: widget.selectedShapeType,
             ),
           ),
         ],
