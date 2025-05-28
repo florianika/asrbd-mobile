@@ -37,13 +37,12 @@ class _DwellingFormState extends State<DwellingForm> {
     await context.read<DwellingCubit>().addDwellingFeature(attributes);
   }
 
-  // 2) Only now that the save has returned, fetch the updated list
+ 
   final id = widget.entranceGlobalId;
   if (id != null) {
     await context.read<DwellingCubit>().getDwellings(id);
   }
 
-  // 3) Then hide the form
   setState(() {
     _showDwellingForm = false;
     _isEditMode = false;
@@ -51,8 +50,6 @@ class _DwellingFormState extends State<DwellingForm> {
 }
 
   late Map<String, String> _columnLabels ;
-
-
   late List<String> _columnOrder;
 
 @override
@@ -231,23 +228,56 @@ void initState() {
   showDialog(
     context: context,
     builder: (_) => AlertDialog(
-      title: const Text('Dwelling Details'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: ListView(
-          shrinkWrap: true,
-          children: _columnOrder
-              .map((key) => ListTile(
-                    title: Text(_columnLabels[key] ?? key),
-                    subtitle: Text(row[key]?.toString() ?? '-'),
-                  ))
-              .toList(),
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text(
+        'Dwelling Details',
+        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxWidth: 400, // 👈 Set the desired max width
+          maxHeight: 500, // 👈 Optional: limit height
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _columnOrder.map((key) {
+              final label = _columnLabels[key] ?? key;
+              final value = row[key]?.toString() ?? '-';
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 4),
+                        Text(value, style: const TextStyle(color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                ],
+              );
+            }).toList(),
+          ),
         ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text("Close"),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.blue,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+            child: Text("Close"),
+          ),
         ),
       ],
     ),
