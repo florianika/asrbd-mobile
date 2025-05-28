@@ -15,7 +15,7 @@ class EntranceUseCases {
       return {};
     }
 
-    if (zoom < EsriConfig.minZoom) {
+    if (zoom < EsriConfig.entranceMinZoom) {
       return {};
     }
 

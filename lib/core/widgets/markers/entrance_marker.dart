@@ -31,70 +31,75 @@ class EntranceMarker extends StatefulWidget {
 
 class _EntranceMarkerState extends State<EntranceMarker> {
   final legendService = sl<LegendService>();
-
+  final markerSize = 20.0;
   @override
   Widget build(BuildContext context) {
     return widget.entranceData != null
         ? MarkerLayer(
-            markers: List<Map<String, dynamic>>.from(
-                    widget.entranceData!['features'])
-                .map((feature) {
-              final props = feature['properties'] as Map<String, dynamic>;
-              final value = props['EntQuality'];
-              final globalId = props[EntranceFields.globalID];
+            markers: widget.entranceData! == {}
+                ? []
+                : List<Map<String, dynamic>>.from(
+                        widget.entranceData!['features'])
+                    .map((feature) {
+                    final props = feature['properties'] as Map<String, dynamic>;
+                    final value = props['EntQuality'];
+                    final globalId = props[EntranceFields.globalID];
 
-              // Dynamically adjust marker size based on zoom level
-              final zoomLevel = widget.mapController.camera.zoom;
-              double markerSize =
-                  (30 * zoomLevel / 40 > 25) ? 25 : 30 * zoomLevel / 40;
+                    // Dynamically adjust marker size based on zoom level
+                    // final zoomLevel = widget.mapController.camera.zoom;
+                    // double markerSize =
+                    //     (30 * zoomLevel / 40 > 25) ? 25 : 30 * zoomLevel / 40;
 
-              // Ensure a minimum and maximum size
-              markerSize = markerSize.clamp(20.0, 100.0);
+                    // // Ensure a minimum and maximum size
+                    // markerSize = markerSize.clamp(20.0, 100.0);
 
-              Color fillColor = legendService.getColorForValue(
-                      LegendType.entrance, 'quality', value) ??
-                  Colors.black;
+                    Color fillColor = legendService.getColorForValue(
+                            LegendType.entrance, 'quality', value) ??
+                        Colors.black;
 
-              if (widget.selectedShapeType == ShapeType.point &&
-                  widget.selectedGlobalId != null &&
-                  widget.selectedGlobalId == globalId) {
-                fillColor = Colors.red;
-              }
+                    if (widget.selectedShapeType == ShapeType.point &&
+                        widget.selectedGlobalId != null &&
+                        widget.selectedGlobalId == globalId) {
+                      fillColor = Colors.red;
+                    }
 
-              return Marker(
-                width: markerSize,
-                height: markerSize,
-                point:
-                    GeometryHelper.parseCoordinates(feature['geometry']).first,
-                child: GestureDetector(
-                  onTap: () {
-                    widget.onTap(props);
-                  },
-                  child: widget.highilghGlobalIds.contains(globalId)
-                      ? Container(
-                          decoration: BoxDecoration(
-                              color: fillColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.black, width: 1),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      Colors.red.withOpacity(0.6), // glow color
-                                  blurRadius: 10,
-                                  spreadRadius: 3,
+                    return Marker(
+                      width: markerSize,
+                      height: markerSize,
+                      point:
+                          GeometryHelper.parseCoordinates(feature['geometry'])
+                              .first,
+                      child: GestureDetector(
+                        onTap: () {
+                          widget.onTap(props);
+                        },
+                        child: widget.highilghGlobalIds.contains(globalId)
+                            ? Container(
+                                decoration: BoxDecoration(
+                                    color: fillColor,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.black, width: 1),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.red
+                                            .withOpacity(0.6), // glow color
+                                        blurRadius: 10,
+                                        spreadRadius: 3,
+                                      ),
+                                    ]),
+                              )
+                            : Container(
+                                decoration: BoxDecoration(
+                                  color: fillColor,
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: Colors.black, width: 1),
                                 ),
-                              ]),
-                        )
-                      : Container(
-                          decoration: BoxDecoration(
-                            color: fillColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.black, width: 1),
-                          ),
-                        ),
-                ),
-              );
-            }).toList(),
+                              ),
+                      ),
+                    );
+                  }).toList(),
           )
         : const SizedBox();
   }

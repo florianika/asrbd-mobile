@@ -13,7 +13,7 @@ class EntranceFields {
   static const String lastEditedUser = 'last_edited_user';
   static const String lastEditedDate = 'last_edited_date'; 
 
-  static const List<String> hiddenAttributes = [
+  // static const List<String> hiddenAttributes = [
     // globalID,
     // objectID,
     // externalCreator,
@@ -27,5 +27,5 @@ class EntranceFields {
     // createdDate,
     // lastEditedUser,
     // lastEditedDate
-  ];
+  // ];
 }

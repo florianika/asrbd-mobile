@@ -107,45 +107,16 @@ class _ViewMapState extends State<ViewMap> {
       if (_selectedGlobalId == null) return;
 
       highlightMarkersGlobalId = [];
-      // _selectedBuildingId = null;
-
       _schema = _entranceSchema;
       _selectedShapeType = ShapeType.point;
 
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
 
-      final bldGlobalId = data['EntBldGlobalID']
-          ?.toString()
-          .toLowerCase()
-          .replaceAll(RegExp(r'[{}]'), '');
-
-      if (bldGlobalId != null && buildingsData != null) {
-        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
-
-        final matchedBuilding = buildingFeatures.firstWhere(
-          (feature) {
-            final props = feature['properties'] as Map<String, dynamic>;
-            final globalId = props['GlobalID']
-                ?.toString()
-                .toLowerCase()
-                .replaceAll(RegExp(r'[{}]'), '');
-            return globalId == bldGlobalId;
-          },
-          orElse: () => {},
-        );
-
-        if (matchedBuilding.isNotEmpty) {
-          final buildingProps = matchedBuilding['properties'];
-          final buildingObjectId = buildingProps['OBJECTID'];
-
-          setState(() {
-            highlightedBuildingIds = buildingObjectId;
-          });
-        }
-      }
+      final bldGlobalId = data['EntBldGlobalID'];
 
       setState(() {
         _isDwellingVisible = false;
+        highlightedBuildingIds = bldGlobalId;
       });
 
       // For mobile devices, show the mobile attribute UI
@@ -497,7 +468,7 @@ class _ViewMapState extends State<ViewMap> {
             listener: (context, state) {
               switch (state) {
                 case Entrances(:final entrances):
-                  if (entrances.isNotEmpty) entranceData = entrances;
+                  entranceData = entrances;
                 case Entrance(:final entrance):
                   if (entrance.isNotEmpty) {
                     List<dynamic> features = entrance['features'];
@@ -533,15 +504,15 @@ class _ViewMapState extends State<ViewMap> {
                           mapController: mapController,
                           options: MapOptions(
                             initialCenter: const LatLng(40.534406, 19.6338131),
-                            initialZoom: EsriConfig.minZoom,
+                            initialZoom: EsriConfig.initZoom,
                             onMapReady: () => {
                               context.read<BuildingCubit>().getBuildings(
                                   mapController.camera.visibleBounds,
-                                  EsriConfig.minZoom),
+                                  EsriConfig.buildingMinZoom),
                               context.read<EntranceCubit>().getEntrances(
                                   mapController.camera.visibleBounds,
-                                  EsriConfig.minZoom),
-                              zoom = EsriConfig.minZoom,
+                                  EsriConfig.entranceMinZoom),
+                              // zoom = EsriConfig.initZoom,
                               visibleBounds =
                                   mapController.camera.visibleBounds,
                             },
@@ -565,14 +536,16 @@ class _ViewMapState extends State<ViewMap> {
                               attributeLegend: attributeLegend,
                               highlightedBuildingIds: highlightedBuildingIds,
                             ),
-                            EntranceMarker(
-                              entranceData: entranceData,
-                              onTap: handleEntranceTap,
-                              selectedGlobalId: _selectedGlobalId,
-                              selectedShapeType: _selectedShapeType,
-                              mapController: mapController,
-                              highilghGlobalIds: highlightMarkersGlobalId,
-                            ),
+                            entranceData != null && entranceData!.isNotEmpty
+                                ? EntranceMarker(
+                                    entranceData: entranceData,
+                                    onTap: handleEntranceTap,
+                                    selectedGlobalId: _selectedGlobalId,
+                                    selectedShapeType: _selectedShapeType,
+                                    mapController: mapController,
+                                    highilghGlobalIds: highlightMarkersGlobalId,
+                                  )
+                                : const SizedBox(),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
                             if (_newPolygonPoints.isNotEmpty &&
