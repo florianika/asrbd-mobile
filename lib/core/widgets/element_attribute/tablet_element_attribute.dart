@@ -10,6 +10,8 @@ class TabletElementAttribute extends StatefulWidget {
   final Map<String, dynamic> initialData;
   final Function save;
   final void Function()? onOpenDwelling;
+  final bool readOnly;
+
 
   const TabletElementAttribute({
     super.key,
@@ -19,6 +21,7 @@ class TabletElementAttribute extends StatefulWidget {
     required this.initialData,
     required this.save,
     this.onOpenDwelling,
+    this.readOnly=false
   });
 
   @override
@@ -64,7 +67,8 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                           },
                           onClose: widget.onClose,
                           onDwelling: _openNewDwellingForm,
-                          showButtons: false, // Hide buttons in child widget
+                          showButtons: false,
+                          readOnly: widget.readOnly,
                         ),
                       ),
                     ),
@@ -73,7 +77,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ],
             ),
           ),
-          // Fixed bottom buttons
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -83,8 +86,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, 
               children: [
+               if(!widget.readOnly)
                 OutlinedButton.icon(
                   onPressed: widget.onClose,
                   icon: const Icon(Icons.close, color: Colors.black),
@@ -97,7 +101,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
-                if (widget.selectedShapeType == ShapeType.point)
+                 if (widget.selectedShapeType == ShapeType.point && !widget.readOnly)
                   OutlinedButton.icon(
                     onPressed: () => _openNewDwellingForm(null),
                     icon: const Icon(Icons.home_work, color: Colors.black),
@@ -111,6 +115,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
+                if(!widget.readOnly)
                 ElevatedButton.icon(
                   onPressed: () {
                     // Call the save method from the child widget

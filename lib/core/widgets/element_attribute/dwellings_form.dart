@@ -1,6 +1,7 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -224,65 +225,55 @@ void initState() {
     );
   }
 
-  void _onViewDwelling(Map<String, dynamic> row) {
+ void _onViewDwelling(Map<String, dynamic> row) {
   showDialog(
     context: context,
-    builder: (_) => AlertDialog(
+    barrierDismissible: false,
+    builder: (_) => Dialog(
+      insetPadding: const EdgeInsets.all(24),
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text(
-        'Dwelling Details',
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: 400, // 👈 Set the desired max width
-          maxHeight: 500, // 👈 Optional: limit height
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _columnOrder.map((key) {
-              final label = _columnLabels[key] ?? key;
-              final value = row[key]?.toString() ?? '-';
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: SizedBox(
+        width: 700,
+        height: 750,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 4),
-                        Text(value, style: const TextStyle(color: Colors.black87)),
-                      ],
+                  const Expanded(
+                    child: Text(
+                      'Dwelling Details',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
-                  const Divider(height: 1),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  )
                 ],
-              );
-            }).toList(),
-          ),
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: TabletElementAttribute(
+                schema: _dwellingSchema,
+                selectedShapeType: ShapeType.noShape,
+                initialData: row,
+                onClose: () => Navigator.pop(context),
+                save: (_) {},
+                readOnly: true,       
+                //showButtons: false,    
+              ),
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.blue,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
-            child: Text("Close"),
-          ),
-        ),
-      ],
     ),
   );
 }
+
 
 
   void _onEditDwelling(Map<String, dynamic> row) {
