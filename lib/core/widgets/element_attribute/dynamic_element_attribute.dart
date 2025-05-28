@@ -13,7 +13,6 @@ class DynamicElementAttribute extends StatefulWidget {
   final void Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
   final void Function(String?)? onDwelling;
-  final bool showButtons; // New parameter to control button visibility
 
   const DynamicElementAttribute({
     required this.schema,
@@ -23,7 +22,6 @@ class DynamicElementAttribute extends StatefulWidget {
     this.onSave,
     this.onClose,
     this.onDwelling,
-    this.showButtons = true, // Default to true for backward compatibility
     super.key,
   });
 
@@ -39,8 +37,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   @override
   void initState() {
     super.initState();
-    // widget.schema.removeWhere(
-    //     (field) => EntranceFields.hiddenAttributes.contains(field.name));
+  
     _initializeForm(widget.initialData ?? {});
   }
 
@@ -99,15 +96,16 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         validationErrors[itemFound.name] =
             '${attribute.label.al} duhet plotesuar';
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${attribute.label.al} duhet plotesuar')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('${attribute.label.al} duhet plotesuar')),
+        // );
       }
     });
 
     setState(() {});
 
     if (passedValidation && widget.onSave != null) {
+      
       widget.onSave!(formValues);
     }
   }
@@ -367,66 +365,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               }),
             ],
           );
-        }),
-        // Only show buttons if showButtons is true (for backward compatibility)
-        // if (widget.showButtons) ...[
-        //   const SizedBox(height: 20),
-        //   Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       OutlinedButton.icon(
-        //         onPressed: () {
-        //           if (widget.onClose != null) {
-        //             widget.onClose!();
-        //           } else {
-        //             Navigator.of(context).pop();
-        //           }
-        //         },
-        //         icon: const Icon(Icons.close, color: Colors.black),
-        //         label:
-        //             const Text('Close', style: TextStyle(color: Colors.black)),
-        //         style: OutlinedButton.styleFrom(
-        //           side: const BorderSide(color: Colors.black),
-        //           shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8)),
-        //           padding:
-        //               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        //         ),
-        //       ),
-        //       if (widget.selectedShapeType == ShapeType.point)
-        //         OutlinedButton.icon(
-        //           onPressed: () {
-        //             if (widget.onDwelling != null) {
-        //               widget.onDwelling!(widget.entranceGlobalId);
-        //             }
-        //           },
-        //           icon: const Icon(Icons.home_work, color: Colors.black),
-        //           label: const Text('Manage Dwelling',
-        //               style: TextStyle(color: Colors.black)),
-        //           style: OutlinedButton.styleFrom(
-        //             side: const BorderSide(color: Colors.black),
-        //             shape: RoundedRectangleBorder(
-        //                 borderRadius: BorderRadius.circular(8)),
-        //             padding: const EdgeInsets.symmetric(
-        //                 horizontal: 16, vertical: 12),
-        //           ),
-        //         ),
-        //       ElevatedButton.icon(
-        //         onPressed: handleSave,
-        //         icon: const Icon(Icons.save),
-        //         label: const Text('Save'),
-        //         style: ElevatedButton.styleFrom(
-        //           backgroundColor: Colors.black,
-        //           foregroundColor: Colors.white,
-        //           shape: RoundedRectangleBorder(
-        //               borderRadius: BorderRadius.circular(8)),
-        //           padding:
-        //               const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ],
+        }),       
       ],
     );
   }

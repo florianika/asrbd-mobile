@@ -3,6 +3,7 @@ import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -41,6 +42,8 @@ void main() async {
   sl.registerSingleton<SchemaService>(
     SchemaService(sl<SchemaApi>()),
   );
+
+  sl.registerSingleton<UserService>(UserService());
 
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();

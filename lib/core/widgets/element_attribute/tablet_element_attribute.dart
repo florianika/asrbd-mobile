@@ -65,8 +65,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             widget.save(formValues);
                           },
                           onClose: widget.onClose,
-                          onDwelling: _openNewDwellingForm,
-                          showButtons: false, // Hide buttons in child widget
+                          onDwelling: _openNewDwellingForm,                      
                         ),
                       ),
                     ),

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:asrdb/core/config/esri_config.dart';
-import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -9,10 +8,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
-import 'package:asrdb/core/widgets/button/floating_button.dart';
-import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
-import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
-import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
@@ -37,7 +33,6 @@ class ViewMap extends StatefulWidget {
 }
 
 class _ViewMapState extends State<ViewMap> {
-  // bool _isInitialized = true;
   late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
@@ -72,10 +67,6 @@ class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
-  // bool _isDwellingVisible = false;
-  // double _sidePanelFractionDefualt = 0.4;
-  // final double _defaultDwellingWidthFraction = 0.8;
-
   final legendService = sl<LegendService>();
 
   Future<void> _initialize() async {
@@ -113,7 +104,6 @@ class _ViewMapState extends State<ViewMap> {
       final bldGlobalId = data['EntBldGlobalID'];
 
       setState(() {
-        // _isDwellingVisible = false;
         highlightedBuildingIds = bldGlobalId;
       });
     } catch (e) {
@@ -422,11 +412,12 @@ class _ViewMapState extends State<ViewMap> {
 
   @override
   Widget build(BuildContext context) {
+    final userService = sl<UserService>();
     return Scaffold(
       appBar: AppBar(
         key: _appBarKey,
         title: Text(
-            "Map -${entranceData != null ? (entranceData?['features'] as List<dynamic>).length : 0}"),
+            "Map -${userService.userInfo != null ? userService.userInfo!.familyName : 'unknown'}"),
       ),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(

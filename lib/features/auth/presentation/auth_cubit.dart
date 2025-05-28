@@ -1,3 +1,5 @@
+import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/features/auth/domain/auth_usecases.dart';
 
@@ -25,6 +27,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final success = await authUseCases.login(email, password);
+      await sl<UserService>().initialize();
       if (success.accessToken != '') {
         emit(AuthAuthenticated());
       } else {

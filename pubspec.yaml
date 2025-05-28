@@ -52,6 +52,7 @@ dependencies:
   latlong2: ^0.9.1
   flutter_map_geojson: ^1.0.8
   geolocator: ^9.0.1
+  jwt_decoder: ^2.0.1
 
 dependency_overrides:
   geolocator_android: 4.6.1

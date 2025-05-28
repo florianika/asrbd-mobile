@@ -1,3 +1,5 @@
+import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
@@ -27,8 +29,7 @@ class _LoginTabletState extends State<LoginTablet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _onLogin(BuildContext context) {
-    if (_formKey.currentState!.validate()) {
-      // Trigger the login action
+    if (_formKey.currentState!.validate()) {   
       context.read<AuthCubit>().login(
             emailController.text.trim(),
             passwordController.text.trim(),
@@ -36,7 +37,7 @@ class _LoginTabletState extends State<LoginTablet> {
     }
   }
 
-    @override
+  @override
   void initState() {
     super.initState();
 
@@ -88,7 +89,8 @@ class _LoginTabletState extends State<LoginTablet> {
                                   style: TextStyle(
                                     fontSize: 24.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                               ),
