@@ -239,7 +239,7 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
               foregroundColor: const Color(0xFF374151),
               elevation: 3,
               child: const Icon(
-                Icons.map_outlined,
+                Icons.info_outline,
                 size: 22,
               ),
             ),

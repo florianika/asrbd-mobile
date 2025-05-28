@@ -1,10 +1,16 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:flutter/material.dart';
 
-void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
-    Map<String, dynamic> initialData, Function onSave) {
+void mobileElementAttribute(
+  BuildContext context,
+  List<FieldSchema> schema,
+  ShapeType shapeType,
+  Map<String, dynamic> initialData,
+  Function onSave,
+) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -41,14 +47,18 @@ void mobileElementAttribute(BuildContext context, List<FieldSchema> schema,
                       ),
                       child: DynamicElementAttribute(
                         schema: schema,
-                        selectedShapeType: ShapeType.point,
+                        selectedShapeType: shapeType,
                         initialData: initialData,
-                        onSave: (formValues) {                         
+                        onSave: (formValues) {
                           onSave(formValues);
-                          // debugPrint('Generated JSON: $json');
-                          // Navigator.of(context).pop();
                         },
                       ),
+                    ),
+                    EventButtonAttribute(
+                      onSave: onSave,
+                      onClose: null,
+                      openDwelling: () => (),
+                      selectedShapeType: shapeType,
                     ),
                   ],
                 ),
