@@ -13,6 +13,8 @@ class DynamicElementAttribute extends StatefulWidget {
   final void Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
   final void Function(String?)? onDwelling;
+  final bool readOnly;
+  final bool showButtons; // New parameter to control button visibility
 
   const DynamicElementAttribute({
     required this.schema,
@@ -22,6 +24,8 @@ class DynamicElementAttribute extends StatefulWidget {
     this.onSave,
     this.onClose,
     this.onDwelling,
+    this.showButtons = true, // Default to true for backward compatibility
+    this.readOnly=false,
     super.key,
   });
 
@@ -222,127 +226,124 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   Widget _buildFormField(
-      dynamic attribute, dynamic elementFound, String sectionName) {
-    // For title and info sections, always display as text
-    if (sectionName.toLowerCase() == 'title' ||
-        sectionName.toLowerCase() == 'history') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        margin: const EdgeInsets.only(bottom: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${attribute.label.al}:',
-              key: ValueKey('${elementFound.name}_label'),
-              style: TextStyle(
-                color: Colors.grey[700],
+    dynamic attribute, dynamic elementFound, String sectionName) {
+  // For title and info sections, always display as text
+  if (sectionName.toLowerCase() == 'title' ||
+      sectionName.toLowerCase() == 'history') {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      margin: const EdgeInsets.only(bottom: 4),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey[200]!, width: 1),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${attribute.label.al}:',
+            key: ValueKey('${elementFound.name}_label'),
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+              key: ValueKey(elementFound.name),
+              style: const TextStyle(
+                color: Colors.black87,
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
-                key: ValueKey(elementFound.name),
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final inputDecoration = InputDecoration(
-      labelText: attribute.label.al,
-      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-      errorText: validationErrors[elementFound.name],
-      errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      filled: true,
-      fillColor: Colors.grey[50],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[600]!, width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 1),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 1.5),
-      ),
-      disabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+          ),
+        ],
       ),
     );
+  }
 
-    if (elementFound.codedValues != null) {
-      return AbsorbPointer(
-        absorbing: attribute.display.enumerator == "read",
-        child: DropdownButtonFormField<Object?>(
-          key: ValueKey(elementFound.name),
-          isExpanded: true,
-          decoration: inputDecoration,
-          value: widget.initialData![elementFound.name] ??
-              elementFound.defaultValue,
-          items: elementFound.codedValues!
-              .map<DropdownMenuItem<Object?>>((code) =>
-                  DropdownMenuItem<Object?>(
-                    value: code['code'],
-                    child: Text(
-                      code['name'].toString(),
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(color: Colors.black87, fontSize: 14),
-                    ),
-                  ))
-              .toList(),
-          onChanged: elementFound.editable
-              ? (val) => formValues[elementFound.name] =
-                  EsriTypeConversion.convert(elementFound.type, val)
-              : null,
-          disabledHint: Text(
-            attribute.label.al,
-            style: TextStyle(color: Colors.grey[500], fontSize: 14),
-          ),
-          style: const TextStyle(color: Colors.black87, fontSize: 14),
-        ),
-      );
-    }
+  final inputDecoration = InputDecoration(
+    labelText: attribute.label.al,
+    labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
+    errorText: validationErrors[elementFound.name],
+    errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    filled: true,
+    fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Colors.red, width: 1),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Colors.red, width: 1.5),
+    ),
+    disabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+    ),
+  );
 
-    return TextFormField(
+  // Dropdown field
+  if (elementFound.codedValues != null) {
+    return DropdownButtonFormField<Object?>(
       key: ValueKey(elementFound.name),
-      controller: _controllers[elementFound.name],
-      readOnly: attribute.display.enumerator == "read",
+      isExpanded: true,
       decoration: inputDecoration,
-      style: const TextStyle(color: Colors.black87, fontSize: 14),
-      onChanged: elementFound.editable
+      value: widget.initialData![elementFound.name] ?? elementFound.defaultValue,
+      items: elementFound.codedValues!
+          .map<DropdownMenuItem<Object?>>((code) => DropdownMenuItem<Object?>(
+                value: code['code'],
+                child: Text(
+                  code['name'].toString(),
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.black87, fontSize: 14),
+                ),
+              ))
+          .toList(),
+      onChanged: (!widget.readOnly && elementFound.editable)
           ? (val) => formValues[elementFound.name] =
               EsriTypeConversion.convert(elementFound.type, val)
           : null,
-      enabled: elementFound.editable,
+      disabledHint: Text(
+        formValues[elementFound.name]?.toString() ??
+            attribute.label.al,
+        style: const TextStyle(color: Colors.grey, fontSize: 14),
+      ),
+      style: const TextStyle(color: Colors.black87, fontSize: 14),
     );
   }
+
+  // Text field
+  return TextFormField(
+    key: ValueKey(elementFound.name),
+    controller: _controllers[elementFound.name],
+    readOnly: widget.readOnly || attribute.display.enumerator == "read",
+    enabled: !widget.readOnly && elementFound.editable,
+    decoration: inputDecoration,
+    style: const TextStyle(color: Colors.black87, fontSize: 14),
+    onChanged: (!widget.readOnly && elementFound.editable)
+        ? (val) => formValues[elementFound.name] =
+            EsriTypeConversion.convert(elementFound.type, val)
+        : null,
+  );
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,10 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -35,72 +38,45 @@ class _DwellingFormState extends State<DwellingForm> {
     await context.read<DwellingCubit>().addDwellingFeature(attributes);
   }
 
-  // 2) Only now that the save has returned, fetch the updated list
+ 
   final id = widget.entranceGlobalId;
   if (id != null) {
     await context.read<DwellingCubit>().getDwellings(id);
   }
 
-  // 3) Then hide the form
   setState(() {
     _showDwellingForm = false;
     _isEditMode = false;
   });
 }
 
-  final Map<String, String> _columnLabels = {
-  'external_creator_date': 'External Creator Date',
-  'external_editor_date': 'External Editor Date',
-  'OBJECTID': 'Object ID',
-  'GlobalID': 'Global ID',
-  'DwlEntGlobalID': 'Entrance Global ID',
-  'DwlCensus2023': 'Census Code',
-  'DwlAddressID': 'Address ID',
-  'DwlQuality': 'Quality',
-  'DwlFloor': 'Floor',
-  'DwlApartNumber': 'Apartment Number',
-  'DwlStatus': 'Status',
-  'DwlYearConstruction': 'Construction Year',
-  'DwlYearElimination': 'Elimination Year',
-  'DwlType': 'Type',
-  'DwlOwnership': 'Ownership',
-  'DwlOccupancy': 'Occupancy',
-  'DwlSurface': 'Surface',
-  'DwlToilet': 'Toilet',
-  'DwlBath': 'Bath',
-  'DwlHeatingFacility': 'Heating Facility',
-  'DwlHeatingEnergy': 'Heating Energy',
-  'DwlAirConditioner': 'AC',
-  'DwlSolarPanel': 'Solar Panel',
-  'created_user': 'Created By',
-  'created_date': 'Created Date',
-  'last_edited_user': 'Edited By',
-  'last_edited_date': 'Edited Date',
-  'external_creator': 'External Creator',
-  'external_editor': 'External Editor',
-};
+  late Map<String, String> _columnLabels ;
+  late List<String> _columnOrder;
+
+@override
+void initState() {
+  super.initState();
+
+  final id = widget.entranceGlobalId;
+  _initialData['DwlEntGlobalID'] = id;
+
+  final schemaService = sl<SchemaService>();
+  final dwellingSchema = schemaService.dwellingSchema;
+
+  _columnLabels = {
+    for (var attr in dwellingSchema.attributes)
+      attr.name: attr.label.al,
+  };
+
+  _columnOrder = dwellingSchema.attributes
+      .where((attr) => attr.display.enumerator != "none")
+      .map((attr) => attr.name)
+      .toList();
+
+  context.read<DwellingCubit>().getDwellings(id);
+}
 
 
-  final List<String> _columnOrder = [
-    'DwlCensus2023',
-    'DwlType',
-    'DwlStatus',
-    'DwlOwnership',
-    'DwlOccupancy',
-    'DwlToilet',
-    'DwlBath',
-    'DwlAirConditioner',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    final id = widget.entranceGlobalId;
-    _initialData['DwlEntGlobalID'] = id;
-   // ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(id!)));
-    //context.read<DwellingCubit>().getDwellings('{6C76FE17-C925-4355-B917-446C39FA0E48}');
-    context.read<DwellingCubit>().getDwellings(id);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -249,32 +225,56 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  void _onViewDwelling(Map<String, dynamic> row) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Dwelling Details'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView(
-            shrinkWrap: true,
-            children: row.entries
-                .map((e) => ListTile(
-                      title: Text(e.key),
-                      subtitle: Text(e.value?.toString() ?? '-'),
-                    ))
-                .toList(),
-          ),
+ void _onViewDwelling(Map<String, dynamic> row) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => Dialog(
+      insetPadding: const EdgeInsets.all(24),
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SizedBox(
+        width: 700,
+        height: 750,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Dwelling Details',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  )
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: TabletElementAttribute(
+                schema: _dwellingSchema,
+                selectedShapeType: ShapeType.noShape,
+                initialData: row,
+                onClose: () => Navigator.pop(context),
+                save: (_) {},
+                readOnly: true,       
+                //showButtons: false,    
+              ),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Close"),
-          ),
-        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   void _onEditDwelling(Map<String, dynamic> row) {
     final id = widget.entranceGlobalId;

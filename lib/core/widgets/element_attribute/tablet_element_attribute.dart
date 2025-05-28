@@ -11,6 +11,8 @@ class TabletElementAttribute extends StatefulWidget {
   final Map<String, dynamic> initialData;
   final Function save;
   final void Function()? onOpenDwelling;
+  final bool readOnly;
+
 
   const TabletElementAttribute({
     super.key,
@@ -20,6 +22,7 @@ class TabletElementAttribute extends StatefulWidget {
     required this.initialData,
     required this.save,
     this.onOpenDwelling,
+    this.readOnly=false
   });
 
   @override
@@ -65,7 +68,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             widget.save(formValues);
                           },
                           onClose: widget.onClose,
-                          onDwelling: _openNewDwellingForm,                      
+                          onDwelling: _openNewDwellingForm,
+                          showButtons: false,
+                          readOnly: widget.readOnly,
                         ),
                       ),
                     ),
@@ -74,7 +79,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ],
             ),
           ),
-          // Fixed bottom buttons
+          if(!widget.readOnly)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
