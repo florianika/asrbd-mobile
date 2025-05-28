@@ -84,13 +84,28 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     bool passedValidation = true;
     validationErrors.clear();
 
-    for (var field in widget.schema) {
-      final value = formValues[field.name];
-      if (!field.nullable && (value == null || value.toString().isEmpty)) {
+    final schemaService = sl<SchemaService>();
+    final schemaItems = widget.selectedShapeType == ShapeType.point
+        ? schemaService.entranceSchema
+        : widget.selectedShapeType == ShapeType.polygon
+            ? schemaService.buildingSchema
+            : schemaService.dwellingSchema;
+
+    schemaItems.attributes.map((attribute) {
+      final itemFound =
+          widget.schema.where((x) => x.name == attribute.name).first;
+
+      final value = formValues[itemFound.name];
+      if (!itemFound.nullable && (value == null || value.toString().isEmpty)) {
         passedValidation = false;
-        validationErrors[field.name] = '${field.alias} is required';
+        validationErrors[itemFound.name] =
+            '${attribute.label.al} duhet plotesuar';
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${attribute.label.al} duhet plotesuar')),
+        );
       }
-    }
+    });
 
     setState(() {});
 
@@ -109,7 +124,14 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             : schemaService.dwellingSchema);
 
     // Define section order
-    final sectionOrder = ['title', 'technical', 'identifier', 'map', 'info', 'history'];
+    final sectionOrder = [
+      'title',
+      'technical',
+      'identifier',
+      'map',
+      'info',
+      'history'
+    ];
     Map<String, List<dynamic>> sections = {};
 
     // Initialize sections in the correct order
@@ -119,11 +141,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     for (var attribute in schema.attributes) {
       if (attribute.display.enumerator == "none") continue;
-      
+
       final elementFound = widget.schema
           .where((x) => x.name.toLowerCase() == attribute.name.toLowerCase())
           .firstOrNull;
-      
+
       if (elementFound == null) {
         print(attribute.name);
         continue;
@@ -131,7 +153,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
       // Get section name, default to "General" if no section specified
       String sectionName = attribute.section ?? "General";
-      
+
       // Only add to sections if it's in our predefined list
       if (sections.containsKey(sectionName)) {
         sections[sectionName]!.add({
@@ -182,7 +204,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           const SizedBox(width: 10),
           Text(
             sectionName.toUpperCase(),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: sectionColor,
@@ -204,9 +226,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
-  Widget _buildFormField(dynamic attribute, dynamic elementFound, String sectionName) {
+  Widget _buildFormField(
+      dynamic attribute, dynamic elementFound, String sectionName) {
     // For title and info sections, always display as text
-    if (sectionName.toLowerCase() == 'title' || sectionName.toLowerCase() == 'history') {
+    if (sectionName.toLowerCase() == 'title' ||
+        sectionName.toLowerCase() == 'history') {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         margin: const EdgeInsets.only(bottom: 4),
@@ -287,12 +311,14 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           value: widget.initialData![elementFound.name] ??
               elementFound.defaultValue,
           items: elementFound.codedValues!
-              .map<DropdownMenuItem<Object?>>((code) => DropdownMenuItem<Object?>(
+              .map<DropdownMenuItem<Object?>>((code) =>
+                  DropdownMenuItem<Object?>(
                     value: code['code'],
                     child: Text(
                       code['name'].toString(),
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.black87, fontSize: 14),
+                      style:
+                          const TextStyle(color: Colors.black87, fontSize: 14),
                     ),
                   ))
               .toList(),
@@ -338,70 +364,72 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ...sectionEntry.value.map((item) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildFormField(item['attribute'], item['element'], sectionEntry.key),
+                  child: _buildFormField(
+                      item['attribute'], item['element'], sectionEntry.key),
                 );
               }),
             ],
           );
         }),
         // Only show buttons if showButtons is true (for backward compatibility)
-        if (widget.showButtons) ...[
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              OutlinedButton.icon(
-                onPressed: () {
-                  if (widget.onClose != null) {
-                    widget.onClose!();
-                  } else {
-                    Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.close, color: Colors.black),
-                label: const Text('Close', style: TextStyle(color: Colors.black)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-              ),
-              if (widget.selectedShapeType == ShapeType.point)
-                OutlinedButton.icon(
-                  onPressed: () {
-                    if (widget.onDwelling != null) {
-                      widget.onDwelling!(widget.entranceGlobalId);
-                    }
-                  },
-                  icon: const Icon(Icons.home_work, color: Colors.black),
-                  label: const Text('Manage Dwelling',
-                      style: TextStyle(color: Colors.black)),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-              ElevatedButton.icon(
-                onPressed: handleSave,
-                icon: const Icon(Icons.save),
-                label: const Text('Save'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-              ),
-            ],
-          ),
-        ],
+        // if (widget.showButtons) ...[
+        //   const SizedBox(height: 20),
+        //   Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       OutlinedButton.icon(
+        //         onPressed: () {
+        //           if (widget.onClose != null) {
+        //             widget.onClose!();
+        //           } else {
+        //             Navigator.of(context).pop();
+        //           }
+        //         },
+        //         icon: const Icon(Icons.close, color: Colors.black),
+        //         label:
+        //             const Text('Close', style: TextStyle(color: Colors.black)),
+        //         style: OutlinedButton.styleFrom(
+        //           side: const BorderSide(color: Colors.black),
+        //           shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8)),
+        //           padding:
+        //               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        //         ),
+        //       ),
+        //       if (widget.selectedShapeType == ShapeType.point)
+        //         OutlinedButton.icon(
+        //           onPressed: () {
+        //             if (widget.onDwelling != null) {
+        //               widget.onDwelling!(widget.entranceGlobalId);
+        //             }
+        //           },
+        //           icon: const Icon(Icons.home_work, color: Colors.black),
+        //           label: const Text('Manage Dwelling',
+        //               style: TextStyle(color: Colors.black)),
+        //           style: OutlinedButton.styleFrom(
+        //             side: const BorderSide(color: Colors.black),
+        //             shape: RoundedRectangleBorder(
+        //                 borderRadius: BorderRadius.circular(8)),
+        //             padding: const EdgeInsets.symmetric(
+        //                 horizontal: 16, vertical: 12),
+        //           ),
+        //         ),
+        //       ElevatedButton.icon(
+        //         onPressed: handleSave,
+        //         icon: const Icon(Icons.save),
+        //         label: const Text('Save'),
+        //         style: ElevatedButton.styleFrom(
+        //           backgroundColor: Colors.black,
+        //           foregroundColor: Colors.white,
+        //           shape: RoundedRectangleBorder(
+        //               borderRadius: BorderRadius.circular(8)),
+        //           padding:
+        //               const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ],
       ],
     );
   }

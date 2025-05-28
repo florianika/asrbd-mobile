@@ -38,13 +38,13 @@ class EntranceService {
     }
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(int objectId) async {
+  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
-          await entranceApi.getEntranceDetails(esriToken, objectId);
+          await entranceApi.getEntranceDetails(esriToken, globalId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {

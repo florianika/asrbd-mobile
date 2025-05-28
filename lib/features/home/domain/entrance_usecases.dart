@@ -22,8 +22,8 @@ class EntranceUseCases {
     return await _entranceRepository.getEntrances(bounds, zoom);
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(int objectId) async {
-    return await _entranceRepository.getEntranceDetails(objectId);
+  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
+    return await _entranceRepository.getEntranceDetails(globalId);
   }
 
   Future<List<FieldSchema>> getEntranceAttributes() async {

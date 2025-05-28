@@ -87,7 +87,7 @@ class ApiEndpoints {
         'distance': '',
         'units': 'esriSRUnit_Foot',
         'relationParam': '',
-        'outFields': 'OBJECTID,EntQuality,EntBldGlobalID',
+        'outFields': 'GlobalID,EntQuality,EntBldGlobalID',
         'returnGeometry': 'true',
         'maxAllowableOffset': '',
         'geometryPrecision': '',
@@ -122,14 +122,14 @@ class ApiEndpoints {
     ).toString();
   }
 
-  static String getEsriEntranceByObjectId(int objectId) {
+  static String getEsriEntranceByObjectId(String globalId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/0/query',
       queryParameters: {
-        'where': '',
-        'objectIds': [objectId.toString()],
+        'where': 'GlobalID = \'$globalId\'',
+        'objectIds': '',
         'time': '',
         'geometry': '',
         'geometryType': 'esriGeometryEnvelope',
@@ -174,7 +174,7 @@ class ApiEndpoints {
     ).toString();
   }
 
-   static String getEsriDwellingsByObjectId(int objectId) {
+  static String getEsriDwellingsByObjectId(int objectId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
@@ -276,8 +276,6 @@ class ApiEndpoints {
     ).toString();
   }
 
-  
- 
   static String addEsriFeauture(EntityType entityType) {
     int layerId = EsriConfig.entranceLayerId;
 

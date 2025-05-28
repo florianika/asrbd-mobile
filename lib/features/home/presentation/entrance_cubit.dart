@@ -59,10 +59,10 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> getEntranceDetails(int objectId) async {
+  Future<void> getEntranceDetails(String globalId) async {
     emit(EntranceLoading());
     try {
-      emit(Entrance(await entranceUseCases.getEntranceDetails(objectId)));
+      emit(Entrance(await entranceUseCases.getEntranceDetails(globalId)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

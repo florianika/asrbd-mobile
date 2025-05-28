@@ -46,8 +46,8 @@ class _ViewMapState extends State<ViewMap> {
   EntityType entityType = EntityType.entrance;
   List<FieldSchema> _buildingSchema = [];
   List<FieldSchema> _entranceSchema = [];
-  List<dynamic> highilghGlobalIds = [];
-  List<int> highlightedBuildingIds = [];
+  List<dynamic> highlightMarkersGlobalId = [];
+  String? highlightedBuildingIds;
   String attributeLegend = 'quality';
 
   LatLngBounds? visibleBounds;
@@ -61,7 +61,8 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, dynamic> _initialData = {};
 
   ShapeType _selectedShapeType = ShapeType.point;
-  int _selectedObjectId = -1;
+  String? _selectedGlobalId;
+  String? _selectedBuildingId;
 
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
@@ -98,16 +99,20 @@ class _ViewMapState extends State<ViewMap> {
   void handleEntranceTap(Map<String, dynamic> data) {
     try {
       // Determine if the device is using a small screen (mobile)
-      final bool isMobile =
-          MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
+      // final bool isMobile =
+      //     MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
 
-      _selectedObjectId = data['OBJECTID'];
-      highilghGlobalIds = [];
+      _selectedGlobalId = data[EntranceFields.globalID];
+
+      if (_selectedGlobalId == null) return;
+
+      highlightMarkersGlobalId = [];
+      // _selectedBuildingId = null;
 
       _schema = _entranceSchema;
       _selectedShapeType = ShapeType.point;
 
-      context.read<EntranceCubit>().getEntranceDetails(data['OBJECTID']);
+      context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
 
       final bldGlobalId = data['EntBldGlobalID']
           ?.toString()
@@ -134,7 +139,7 @@ class _ViewMapState extends State<ViewMap> {
           final buildingObjectId = buildingProps['OBJECTID'];
 
           setState(() {
-            highlightedBuildingIds = [buildingObjectId];
+            highlightedBuildingIds = buildingObjectId;
           });
         }
       }
@@ -152,51 +157,6 @@ class _ViewMapState extends State<ViewMap> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
-    }
-  }
-
-  void _showContextMenu(
-    BuildContext context,
-    Offset globalPosition,
-    EntityType type,
-    LatLng position,
-  ) async {
-    final selected = await showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        globalPosition.dx,
-        globalPosition.dy,
-        globalPosition.dx,
-        globalPosition.dy,
-      ),
-      items: const [
-        PopupMenuItem(
-          value: 'view',
-          child: Text('View Properties'),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: Text('Delete'),
-        ),
-      ],
-    );
-
-    if (selected == 'view') {
-      if (type == EntityType.entrance) {
-        _schema = _entranceSchema;
-      } else {
-        _schema = _buildingSchema;
-      }
-
-      setState(() {
-        _initialData = {
-          'Lat': position.latitude,
-          'Lng': position.longitude,
-        };
-        _isPropertyVisibile = true;
-      });
-    } else if (selected == 'delete') {
-      // Handle delete if needed
     }
   }
 
@@ -223,12 +183,14 @@ class _ViewMapState extends State<ViewMap> {
     setState(() {
       if (type == ShapeType.polygon) {
         _schema = _buildingSchema;
+        highlightMarkersGlobalId = [];
       } else {
         _schema = _entranceSchema;
+        highlightedBuildingIds = _selectedBuildingId;
       }
       _isDrawing = true;
       _selectedShapeType = type;
-      highilghGlobalIds = [];
+      _isPropertyVisibile = false;
     });
   }
 
@@ -260,32 +222,36 @@ class _ViewMapState extends State<ViewMap> {
   void _onDrawFinished() {
     if (_newPolygonPoints.isEmpty || buildingsData == null) return;
 
-    final existingFeatures =
-        List<Map<String, dynamic>>.from(buildingsData!['features']);
+    if (_selectedShapeType == ShapeType.polygon) {
+      final existingFeatures =
+          List<Map<String, dynamic>>.from(buildingsData!['features']);
 
-    final intersects = existingFeatures.any((feature) {
-      final geom = feature['geometry'];
-      if (geom['type'] != 'Polygon') return false;
+      final intersects = existingFeatures.any((feature) {
+        final geom = feature['geometry'];
+        if (geom['type'] != 'Polygon') return false;
 
-      final existingPolygon = GeometryHelper.parseCoordinates(geom);
+        final existingPolygon = GeometryHelper.parseCoordinates(geom);
 
-      return GeometryHelper.doPolygonsIntersect(
-          _newPolygonPoints, existingPolygon);
-    });
+        return GeometryHelper.doPolygonsIntersect(
+            _newPolygonPoints, existingPolygon);
+      });
 
-    if (intersects) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                "Ky poligon ndërpritet me një ekzistues. Krijimi nuk lejohet.")),
-      );
-      return;
+      if (intersects) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  "Ky poligon ndërpritet me një ekzistues. Krijimi nuk lejohet.")),
+        );
+        return;
+      }
     }
     setState(() {
       // _isDrawing = false;
+      _initialData = {};
       if (_selectedShapeType == ShapeType.point) {
         _initialData['EntLatitude'] = _newPolygonPoints[0].latitude;
         _initialData['EntLongitude'] = _newPolygonPoints[0].longitude;
+        _initialData['EntBldGlobalID'] = _selectedBuildingId;
       } else {
         //initialize with centroid of polygon
         //   _initialData['BldLatitude']= newPoint.latitude;
@@ -296,10 +262,64 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void _onSave(Map<String, dynamic> attributes) {
-    if (_newPolygonPoints.isEmpty) return;
-    context
-        .read<EntranceCubit>()
-        .addEntranceFeature(attributes, _newPolygonPoints);
+    final isNew = attributes['GlobalID'] == null;
+    final shapeType = _selectedShapeType;
+    final scaffold = ScaffoldMessenger.of(context);
+
+    if (shapeType == ShapeType.point) {
+      scaffold.showSnackBar(
+        SnackBar(content: Text(isNew ? 'add entrance' : 'update entrance')),
+      );
+
+      final entranceCubit = context.read<EntranceCubit>();
+
+      if (isNew) {
+        entranceCubit.addEntranceFeature(attributes, _newPolygonPoints);
+      } else {
+        final entranceFeatures = entranceData!['features'] as List<dynamic>;
+        final feature = entranceFeatures.firstWhere(
+          (f) =>
+              (f['properties']?['GlobalID']?.toString() ?? '') ==
+              attributes['GlobalID'],
+          orElse: () => null,
+        );
+
+        if (feature != null) {
+          final coords = feature['geometry']['coordinates'] as List<dynamic>;
+          final latLng = LatLng(coords[0] as double, coords[1] as double);
+          entranceCubit.updateEntranceFeature(attributes, [latLng]);
+        }
+      }
+    } else if (shapeType == ShapeType.polygon) {
+      scaffold.showSnackBar(
+        SnackBar(content: Text(isNew ? 'add building' : 'update building')),
+      );
+
+      final buildingCubit = context.read<BuildingCubit>();
+
+      if (isNew) {
+        buildingCubit.addBuildingFeature(attributes, _newPolygonPoints);
+      } else {
+        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
+        final feature = buildingFeatures.firstWhere(
+          (f) =>
+              (f['properties']?['GlobalID']?.toString() ?? '') ==
+              attributes['GlobalID'],
+          orElse: () => null,
+        );
+
+        if (feature != null) {
+          final coordinates =
+              feature['geometry']['coordinates'] as List<dynamic>;
+          final latLngList = coordinates
+              .map<LatLng>(
+                  (coord) => LatLng(coord[0] as double, coord[1] as double))
+              .toList();
+
+          buildingCubit.updateBuildingFeature(attributes, latLngList);
+        }
+      }
+    }
 
     setState(() {
       _isDrawing = false;
@@ -325,7 +345,6 @@ class _ViewMapState extends State<ViewMap> {
       if (tappedFeature.isEmpty) return;
 
       final props = tappedFeature['properties'];
-      final objectId = props[EntranceFields.objectID];
       final globalId = props[EntranceFields.globalID];
 
       final isMobile =
@@ -333,17 +352,18 @@ class _ViewMapState extends State<ViewMap> {
 
       setState(() {
         _selectedShapeType = ShapeType.polygon;
-        _selectedObjectId = objectId;
+        _selectedGlobalId = globalId;
         _isDwellingVisible = false;
-        highlightedBuildingIds = [];
-        highilghGlobalIds = [];
+        highlightedBuildingIds = null;
+        highlightMarkersGlobalId = [];
+        _selectedBuildingId = globalId;
 
         //find entrances of the selected building
         if (entranceData != null) {
           final entranceFeatures = entranceData?['features'] as List<dynamic>?;
 
           if (entranceFeatures != null) {
-            highilghGlobalIds = entranceFeatures
+            highlightMarkersGlobalId = entranceFeatures
                 .whereType<Map<String, dynamic>>()
                 .where((feature) {
                   final props = feature['properties'] as Map<String, dynamic>?;
@@ -356,7 +376,7 @@ class _ViewMapState extends State<ViewMap> {
                               .toLowerCase()
                               .replaceAll(RegExp(r'[{}]'), '');
                 })
-                .map((feature) => feature['properties']?['OBJECTID'])
+                .map((feature) => feature['properties']?['GlobalID'])
                 .where((id) => id != null)
                 .toList();
           }
@@ -385,11 +405,14 @@ class _ViewMapState extends State<ViewMap> {
         width: 30,
         height: 30,
         point: point,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.orange,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.black, width: 1),
+        child: GestureDetector(
+          onTap: () => handleEntranceTap(_initialData),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.black, width: 1),
+            ),
           ),
         ),
       );
@@ -430,14 +453,14 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _handleEntranceResponse(
-      BuildContext context, bool isAdded, String actionName) {
+  void _handleResponse(BuildContext context, bool isAdded, String actionName) {
     _showSnackBar(
       context,
       isAdded ? "$actionName u krye" : "$actionName dështoi",
     );
     if (isAdded) {
       context.read<EntranceCubit>().getEntrances(visibleBounds, zoom);
+      context.read<BuildingCubit>().getBuildings(visibleBounds, zoom);
       setState(() => _newPolygonPoints.clear());
     }
   }
@@ -459,6 +482,10 @@ class _ViewMapState extends State<ViewMap> {
             }
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
+          } else if (state is BuildingAddResponse) {
+            _handleResponse(context, state.isAdded, "Shtimi i nderteses");
+          } else if (state is BuildingUpdateResponse) {
+            _handleResponse(context, state.isAdded, "Perditesimi i nderteses");
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -486,12 +513,11 @@ class _ViewMapState extends State<ViewMap> {
                 case EntranceAttributes(:final attributes):
                   _entranceSchema = attributes;
                 case EntranceAddResponse(:final isAdded):
-                  _handleEntranceResponse(context, isAdded, "Shtimi i hyrjes");
+                  _handleResponse(context, isAdded, "Shtimi i hyrjes");
                 case EntranceUpdateResponse(:final isAdded):
-                  _handleEntranceResponse(
-                      context, isAdded, "Perditesimi i hyrjes");
+                  _handleResponse(context, isAdded, "Perditesimi i hyrjes");
                 case EntranceDeleteResponse(:final isAdded):
-                  _handleEntranceResponse(context, isAdded, "Fshirja e hyrjes");
+                  _handleResponse(context, isAdded, "Fshirja e hyrjes");
                 case EntranceError(:final message):
                   _showSnackBar(context, message);
               }
@@ -534,20 +560,18 @@ class _ViewMapState extends State<ViewMap> {
                             ),
                             BuildingMarker(
                               buildingsData: buildingsData,
-                              selectedObjectId: _selectedObjectId,
+                              selectedGlobalID: _selectedGlobalId,
                               selectedShapeType: _selectedShapeType,
-                              onLongPressContextMenu: _showContextMenu,
                               attributeLegend: attributeLegend,
-                               highlightedBuildingIds: highlightedBuildingIds,
+                              highlightedBuildingIds: highlightedBuildingIds,
                             ),
                             EntranceMarker(
                               entranceData: entranceData,
                               onTap: handleEntranceTap,
-                              selectedObjectId: _selectedObjectId,
+                              selectedGlobalId: _selectedGlobalId,
                               selectedShapeType: _selectedShapeType,
                               mapController: mapController,
-                              highilghGlobalIds: highilghGlobalIds,
-                              onLongPressContextMenu: _showContextMenu,
+                              highilghGlobalIds: highlightMarkersGlobalId,
                             ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
@@ -580,7 +604,7 @@ class _ViewMapState extends State<ViewMap> {
                             : MapActionButtons(
                                 mapController: mapController,
                                 enableDrawing: enableDrawing,
-                              ),
+                                selectedBuildingId: _selectedBuildingId),
                         Positioned(
                           top: 20,
                           right: 20,
@@ -594,13 +618,15 @@ class _ViewMapState extends State<ViewMap> {
                       ],
                     ),
                   ),
-                 if (_isPropertyVisibile) ...[
-                   GestureDetector(
+                  if (_isPropertyVisibile) ...[
+                    GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onHorizontalDragUpdate: (details) {
                         setState(() {
-                          _sidePanelFractionDefualt -= details.delta.dx / MediaQuery.of(context).size.width;
-                          _sidePanelFractionDefualt = _sidePanelFractionDefualt.clamp(0.4, 0.9);
+                          _sidePanelFractionDefualt -= details.delta.dx /
+                              MediaQuery.of(context).size.width;
+                          _sidePanelFractionDefualt =
+                              _sidePanelFractionDefualt.clamp(0.4, 0.9);
                         });
                       },
                       onDoubleTap: () {
@@ -629,11 +655,13 @@ class _ViewMapState extends State<ViewMap> {
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 0),
                       curve: Curves.easeInOut,
-                      width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
+                      width: MediaQuery.of(context).size.width *
+                          _sidePanelFractionDefualt,
                       child: _isDwellingVisible
                           ? DwellingForm(
                               selectedShapeType: ShapeType.point,
-                              entranceGlobalId: _initialData['GlobalID']?.toString(),
+                              entranceGlobalId:
+                                  _initialData['GlobalID']?.toString(),
                               onBack: () {
                                 setState(() {
                                   _isDwellingVisible = false;
@@ -654,7 +682,8 @@ class _ViewMapState extends State<ViewMap> {
                               onOpenDwelling: () {
                                 setState(() {
                                   _isDwellingVisible = true;
-                                  _sidePanelFractionDefualt = _defaultDwellingWidthFraction;
+                                  _sidePanelFractionDefualt =
+                                      _defaultDwellingWidthFraction;
                                 });
                               },
                             ),

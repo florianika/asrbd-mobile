@@ -14,9 +14,9 @@ class EntranceApi {
         .get('${ApiEndpoints.getEsriEntrance(geometry)}&token=$esriToken');
   }
 
-  Future<Response> getEntranceDetails(String esriToken, int objectId) async {
+  Future<Response> getEntranceDetails(String esriToken, String globalId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriEntranceByObjectId(objectId)}&token=$esriToken');
+        '${ApiEndpoints.getEsriEntranceByObjectId(globalId)}&token=$esriToken');
   }
 
   Future<Response> getEntranceAttributes(String esriToken) async {

@@ -1,3 +1,4 @@
+import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -82,7 +83,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildFloatingButton(
+              FloatingButton(
                 icon: Icons.undo,
                 heroTag: 'undo',
                 onPressed:
@@ -92,16 +93,17 @@ class _MapActionEventsState extends State<MapActionEvents> {
                 isEnabled: widget.newPolygonPoints.isNotEmpty,
               ),
               const SizedBox(height: 20),
-              _buildFloatingButton(
+              FloatingButton(
                 icon: Icons.redo,
                 heroTag: 'redo',
+                isEnabled: true,
                 onPressed:
                     widget.newPolygonPoints.isNotEmpty && widget.onRedo != null
                         ? () => widget.onRedo!()
                         : null,
               ),
               const SizedBox(height: 20),
-              _buildFloatingButton(
+              FloatingButton(
                 icon: Icons.check,
                 heroTag: 'done',
                 onPressed: () => ((widget.newPolygonPoints.length > 2 &&
@@ -118,16 +120,18 @@ class _MapActionEventsState extends State<MapActionEvents> {
               ),
               if (!widget.isEntrance) ...[
                 const SizedBox(height: 20),
-                _buildFloatingButton(
+                FloatingButton(
                   icon: Icons.edit_location_alt,
                   heroTag: 'pin',
+                  isEnabled: true,
                   onPressed: _placeMarker,
                 ),
               ],
               const SizedBox(height: 20),
-              _buildFloatingButton(
+              FloatingButton(
                 icon: Icons.delete,
                 heroTag: 'x',
+                isEnabled: true,
                 onPressed:
                     widget.onClose != null ? () => widget.onClose!() : null,
               ),
@@ -135,22 +139,6 @@ class _MapActionEventsState extends State<MapActionEvents> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildFloatingButton({
-    required IconData icon,
-    required String heroTag,
-    required VoidCallback? onPressed,
-    bool isEnabled = true,
-  }) {
-    return FloatingActionButton(
-      heroTag: heroTag,
-      mini: true,
-      backgroundColor: Colors.white,
-      foregroundColor: isEnabled ? Colors.black : Colors.grey,
-      onPressed: onPressed,
-      child: Icon(icon),
     );
   }
 }
