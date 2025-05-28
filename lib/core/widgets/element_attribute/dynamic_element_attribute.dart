@@ -1,7 +1,6 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +39,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   @override
   void initState() {
     super.initState();
-    widget.schema.removeWhere(
-        (field) => EntranceFields.hiddenAttributes.contains(field.name));
+    // widget.schema.removeWhere(
+    //     (field) => EntranceFields.hiddenAttributes.contains(field.name));
     _initializeForm(widget.initialData ?? {});
   }
 
@@ -79,7 +78,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     super.dispose();
   }
 
-  // Make this method public so it can be called from parent
   void handleSave() {
     bool passedValidation = true;
     validationErrors.clear();
@@ -146,8 +144,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           .where((x) => x.name.toLowerCase() == attribute.name.toLowerCase())
           .firstOrNull;
 
-      if (elementFound == null) {
-        print(attribute.name);
+      if (elementFound == null) {      
         continue;
       }
 

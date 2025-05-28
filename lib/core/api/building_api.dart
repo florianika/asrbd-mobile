@@ -38,11 +38,10 @@ class BuildingApi {
 
     final Map<String, dynamic> feature = {
       'geometry': {
-        'type': 'Polygon',
-        'coordinates': [coordinates],
+        'rings': [coordinates],
         'spatialReference': {'wkid': 4326},
       },
-      'attributes': attributes,
+      'properties': attributes,
     };
 
     final payload = {
@@ -64,7 +63,7 @@ class BuildingApi {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
-    
+
     List<List<double>> coordinates =
         points.map((point) => [point.longitude, point.latitude]).toList();
     if (coordinates.isNotEmpty &&
@@ -75,11 +74,10 @@ class BuildingApi {
 
     final Map<String, dynamic> feature = {
       'geometry': {
-        'type': 'Polygon',
-        'coordinates': [coordinates],
+        'rings': [coordinates],
         'spatialReference': {'wkid': 4326},
       },
-      'attributes': attributes,
+      'properties': attributes,
     };
 
     final payload = {

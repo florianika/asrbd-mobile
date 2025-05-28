@@ -16,7 +16,7 @@ class BuildingUseCases {
       return {};
     }
 
-    if (zoom < EsriConfig.minZoom) {
+    if (zoom < EsriConfig.buildingMinZoom) {
       return {};
     }
     return await _buildingRepository.getBuildings(bounds, zoom);
