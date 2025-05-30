@@ -9,9 +9,10 @@ import 'api_endpoints.dart';
 class BuildingApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getBuildings(String esriToken, String geometry) async {
-    return await _apiClient
-        .get('${ApiEndpoints.getEsriBulding(geometry)}&token=$esriToken');
+  Future<Response> getBuildings(
+      String esriToken, String geometry, int municipalityId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriBulding(geometry, municipalityId)}&token=$esriToken');
   }
 
   Future<Response> getBuildingAttributes(String esriToken) async {

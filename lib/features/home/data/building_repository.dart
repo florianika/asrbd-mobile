@@ -9,8 +9,8 @@ class BuildingRepository {
   BuildingRepository(this.buildingService);
 
   Future<Map<String, dynamic>> getBuildings(
-      LatLngBounds bounds, double zoom) async {
-    return await buildingService.getBuildings(bounds, zoom);
+      LatLngBounds bounds, double zoom, int municipalityId) async {
+    return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 
   Future<List<FieldSchema>> getBuildingAttributes() async {

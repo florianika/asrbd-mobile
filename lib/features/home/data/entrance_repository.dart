@@ -7,10 +7,10 @@ class EntranceRepository {
   final EntranceService entranceService;
 
   EntranceRepository(this.entranceService);
-  
+
   Future<Map<String, dynamic>> getEntrances(
-      LatLngBounds bounds, double zoom) async {
-    return await entranceService.getEntrances(bounds, zoom);
+      double zoom, List<String> entBldGlobalID) async {
+    return await entranceService.getEntrances(zoom, entBldGlobalID);
   }
 
   Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {

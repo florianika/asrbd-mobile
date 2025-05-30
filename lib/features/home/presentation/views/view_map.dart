@@ -3,6 +3,7 @@ import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
@@ -365,7 +366,8 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   double? _previousZoom;
-  void _onPositionChanged(MapCamera camera, bool hasGesture) {
+  void _onPositionChanged(
+      MapCamera camera, bool hasGesture, int municipalityId) {
     // Check if zoom has changed
     final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
     _previousZoom = camera.zoom;
@@ -377,10 +379,7 @@ class _ViewMapState extends State<ViewMap> {
     _debounce = Timer(const Duration(milliseconds: 500), () {
       context
           .read<BuildingCubit>()
-          .getBuildings(camera.visibleBounds, camera.zoom);
-      context
-          .read<EntranceCubit>()
-          .getEntrances(camera.visibleBounds, camera.zoom);
+          .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
     });
 
     zoom = camera.zoom;
@@ -398,14 +397,16 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _handleResponse(BuildContext context, bool isAdded, String actionName) {
+  void _handleResponse(BuildContext context, bool isAdded, String actionName,
+      int municipalityId) {
     _showSnackBar(
       context,
       isAdded ? "$actionName u krye" : "$actionName dështoi",
     );
     if (isAdded) {
-      context.read<EntranceCubit>().getEntrances(visibleBounds, zoom);
-      context.read<BuildingCubit>().getBuildings(visibleBounds, zoom);
+      context
+          .read<BuildingCubit>()
+          .getBuildings(visibleBounds, zoom, municipalityId);
       setState(() => _newPolygonPoints.clear());
     }
   }
@@ -425,13 +426,19 @@ class _ViewMapState extends State<ViewMap> {
           if (state is Buildings) {
             if (state.buildings.isNotEmpty) {
               buildingsData = state.buildings;
+              context.read<EntranceCubit>().getEntrances(
+                  zoom,
+                  EsriConditionHelper.getPropertiesAsList(
+                      'GlobalID', state.buildings));
             }
           } else if (state is BuildingAttributes) {
             _buildingSchema = state.attributes;
           } else if (state is BuildingAddResponse) {
-            _handleResponse(context, state.isAdded, "Shtimi i nderteses");
+            _handleResponse(context, state.isAdded, "Shtimi i nderteses",
+                userService.userInfo!.municipality);
           } else if (state is BuildingUpdateResponse) {
-            _handleResponse(context, state.isAdded, "Perditesimi i nderteses");
+            _handleResponse(context, state.isAdded, "Perditesimi i nderteses",
+                userService.userInfo!.municipality);
           } else if (state is BuildingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -459,11 +466,14 @@ class _ViewMapState extends State<ViewMap> {
                 case EntranceAttributes(:final attributes):
                   _entranceSchema = attributes;
                 case EntranceAddResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Shtimi i hyrjes");
+                  _handleResponse(context, isAdded, "Shtimi i hyrjes",
+                      userService.userInfo!.municipality);
                 case EntranceUpdateResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Perditesimi i hyrjes");
+                  _handleResponse(context, isAdded, "Perditesimi i hyrjes",
+                      userService.userInfo!.municipality);
                 case EntranceDeleteResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Fshirja e hyrjes");
+                  _handleResponse(context, isAdded, "Fshirja e hyrjes",
+                      userService.userInfo!.municipality);
                 case EntranceError(:final message):
                   _showSnackBar(context, message);
               }
@@ -483,15 +493,19 @@ class _ViewMapState extends State<ViewMap> {
                             onMapReady: () => {
                               context.read<BuildingCubit>().getBuildings(
                                   mapController.camera.visibleBounds,
-                                  EsriConfig.buildingMinZoom),
-                              context.read<EntranceCubit>().getEntrances(
-                                  mapController.camera.visibleBounds,
-                                  EsriConfig.entranceMinZoom),
+                                  EsriConfig.buildingMinZoom,
+                                  userService.userInfo!.municipality),
+                              // context.read<EntranceCubit>().getEntrances(
+                              //     mapController.camera.visibleBounds,
+                              //     EsriConfig.entranceMinZoom,),
                               // zoom = EsriConfig.initZoom,
                               visibleBounds =
                                   mapController.camera.visibleBounds,
                             },
-                            onPositionChanged: _onPositionChanged,
+                            onPositionChanged:
+                                (MapCamera camera, bool hasGesture) =>
+                                    _onPositionChanged(camera, hasGesture,
+                                        userService.userInfo!.municipality),
                             onLongPress: (tapPosition, point) => (),
                             onTap: (tapPosition, point) {
                               if (!_isDrawing) {

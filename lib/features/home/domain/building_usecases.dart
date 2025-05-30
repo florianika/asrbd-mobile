@@ -11,7 +11,7 @@ class BuildingUseCases {
 
   // Use case for logging in
   Future<Map<String, dynamic>> getBuildings(
-      LatLngBounds? bounds, double zoom) async {
+      LatLngBounds? bounds, double zoom, int municipalityId) async {
     if (bounds == null) {
       return {};
     }
@@ -19,7 +19,7 @@ class BuildingUseCases {
     if (zoom < EsriConfig.buildingMinZoom) {
       return {};
     }
-    return await _buildingRepository.getBuildings(bounds, zoom);
+    return await _buildingRepository.getBuildings(bounds, zoom, municipalityId);
   }
 
   Future<List<FieldSchema>> getBuildingAttibutes() async {

@@ -12,14 +12,15 @@ class BuildingService {
   final StorageService _storage = StorageService();
 
   Future<Map<String, dynamic>> getBuildings(
-      LatLngBounds bounds, double zoom) async {
+      LatLngBounds bounds, double zoom, int municipalityId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await buildingApi.getBuildings(esriToken, bbox);
+      final response =
+          await buildingApi.getBuildings(esriToken, bbox, municipalityId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {

@@ -42,10 +42,12 @@ class BuildingCubit extends Cubit<BuildingState> {
   BuildingCubit(this.buildingUseCases) : super(BuildingInitial());
 
   // Login method
-  Future<void> getBuildings(LatLngBounds? bounds, double zoom) async {
+  Future<void> getBuildings(
+      LatLngBounds? bounds, double zoom, int municipalityId) async {
     emit(BuildingLoading());
     try {
-      emit(Buildings(await buildingUseCases.getBuildings(bounds, zoom)));
+      emit(Buildings(
+          await buildingUseCases.getBuildings(bounds, zoom, municipalityId)));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
