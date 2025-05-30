@@ -1,12 +1,12 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/schema_service.dart';
-import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/widgets.dart'; // Required for WidgetStateProperty
 
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
@@ -75,7 +75,6 @@ class _DwellingFormState extends State<DwellingForm> {
             _showDwellingForm = _viewPendingRow == null;
           });
 
-          // Show view dialog if a row is pending
           if (_viewPendingRow != null) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _showViewDialog(_viewPendingRow!);
@@ -128,13 +127,38 @@ class _DwellingFormState extends State<DwellingForm> {
                         const Center(child: Text("No dwellings found.")),
                       if (_dwellingRows.isNotEmpty)
                         Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: DataTable(
-                                columns: _buildColumns(),
-                                rows: _dwellingRows.map(_buildDataRow).toList(),
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Scrollbar(
+                                  radius: const Radius.circular(8),
+                                  thumbVisibility: true,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.vertical,
+                                      child: DataTable(
+                                        columnSpacing: 24,
+                                        horizontalMargin: 16,
+                                        dataRowMinHeight: 42,
+                                        dataRowMaxHeight: 56,
+                                        showCheckboxColumn: false,
+                                        columns: _buildColumns(),
+                                        rows: _dwellingRows
+                                            .asMap()
+                                            .entries
+                                            .map((entry) => _buildDataRow(
+                                                entry.value, entry.key))
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -185,28 +209,58 @@ class _DwellingFormState extends State<DwellingForm> {
     ];
   }
 
-  DataRow _buildDataRow(Map<String, dynamic> row) {
+  DataRow _buildDataRow(Map<String, dynamic> row, int index) {
+    final isEven = index % 2 == 0;
+    final status = (row['DwlQuality'] ?? '').toString().toLowerCase();
+
+    Color? backgroundColor;
+    switch (status) {
+      case '2':
+        backgroundColor = const Color.fromARGB(255, 250, 252, 251);
+        break;
+      case '9':
+        backgroundColor =  const Color.fromARGB(255, 250, 252, 251);
+        break;
+      case '3':
+        backgroundColor =  const Color.fromARGB(255, 250, 252, 251);
+        break;
+      default:
+        backgroundColor = const Color.fromARGB(255, 250, 252, 251);
+    }
+
     return DataRow(
+      color: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+        if (states.contains(WidgetState.hovered)) return Colors.blue.shade50;
+        return backgroundColor;
+      }),
       cells: [
         DataCell(
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
-              if (value == 'view') {
-                _onViewDwelling(row);
-              } else if (value == 'edit') {
-                _onEditDwelling(row);
-              }
+              if (value == 'view') _onViewDwelling(row);
+              if (value == 'edit') _onEditDwelling(row);
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(value: 'view', child: Text('View Dwelling')),
-              const PopupMenuItem(value: 'edit', child: Text('Edit Dwelling')),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: 'view', child: Text('View Dwelling')),
+              PopupMenuItem(value: 'edit', child: Text('Edit Dwelling')),
             ],
           ),
         ),
         ..._columnOrder.map((key) {
           final value = row[key];
-          return DataCell(Text(value?.toString() ?? ''));
+          return DataCell(
+            Container(
+              constraints: const BoxConstraints(maxWidth: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Text(
+                value?.toString() ?? '',
+                style: const TextStyle(fontSize: 13),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ),
+          );
         }),
       ],
     );
@@ -218,7 +272,6 @@ class _DwellingFormState extends State<DwellingForm> {
       context.read<DwellingCubit>().getDwellingAttibutes();
       return;
     }
-
     _showViewDialog(row);
   }
 
@@ -236,13 +289,15 @@ class _DwellingFormState extends State<DwellingForm> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Row(
                   children: [
                     const Expanded(
                       child: Text(
                         'Dwelling Details',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     IconButton(
