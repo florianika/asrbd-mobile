@@ -1,9 +1,12 @@
+import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
@@ -41,7 +44,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   @override
   void initState() {
     super.initState();
-  
     _initializeForm(widget.initialData ?? {});
   }
 
@@ -99,17 +101,12 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         passedValidation = false;
         validationErrors[itemFound.name] =
             '${attribute.label.al} duhet plotesuar';
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text('${attribute.label.al} duhet plotesuar')),
-        // );
       }
     });
 
     setState(() {});
 
     if (passedValidation && widget.onSave != null) {
-      
       widget.onSave!(formValues);
     }
   }
@@ -225,6 +222,234 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
+  // Method to get consistent InputDecoration for all fields
+  InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
+    return InputDecoration(
+      labelText: attribute.label.al,
+      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
+      errorText: validationErrors[elementFound.name],
+      errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      filled: true,
+      fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[600]!, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+      ),
+    );
+  }
+
+  // Build TypeAhead field for EntAddressID
+  Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
+    return TypeAheadField<Street>(
+      key: ValueKey(elementFound.name),
+      controller: _controllers[elementFound.name],
+      builder: (context, controller, focusNode) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          readOnly: widget.readOnly || attribute.display.enumerator == "read",
+          enabled: !widget.readOnly && elementFound.editable,
+          decoration: _getInputDecoration(attribute, elementFound).copyWith(
+            suffixIcon: controller.text.isNotEmpty && !widget.readOnly
+                ? IconButton(
+                    icon: Icon(Icons.clear, color: Colors.grey[600]),
+                    onPressed: () {
+                      controller.clear();
+                      formValues[elementFound.name] = null;
+                      focusNode.requestFocus();
+                    },
+                  )
+                : Icon(Icons.location_on, color: Colors.grey[600]),
+          ),
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
+        );
+      },
+      suggestionsCallback: (pattern) async {
+        if (pattern.length < 2) return [];
+        
+        // Use your street database search here
+        final data = await StreetDatabase.searchStreetsFTS(pattern, limit: 10);
+        return data;
+      },
+      itemBuilder: (context, street) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Colors.grey[200]!),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.location_on_outlined,
+                color: Colors.grey[600],
+                size: 18,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      street.strNameCore,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      'Type: ${street.strType} • ID: ${street.globalId}',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.grey[400],
+                size: 14,
+              ),
+            ],
+          ),
+        );
+      },
+      onSelected: (street) {
+        // Update the form value with the selected street's globalId
+        formValues[elementFound.name] = street.globalId;
+        
+        // Update the text controller to show the street name
+        _controllers[elementFound.name]!.text = street.strNameCore;
+        
+        // Clear any validation errors
+        setState(() {
+          validationErrors.remove(elementFound.name);
+        });
+      },
+      // Styling to match your existing form
+      constraints: const BoxConstraints(maxHeight: 250),
+      offset: const Offset(0, 5),
+      // animationStart: 0.25,
+      animationDuration: const Duration(milliseconds: 300),
+      hideOnEmpty: true,
+      hideOnError: true,
+      hideOnLoading: false,
+      // minCharsForSuggestions: 2,
+      debounceDuration: const Duration(milliseconds: 300),
+      // Error and loading builders with consistent styling
+      errorBuilder: (context, error) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.red[50],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red[600], size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Error loading streets',
+                  style: TextStyle(
+                    color: Colors.red[600],
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loadingBuilder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.grey[600],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Searching streets...',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      emptyBuilder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.search_off, color: Colors.grey[500], size: 16),
+              const SizedBox(width: 8),
+              Text(
+                'No streets found',
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      decorationBuilder: (context, child) {
+        return Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(8),
+          shadowColor: Colors.black.withOpacity(0.1),
+          child: child,
+        );
+      },
+    );
+  }
+
   Widget _buildFormField(
     dynamic attribute, dynamic elementFound, String sectionName) {
   // For title and info sections, always display as text
@@ -266,39 +491,12 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
-  final inputDecoration = InputDecoration(
-    labelText: attribute.label.al,
-    labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
-    errorText: validationErrors[elementFound.name],
-    errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-    filled: true,
-    fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-    ),
-    enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Colors.grey[600]!, width: 1.5),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Colors.red, width: 1),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Colors.red, width: 1.5),
-    ),
-    disabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
-    ),
-  );
+  // Special handling for EntAddressID field - use TypeAhead
+  if (elementFound.name == 'EntStrGlobalID') {
+    return _buildStreetTypeAhead(attribute, elementFound);
+  }
+
+  final inputDecoration = _getInputDecoration(attribute, elementFound);
 
   // Dropdown field
   if (elementFound.codedValues != null) {
@@ -330,7 +528,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
-  // Text field
+  // Regular text field
   return TextFormField(
     key: ValueKey(elementFound.name),
     controller: _controllers[elementFound.name],

@@ -32,4 +32,8 @@ class StreetService {
   void saveStreets(List<Street> streets) async {
     await StreetDatabase.insertStreetsBatch(streets);
   }
+
+  Future<Street?> getStreetByGlobalId(String globalId) async {
+    return await StreetDatabase.getStreetByGlobalId(globalId);
+  }
 }

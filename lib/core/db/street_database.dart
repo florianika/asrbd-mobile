@@ -6,8 +6,8 @@ class StreetDatabase {
   static Database? _database;
   static const String _tableName = 'streets';
   static const String _ftsTableName = 'streets_fts';
+  static String? _ftsModule; // Will be 'fts5', 'fts4', or null
 
-  // Singleton pattern
   static Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -16,16 +16,17 @@ class StreetDatabase {
 
   static Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'streets_database.db');
-    
-    return await openDatabase(
+
+    final db = await openDatabase(
       path,
       version: 1,
       onCreate: _onCreate,
     );
+
+    return db;
   }
 
   static Future<void> _onCreate(Database db, int version) async {
-    // Create main table
     await db.execute('''
       CREATE TABLE $_tableName (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,50 +37,60 @@ class StreetDatabase {
       )
     ''');
 
-    // Create FTS5 virtual table for fast searching
-    await db.execute('''
-      CREATE VIRTUAL TABLE $_ftsTableName USING fts5(
-        globalId,
-        strNameCore,
-        searchTerms,
-        content='$_tableName',
-        content_rowid='id'
-      )
-    ''');
+    _ftsModule = await _detectFtsModule(db);
 
-    // Create triggers to keep FTS table in sync
-    await db.execute('''
-      CREATE TRIGGER streets_ai AFTER INSERT ON $_tableName BEGIN
-        INSERT INTO $_ftsTableName(rowid, globalId, strNameCore, searchTerms)
-        VALUES (new.id, new.globalId, new.strNameCore, new.searchTerms);
-      END
-    ''');
+    if (_ftsModule != null) {
+      // Create virtual FTS table (either fts5 or fts4)
+      await db.execute('''
+        CREATE VIRTUAL TABLE $_ftsTableName USING $_ftsModule(
+          globalId,
+          strNameCore,
+          searchTerms,
+          content='$_tableName',
+          content_rowid='id'
+        )
+      ''');
 
-    await db.execute('''
-      CREATE TRIGGER streets_ad AFTER DELETE ON $_tableName BEGIN
-        INSERT INTO $_ftsTableName($_ftsTableName, rowid, globalId, strNameCore, searchTerms)
-        VALUES('delete', old.id, old.globalId, old.strNameCore, old.searchTerms);
-      END
-    ''');
+      // Triggers to keep FTS table in sync
+      await db.execute('''
+        CREATE TRIGGER streets_ai AFTER INSERT ON $_tableName BEGIN
+          INSERT INTO $_ftsTableName(rowid, globalId, strNameCore, searchTerms)
+          VALUES (new.id, new.globalId, new.strNameCore, new.searchTerms);
+        END
+      ''');
 
-    await db.execute('''
-      CREATE TRIGGER streets_au AFTER UPDATE ON $_tableName BEGIN
-        INSERT INTO $_ftsTableName($_ftsTableName, rowid, globalId, strNameCore, searchTerms)
-        VALUES('delete', old.id, old.globalId, old.strNameCore, old.searchTerms);
-        INSERT INTO $_ftsTableName(rowid, globalId, strNameCore, searchTerms)
-        VALUES (new.id, new.globalId, new.strNameCore, new.searchTerms);
-      END
-    ''');
+      await db.execute('''
+        CREATE TRIGGER streets_ad AFTER DELETE ON $_tableName BEGIN
+          INSERT INTO $_ftsTableName($_ftsTableName, rowid, globalId, strNameCore, searchTerms)
+          VALUES('delete', old.id, old.globalId, old.strNameCore, old.searchTerms);
+        END
+      ''');
 
-    // Create index for traditional queries
+      await db.execute('''
+        CREATE TRIGGER streets_au AFTER UPDATE ON $_tableName BEGIN
+          INSERT INTO $_ftsTableName($_ftsTableName, rowid, globalId, strNameCore, searchTerms)
+          VALUES('delete', old.id, old.globalId, old.strNameCore, old.searchTerms);
+          INSERT INTO $_ftsTableName(rowid, globalId, strNameCore, searchTerms)
+          VALUES (new.id, new.globalId, new.strNameCore, new.searchTerms);
+        END
+      ''');
+    }
+
     await db.execute('CREATE INDEX idx_street_name ON $_tableName(strNameCore)');
   }
 
-  // Insert single street
+  static Future<String?> _detectFtsModule(Database db) async {
+    final result = await db.rawQuery('PRAGMA compile_options;');
+    final options = result.map((e) => e.values.first.toString()).toList();
+
+    if (options.any((e) => e.contains('ENABLE_FTS5'))) return 'fts5';
+    if (options.any((e) => e.contains('ENABLE_FTS4'))) return 'fts4';
+    return null;
+  }
+
   static Future<int> insertStreet(Street street) async {
     final db = await database;
     final searchTerms = _generateSearchTerms(street.strNameCore);
-    
     return await db.insert(_tableName, {
       'globalId': street.globalId,
       'strType': street.strType,
@@ -88,11 +99,9 @@ class StreetDatabase {
     });
   }
 
-  // Batch insert for better performance with thousands of records
   static Future<void> insertStreetsBatch(List<Street> streets) async {
     final db = await database;
     final batch = db.batch();
-
     for (final street in streets) {
       final searchTerms = _generateSearchTerms(street.strNameCore);
       batch.insert(_tableName, {
@@ -102,65 +111,85 @@ class StreetDatabase {
         'searchTerms': searchTerms,
       });
     }
-
     await batch.commit(noResult: true);
   }
 
-  // Generate search terms for better matching
+  static Future<Street?> getStreetByGlobalId(String globalId) async {
+    final db = await database;
+    final maps = await db.query(
+      _tableName,
+      where: 'globalId = ?',
+      whereArgs: [globalId],
+      limit: 1,
+    );
+
+    if (maps.isNotEmpty) {
+      return Street.create(
+        globalId: maps.first['globalId'] as String,
+        strType: maps.first['strType'] as int,
+        strNameCore: maps.first['strNameCore'] as String,
+      );
+    }
+    return null;
+  }
+
   static String _generateSearchTerms(String streetName) {
     final terms = <String>[];
     final words = streetName.toLowerCase().split(' ');
-    
-    // Add original words
+
     terms.addAll(words);
-    
-    // Add combinations for multi-word streets
+
     if (words.length > 1) {
       terms.add(words.join(' '));
-      // Add partial combinations
       for (int i = 0; i < words.length - 1; i++) {
         terms.add(words.sublist(i, i + 2).join(' '));
       }
     }
-    
+
     return terms.join(' ');
   }
 
-  // Fast FTS search - best for instant search
   static Future<List<Street>> searchStreetsFTS(String query, {int limit = 50}) async {
     if (query.trim().isEmpty) return [];
-    
+
+    if (_ftsModule == null) {
+      // fallback to LIKE if FTS is unavailable
+      return searchStreetsLike(query, limit: limit);
+    }
+
     final db = await database;
-    
-    // Prepare query for FTS5
-    final ftsQuery = query.trim().split(' ')
-        .map((word) => '"$word"*')  // Use prefix matching
+
+    final ftsQuery = query
+        .toLowerCase()
+        .trim()
+        .split(RegExp(r'\s+'))
+        .map((word) => '$word*')
         .join(' AND ');
-    
-    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+
+    final maps = await db.rawQuery('''
       SELECT s.globalId, s.strType, s.strNameCore
       FROM $_ftsTableName fts
       JOIN $_tableName s ON fts.rowid = s.id
-      WHERE $_ftsTableName MATCH ?
-      ORDER BY rank
+      WHERE fts.searchTerms MATCH ?
       LIMIT ?
     ''', [ftsQuery, limit]);
 
-    return maps.map((map) => Street.create(
-      globalId: map['globalId'],
-      strType: map['strType'],
-      strNameCore: map['strNameCore'],
-    )).toList();
+    return maps
+        .map((map) => Street.create(
+              globalId: map['globalId'] as String,
+              strType: map['strType'] as int,
+              strNameCore: map['strNameCore'] as String,
+            ))
+        .toList();
   }
 
-  // Traditional LIKE search as fallback
   static Future<List<Street>> searchStreetsLike(String query, {int limit = 50}) async {
     if (query.trim().isEmpty) return [];
-    
+
     final db = await database;
     final searchPattern = '%${query.toLowerCase()}%';
-    
-    final List<Map<String, dynamic>> maps = await db.query(
+
+    final maps = await db.query(
       _tableName,
       where: 'LOWER(strNameCore) LIKE ? OR LOWER(searchTerms) LIKE ?',
       whereArgs: [searchPattern, searchPattern],
@@ -174,21 +203,22 @@ class StreetDatabase {
       limit: limit,
     );
 
-    return maps.map((map) => Street.create(
-      globalId: map['globalId'],
-      strType: map['strType'],
-      strNameCore: map['strNameCore'],
-    )).toList();
+    return maps
+        .map((map) => Street.create(
+              globalId: map['globalId'] as String,
+              strType: map['strType'] as int,
+              strNameCore: map['strNameCore'] as String,
+            ))
+        .toList();
   }
 
-  // Starts-with search
   static Future<List<Street>> searchStreetsStartsWith(String query, {int limit = 50}) async {
     if (query.trim().isEmpty) return [];
-    
+
     final db = await database;
     final searchPattern = '${query.toLowerCase()}%';
-    
-    final List<Map<String, dynamic>> maps = await db.query(
+
+    final maps = await db.query(
       _tableName,
       where: 'LOWER(strNameCore) LIKE ?',
       whereArgs: [searchPattern],
@@ -196,44 +226,20 @@ class StreetDatabase {
       limit: limit,
     );
 
-    return maps.map((map) => Street.create(
-      globalId: map['globalId'],
-      strType: map['strType'],
-      strNameCore: map['strNameCore'],
-    )).toList();
+    return maps
+        .map((map) => Street.create(
+              globalId: map['globalId'].toString(),
+              strType: map['strType'] as int,
+              strNameCore: map['strNameCore'] as String,
+            ))
+        .toList();
   }
 
-  // Get all streets with pagination
-  static Future<List<Street>> getAllStreets({int offset = 0, int limit = 100}) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      orderBy: 'strNameCore',
-      limit: limit,
-      offset: offset,
-    );
-
-    return maps.map((map) => Street.create(
-      globalId: map['globalId'],
-      strType: map['strType'],
-      strNameCore: map['strNameCore'],
-    )).toList();
-  }
-
-  // Count total streets
-  static Future<int> getStreetsCount() async {
-    final db = await database;
-    final result = await db.rawQuery('SELECT COUNT(*) as count FROM $_tableName');
-    return result.first['count'] as int;
-  }
-
-  // Clear all data
   static Future<void> clearAllStreets() async {
     final db = await database;
     await db.delete(_tableName);
   }
 
-  // Close database
   static Future<void> close() async {
     final db = _database;
     if (db != null) {
