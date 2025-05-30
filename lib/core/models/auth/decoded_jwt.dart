@@ -4,7 +4,7 @@ class DecodedJwt {
   final String uniqueName;
   final String email;
   final String familyName;
-  final String municipality;
+  final int municipality;
   final int nbf;
   final int exp;
   final int iat;
@@ -32,7 +32,7 @@ class DecodedJwt {
       uniqueName: map['unique_name'],
       email: map['email'],
       familyName: map['family_name'],
-      municipality: map['municipality'],
+      municipality: int.parse(map['municipality'].toString()),
       nbf: map['nbf'],
       exp: map['exp'],
       iat: map['iat'],

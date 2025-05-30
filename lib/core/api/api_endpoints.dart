@@ -1,5 +1,6 @@
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 
 class ApiEndpoints {
   static const String login = '/auth/login';
@@ -18,13 +19,13 @@ class ApiEndpoints {
     path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/',
   );
 
-  static String getEsriBulding(String geometry) {
+  static String getEsriBulding(String geometry, int municipalityId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/1/query',
       queryParameters: {
-        'where': '1=1',
+        'where': 'BldMunicipality = $municipalityId',
         'objectIds': '',
         'time': '',
         'geometry': geometry,
@@ -70,16 +71,18 @@ class ApiEndpoints {
     ).toString();
   }
 
-  static String getEsriEntrance(String geometry) {
+  static String getEsriEntrance(List<String> entBldGlobalID) {
+    String whereCondition =
+        EsriConditionHelper.buildWhereClause('EntBldGlobalID', entBldGlobalID);
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/0/query',
       queryParameters: {
-        'where': '1=1',
+        'where': whereCondition,
         'objectIds': '',
         'time': '',
-        'geometry': geometry,
+        'geometry': '',
         'geometryType': 'esriGeometryEnvelope',
         'inSR': '4326',
         'defaultSR': '',

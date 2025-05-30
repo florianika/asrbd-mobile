@@ -9,9 +9,10 @@ import 'api_endpoints.dart';
 class EntranceApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getEntrances(String esriToken, String geometry) async {
-    return await _apiClient
-        .get('${ApiEndpoints.getEsriEntrance(geometry)}&token=$esriToken');
+  Future<Response> getEntrances(
+      String esriToken, List<String> entBldGlobalID) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriEntrance(entBldGlobalID)}&token=$esriToken');
   }
 
   Future<Response> getEntranceDetails(String esriToken, String globalId) async {

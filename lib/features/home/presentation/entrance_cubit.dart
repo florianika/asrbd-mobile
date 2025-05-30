@@ -50,10 +50,11 @@ class EntranceCubit extends Cubit<EntranceState> {
 
   EntranceCubit(this.entranceUseCases) : super(EntranceInitial());
 
-  Future<void> getEntrances(LatLngBounds? bounds, double zoom) async {
+  Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
     emit(EntranceLoading());
     try {
-      emit(Entrances(await entranceUseCases.getEntrances(bounds, zoom)));
+      emit(Entrances(
+          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

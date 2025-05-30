@@ -10,16 +10,12 @@ class EntranceUseCases {
   EntranceUseCases(this._entranceRepository);
 
   Future<Map<String, dynamic>> getEntrances(
-      LatLngBounds? bounds, double zoom) async {
-    if (bounds == null) {
-      return {};
-    }
+      double zoom, List<String> entBldGlobalID) async {
+    if (zoom < EsriConfig.entranceMinZoom) return {};
 
-    if (zoom < EsriConfig.entranceMinZoom) {
-      return {};
-    }
+    if (entBldGlobalID.isEmpty) return {};
 
-    return await _entranceRepository.getEntrances(bounds, zoom);
+    return await _entranceRepository.getEntrances(zoom, entBldGlobalID);
   }
 
   Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
