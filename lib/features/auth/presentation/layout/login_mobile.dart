@@ -63,7 +63,6 @@ class _LoginMobileState extends State<LoginMobile> {
                 child: BlocConsumer<AuthCubit, AuthState>(
                   listener: (context, state) {
                     if (state is AuthAuthenticated) {
-                      // Navigate to the next screen on successful login
                       Navigator.pushReplacementNamed(
                           context, RouteManager.homeRoute);
                     } else if (state is AuthError) {

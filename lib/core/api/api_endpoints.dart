@@ -71,9 +71,9 @@ class ApiEndpoints {
     ).toString();
   }
 
-  static String getEsriEntrance(List<String> entBldGlobalID) {
+  static String getEsriEntrance(List<String> entBldGlobalIDs) {
     String whereCondition =
-        EsriConditionHelper.buildWhereClause('EntBldGlobalID', entBldGlobalID);
+        EsriConditionHelper.buildWhereClause('EntBldGlobalID', entBldGlobalIDs);
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
@@ -275,6 +275,56 @@ class ApiEndpoints {
         'featureEncoding': 'esriDefault',
         'datumTransformation': '',
         'f': 'geojson',
+      },
+    ).toString();
+  }
+
+  static String getEsriStreets(int municipalityId) {
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/3/query',
+      queryParameters: {
+        'where': 'StrMunicipality=$municipalityId',
+        'objectIds': '',
+        'time': '',
+        'geometry': '',
+        'geometryType': 'esriGeometryEnvelope',
+        'inSR': '',
+        'defaultSR': '',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'distance': '',
+        'units': 'esriSRUnit_Foot',
+        'relationParam': '',
+        'outFields': 'GlobalID,StrNameCore,StrType',
+        'returnGeometry': 'true',
+        'maxAllowableOffset': '',
+        'geometryPrecision': '',
+        'outSR': '',
+        'havingClause': '',
+        'gdbVersion': '',
+        'historicMoment': '',
+        'returnDistinctValues': 'false',
+        'returnIdsOnly': 'false',
+        'returnCountOnly': 'false',
+        'returnExtentOnly': 'false',
+        'orderByFields': '',
+        'groupByFieldsForStatistics': '',
+        'outStatistics': '',
+        'returnZ': 'false',
+        'returnM': 'false',
+        'multipatchOption': 'xyFootprint',
+        'resultOffset': '',
+        'resultRecordCount': '',
+        'returnTrueCurves': 'false',
+        'returnCentroid': 'false',
+        'timeReferenceUnknownClient': 'false',
+        'maxRecordCountFactor': '',
+        'sqlFormat': 'none',
+        'resultType': '',
+        'featureEncoding': 'esriDefault',
+        'datumTransformation': '',
+        'f': 'pjson',
       },
     ).toString();
   }

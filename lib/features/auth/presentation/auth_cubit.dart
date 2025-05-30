@@ -1,3 +1,4 @@
+import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,8 +28,12 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final success = await authUseCases.login(email, password);
-      await sl<UserService>().initialize();
-      if (success.accessToken != '') {
+      final user = await sl<UserService>().initialize();
+      if (user != null) {
+        final streets = await sl<StreetService>().getStreets(user.municipality);
+        sl<StreetService>().saveStreets(streets);
+      }
+      if (success.accessToken != '' && user != null) {
         emit(AuthAuthenticated());
       } else {
         emit(AuthError("Invalid credentials"));

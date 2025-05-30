@@ -1,8 +1,11 @@
 import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
+import 'package:asrdb/core/api/street_api.dart';
+import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/dwelling_repository.dart';
@@ -26,14 +29,25 @@ import 'package:asrdb/core/themes/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final sl = GetIt.instance; // Service locator instance
+ 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
   await LocalStorageService().init();
 
+ 
+
+  sl.registerLazySingleton<StreetApi>(() => StreetApi());
+
   final legendService = LegendService();
-  await legendService.loadLegendConfigs(); // Load asset data here
+  final streetService = StreetService(sl<StreetApi>());
+  // final localDbService = LocalDatabaseService();
+  await legendService.loadLegendConfigs();
+
   sl.registerSingleton<LegendService>(legendService);
+  sl.registerSingleton<StreetService>(streetService);
+  // sl.registerSingleton<LocalDatabaseService>(localDbService);
 
   // Register API
   sl.registerLazySingleton<SchemaApi>(() => SchemaApi());
