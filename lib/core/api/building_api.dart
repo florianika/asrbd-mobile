@@ -60,24 +60,24 @@ class BuildingApi {
   }
 
   Future<Response> updateBuildingFeature(String esriToken,
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+      Map<String, dynamic> attributes) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    List<List<double>> coordinates =
-        points.map((point) => [point.longitude, point.latitude]).toList();
-    if (coordinates.isNotEmpty &&
-        (coordinates.first[0] != coordinates.last[0] ||
-            coordinates.first[1] != coordinates.last[1])) {
-      coordinates.add([coordinates.first[0], coordinates.first[1]]);
-    }
+    // List<List<double>> coordinates =
+        // points.map((point) => [point.longitude, point.latitude]).toList();
+    // if (coordinates.isNotEmpty &&
+    //     (coordinates.first[0] != coordinates.last[0] ||
+    //         coordinates.first[1] != coordinates.last[1])) {
+    //   coordinates.add([coordinates.first[0], coordinates.first[1]]);
+    // }
 
     final Map<String, dynamic> feature = {
-      'geometry': {
-        'rings': [coordinates],
-        'spatialReference': {'wkid': 4326},
-      },
+      // 'geometry': {
+      //   'rings': [coordinates],
+      //   'spatialReference': {'wkid': 4326},
+      // },
       'properties': attributes,
     };
 

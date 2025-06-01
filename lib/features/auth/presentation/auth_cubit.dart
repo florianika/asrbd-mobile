@@ -30,6 +30,7 @@ class AuthCubit extends Cubit<AuthState> {
       final success = await authUseCases.login(email, password);
       final user = await sl<UserService>().initialize();
       if (user != null) {
+        await sl<StreetService>().clearAllStreets();
         final streets = await sl<StreetService>().getStreets(user.municipality);
         sl<StreetService>().saveStreets(streets);
       }

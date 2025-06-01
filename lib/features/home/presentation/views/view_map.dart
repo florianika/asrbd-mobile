@@ -231,19 +231,7 @@ class _ViewMapState extends State<ViewMap> {
       if (isNew) {
         entranceCubit.addEntranceFeature(attributes, _newPolygonPoints);
       } else {
-        final entranceFeatures = entranceData!['features'] as List<dynamic>;
-        final feature = entranceFeatures.firstWhere(
-          (f) =>
-              (f['properties']?['GlobalID']?.toString() ?? '') ==
-              attributes['GlobalID'],
-          orElse: () => null,
-        );
-
-        if (feature != null) {
-          final coords = feature['geometry']['coordinates'] as List<dynamic>;
-          final latLng = LatLng(coords[0] as double, coords[1] as double);
-          entranceCubit.updateEntranceFeature(attributes, [latLng]);
-        }
+        entranceCubit.updateEntranceFeature(attributes);
       }
     } else if (shapeType == ShapeType.polygon) {
       scaffold.showSnackBar(
@@ -255,24 +243,7 @@ class _ViewMapState extends State<ViewMap> {
       if (isNew) {
         buildingCubit.addBuildingFeature(attributes, _newPolygonPoints);
       } else {
-        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
-        final feature = buildingFeatures.firstWhere(
-          (f) =>
-              (f['properties']?['GlobalID']?.toString() ?? '') ==
-              attributes['GlobalID'],
-          orElse: () => null,
-        );
-
-        if (feature != null) {
-          final coordinates =
-              feature['geometry']['coordinates'] as List<dynamic>;
-          final latLngList = coordinates
-              .map<LatLng>(
-                  (coord) => LatLng(coord[0] as double, coord[1] as double))
-              .toList();
-
-          buildingCubit.updateBuildingFeature(attributes, latLngList);
-        }
+        buildingCubit.updateBuildingFeature(attributes);
       }
     }
 
