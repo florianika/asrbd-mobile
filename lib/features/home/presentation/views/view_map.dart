@@ -71,6 +71,7 @@ class _ViewMapState extends State<ViewMap> {
 
   bool _isPropertyVisibile = false;
   final legendService = sl<LegendService>();
+  LatLng? _userLocation;
 
   Future<void> _initialize() async {
     _goToCurrentLocation();
@@ -371,16 +372,20 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _goToCurrentLocation() {
-    try {
-      LocationService.getCurrentLocation().then(
-          (location) => {mapController.move(location, EsriConfig.initZoom)});
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching location: $e')),
-      );
-    }
+ void _goToCurrentLocation() async {
+  try {
+    final location = await LocationService.getCurrentLocation();
+    mapController.move(location, EsriConfig.initZoom);
+    setState(() {
+      _userLocation = location; // Save user's location
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching location: $e')),
+    );
   }
+}
+
 
   void _handleResponse(BuildContext context, bool isAdded, String actionName,
       int municipalityId) {
@@ -520,6 +525,21 @@ class _ViewMapState extends State<ViewMap> {
                                     highilghGlobalIds: highlightMarkersGlobalId,
                                   )
                                 : const SizedBox(),
+                                 if (_userLocation != null)
+                                      MarkerLayer(
+                                        markers: [
+                                          Marker(
+                                          point: _userLocation!,
+                                          width: 40,
+                                          height: 40,
+                                          child: const Icon(
+                                            Icons.my_location,
+                                            color: Colors.blueAccent,
+                                            size: 30,
+                                          ),
+                                        ),
+                                    ],
+                              ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),
                             if (_newPolygonPoints.isNotEmpty &&
