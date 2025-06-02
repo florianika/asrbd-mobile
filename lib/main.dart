@@ -2,7 +2,6 @@ import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
-import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
