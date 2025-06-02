@@ -36,4 +36,8 @@ class StreetService {
   Future<Street?> getStreetByGlobalId(String globalId) async {
     return await StreetDatabase.getStreetByGlobalId(globalId);
   }
+
+  Future<void> clearAllStreets() async {
+    await StreetDatabase.clearAllStreets();
+  }
 }

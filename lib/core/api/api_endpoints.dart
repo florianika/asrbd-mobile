@@ -90,7 +90,7 @@ class ApiEndpoints {
         'distance': '',
         'units': 'esriSRUnit_Foot',
         'relationParam': '',
-        'outFields': 'GlobalID,EntQuality,EntBldGlobalID',
+        'outFields': 'GlobalID,OBJECTID,EntQuality,EntBldGlobalID',
         'returnGeometry': 'true',
         'maxAllowableOffset': '',
         'geometryPrecision': '',

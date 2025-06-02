@@ -28,7 +28,7 @@ class DynamicElementAttribute extends StatefulWidget {
     this.onClose,
     this.onDwelling,
     this.showButtons = true, // Default to true for backward compatibility
-    this.readOnly=false,
+    this.readOnly = false,
     super.key,
   });
 
@@ -56,21 +56,35 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
   }
 
-  void _initializeForm(Map<String, dynamic> data) {
-    formValues.clear();
-    formValues.addAll(data);
+  Future<void> _initializeForm(Map<String, dynamic> data) async {
+    formValues
+      ..clear()
+      ..addAll(data);
 
-    for (var field in widget.schema) {
-      final value = data[field.name]?.toString() ??
-          (field.defaultValue != null ? field.defaultValue.toString() : '');
-      if (_controllers.containsKey(field.name)) {
-        _controllers[field.name]!.text = value;
+    for (final field in widget.schema) {
+      final key = field.name;
+      final rawValue = data[key];
+      final defaultValue = field.defaultValue?.toString() ?? '';
+      final value = rawValue?.toString() ?? defaultValue;
+
+      if (key == 'EntStrGlobalID' && rawValue != null) {
+        final streetInfo = await StreetDatabase.getStreetByGlobalId(rawValue);
+        final text = streetInfo?.strNameCore ?? '';
+        _updateOrCreateController(key, text);
       } else {
-        _controllers[field.name] = TextEditingController(text: value);
+        _updateOrCreateController(key, value);
       }
     }
 
     setState(() {});
+  }
+
+  void _updateOrCreateController(String key, String value) {
+    if (_controllers.containsKey(key)) {
+      _controllers[key]!.text = value;
+    } else {
+      _controllers[key] = TextEditingController(text: value);
+    }
   }
 
   @override
@@ -125,7 +139,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       'title',
       'technical',
       'identifier',
-      'map',
+      // 'map',
       'info',
       'history'
     ];
@@ -143,7 +157,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           .where((x) => x.name.toLowerCase() == attribute.name.toLowerCase())
           .firstOrNull;
 
-      if (elementFound == null) {      
+      if (elementFound == null) {
         continue;
       }
 
@@ -225,7 +239,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   // Method to get consistent InputDecoration for all fields
   InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
     return InputDecoration(
-      labelText: attribute.label.al,
+      labelText: '${attribute.label.al} (${attribute.name})',
       labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
       errorText: validationErrors[elementFound.name],
       errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
@@ -287,7 +301,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       },
       suggestionsCallback: (pattern) async {
         if (pattern.length < 2) return [];
-        
+
         // Use your street database search here
         final data = await StreetDatabase.searchStreetsFTS(pattern, limit: 10);
         return data;
@@ -342,10 +356,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       onSelected: (street) {
         // Update the form value with the selected street's globalId
         formValues[elementFound.name] = street.globalId;
-        
+
         // Update the text controller to show the street name
         _controllers[elementFound.name]!.text = street.strNameCore;
-        
+
         // Clear any validation errors
         setState(() {
           validationErrors.remove(elementFound.name);
@@ -451,97 +465,101 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   Widget _buildFormField(
-    dynamic attribute, dynamic elementFound, String sectionName) {
-  // For title and info sections, always display as text
-  if (sectionName.toLowerCase() == 'title' ||
-      sectionName.toLowerCase() == 'history') {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      margin: const EdgeInsets.only(bottom: 4),
-      decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey[200]!, width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${attribute.label.al}:',
-            key: ValueKey('${elementFound.name}_label'),
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
-              key: ValueKey(elementFound.name),
-              style: const TextStyle(
-                color: Colors.black87,
+      dynamic attribute, dynamic elementFound, String sectionName) {
+    // For title and info sections, always display as text
+    if (sectionName.toLowerCase() == 'history') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        margin: const EdgeInsets.only(bottom: 4),
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${attribute.label.al}:',
+              key: ValueKey('${elementFound.name}_label'),
+              style: TextStyle(
+                color: Colors.grey[700],
                 fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Special handling for EntAddressID field - use TypeAhead
-  if (elementFound.name == 'EntStrGlobalID') {
-    return _buildStreetTypeAhead(attribute, elementFound);
-  }
-
-  final inputDecoration = _getInputDecoration(attribute, elementFound);
-
-  // Dropdown field
-  if (elementFound.codedValues != null) {
-    return DropdownButtonFormField<Object?>(
-      key: ValueKey(elementFound.name),
-      isExpanded: true,
-      decoration: inputDecoration,
-      value: widget.initialData![elementFound.name] ?? elementFound.defaultValue,
-      items: elementFound.codedValues!
-          .map<DropdownMenuItem<Object?>>((code) => DropdownMenuItem<Object?>(
-                value: code['code'],
-                child: Text(
-                  code['name'].toString(),
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.black87, fontSize: 14),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+                key: ValueKey(elementFound.name),
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontSize: 13,
                 ),
-              ))
-          .toList(),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Special handling for EntAddressID field - use TypeAhead
+    if (elementFound.name == 'EntStrGlobalID') {
+      return _buildStreetTypeAhead(attribute, elementFound);
+    }
+
+    final inputDecoration = _getInputDecoration(attribute, elementFound);
+
+    // Dropdown field
+    if (elementFound.codedValues != null) {
+      return AbsorbPointer(
+        absorbing: attribute.display.enumerator == "read",
+        child: DropdownButtonFormField<Object?>(
+          key: ValueKey(elementFound.name),
+          isExpanded: true,
+          decoration: inputDecoration,
+          value: widget.initialData![elementFound.name] ??
+              elementFound.defaultValue,
+          items: elementFound.codedValues!
+              .map<DropdownMenuItem<Object?>>((code) =>
+                  DropdownMenuItem<Object?>(
+                    value: code['code'],
+                    child: Text(
+                      code['name'].toString(),
+                      overflow: TextOverflow.ellipsis,
+                      style:
+                          const TextStyle(color: Colors.black87, fontSize: 14),
+                    ),
+                  ))
+              .toList(),
+          onChanged: (!widget.readOnly && elementFound.editable)
+              ? (val) => formValues[elementFound.name] =
+                  EsriTypeConversion.convert(elementFound.type, val)
+              : null,
+          disabledHint: Text(
+            formValues[elementFound.name]?.toString() ?? attribute.label.al,
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
+        ),
+      );
+    }
+
+    // Regular text field
+    return TextFormField(
+      key: ValueKey(elementFound.name),
+      controller: _controllers[elementFound.name],
+      readOnly: widget.readOnly || attribute.display.enumerator == "read",
+      enabled: !widget.readOnly && elementFound.editable,
+      decoration: inputDecoration,
+      style: const TextStyle(color: Colors.black87, fontSize: 14),
       onChanged: (!widget.readOnly && elementFound.editable)
           ? (val) => formValues[elementFound.name] =
               EsriTypeConversion.convert(elementFound.type, val)
           : null,
-      disabledHint: Text(
-        formValues[elementFound.name]?.toString() ??
-            attribute.label.al,
-        style: const TextStyle(color: Colors.grey, fontSize: 14),
-      ),
-      style: const TextStyle(color: Colors.black87, fontSize: 14),
     );
   }
-
-  // Regular text field
-  return TextFormField(
-    key: ValueKey(elementFound.name),
-    controller: _controllers[elementFound.name],
-    readOnly: widget.readOnly || attribute.display.enumerator == "read",
-    enabled: !widget.readOnly && elementFound.editable,
-    decoration: inputDecoration,
-    style: const TextStyle(color: Colors.black87, fontSize: 14),
-    onChanged: (!widget.readOnly && elementFound.editable)
-        ? (val) => formValues[elementFound.name] =
-            EsriTypeConversion.convert(elementFound.type, val)
-        : null,
-  );
-}
 
   @override
   Widget build(BuildContext context) {
@@ -564,7 +582,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               }),
             ],
           );
-        }),       
+        }),
       ],
     );
   }

@@ -78,13 +78,13 @@ class BuildingService {
   }
 
   Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+      Map<String, dynamic> attributes) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.updateBuildingFeature(
-          esriToken, attributes, points);
+          esriToken, attributes);
       if (response.statusCode == 200) {
         return true;
       } else {

@@ -1,9 +1,8 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 class MapActionButtons extends StatelessWidget {
   final MapController mapController;
@@ -16,50 +15,14 @@ class MapActionButtons extends StatelessWidget {
     this.selectedBuildingId,
   });
 
-  Future<void> _goToCurrentLocation(BuildContext context) async {
+  void _goToCurrentLocation(BuildContext context) {
     try {
-      if (!await Geolocator.isLocationServiceEnabled()) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please enable location services.')),
-          );
-        }
-        return;
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Location permission denied.')),
-            );
-          }
-          return;
-        }
-      }
-
-      if (permission == LocationPermission.deniedForever) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Location permissions permanently denied.')),
-          );
-        }
-        return;
-      }
-
-      Position pos = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      final userLatLng = LatLng(pos.latitude, pos.longitude);
-      mapController.move(userLatLng, 15.0);
+      LocationService.getCurrentLocation()
+          .then((location) => {mapController.move(location, 19.0)});
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching location: $e')),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching location: $e')),
+      );
     }
   }
 

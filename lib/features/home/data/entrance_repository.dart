@@ -1,6 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/entrance_service.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class EntranceRepository {
@@ -27,8 +26,8 @@ class EntranceRepository {
   }
 
   Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    return await entranceService.updateEntranceFeature(attributes, points);
+      Map<String, dynamic> attributes) async {
+    return await entranceService.updateEntranceFeature(attributes);
   }
 
   Future<bool> deleteEntranceFeature(String objectId) async {

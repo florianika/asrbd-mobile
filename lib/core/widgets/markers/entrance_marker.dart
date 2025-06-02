@@ -45,14 +45,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                     final value = props['EntQuality'];
                     final globalId = props[EntranceFields.globalID];
 
-                    // Dynamically adjust marker size based on zoom level
-                    // final zoomLevel = widget.mapController.camera.zoom;
-                    // double markerSize =
-                    //     (30 * zoomLevel / 40 > 25) ? 25 : 30 * zoomLevel / 40;
-
-                    // // Ensure a minimum and maximum size
-                    // markerSize = markerSize.clamp(20.0, 100.0);
-
                     Color fillColor = legendService.getColorForValue(
                             LegendType.entrance, 'quality', value) ??
                         Colors.black;
@@ -73,30 +65,73 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                         onTap: () {
                           widget.onTap(props);
                         },
-                        child: widget.highilghGlobalIds.contains(globalId)
-                            ? Container(
-                                decoration: BoxDecoration(
-                                    color: fillColor,
-                                    shape: BoxShape.circle,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Main marker
+                            Container(
+                              width: markerSize,
+                              height: markerSize,
+                              decoration: BoxDecoration(
+                                color: fillColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: widget.highilghGlobalIds
+                                          .contains(globalId)
+                                      ? Colors.red
+                                      : Colors.black,
+                                  width: widget.highilghGlobalIds
+                                          .contains(globalId)
+                                      ? 3
+                                      : 1,
+                                ),
+                                boxShadow: widget.highilghGlobalIds
+                                        .contains(globalId)
+                                    ? [
+                                        BoxShadow(
+                                          color: Colors.red.withOpacity(0.6),
+                                          blurRadius: 10,
+                                          spreadRadius: 3,
+                                        ),
+                                      ]
+                                    : null,
+                              ),
+                            ),
+                            // Label positioned above the marker
+                            if (widget.highilghGlobalIds.contains(globalId))
+                              Positioned(
+                                bottom:
+                                    markerSize + 5, // Position above the marker
+                                left:
+                                    -15, // Center the label (adjust based on label width)
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                         color: Colors.black, width: 1),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.red
-                                            .withOpacity(0.6), // glow color
-                                        blurRadius: 10,
-                                        spreadRadius: 3,
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
                                       ),
-                                    ]),
-                              )
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: fillColor,
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.black, width: 1),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    props['OBJECTID']?.toString() ?? 'N/A',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
+                          ],
+                        ),
                       ),
                     );
                   }).toList(),

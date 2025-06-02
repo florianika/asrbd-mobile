@@ -9,6 +9,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
@@ -47,6 +48,7 @@ class _ViewMapState extends State<ViewMap> {
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'quality';
+  LatLng currentPosition = const LatLng(40.534406, 19.6338131);
 
   LatLngBounds? visibleBounds;
   double zoom = 0;
@@ -71,6 +73,7 @@ class _ViewMapState extends State<ViewMap> {
   final legendService = sl<LegendService>();
 
   Future<void> _initialize() async {
+    _goToCurrentLocation();
     context.read<BuildingCubit>().getBuildingAttibutes();
     context.read<EntranceCubit>().getEntranceAttributes();
 
@@ -231,19 +234,7 @@ class _ViewMapState extends State<ViewMap> {
       if (isNew) {
         entranceCubit.addEntranceFeature(attributes, _newPolygonPoints);
       } else {
-        final entranceFeatures = entranceData!['features'] as List<dynamic>;
-        final feature = entranceFeatures.firstWhere(
-          (f) =>
-              (f['properties']?['GlobalID']?.toString() ?? '') ==
-              attributes['GlobalID'],
-          orElse: () => null,
-        );
-
-        if (feature != null) {
-          final coords = feature['geometry']['coordinates'] as List<dynamic>;
-          final latLng = LatLng(coords[0] as double, coords[1] as double);
-          entranceCubit.updateEntranceFeature(attributes, [latLng]);
-        }
+        entranceCubit.updateEntranceFeature(attributes);
       }
     } else if (shapeType == ShapeType.polygon) {
       scaffold.showSnackBar(
@@ -255,24 +246,7 @@ class _ViewMapState extends State<ViewMap> {
       if (isNew) {
         buildingCubit.addBuildingFeature(attributes, _newPolygonPoints);
       } else {
-        final buildingFeatures = buildingsData!['features'] as List<dynamic>;
-        final feature = buildingFeatures.firstWhere(
-          (f) =>
-              (f['properties']?['GlobalID']?.toString() ?? '') ==
-              attributes['GlobalID'],
-          orElse: () => null,
-        );
-
-        if (feature != null) {
-          final coordinates =
-              feature['geometry']['coordinates'] as List<dynamic>;
-          final latLngList = coordinates
-              .map<LatLng>(
-                  (coord) => LatLng(coord[0] as double, coord[1] as double))
-              .toList();
-
-          buildingCubit.updateBuildingFeature(attributes, latLngList);
-        }
+        buildingCubit.updateBuildingFeature(attributes);
       }
     }
 
@@ -397,6 +371,17 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
+  void _goToCurrentLocation() {
+    try {
+      LocationService.getCurrentLocation().then(
+          (location) => {mapController.move(location, EsriConfig.initZoom)});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching location: $e')),
+      );
+    }
+  }
+
   void _handleResponse(BuildContext context, bool isAdded, String actionName,
       int municipalityId) {
     _showSnackBar(
@@ -488,7 +473,7 @@ class _ViewMapState extends State<ViewMap> {
                         FlutterMap(
                           mapController: mapController,
                           options: MapOptions(
-                            initialCenter: const LatLng(40.534406, 19.6338131),
+                            initialCenter: currentPosition,
                             initialZoom: EsriConfig.initZoom,
                             onMapReady: () => {
                               context.read<BuildingCubit>().getBuildings(
