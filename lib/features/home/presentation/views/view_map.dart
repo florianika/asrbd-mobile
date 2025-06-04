@@ -56,8 +56,6 @@ class _ViewMapState extends State<ViewMap> {
 
   Timer? _debounce;
 
-  final GlobalKey _appBarKey = GlobalKey();
-
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
 

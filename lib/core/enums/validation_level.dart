@@ -1,0 +1,1 @@
+enum ValidationLevel { warning, error }
