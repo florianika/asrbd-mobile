@@ -20,6 +20,7 @@ import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -54,8 +55,6 @@ class _ViewMapState extends State<ViewMap> {
   double zoom = 0;
 
   Timer? _debounce;
-
-  final GlobalKey _appBarKey = GlobalKey();
 
   List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
@@ -372,20 +371,19 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
- void _goToCurrentLocation() async {
-  try {
-    final location = await LocationService.getCurrentLocation();
-    mapController.move(location, EsriConfig.initZoom);
-    setState(() {
-      _userLocation = location; // Save user's location
-    });
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error fetching location: $e')),
-    );
+  void _goToCurrentLocation() async {
+    try {
+      final location = await LocationService.getCurrentLocation();
+      mapController.move(location, EsriConfig.initZoom);
+      setState(() {
+        _userLocation = location; // Save user's location
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching location: $e')),
+      );
+    }
   }
-}
-
 
   void _handleResponse(BuildContext context, bool isAdded, String actionName,
       int municipalityId) {
@@ -405,11 +403,7 @@ class _ViewMapState extends State<ViewMap> {
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
     return Scaffold(
-      appBar: AppBar(
-        key: _appBarKey,
-        title: Text(
-            "Map -${userService.userInfo != null ? userService.userInfo!.familyName : 'unknown'}"),
-      ),
+      appBar: const MapAppBar(),
       drawer: const SideMenu(),
       body: BlocConsumer<BuildingCubit, BuildingState>(
         listener: (context, state) {
@@ -525,20 +519,20 @@ class _ViewMapState extends State<ViewMap> {
                                     highilghGlobalIds: highlightMarkersGlobalId,
                                   )
                                 : const SizedBox(),
-                                 if (_userLocation != null)
-                                      MarkerLayer(
-                                        markers: [
-                                          Marker(
-                                          point: _userLocation!,
-                                          width: 40,
-                                          height: 40,
-                                          child: const Icon(
-                                            Icons.my_location,
-                                            color: Colors.blueAccent,
-                                            size: 30,
-                                          ),
-                                        ),
-                                    ],
+                            if (_userLocation != null)
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: _userLocation!,
+                                    width: 40,
+                                    height: 40,
+                                    child: const Icon(
+                                      Icons.my_location,
+                                      color: Colors.blueAccent,
+                                      size: 30,
+                                    ),
+                                  ),
+                                ],
                               ),
                             if (_newPolygonPoints.isNotEmpty)
                               MarkerLayer(markers: _buildMarkers()),

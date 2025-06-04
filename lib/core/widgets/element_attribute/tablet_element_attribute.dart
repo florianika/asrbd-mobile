@@ -1,5 +1,7 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:flutter/material.dart';
@@ -13,17 +15,15 @@ class TabletElementAttribute extends StatefulWidget {
   final void Function()? onOpenDwelling;
   final bool readOnly;
 
-
-  const TabletElementAttribute({
-    super.key,
-    required this.schema,
-    required this.selectedShapeType,
-    required this.onClose,
-    required this.initialData,
-    required this.save,
-    this.onOpenDwelling,
-    this.readOnly=false
-  });
+  const TabletElementAttribute(
+      {super.key,
+      required this.schema,
+      required this.selectedShapeType,
+      required this.onClose,
+      required this.initialData,
+      required this.save,
+      this.onOpenDwelling,
+      this.readOnly = false});
 
   @override
   State<TabletElementAttribute> createState() =>
@@ -67,6 +67,19 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                           onSave: (formValues) {
                             widget.save(formValues);
                           },
+                          validationResults: [
+                            ValidationResult(
+                              name: 'BldCentroidStatus',
+                              message:
+                                  'This field has an error that needs attention',
+                              level: ValidationLevel.error,
+                            ),
+                            ValidationResult(
+                              name: 'BldReview',
+                              message: 'This field has a warning',
+                              level: ValidationLevel.warning,
+                            ),
+                          ],
                           onClose: widget.onClose,
                           onDwelling: _openNewDwellingForm,
                           showButtons: false,
@@ -79,22 +92,22 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               ],
             ),
           ),
-          if(!widget.readOnly)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey[300]!, width: 1),
+          if (!widget.readOnly)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Colors.grey[300]!, width: 1),
+                ),
+              ),
+              child: EventButtonAttribute(
+                onSave: () => _dynamicFormKey.currentState?.handleSave(),
+                onClose: () => widget.onClose(),
+                openDwelling: () => _openNewDwellingForm(null),
+                selectedShapeType: widget.selectedShapeType,
               ),
             ),
-            child: EventButtonAttribute(
-              onSave: () => _dynamicFormKey.currentState?.handleSave(),
-              onClose: () => widget.onClose(),
-              openDwelling: () => _openNewDwellingForm(null),
-              selectedShapeType: widget.selectedShapeType,
-            ),
-          ),
         ],
       ),
     );

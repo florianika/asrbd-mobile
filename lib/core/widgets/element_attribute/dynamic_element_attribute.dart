@@ -1,8 +1,10 @@
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
+import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,8 @@ class DynamicElementAttribute extends StatefulWidget {
   final void Function(String?)? onDwelling;
   final bool readOnly;
   final bool showButtons; // New parameter to control button visibility
+  final List<ValidationResult>?
+      validationResults; // New parameter for validation results
 
   const DynamicElementAttribute({
     required this.schema,
@@ -29,6 +33,7 @@ class DynamicElementAttribute extends StatefulWidget {
     this.onDwelling,
     this.showButtons = true, // Default to true for backward compatibility
     this.readOnly = false,
+    this.validationResults, // New validation results parameter
     super.key,
   });
 
@@ -40,6 +45,14 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
+
+  // Helper method to get validation result for a field
+  ValidationResult? _getValidationResult(String fieldName) {
+    if (widget.validationResults == null) return null;
+    return widget.validationResults!
+        .where((result) => result.name == fieldName)
+        .firstOrNull;
+  }
 
   @override
   void initState() {
@@ -236,8 +249,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
-  // Method to get consistent InputDecoration for all fields
+  // Method to get consistent InputDecoration for all fields with validation indicators
   InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
+    final validationResult = _getValidationResult(elementFound.name);
+
     return InputDecoration(
       labelText: '${attribute.label.al} (${attribute.name})',
       labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
@@ -246,17 +261,47 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       filled: true,
       fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
+      suffixIcon: validationResult != null
+          ? Icon(
+              Icons.priority_high,
+              color: validationResult.level == ValidationLevel.error
+                  ? Colors.red
+                  : Colors.orange,
+              size: 20,
+            )
+          : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderSide: BorderSide(
+          color: validationResult != null
+              ? (validationResult.level == ValidationLevel.error
+                  ? Colors.red
+                  : Colors.orange)
+              : Colors.grey[300]!,
+          width: validationResult != null ? 1.5 : 1,
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
+        borderSide: BorderSide(
+          color: validationResult != null
+              ? (validationResult.level == ValidationLevel.error
+                  ? Colors.red
+                  : Colors.orange)
+              : Colors.grey[300]!,
+          width: validationResult != null ? 1.5 : 1,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[600]!, width: 1.5),
+        borderSide: BorderSide(
+          color: validationResult != null
+              ? (validationResult.level == ValidationLevel.error
+                  ? Colors.red
+                  : Colors.orange)
+              : Colors.grey[600]!,
+          width: 1.5,
+        ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
@@ -273,234 +318,340 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
-  // Build TypeAhead field for EntAddressID
+  // Build TypeAhead field for EntAddressID with validation indicators
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
-    return TypeAheadField<Street>(
-      key: ValueKey(elementFound.name),
-      controller: _controllers[elementFound.name],
-      builder: (context, controller, focusNode) {
-        return TextField(
-          controller: controller,
-          focusNode: focusNode,
-          readOnly: widget.readOnly || attribute.display.enumerator == "read",
-          enabled: !widget.readOnly && elementFound.editable,
-          decoration: _getInputDecoration(attribute, elementFound).copyWith(
-            suffixIcon: controller.text.isNotEmpty && !widget.readOnly
-                ? IconButton(
-                    icon: Icon(Icons.clear, color: Colors.grey[600]),
-                    onPressed: () {
-                      controller.clear();
-                      formValues[elementFound.name] = null;
-                      focusNode.requestFocus();
-                    },
-                  )
-                : Icon(Icons.location_on, color: Colors.grey[600]),
-          ),
-          style: const TextStyle(color: Colors.black87, fontSize: 14),
-        );
-      },
-      suggestionsCallback: (pattern) async {
-        if (pattern.length < 2) return [];
+    final validationResult = _getValidationResult(elementFound.name);
 
-        // Use your street database search here
-        final data = await StreetDatabase.searchStreetsFTS(pattern, limit: 10);
-        return data;
-      },
-      itemBuilder: (context, street) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Colors.grey[200]!),
-            ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: Colors.grey[600],
-                size: 18,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TypeAheadField<Street>(
+          key: ValueKey(elementFound.name),
+          controller: _controllers[elementFound.name],
+          builder: (context, controller, focusNode) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              readOnly:
+                  widget.readOnly || attribute.display.enumerator == "read",
+              enabled: !widget.readOnly && elementFound.editable,
+              decoration: _getInputDecoration(attribute, elementFound).copyWith(
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      street.strNameCore,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                    if (validationResult != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Icon(
+                          Icons.priority_high,
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          size: 16,
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Type: ${street.strType} • ID: ${street.globalId}',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
+                    if (controller.text.isNotEmpty && !widget.readOnly)
+                      IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey[600]),
+                        onPressed: () {
+                          controller.clear();
+                          formValues[elementFound.name] = null;
+                          focusNode.requestFocus();
+                        },
+                      )
+                    else
+                      Icon(Icons.location_on, color: Colors.grey[600]),
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey[400],
-                size: 14,
+              style: const TextStyle(color: Colors.black87, fontSize: 14),
+            );
+          },
+          suggestionsCallback: (pattern) async {
+            if (pattern.length < 2) return [];
+
+            // Use your street database search here
+            final data =
+                await StreetDatabase.searchStreetsFTS(pattern, limit: 10);
+            return data;
+          },
+          itemBuilder: (context, street) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey[200]!),
+                ),
               ),
-            ],
-          ),
-        );
-      },
-      onSelected: (street) {
-        // Update the form value with the selected street's globalId
-        formValues[elementFound.name] = street.globalId;
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_on_outlined,
+                    color: Colors.grey[600],
+                    size: 18,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          street.strNameCore,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          'Type: ${street.strType} • ID: ${street.globalId}',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey[400],
+                    size: 14,
+                  ),
+                ],
+              ),
+            );
+          },
+          onSelected: (street) {
+            // Update the form value with the selected street's globalId
+            formValues[elementFound.name] = street.globalId;
 
-        // Update the text controller to show the street name
-        _controllers[elementFound.name]!.text = street.strNameCore;
+            // Update the text controller to show the street name
+            _controllers[elementFound.name]!.text = street.strNameCore;
 
-        // Clear any validation errors
-        setState(() {
-          validationErrors.remove(elementFound.name);
-        });
-      },
-      // Styling to match your existing form
-      constraints: const BoxConstraints(maxHeight: 250),
-      offset: const Offset(0, 5),
-      // animationStart: 0.25,
-      animationDuration: const Duration(milliseconds: 300),
-      hideOnEmpty: true,
-      hideOnError: true,
-      hideOnLoading: false,
-      // minCharsForSuggestions: 2,
-      debounceDuration: const Duration(milliseconds: 300),
-      // Error and loading builders with consistent styling
-      errorBuilder: (context, error) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.red[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.red[600], size: 16),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Error loading streets',
-                  style: TextStyle(
-                    color: Colors.red[600],
-                    fontSize: 12,
+            // Clear any validation errors
+            setState(() {
+              validationErrors.remove(elementFound.name);
+            });
+          },
+          // Styling to match your existing form
+          constraints: const BoxConstraints(maxHeight: 250),
+          offset: const Offset(0, 5),
+          // animationStart: 0.25,
+          animationDuration: const Duration(milliseconds: 300),
+          hideOnEmpty: true,
+          hideOnError: true,
+          hideOnLoading: false,
+          // minCharsForSuggestions: 2,
+          debounceDuration: const Duration(milliseconds: 300),
+          // Error and loading builders with consistent styling
+          errorBuilder: (context, error) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red[600], size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Error loading streets',
+                      style: TextStyle(
+                        color: Colors.red[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          loadingBuilder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Searching streets...',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          emptyBuilder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, color: Colors.grey[500], size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'No streets found',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          decorationBuilder: (context, child) {
+            return Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(8),
+              shadowColor: Colors.black.withOpacity(0.1),
+              child: child,
+            );
+          },
+        ),
+        if (validationResult != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 12),
+            child: Row(
+              children: [
+                Icon(
+                  validationResult.level == ValidationLevel.error
+                      ? Icons.error_outline
+                      : Icons.warning_amber_outlined,
+                  color: validationResult.level == ValidationLevel.error
+                      ? Colors.red
+                      : Colors.orange,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    validationResult.message,
+                    style: TextStyle(
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        );
-      },
-      loadingBuilder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'Searching streets...',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      emptyBuilder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.search_off, color: Colors.grey[500], size: 16),
-              const SizedBox(width: 8),
-              Text(
-                'No streets found',
-                style: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      decorationBuilder: (context, child) {
-        return Material(
-          elevation: 4,
-          borderRadius: BorderRadius.circular(8),
-          shadowColor: Colors.black.withOpacity(0.1),
-          child: child,
-        );
-      },
+      ],
     );
   }
 
   Widget _buildFormField(
       dynamic attribute, dynamic elementFound, String sectionName) {
-    // For title and info sections, always display as text
+    final validationResult = _getValidationResult(elementFound.name);
+
+    // For title and info sections, always display as text with validation indicators
     if (sectionName.toLowerCase() == 'history') {
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        margin: const EdgeInsets.only(bottom: 4),
-        decoration: BoxDecoration(
-          color: Colors.grey[50],
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.grey[200]!, width: 1),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${attribute.label.al}:',
-              key: ValueKey('${elementFound.name}_label'),
-              style: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            margin: const EdgeInsets.only(bottom: 4),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: validationResult != null
+                    ? (validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange)
+                    : Colors.grey[200]!,
+                width: validationResult != null ? 1.5 : 1,
               ),
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
-                key: ValueKey(elementFound.name),
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontSize: 13,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${attribute.label.al}:',
+                  key: ValueKey('${elementFound.name}_label'),
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+                    key: ValueKey(elementFound.name),
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                if (validationResult != null)
+                  Icon(
+                    Icons.priority_high,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
+              ],
+            ),
+          ),
+          if (validationResult != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    validationResult.level == ValidationLevel.error
+                        ? Icons.error_outline
+                        : Icons.warning_amber_outlined,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      validationResult.message,
+                      style: TextStyle(
+                        color: validationResult.level == ValidationLevel.error
+                            ? Colors.red
+                            : Colors.orange,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+        ],
       );
     }
 
@@ -511,53 +662,121 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     final inputDecoration = _getInputDecoration(attribute, elementFound);
 
-    // Dropdown field
+    // Dropdown field with validation indicators
     if (elementFound.codedValues != null) {
-      return AbsorbPointer(
-        absorbing: attribute.display.enumerator == "read",
-        child: DropdownButtonFormField<Object?>(
-          key: ValueKey(elementFound.name),
-          isExpanded: true,
-          decoration: inputDecoration,
-          value: widget.initialData![elementFound.name] ??
-              elementFound.defaultValue,
-          items: elementFound.codedValues!
-              .map<DropdownMenuItem<Object?>>((code) =>
-                  DropdownMenuItem<Object?>(
-                    value: code['code'],
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AbsorbPointer(
+            absorbing: attribute.display.enumerator == "read",
+            child: DropdownButtonFormField<Object?>(
+              key: ValueKey(elementFound.name),
+              isExpanded: true,
+              decoration: inputDecoration,
+              value: widget.initialData![elementFound.name] ??
+                  elementFound.defaultValue,
+              items: elementFound.codedValues!
+                  .map<DropdownMenuItem<Object?>>(
+                      (code) => DropdownMenuItem<Object?>(
+                            value: code['code'],
+                            child: Text(
+                              code['name'].toString(),
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  color: Colors.black87, fontSize: 14),
+                            ),
+                          ))
+                  .toList(),
+              onChanged: (!widget.readOnly && elementFound.editable)
+                  ? (val) => formValues[elementFound.name] =
+                      EsriTypeConversion.convert(elementFound.type, val)
+                  : null,
+              disabledHint: Text(
+                formValues[elementFound.name]?.toString() ?? attribute.label.al,
+                style: const TextStyle(color: Colors.grey, fontSize: 14),
+              ),
+              style: const TextStyle(color: Colors.black87, fontSize: 14),
+            ),
+          ),
+          if (validationResult != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    validationResult.level == ValidationLevel.error
+                        ? Icons.error_outline
+                        : Icons.warning_amber_outlined,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
                     child: Text(
-                      code['name'].toString(),
-                      overflow: TextOverflow.ellipsis,
-                      style:
-                          const TextStyle(color: Colors.black87, fontSize: 14),
+                      validationResult.message,
+                      style: TextStyle(
+                        color: validationResult.level == ValidationLevel.error
+                            ? Colors.red
+                            : Colors.orange,
+                        fontSize: 12,
+                      ),
                     ),
-                  ))
-              .toList(),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      );
+    }
+
+    // Regular text field with validation indicators
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          key: ValueKey(elementFound.name),
+          controller: _controllers[elementFound.name],
+          readOnly: widget.readOnly || attribute.display.enumerator == "read",
+          enabled: !widget.readOnly && elementFound.editable,
+          decoration: inputDecoration,
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
           onChanged: (!widget.readOnly && elementFound.editable)
               ? (val) => formValues[elementFound.name] =
                   EsriTypeConversion.convert(elementFound.type, val)
               : null,
-          disabledHint: Text(
-            formValues[elementFound.name]?.toString() ?? attribute.label.al,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          style: const TextStyle(color: Colors.black87, fontSize: 14),
         ),
-      );
-    }
-
-    // Regular text field
-    return TextFormField(
-      key: ValueKey(elementFound.name),
-      controller: _controllers[elementFound.name],
-      readOnly: widget.readOnly || attribute.display.enumerator == "read",
-      enabled: !widget.readOnly && elementFound.editable,
-      decoration: inputDecoration,
-      style: const TextStyle(color: Colors.black87, fontSize: 14),
-      onChanged: (!widget.readOnly && elementFound.editable)
-          ? (val) => formValues[elementFound.name] =
-              EsriTypeConversion.convert(elementFound.type, val)
-          : null,
+        if (validationResult != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 12),
+            child: Row(
+              children: [
+                Icon(
+                  validationResult.level == ValidationLevel.error
+                      ? Icons.error_outline
+                      : Icons.warning_amber_outlined,
+                  color: validationResult.level == ValidationLevel.error
+                      ? Colors.red
+                      : Colors.orange,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    validationResult.message,
+                    style: TextStyle(
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

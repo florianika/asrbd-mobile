@@ -15,6 +15,7 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/features/auth/auth_module.dart';
@@ -28,15 +29,19 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final sl = GetIt.instance; // Service locator instance
- 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+
   await dotenv.load();
   await LocalStorageService().init();
-
- 
 
   sl.registerLazySingleton<StreetApi>(() => StreetApi());
 
@@ -95,6 +100,7 @@ class _MyAppState extends State<MyApp> {
       child: BlocBuilder<LangCubit, String>(
         builder: (context, langCode) {
           return MaterialApp(
+            navigatorKey: rootNavigatorKey,
             title: AppConfig.appName,
             locale:
                 Locale(langCode), // Update locale based on the LangCubit state
