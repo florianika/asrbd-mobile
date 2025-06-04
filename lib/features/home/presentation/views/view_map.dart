@@ -525,7 +525,7 @@ class _ViewMapState extends State<ViewMap> {
                                     highilghGlobalIds: highlightMarkersGlobalId,
                                   )
                                 : const SizedBox(),
-                                 if (_userLocation != null && !_isPropertyVisibile)
+                                 if (_userLocation != null)
                                       MarkerLayer(
                                         markers: [
                                           Marker(
