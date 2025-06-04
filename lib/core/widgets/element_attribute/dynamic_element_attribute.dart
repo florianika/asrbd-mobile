@@ -565,24 +565,47 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget build(BuildContext context) {
     final sections = _groupAttributesBySection();
 
-    return Column(
+    return Stack(
       children: [
-        // Build sections with headers
-        ...sections.entries.map((sectionEntry) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.only(top: 20), // adjust if needed
+          child: Column(
             children: [
-              _buildSectionHeader(sectionEntry.key),
-              ...sectionEntry.value.map((item) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: _buildFormField(
-                      item['attribute'], item['element'], sectionEntry.key),
+              // Build sections with headers
+              ...sections.entries.map((sectionEntry) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader(sectionEntry.key),
+                    ...sectionEntry.value.map<Widget>((attributeItem) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _buildFormField(
+                          attributeItem['attribute'],
+                          attributeItem['element'],
+                          sectionEntry.key,
+                        ),
+                      );
+                    }),
+                  ],
                 );
               }),
             ],
-          );
-        }),
+          ),
+        ),
+        // Comment button in top-right corner
+        Positioned(
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
+            tooltip: 'Comments',
+            onPressed: () {
+              // Handle comment button press here
+              debugPrint('Comments button tapped');
+            },
+          ),
+        ),
       ],
     );
   }
