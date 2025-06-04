@@ -1,11 +1,14 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class EventButtonAttribute extends StatelessWidget {
   final Function onSave;
   final Function? onClose;
   final ShapeType selectedShapeType;
   final Function openDwelling;
+  final Function? onValidateData;
+  final Function? onViewValidationResult;
 
   const EventButtonAttribute({
     super.key,
@@ -13,54 +16,112 @@ class EventButtonAttribute extends StatelessWidget {
     required this.onClose,
     required this.selectedShapeType,
     required this.openDwelling,
+    this.onValidateData,
+    this.onViewValidationResult,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        onClose != null
-            ? OutlinedButton.icon(
+    const double buttonWidth = 90;
+    const double buttonHeight = 40;
+
+    return SafeArea(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          if (onClose != null)
+            SizedBox(
+              width: buttonWidth,
+              height: buttonHeight,
+              child: OutlinedButton(
                 onPressed: () => onClose!(),
-                icon: const Icon(Icons.close, color: Colors.black),
-                label:
-                    const Text('Close', style: TextStyle(color: Colors.black)),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.black),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-              )
-            : const SizedBox(),
-        if (selectedShapeType == ShapeType.point)
-          OutlinedButton.icon(
-            onPressed: () => openDwelling(),
-            icon: const Icon(Icons.home_work, color: Colors.black),
-            label: const Text('Manage Dwelling',
-                style: TextStyle(color: Colors.black)),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.black),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
+            ),
+          SizedBox(
+            width: buttonWidth,
+            height: buttonHeight,
+            child: ElevatedButton(
+              onPressed: () => onSave(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              child: const Text('Save'),
             ),
           ),
-        ElevatedButton.icon(
-          onPressed: () => onSave(),
-          icon: const Icon(Icons.save),
-          label: const Text('Save'),
-          style: ElevatedButton.styleFrom(
+          SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
             backgroundColor: Colors.black,
             foregroundColor: Colors.white,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            elevation: 8.0,
+            buttonSize: const Size(buttonWidth, buttonHeight),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            overlayColor: Colors.grey,
+            overlayOpacity: 0.2,
+            children: [
+              if (selectedShapeType == ShapeType.point)
+                SpeedDialChild(
+                  child: const Icon(Icons.home_work),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  label: 'Manage Dwellings',
+                  labelBackgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onTap: () => openDwelling(),
+                ),
+              SpeedDialChild(
+                child: const Icon(Icons.check_circle),
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+                label: 'Validate Data',
+                labelBackgroundColor: Colors.white,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+                onTap: () => onValidateData?.call(),
+              ),
+              SpeedDialChild(
+                child: const Icon(Icons.visibility),
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                label: 'View Validation Result',
+                labelBackgroundColor: Colors.white,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  fontSize: 14,
+                ),
+                onTap: () => onViewValidationResult?.call(),
+              ),
+            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
