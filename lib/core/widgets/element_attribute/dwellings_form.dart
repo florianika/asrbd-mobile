@@ -196,74 +196,91 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  List<DataColumn> _buildColumns() {
-    return [
-      const DataColumn(label: Text("Actions")),
-      ..._columnOrder.map((key) {
-        final label = _columnLabels[key] ?? key;
-        return DataColumn(
-          label:
-              Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        );
-      }),
-    ];
-  }
+List<DataColumn> _buildColumns() {
+  const allowedKeys = {'DwlFloor', 'DwlApartNumber', 'DwlQuality'};
 
-  DataRow _buildDataRow(Map<String, dynamic> row, int index) {
-    final status = (row['DwlQuality'] ?? '').toString().toLowerCase();
-
-    Color? backgroundColor;
-    switch (status) {
-      case '2':
-        backgroundColor = const Color.fromARGB(255, 250, 252, 251);
-        break;
-      case '9':
-        backgroundColor =  const Color.fromARGB(255, 250, 252, 251);
-        break;
-      case '3':
-        backgroundColor =  const Color.fromARGB(255, 250, 252, 251);
-        break;
-      default:
-        backgroundColor = const Color.fromARGB(255, 250, 252, 251);
-    }
-
-    return DataRow(
-      color: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
-        if (states.contains(WidgetState.hovered)) return Colors.blue.shade50;
-        return backgroundColor;
-      }),
-      cells: [
-        DataCell(
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'view') _onViewDwelling(row);
-              if (value == 'edit') _onEditDwelling(row);
-            },
-            itemBuilder: (context) => const [
-              PopupMenuItem(value: 'view', child: Text('View Dwelling')),
-              PopupMenuItem(value: 'edit', child: Text('Edit Dwelling')),
-            ],
-          ),
-        ),
-        ..._columnOrder.map((key) {
-          final value = row[key];
-          return DataCell(
-            Container(
-              constraints: const BoxConstraints(maxWidth: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Text(
-                value?.toString() ?? '',
-                style: const TextStyle(fontSize: 13),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ),
+  return [
+    const DataColumn(label: Text("Actions")),
+    ..._columnOrder
+        .where((key) => allowedKeys.contains(key))
+        .map((key) {
+          final label = '${_columnLabels[key] ?? key} ($key)';
+          return DataColumn(
+            label: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
           );
         }),
-      ],
-    );
+  ];
+}
+
+
+ DataRow _buildDataRow(Map<String, dynamic> row, int index) {
+  final status = (row['DwlQuality'] ?? '').toString().toLowerCase();
+
+  Color? backgroundColor;
+  switch (status) {
+    case '2':
+    case '9':
+    case '3':
+    default:
+      backgroundColor = const Color.fromARGB(255, 250, 252, 251);
   }
+
+  const allowedKeys = {'DwlFloor', 'DwlApartNumber', 'DwlQuality'};
+  
+  const Map<String, String> qualityLabels = {
+    '1': '1 | Të dhëna pa gabime',
+    '2': '2 | Mungesa në të dhëna',
+    '3': '3 | Të dhëna kontradiktore',
+    '9': '9 | Të dhëna të patestuara',
+    '0': '0 | Të dhëna të fshira',
+  };
+
+  return DataRow(
+    color: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+      if (states.contains(WidgetState.hovered)) return Colors.blue.shade50;
+      return backgroundColor;
+    }),
+    cells: [
+      DataCell(
+        PopupMenuButton<String>(
+          icon: const Icon(Icons.more_vert),
+          onSelected: (value) {
+            if (value == 'view') _onViewDwelling(row);
+            if (value == 'edit') _onEditDwelling(row);
+          },
+          itemBuilder: (context) => const [
+            PopupMenuItem(value: 'view', child: Text('View Dwelling')),
+            PopupMenuItem(value: 'edit', child: Text('Edit Dwelling')),
+          ],
+        ),
+      ),
+      ..._columnOrder
+          .where((key) => allowedKeys.contains(key))
+          .map((key) {
+        final rawValue = row[key];
+        String displayValue = rawValue?.toString() ?? '';
+
+        if (key == 'DwlQuality') {
+          displayValue = qualityLabels[displayValue] ?? displayValue;
+        }
+
+        return DataCell(
+          Container(
+            constraints: const BoxConstraints(maxWidth: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              displayValue,
+              style: const TextStyle(fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
+        );
+      }),
+    ],
+  );
+}
+
 
   void _onViewDwelling(Map<String, dynamic> row) {
     if (_dwellingSchema.isEmpty) {
