@@ -210,7 +210,6 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   DataRow _buildDataRow(Map<String, dynamic> row, int index) {
-    final isEven = index % 2 == 0;
     final status = (row['DwlQuality'] ?? '').toString().toLowerCase();
 
     Color? backgroundColor;

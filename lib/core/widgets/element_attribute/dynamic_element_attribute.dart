@@ -6,6 +6,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/widgets/chat/chat_form_tablet.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -19,9 +20,9 @@ class DynamicElementAttribute extends StatefulWidget {
   final void Function()? onClose;
   final void Function(String?)? onDwelling;
   final bool readOnly;
-  final bool showButtons; // New parameter to control button visibility
+  final bool showButtons;
   final List<ValidationResult>?
-      validationResults; // New parameter for validation results
+      validationResults; 
 
   const DynamicElementAttribute({
     required this.schema,
@@ -31,9 +32,9 @@ class DynamicElementAttribute extends StatefulWidget {
     this.onSave,
     this.onClose,
     this.onDwelling,
-    this.showButtons = true, // Default to true for backward compatibility
+    this.showButtons = true,
     this.readOnly = false,
-    this.validationResults, // New validation results parameter
+    this.validationResults, 
     super.key,
   });
 
@@ -45,8 +46,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
-
-  // Helper method to get validation result for a field
   ValidationResult? _getValidationResult(String fieldName) {
     if (widget.validationResults == null) return null;
     return widget.validationResults!
@@ -137,8 +136,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       widget.onSave!(formValues);
     }
   }
-
-  // Group attributes by section with specific ordering
   Map<String, List<dynamic>> _groupAttributesBySection() {
     final schemaService = sl<SchemaService>();
     final schema = widget.selectedShapeType == ShapeType.point
@@ -146,8 +143,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         : (widget.selectedShapeType == ShapeType.polygon
             ? schemaService.buildingSchema
             : schemaService.dwellingSchema);
-
-    // Define section order
     final sectionOrder = [
       'title',
       'technical',
@@ -157,8 +152,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       'history'
     ];
     Map<String, List<dynamic>> sections = {};
-
-    // Initialize sections in the correct order
     for (String sectionName in sectionOrder) {
       sections[sectionName] = [];
     }
@@ -173,11 +166,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       if (elementFound == null) {
         continue;
       }
-
-      // Get section name, default to "General" if no section specified
       String sectionName = attribute.section ?? "General";
-
-      // Only add to sections if it's in our predefined list
       if (sections.containsKey(sectionName)) {
         sections[sectionName]!.add({
           'attribute': attribute,
@@ -185,8 +174,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         });
       }
     }
-
-    // Remove empty sections
     sections.removeWhere((key, value) => value.isEmpty);
 
     return sections;
@@ -248,8 +235,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       ),
     );
   }
-
-  // Method to get consistent InputDecoration for all fields with validation indicators
   InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
@@ -317,8 +302,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       ),
     );
   }
-
-  // Build TypeAhead field for EntAddressID with validation indicators
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
@@ -369,8 +352,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           },
           suggestionsCallback: (pattern) async {
             if (pattern.length < 2) return [];
-
-            // Use your street database search here
             final data =
                 await StreetDatabase.searchStreetsFTS(pattern, limit: 10);
             return data;
@@ -423,28 +404,19 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             );
           },
           onSelected: (street) {
-            // Update the form value with the selected street's globalId
             formValues[elementFound.name] = street.globalId;
-
-            // Update the text controller to show the street name
             _controllers[elementFound.name]!.text = street.strNameCore;
-
-            // Clear any validation errors
             setState(() {
               validationErrors.remove(elementFound.name);
             });
           },
-          // Styling to match your existing form
           constraints: const BoxConstraints(maxHeight: 250),
           offset: const Offset(0, 5),
-          // animationStart: 0.25,
           animationDuration: const Duration(milliseconds: 300),
           hideOnEmpty: true,
           hideOnError: true,
           hideOnLoading: false,
-          // minCharsForSuggestions: 2,
           debounceDuration: const Duration(milliseconds: 300),
-          // Error and loading builders with consistent styling
           errorBuilder: (context, error) {
             return Container(
               padding: const EdgeInsets.all(12),
@@ -567,8 +539,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget _buildFormField(
       dynamic attribute, dynamic elementFound, String sectionName) {
     final validationResult = _getValidationResult(elementFound.name);
-
-    // For title and info sections, always display as text with validation indicators
     if (sectionName.toLowerCase() == 'history') {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,15 +624,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         ],
       );
     }
-
-    // Special handling for EntAddressID field - use TypeAhead
     if (elementFound.name == 'EntStrGlobalID') {
       return _buildStreetTypeAhead(attribute, elementFound);
     }
 
     final inputDecoration = _getInputDecoration(attribute, elementFound);
-
-    // Dropdown field with validation indicators
     if (elementFound.codedValues != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -730,8 +696,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         ],
       );
     }
-
-    // Regular text field with validation indicators
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -787,10 +751,9 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 20), // adjust if needed
+          padding: const EdgeInsets.only(top: 20),
           child: Column(
             children: [
-              // Build sections with headers
               ...sections.entries.map((sectionEntry) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,20 +775,42 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             ],
           ),
         ),
-        // Comment button in top-right corner
         Positioned(
           top: 0,
           right: 0,
           child: IconButton(
             icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
             tooltip: 'Comments',
-            onPressed: () {
-              // Handle comment button press here
-              debugPrint('Comments button tapped');
-            },
-          ),
-        ),
-      ],
+           onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.white,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+                    builder: (context) => DraggableScrollableSheet(
+                      expand: false,
+                      initialChildSize: 0.8,
+                      minChildSize: 0.5,
+                      maxChildSize: 0.95,
+                      builder: (context, scrollController) => Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: const Scaffold(
+                          backgroundColor: Colors.transparent,
+                          body: SafeArea(
+                            child: ChatWidget(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                ),
+                ),
+              ],
     );
   }
 }
