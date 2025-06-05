@@ -8,23 +8,14 @@ class MapActionButtons extends StatelessWidget {
   final MapController mapController;
   final Function enableDrawing;
   final String? selectedBuildingId;
+  final VoidCallback onLocateMe;
   const MapActionButtons({
     super.key,
     required this.mapController,
     required this.enableDrawing,
     this.selectedBuildingId,
+    required this.onLocateMe,
   });
-
-  void _goToCurrentLocation(BuildContext context) {
-    try {
-      LocationService.getCurrentLocation()
-          .then((location) => {mapController.move(location, 19.0)});
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching location: $e')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +53,7 @@ class MapActionButtons extends StatelessWidget {
             child: FloatingButton(
               heroTag: 'locate_me',
               isEnabled: true,
-              onPressed: () => _goToCurrentLocation(context),
+              onPressed: onLocateMe,
               icon: Icons.my_location,
             )),
         Positioned(

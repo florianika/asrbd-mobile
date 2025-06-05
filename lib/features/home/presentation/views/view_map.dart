@@ -69,6 +69,7 @@ class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
 
   bool _isPropertyVisibile = false;
+  bool _showLocationMarker = false;
   final legendService = sl<LegendService>();
   LatLng? _userLocation;
 
@@ -109,6 +110,7 @@ class _ViewMapState extends State<ViewMap> {
 
       setState(() {
         highlightedBuildingIds = bldGlobalId;
+        _showLocationMarker=false;
       });
     } catch (e) {
       // Display error message to the user in case of exception
@@ -283,6 +285,7 @@ class _ViewMapState extends State<ViewMap> {
         highlightedBuildingIds = null;
         highlightMarkersGlobalId = [];
         _selectedBuildingId = globalId;
+        _showLocationMarker=false;
 
         //find entrances of the selected building
         if (entranceData != null) {
@@ -376,7 +379,8 @@ class _ViewMapState extends State<ViewMap> {
       final location = await LocationService.getCurrentLocation();
       mapController.move(location, EsriConfig.initZoom);
       setState(() {
-        _userLocation = location; // Save user's location
+        _userLocation = location;
+         _showLocationMarker = true;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -519,7 +523,7 @@ class _ViewMapState extends State<ViewMap> {
                                     highilghGlobalIds: highlightMarkersGlobalId,
                                   )
                                 : const SizedBox(),
-                            if (_userLocation != null)
+                            if (_showLocationMarker)
                               MarkerLayer(
                                 markers: [
                                   Marker(
@@ -564,7 +568,13 @@ class _ViewMapState extends State<ViewMap> {
                               )
                             : MapActionButtons(
                                 mapController: mapController,
-                                enableDrawing: enableDrawing,
+                                enableDrawing: (ShapeType type) {
+                                enableDrawing(type);
+                                setState(() {
+                                  _showLocationMarker = false;
+                                });
+                                },
+                                onLocateMe: _goToCurrentLocation,
                                 selectedBuildingId: _selectedBuildingId),
                         Positioned(
                           top: 20,
