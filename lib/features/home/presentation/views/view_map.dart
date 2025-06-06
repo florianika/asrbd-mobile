@@ -70,6 +70,7 @@ class _ViewMapState extends State<ViewMap> {
 
   bool _isPropertyVisibile = false;
   bool _showLocationMarker = false;
+  bool _isDwellingVisible = false;
   final legendService = sl<LegendService>();
   LatLng? _userLocation;
 
@@ -111,6 +112,7 @@ class _ViewMapState extends State<ViewMap> {
       setState(() {
         highlightedBuildingIds = bldGlobalId;
         _showLocationMarker=false;
+        _isDwellingVisible = false;
       });
     } catch (e) {
       // Display error message to the user in case of exception
@@ -286,6 +288,7 @@ class _ViewMapState extends State<ViewMap> {
         highlightMarkersGlobalId = [];
         _selectedBuildingId = globalId;
         _showLocationMarker=false;
+        _isDwellingVisible = false;
 
         //find entrances of the selected building
         if (entranceData != null) {
@@ -622,6 +625,12 @@ class _ViewMapState extends State<ViewMap> {
                           highlightMarkersGlobalId = [];
                         });
                       },
+                      onOpenDwelling: () {
+                      setState(() {
+                        _isPropertyVisibile = false;
+                        _isDwellingVisible = true;
+                      });
+                    },
                     ),
                   )
                 ],

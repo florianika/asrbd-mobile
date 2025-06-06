@@ -243,8 +243,7 @@ List<DataColumn> _buildColumns() {
     cells: [
       DataCell(
         PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert,color: Color.fromARGB(255, 15, 15, 15),
-          ),
+          icon: const Icon(Icons.more_vert),
           onSelected: (value) {
             if (value == 'view') _onViewDwelling(row);
             if (value == 'edit') _onEditDwelling(row);

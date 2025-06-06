@@ -35,6 +35,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
 
   bool _isMobileSheetVisible = false;
   bool? _isMobile; // Nullable so we know if it's initialized
+  String? _lastGlobalId;
 
   @override
   void didChangeDependencies() {
@@ -54,6 +55,25 @@ class _ViewAttributeState extends State<ViewAttribute> {
         });
       }
     }
+
+    _lastGlobalId ??= widget.initialData['GlobalID']?.toString();
+  }
+
+  @override
+  void didUpdateWidget(covariant ViewAttribute oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final newGlobalId = widget.initialData['GlobalID']?.toString();
+    if (_lastGlobalId != null &&
+        newGlobalId != null &&
+        newGlobalId != _lastGlobalId) {
+      setState(() {
+        _isDwellingVisible = false;
+        _sidePanelFractionDefualt = 0.4;
+      });
+    }
+
+    _lastGlobalId = newGlobalId;
   }
 
   void _showMobileElementAttribute() {
