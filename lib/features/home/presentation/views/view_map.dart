@@ -617,6 +617,9 @@ class _ViewMapState extends State<ViewMap> {
                         setState(() {
                           _isPropertyVisibile = false;
                           _isDrawing = false;
+                          _selectedGlobalId = null;
+                          highlightedBuildingIds = null;
+                          highlightMarkersGlobalId = [];
                         });
                       },
                     ),
