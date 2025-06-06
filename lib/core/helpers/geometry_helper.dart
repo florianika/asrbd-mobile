@@ -97,20 +97,6 @@ static bool doPolygonsIntersect(List<LatLng> poly1, List<LatLng> poly2) {
 }
 
 
-static bool _boundingBoxesOverlap(List<LatLng> a, List<LatLng> b) {
-  double minAx = a.map((p) => p.latitude).reduce((x, y) => x < y ? x : y);
-  double maxAx = a.map((p) => p.latitude).reduce((x, y) => x > y ? x : y);
-  double minAy = a.map((p) => p.longitude).reduce((x, y) => x < y ? x : y);
-  double maxAy = a.map((p) => p.longitude).reduce((x, y) => x > y ? x : y);
-  double minBx = b.map((p) => p.latitude).reduce((x, y) => x < y ? x : y);
-  double maxBx = b.map((p) => p.latitude).reduce((x, y) => x > y ? x : y);
-  double minBy = b.map((p) => p.longitude).reduce((x, y) => x < y ? x : y);
-  double maxBy = b.map((p) => p.longitude).reduce((x, y) => x > y ? x : y);
-
-  return !(minAx > maxBx || maxAx < minBx || minAy > maxBy || maxAy < minBy);
-}
-
-
 static bool _areSamePolygon(List<LatLng> a, List<LatLng> b) {
   if (a.length != b.length) return false;
 
@@ -125,7 +111,18 @@ static bool _areSamePolygon(List<LatLng> a, List<LatLng> b) {
   return true;
 }
 
+static bool _boundingBoxesOverlap(List<LatLng> a, List<LatLng> b) {
+  double minAx = a.map((p) => p.latitude).reduce((x, y) => x < y ? x : y);
+  double maxAx = a.map((p) => p.latitude).reduce((x, y) => x > y ? x : y);
+  double minAy = a.map((p) => p.longitude).reduce((x, y) => x < y ? x : y);
+  double maxAy = a.map((p) => p.longitude).reduce((x, y) => x > y ? x : y);
+  double minBx = b.map((p) => p.latitude).reduce((x, y) => x < y ? x : y);
+  double maxBx = b.map((p) => p.latitude).reduce((x, y) => x > y ? x : y);
+  double minBy = b.map((p) => p.longitude).reduce((x, y) => x < y ? x : y);
+  double maxBy = b.map((p) => p.longitude).reduce((x, y) => x > y ? x : y);
 
+  return !(minAx > maxBx || maxAx < minBx || minAy > maxBy || maxAy < minBy);
+}
   static bool _doEdgesIntersect(LatLng p1, LatLng p2, LatLng q1, LatLng q2) {
     final o1 = _orientation(p1, p2, q1);
     final o2 = _orientation(p1, p2, q2);
