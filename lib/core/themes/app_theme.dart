@@ -128,7 +128,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(255, 174, 197, 235),
+          backgroundColor: const Color.fromARGB(255, 101, 114, 136),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10), // Adjust corner radius
           ),
