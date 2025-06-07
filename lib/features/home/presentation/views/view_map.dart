@@ -73,6 +73,11 @@ class _ViewMapState extends State<ViewMap> {
   bool _isDwellingVisible = false;
   final legendService = sl<LegendService>();
   LatLng? _userLocation;
+  bool _isDraggingPolygon = false;
+  List<LatLng> _draggedPolygonPoints = [];
+  Map<String, dynamic>? _draggedFeature;
+  LatLng? _dragStartLatLng;
+
 
   Future<void> _initialize() async {
     _goToCurrentLocation();
@@ -325,6 +330,77 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
+  void _handlePolygonLongPress(LatLng point) {
+  if (buildingsData == null) return;
+
+  final features = List<Map<String, dynamic>>.from(buildingsData!['features']);
+
+  for (var feature in features) {
+    final geometry = feature['geometry'];
+    final polygonPoints = GeometryHelper.parseCoordinates(geometry);
+    if (GeometryHelper.isPointInPolygon(point, polygonPoints)) {
+      setState(() {
+        _isDraggingPolygon = true;
+        _draggedPolygonPoints = List<LatLng>.from(polygonPoints);
+        _dragStartLatLng = point;
+        _draggedFeature = feature;
+      });
+      break;
+    }
+  }
+}
+ 
+void _finalizePolygonDrag() {
+  try {
+    if (_draggedFeature == null || _draggedPolygonPoints.isEmpty) {
+      debugPrint("No feature or polygon points to update.");
+      return;
+    }
+
+    final coords = _draggedPolygonPoints
+        .map((e) => [e.longitude, e.latitude])
+        .toList();
+
+    if (coords.first[0] != coords.last[0] ||
+        coords.first[1] != coords.last[1]) {
+      coords.add(coords.first);
+    }
+
+    final updatedGeometry = {
+      "rings": [coords],
+      "spatialReference": {"wkid": 4326}
+    };
+
+    final attributes =
+        Map<String, dynamic>.from(_draggedFeature!['properties'] ?? {});
+
+    if (!(attributes.containsKey('OBJECTID') || attributes.containsKey('GlobalID'))) {
+      debugPrint("Cannot update: Missing OBJECTID or GlobalID.");
+      return;
+    }
+
+    context.read<BuildingCubit>().updateBuildingFeatureWithGeometry(
+      attributes,
+      updatedGeometry,
+    );
+
+    final index = buildingsData!['features'].indexOf(_draggedFeature);
+    if (index != -1) {
+      setState(() {
+        buildingsData!['features'][index]['geometry'] = updatedGeometry;
+        _isDraggingPolygon = false;
+        _draggedPolygonPoints.clear();
+        _draggedFeature = null;
+        _dragStartLatLng = null;
+      });
+    }
+  } catch (e, stacktrace) {
+    debugPrint(" ERROR in finalizePolygonDrag: $e");
+    debugPrint(" Stacktrace: $stacktrace");
+  }
+}
+
+
   List<Marker> _buildMarkers() {
     return _newPolygonPoints.map((point) {
       return Marker(
@@ -476,84 +552,109 @@ class _ViewMapState extends State<ViewMap> {
                     flex: _isPropertyVisibile ? 3 : 2,
                     child: Stack(
                       children: [
-                        FlutterMap(
-                          mapController: mapController,
-                          options: MapOptions(
-                            initialCenter: currentPosition,
-                            initialZoom: EsriConfig.initZoom,
-                            onMapReady: () => {
-                              context.read<BuildingCubit>().getBuildings(
+                        Listener(
+                          onPointerMove: (event) {
+                            if (!_isDraggingPolygon || _dragStartLatLng == null) return;
+
+                            final deltaLat = event.localDelta.dy * 0.000005;
+                            final deltaLng = event.localDelta.dx * 0.000005;
+
+                            setState(() {
+                              _draggedPolygonPoints = _draggedPolygonPoints.map((point) {
+                                return LatLng(point.latitude - deltaLat, point.longitude + deltaLng);
+                              }).toList();
+                            });
+                          },
+                          onPointerUp: (_) {
+                            if (_isDraggingPolygon) {
+                              _finalizePolygonDrag();
+                            }
+                          },
+                          child: FlutterMap(
+                            mapController: mapController,
+                            options: MapOptions(
+                              initialCenter: currentPosition,
+                              initialZoom: EsriConfig.initZoom,
+                              onMapReady: () {
+                                context.read<BuildingCubit>().getBuildings(
                                   mapController.camera.visibleBounds,
                                   EsriConfig.buildingMinZoom,
-                                  userService.userInfo!.municipality),
-                              // context.read<EntranceCubit>().getEntrances(
-                              //     mapController.camera.visibleBounds,
-                              //     EsriConfig.entranceMinZoom,),
-                              // zoom = EsriConfig.initZoom,
-                              visibleBounds =
-                                  mapController.camera.visibleBounds,
-                            },
-                            onPositionChanged:
-                                (MapCamera camera, bool hasGesture) =>
-                                    _onPositionChanged(camera, hasGesture,
-                                        userService.userInfo!.municipality),
-                            onLongPress: (tapPosition, point) => (),
-                            onTap: (tapPosition, point) {
-                              if (!_isDrawing) {
-                                handleBuildingOnTap(tapPosition, point);
-                              }
-                            },
-                          ),
-                          children: [
-                            TileLayer(
-                              tileProvider:
-                                  ft.FileTileProvider(tileDirPath, false),
-                            ),
-                            BuildingMarker(
-                              buildingsData: buildingsData,
-                              selectedGlobalID: _selectedGlobalId,
-                              selectedShapeType: _selectedShapeType,
-                              attributeLegend: attributeLegend,
-                              highlightedBuildingIds: highlightedBuildingIds,
-                            ),
-                            entranceData != null && entranceData!.isNotEmpty
-                                ? EntranceMarker(
-                                    entranceData: entranceData,
-                                    onTap: handleEntranceTap,
-                                    selectedGlobalId: _selectedGlobalId,
-                                    selectedShapeType: _selectedShapeType,
-                                    mapController: mapController,
-                                    highilghGlobalIds: highlightMarkersGlobalId,
-                                  )
-                                : const SizedBox(),
-                            if (_showLocationMarker)
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: _userLocation!,
-                                    width: 40,
-                                    height: 40,
-                                    child: const Icon(
-                                      Icons.my_location,
-                                      color: Colors.blueAccent,
-                                      size: 30,
-                                    ),
-                                  ),
-                                ],
+                                  userService.userInfo!.municipality,
+                                );
+                                visibleBounds = mapController.camera.visibleBounds;
+                              },
+                              onPositionChanged: (camera, hasGesture) => _onPositionChanged(
+                                camera,
+                                hasGesture,
+                                userService.userInfo!.municipality,
                               ),
-                            if (_newPolygonPoints.isNotEmpty)
-                              MarkerLayer(markers: _buildMarkers()),
-                            if (_newPolygonPoints.isNotEmpty &&
-                                _selectedShapeType == ShapeType.polygon)
+                              onLongPress: (tapPosition, point) {
+                                _handlePolygonLongPress(point);
+                              },
+                              onTap: (tapPosition, point) {
+                                if (!_isDrawing) {
+                                  handleBuildingOnTap(tapPosition, point);
+                                }
+                              },
+                            ),
+                            children: [
+                              TileLayer(
+                                tileProvider: ft.FileTileProvider(tileDirPath, false),
+                              ),
+                              BuildingMarker(
+                                buildingsData: buildingsData,
+                                selectedGlobalID: _selectedGlobalId,
+                                selectedShapeType: _selectedShapeType,
+                                attributeLegend: attributeLegend,
+                                highlightedBuildingIds: highlightedBuildingIds,
+                              ),
+                              if (entranceData != null && entranceData!.isNotEmpty)
+                                EntranceMarker(
+                                  entranceData: entranceData,
+                                  onTap: handleEntranceTap,
+                                  selectedGlobalId: _selectedGlobalId,
+                                  selectedShapeType: _selectedShapeType,
+                                  mapController: mapController,
+                                  highilghGlobalIds: highlightMarkersGlobalId,
+                                ),
+                              if (_showLocationMarker)
+                                MarkerLayer(
+                                  markers: [
+                                    Marker(
+                                      point: _userLocation!,
+                                      width: 40,
+                                      height: 40,
+                                      child: const Icon(
+                                        Icons.my_location,
+                                        color: Colors.blueAccent,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              if (_newPolygonPoints.isNotEmpty)
+                                MarkerLayer(markers: _buildMarkers()),
+
+                              // 🟢 Dragged polygon or drawn polygon
                               PolygonLayer(polygons: [
-                                Polygon(
-                                  points: _newPolygonPoints,
-                                  color: Colors.green.withOpacity(0.3),
-                                  borderStrokeWidth: 2.0,
-                                  borderColor: Colors.green,
-                                )
+                                if (_isDraggingPolygon)
+                                  Polygon(
+                                    points: _draggedPolygonPoints,
+                                    color: Colors.blue.withOpacity(0.4),
+                                    borderColor: Colors.blue,
+                                    borderStrokeWidth: 2,
+                                  )
+                                else if (_newPolygonPoints.isNotEmpty &&
+                                    _selectedShapeType == ShapeType.polygon)
+                                  Polygon(
+                                    points: _newPolygonPoints,
+                                    color: Colors.green.withOpacity(0.3),
+                                    borderColor: Colors.green,
+                                    borderStrokeWidth: 2,
+                                  ),
                               ]),
-                          ],
+                            ],
+                          ),
                         ),
                         _isDrawing
                             ? MapActionEvents(

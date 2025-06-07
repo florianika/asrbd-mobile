@@ -26,4 +26,9 @@ class BuildingRepository {
       Map<String, dynamic> attributes) async {
     return await buildingService.updateBuildingFeature(attributes);
   }
+  
+  Future<bool> updateBuildingFeatureWithGeometry(Map<String, dynamic> attributes, Map<String, dynamic> geometry) async {
+  return await buildingService.updateBuildingFeatureWithGeometry(attributes, geometry);
+}
+
 }

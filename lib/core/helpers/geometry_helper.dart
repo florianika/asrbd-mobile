@@ -62,20 +62,25 @@ class GeometryHelper {
     return null; 
   }
 
-  static List<LatLng> parseCoordinates(Map<String, dynamic> geometry) {
+ static List<LatLng> parseCoordinates(Map<String, dynamic> geometry) {
+  if (geometry.containsKey('type')) {
     if (geometry['type'] == 'Polygon') {
-     
-      final List coords =
-          geometry['coordinates'][0]; 
+      final List coords = geometry['coordinates'][0];
       return coords.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
     } else if (geometry['type'] == 'Point') {
       final coord = geometry['coordinates'];
       return [LatLng(coord[1], coord[0])];
-    } else {
-      throw UnsupportedError(
-          'Geometry type not supported: ${geometry['type']}');
     }
   }
+
+  if (geometry.containsKey('rings')) {
+    final List coords = geometry['rings'][0];
+    return coords.map<LatLng>((coord) => LatLng(coord[1], coord[0])).toList();
+  }
+
+  throw UnsupportedError('Geometry type not supported or invalid');
+}
+
 
 static bool doPolygonsIntersect(List<LatLng> poly1, List<LatLng> poly2) {
   if (poly1.length < 3 || poly2.length < 3) return false;

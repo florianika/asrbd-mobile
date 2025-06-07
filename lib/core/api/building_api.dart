@@ -94,4 +94,33 @@ class BuildingApi {
     return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
         data: payload);
   }
+
+  Future<Response> updateBuildingFeatureWithGeometry(
+      String esriToken,
+      Map<String, dynamic> attributes,
+      Map<String, dynamic> geometry) async {
+    Map<String, String> contentType = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    final feature = {
+      'attributes': attributes,
+      'geometry': geometry,
+    };
+
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken,
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+
+    return _apiClient.post(
+      ApiEndpoints.updateEsriFeauture(EntityType.building),
+      data: payload,
+    );
+  }
 }
