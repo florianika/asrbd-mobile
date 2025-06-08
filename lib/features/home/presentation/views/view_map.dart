@@ -77,6 +77,7 @@ class _ViewMapState extends State<ViewMap> {
   List<LatLng> _draggedPolygonPoints = [];
   Map<String, dynamic>? _draggedFeature;
   LatLng? _dragStartLatLng;
+  Map<String, dynamic>? _originalGeometry;
 
 
   Future<void> _initialize() async {
@@ -344,41 +345,58 @@ class _ViewMapState extends State<ViewMap> {
         _draggedPolygonPoints = List<LatLng>.from(polygonPoints);
         _dragStartLatLng = point;
         _draggedFeature = feature;
+        _originalGeometry = Map<String, dynamic>.from(geometry);
       });
       break;
     }
   }
 }
  
-void _finalizePolygonDrag() {
-  try {
-    if (_draggedFeature == null || _draggedPolygonPoints.isEmpty) {
-      debugPrint("No feature or polygon points to update.");
-      return;
-    }
+void _finalizePolygonDrag() async {
+  if (_draggedFeature == null || _draggedPolygonPoints.isEmpty) {
+    debugPrint("No feature or polygon points to update.");
+    return;
+  }
 
-    final coords = _draggedPolygonPoints
-        .map((e) => [e.longitude, e.latitude])
-        .toList();
+  final coords = _draggedPolygonPoints
+      .map((e) => [e.longitude, e.latitude])
+      .toList();
 
-    if (coords.first[0] != coords.last[0] ||
-        coords.first[1] != coords.last[1]) {
-      coords.add(coords.first);
-    }
+  if (coords.first[0] != coords.last[0] || coords.first[1] != coords.last[1]) {
+    coords.add(coords.first);
+  }
 
-    final updatedGeometry = {
-      "rings": [coords],
-      "spatialReference": {"wkid": 4326}
-    };
+  final updatedGeometry = {
+    "rings": [coords],
+    "spatialReference": {"wkid": 4326}
+  };
 
-    final attributes =
-        Map<String, dynamic>.from(_draggedFeature!['properties'] ?? {});
+  final attributes = Map<String, dynamic>.from(_draggedFeature!['properties'] ?? {});
 
-    if (!(attributes.containsKey('OBJECTID') || attributes.containsKey('GlobalID'))) {
-      debugPrint("Cannot update: Missing OBJECTID or GlobalID.");
-      return;
-    }
+  if (!(attributes.containsKey('OBJECTID') || attributes.containsKey('GlobalID'))) {
+    debugPrint("Cannot update: Missing OBJECTID or GlobalID.");
+    return;
+  }
 
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Konfirmim"),
+      content: const Text("A jeni i sigurt që doni të ndryshoni pozicionin e gjeometrisë?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text("Jo"),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text("Po"),
+        ),
+      ],
+    ),
+  );
+
+  if (confirm == true) {
     context.read<BuildingCubit>().updateBuildingFeatureWithGeometry(
       attributes,
       updatedGeometry,
@@ -388,16 +406,24 @@ void _finalizePolygonDrag() {
     if (index != -1) {
       setState(() {
         buildingsData!['features'][index]['geometry'] = updatedGeometry;
-        _isDraggingPolygon = false;
-        _draggedPolygonPoints.clear();
-        _draggedFeature = null;
-        _dragStartLatLng = null;
       });
     }
-  } catch (e, stacktrace) {
-    debugPrint(" ERROR in finalizePolygonDrag: $e");
-    debugPrint(" Stacktrace: $stacktrace");
+  } else {
+    final index = buildingsData!['features'].indexOf(_draggedFeature);
+    if (index != -1 && _originalGeometry != null) {
+      setState(() {
+        buildingsData!['features'][index]['geometry'] = _originalGeometry!;
+      });
+    }
   }
+
+  setState(() {
+    _isDraggingPolygon = false;
+    _draggedPolygonPoints.clear();
+    _draggedFeature = null;
+    _dragStartLatLng = null;
+    _originalGeometry = null;
+  });
 }
 
 
