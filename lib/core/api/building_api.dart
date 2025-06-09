@@ -59,46 +59,46 @@ class BuildingApi {
         data: payload);
   }
 
-  Future<Response> updateBuildingFeature(String esriToken,
-      Map<String, dynamic> attributes) async {
-    Map<String, String> contentType = <String, String>{
-      'Content-Type': 'application/x-www-form-urlencoded'
-    };
+  // Future<Response> updateBuildingFeature(String esriToken,
+  //     Map<String, dynamic> attributes) async {
+  //   Map<String, String> contentType = <String, String>{
+  //     'Content-Type': 'application/x-www-form-urlencoded'
+  //   };
 
-    // List<List<double>> coordinates =
-        // points.map((point) => [point.longitude, point.latitude]).toList();
-    // if (coordinates.isNotEmpty &&
-    //     (coordinates.first[0] != coordinates.last[0] ||
-    //         coordinates.first[1] != coordinates.last[1])) {
-    //   coordinates.add([coordinates.first[0], coordinates.first[1]]);
-    // }
+  //   // List<List<double>> coordinates =
+  //       // points.map((point) => [point.longitude, point.latitude]).toList();
+  //   // if (coordinates.isNotEmpty &&
+  //   //     (coordinates.first[0] != coordinates.last[0] ||
+  //   //         coordinates.first[1] != coordinates.last[1])) {
+  //   //   coordinates.add([coordinates.first[0], coordinates.first[1]]);
+  //   // }
 
-    final Map<String, dynamic> feature = {
-      // 'geometry': {
-      //   'rings': [coordinates],
-      //   'spatialReference': {'wkid': 4326},
-      // },
-      'properties': attributes,
-    };
+  //   final Map<String, dynamic> feature = {
+  //     // 'geometry': {
+  //     //   'rings': [coordinates],
+  //     //   'spatialReference': {'wkid': 4326},
+  //     // },
+  //     'properties': attributes,
+  //   };
 
-    final payload = {
-      'f': 'pjson',
-      'features': jsonEncode([feature]),
-      'rollbackOnFailure': 'true',
-      'token': esriToken
-    };
+  //   final payload = {
+  //     'f': 'pjson',
+  //     'features': jsonEncode([feature]),
+  //     'rollbackOnFailure': 'true',
+  //     'token': esriToken
+  //   };
 
-    _apiClient.clearHeaders();
-    _apiClient.setHeaders(contentType);
+  //   _apiClient.clearHeaders();
+  //   _apiClient.setHeaders(contentType);
 
-    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
-        data: payload);
-  }
+  //   return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
+  //       data: payload);
+  // }
 
-  Future<Response> updateBuildingFeatureWithGeometry(
+  Future<Response> updateBuildingFeature(
       String esriToken,
       Map<String, dynamic> attributes,
-      Map<String, dynamic> geometry) async {
+      [Map<String, dynamic>? geometry]) async {
     Map<String, String> contentType = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };

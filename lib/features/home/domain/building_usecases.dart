@@ -31,13 +31,8 @@ class BuildingUseCases {
     return await _buildingRepository.addBuildingFeature(attributes, points);
   }
 
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
-    return await _buildingRepository.updateBuildingFeature(attributes);
-  }
-
-  Future<bool> updateBuildingFeatureWithGeometry(Map<String, dynamic> attributes, Map<String, dynamic> geometry) async {
-  return await _buildingRepository.updateBuildingFeatureWithGeometry(attributes, geometry);
+  Future<bool> updateBuildingFeature(Map<String, dynamic> attributes, [Map<String, dynamic>? geometry]) async {
+  return await _buildingRepository.updateBuildingFeature(attributes, geometry);
 }
 
 }

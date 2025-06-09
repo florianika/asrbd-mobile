@@ -77,28 +77,28 @@ class BuildingService {
     }
   }
 
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
-    try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
+  // Future<bool> updateBuildingFeature(
+  //     Map<String, dynamic> attributes) async {
+  //   try {
+  //     String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+  //     if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await buildingApi.updateBuildingFeature(
-          esriToken, attributes);
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      throw Exception('Login failed: $e');
-    }
-  }
-  Future<bool> updateBuildingFeatureWithGeometry(Map<String, dynamic> attributes, Map<String, dynamic> geometry) async {
+  //     final response = await buildingApi.updateBuildingFeature(
+  //         esriToken, attributes);
+  //     if (response.statusCode == 200) {
+  //       return true;
+  //     } else {
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     throw Exception('Login failed: $e');
+  //   }
+  // }
+  Future<bool> updateBuildingFeature(Map<String, dynamic> attributes, [Map<String, dynamic>? geometry]) async {
   String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
   if (esriToken == null) throw Exception('Login failed');
 
-  final response = await buildingApi.updateBuildingFeatureWithGeometry(esriToken, attributes, geometry);
+  final response = await buildingApi.updateBuildingFeature(esriToken, attributes, geometry);
 
   if (response.statusCode == 200) return true;
   return false;

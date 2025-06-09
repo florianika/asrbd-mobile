@@ -73,22 +73,11 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
-  Future<void> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
-    emit(BuildingLoading());
-    try {
-      emit(BuildingUpdateResponse(
-          await buildingUseCases.updateBuildingFeature(attributes)));
-    } catch (e) {
-      emit(BuildingError(e.toString()));
-    }
-  }
-
-  Future<void> updateBuildingFeatureWithGeometry(Map<String, dynamic> attributes, Map<String, dynamic> geometry) async {
+  Future<void> updateBuildingFeature(Map<String, dynamic> attributes, [Map<String, dynamic>? geometry]) async {
   emit(BuildingLoading());
   try {
     emit(BuildingUpdateResponse(
-      await buildingUseCases.updateBuildingFeatureWithGeometry(attributes, geometry),
+      await buildingUseCases.updateBuildingFeature(attributes, geometry),
     ));
   } catch (e) {
     emit(BuildingError(e.toString()));

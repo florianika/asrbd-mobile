@@ -397,7 +397,7 @@ void _finalizePolygonDrag() async {
   );
 
   if (confirm == true) {
-    context.read<BuildingCubit>().updateBuildingFeatureWithGeometry(
+    context.read<BuildingCubit>().updateBuildingFeature(
       attributes,
       updatedGeometry,
     );
