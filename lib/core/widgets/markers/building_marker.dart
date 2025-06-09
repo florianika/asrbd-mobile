@@ -12,6 +12,7 @@ class BuildingMarker extends StatefulWidget {
   final ShapeType? selectedShapeType;
   final String attributeLegend;
   final String? highlightedBuildingIds;
+  final Function(String) onTap;
 
   const BuildingMarker({
     super.key,
@@ -20,6 +21,7 @@ class BuildingMarker extends StatefulWidget {
     this.selectedShapeType,
     required this.attributeLegend,
     required this.highlightedBuildingIds,
+    required this.onTap,
   });
 
   @override
@@ -28,6 +30,30 @@ class BuildingMarker extends StatefulWidget {
 
 class _BuildingMarkerState extends State<BuildingMarker> {
   final legendService = sl<LegendService>();
+  final LayerHitNotifier<Object> _hitNotifier = LayerHitNotifier(null);
+
+  @override
+  void initState() {
+    super.initState();
+
+    _hitNotifier.addListener(_onPolygonHit);
+  }
+
+  @override
+  void dispose() {
+    _hitNotifier.removeListener(_onPolygonHit);
+    _hitNotifier.dispose();
+    super.dispose();
+  }
+
+  void _onPolygonHit() {
+    final hits = _hitNotifier.value;
+    if (hits != null) {
+      // Handle the hit
+      final globalId = hits.hitValues.first;
+      widget.onTap(globalId.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +65,7 @@ class _BuildingMarkerState extends State<BuildingMarker> {
     return Stack(
       children: [
         PolygonLayer(
+          hitNotifier: _hitNotifier,
           polygons: features.map((feature) {
             final props = feature['properties'] as Map<String, dynamic>;
             final value = widget.attributeLegend == 'quality'
@@ -54,6 +81,7 @@ class _BuildingMarkerState extends State<BuildingMarker> {
             }
 
             return Polygon(
+              hitValue: props['GlobalID'],
               points: GeometryHelper.parseCoordinates(feature['geometry']),
               color: fillColor,
               label: props['OBJECTID'].toString(),

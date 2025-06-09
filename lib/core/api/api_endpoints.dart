@@ -26,9 +26,63 @@ class ApiEndpoints {
       path: '${esriBaseUri.path}/1/query',
       queryParameters: {
         'where': 'BldMunicipality = $municipalityId',
+        // 'where': '1=1',
         'objectIds': '',
         'time': '',
         'geometry': geometry,
+        'geometryType': 'esriGeometryEnvelope',
+        'inSR': '4326',
+        'defaultSR': '',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'distance': '',
+        'units': 'esriSRUnit_Foot',
+        'relationParam': '',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'maxAllowableOffset': '',
+        'geometryPrecision': '',
+        'outSR': '',
+        'havingClause': '',
+        'gdbVersion': '',
+        'historicMoment': '',
+        'returnDistinctValues': 'false',
+        'returnIdsOnly': 'false',
+        'returnCountOnly': 'false',
+        'returnExtentOnly': 'false',
+        'orderByFields': '',
+        'groupByFieldsForStatistics': '',
+        'outStatistics': '',
+        'returnZ': 'false',
+        'returnM': 'false',
+        'multipatchOption': 'xyFootprint',
+        'resultOffset': '',
+        'resultRecordCount': '',
+        'returnTrueCurves': 'false',
+        'returnExceededLimitFeatures': 'false',
+        'quantizationParameters': '',
+        'returnCentroid': 'false',
+        'timeReferenceUnknownClient': 'false',
+        'maxRecordCountFactor': '',
+        'sqlFormat': 'none',
+        'resultType': '',
+        'featureEncoding': 'esriDefault',
+        'datumTransformation': '',
+        'f': 'geojson',
+      },
+    ).toString();
+  }
+
+
+  static String getEsriBuldingByGlobalId(String globalId) {
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/1/query',
+      queryParameters: {
+         'where': 'GlobalID = \'$globalId\'',
+        'objectIds': '',
+        'time': '',
+        'geometry': '',
         'geometryType': 'esriGeometryEnvelope',
         'inSR': '4326',
         'defaultSR': '',
@@ -125,7 +179,7 @@ class ApiEndpoints {
     ).toString();
   }
 
-  static String getEsriEntranceByObjectId(String globalId) {
+  static String getEsriEntranceByGlobalId(String globalId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,

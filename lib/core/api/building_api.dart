@@ -15,6 +15,11 @@ class BuildingApi {
         '${ApiEndpoints.getEsriBulding(geometry, municipalityId)}&token=$esriToken');
   }
 
+  Future<Response> getBuildingDetails(String esriToken, String globalId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriBuldingByGlobalId(globalId)}&token=$esriToken');
+  }
+
   Future<Response> getBuildingAttributes(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/1?f=json&token=$esriToken');
@@ -59,14 +64,14 @@ class BuildingApi {
         data: payload);
   }
 
-  Future<Response> updateBuildingFeature(String esriToken,
-      Map<String, dynamic> attributes) async {
+  Future<Response> updateBuildingFeature(
+      String esriToken, Map<String, dynamic> attributes) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
     // List<List<double>> coordinates =
-        // points.map((point) => [point.longitude, point.latitude]).toList();
+    // points.map((point) => [point.longitude, point.latitude]).toList();
     // if (coordinates.isNotEmpty &&
     //     (coordinates.first[0] != coordinates.last[0] ||
     //         coordinates.first[1] != coordinates.last[1])) {

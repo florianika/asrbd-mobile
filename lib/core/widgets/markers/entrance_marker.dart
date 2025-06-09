@@ -34,7 +34,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
   final markerSize = 20.0;
   @override
   Widget build(BuildContext context) {
-    return widget.entranceData != null
+    return widget.entranceData != null && widget.entranceData!.isNotEmpty
         ? MarkerLayer(
             markers: widget.entranceData! == {}
                 ? []

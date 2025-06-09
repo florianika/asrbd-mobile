@@ -4,12 +4,14 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/view_attribute_shimmer.dart';
 import 'package:flutter/material.dart';
 
 class ViewAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
   final VoidCallback onClose;
+  final bool isLoading;
   final Map<String, dynamic> initialData;
   final Function save;
   final void Function()? onOpenDwelling;
@@ -22,6 +24,7 @@ class ViewAttribute extends StatefulWidget {
     required this.initialData,
     required this.save,
     this.onOpenDwelling,
+    required this.isLoading,
   });
 
   @override
@@ -148,29 +151,33 @@ class _ViewAttributeState extends State<ViewAttribute> {
         duration: const Duration(milliseconds: 0),
         curve: Curves.easeInOut,
         width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
-        child: _isDwellingVisible
-            ? DwellingForm(
-                selectedShapeType: ShapeType.point,
-                entranceGlobalId: widget.initialData['GlobalID']?.toString(),
-                onBack: () {
-                  setState(() {
-                    _isDwellingVisible = false;
-                  });
-                },
-              )
-            : TabletElementAttribute(
-                schema: widget.schema,
-                selectedShapeType: widget.selectedShapeType,
-                initialData: widget.initialData,
-                save: widget.save,
-                onClose: widget.onClose,
-                onOpenDwelling: () {
-                  setState(() {
-                    _isDwellingVisible = true;
-                    _sidePanelFractionDefualt = _defaultDwellingWidthFraction;
-                  });
-                },
-              ),
+        child: widget.isLoading
+            ? const ViewAttributeShimmer()
+            : _isDwellingVisible
+                ? DwellingForm(
+                    selectedShapeType: ShapeType.point,
+                    entranceGlobalId:
+                        widget.initialData['GlobalID']?.toString(),
+                    onBack: () {
+                      setState(() {
+                        _isDwellingVisible = false;
+                      });
+                    },
+                  )
+                : TabletElementAttribute(
+                    schema: widget.schema,
+                    selectedShapeType: widget.selectedShapeType,
+                    initialData: widget.initialData,
+                    save: widget.save,
+                    onClose: widget.onClose,
+                    onOpenDwelling: () {
+                      setState(() {
+                        _isDwellingVisible = true;
+                        _sidePanelFractionDefualt =
+                            _defaultDwellingWidthFraction;
+                      });
+                    },
+                  ),
       )
     ]);
   }

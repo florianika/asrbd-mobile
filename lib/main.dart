@@ -9,11 +9,15 @@ import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/dwelling_repository.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
+import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/entrance_module.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,8 +70,13 @@ void main() async {
 
   sl.registerSingleton<UserService>(UserService());
 
+  sl.registerLazySingleton<AttributesCubit>(
+      () => AttributesCubit(sl<EntranceUseCases>(), sl<BuildingUseCases>()));
+
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();
+
+  sl.registerFactory<NewGeometryCubit>(() => NewGeometryCubit());
 
   initAuthModule(sl);
   initEntranceModule(sl);
@@ -91,6 +100,8 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<AuthCubit>()),
         BlocProvider(create: (context) => sl<EntranceCubit>()),
         BlocProvider(create: (context) => sl<BuildingCubit>()),
+        BlocProvider(create: (context) => sl<AttributesCubit>()),
+        BlocProvider(create: (context) => sl<NewGeometryCubit>()),
         BlocProvider(
             create: (_) => DwellingCubit(DwellingUseCases(
                 DwellingRepository(DwellingService(DwellingApi()))))),

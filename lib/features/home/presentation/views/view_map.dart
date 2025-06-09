@@ -12,14 +12,18 @@ import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
+import 'package:asrdb/core/widgets/element_attribute/view_attribute_shimmer.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +40,7 @@ class ViewMap extends StatefulWidget {
 }
 
 class _ViewMapState extends State<ViewMap> {
+  MapController mapController = MapController();
   late String tileDirPath = '';
   bool _isDrawing = false;
   List<LatLng> _newPolygonPoints = [];
@@ -66,17 +71,27 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
 
-  MapController mapController = MapController();
-
   bool _isPropertyVisibile = false;
   bool _showLocationMarker = false;
   bool _isDwellingVisible = false;
   final legendService = sl<LegendService>();
   LatLng? _userLocation;
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
   Future<void> _initialize() async {
-    _goToCurrentLocation();
-    context.read<BuildingCubit>().getBuildingAttibutes();
+    // _goToCurrentLocation();
+    context.read<BuildingCubit>().attributesCubit;
     context.read<EntranceCubit>().getEntranceAttributes();
 
     buildingLegends = {
@@ -89,57 +104,18 @@ class _ViewMapState extends State<ViewMap> {
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }
 
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
+  // void _onAddShape(LatLng position) {
+  //   if (_selectedShapeType == ShapeType.point &&
+  //       _newPolygonPoints.length == 1) {
+  //     return;
+  //   }
 
-  void handleEntranceTap(Map<String, dynamic> data) {
-    try {
-      _selectedGlobalId = data[EntranceFields.globalID];
-
-      if (_selectedGlobalId == null) return;
-
-      highlightMarkersGlobalId = [];
-      _schema = _entranceSchema;
-      _selectedShapeType = ShapeType.point;
-
-      context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
-
-      final bldGlobalId = data['EntBldGlobalID'];
-
-      setState(() {
-        highlightedBuildingIds = bldGlobalId;
-        _showLocationMarker=false;
-        _isDwellingVisible = false;
-      });
-    } catch (e) {
-      // Display error message to the user in case of exception
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initialize();
-  }
-
-  void _onAddShape(LatLng position) {
-    if (_selectedShapeType == ShapeType.point &&
-        _newPolygonPoints.length == 1) {
-      return;
-    }
-
-    setState(() {
-      _undoStack.add(List.from(_newPolygonPoints)); // Save current state
-      _redoStack.clear(); // Clear redo on new action
-      _newPolygonPoints.add(position);
-    });
-  }
+  //   setState(() {
+  //     _undoStack.add(List.from(_newPolygonPoints)); // Save current state
+  //     _redoStack.clear(); // Clear redo on new action
+  //     _newPolygonPoints.add(position);
+  //   });
+  // }
 
   void enableDrawing(ShapeType type) {
     setState(() {
@@ -225,150 +201,36 @@ class _ViewMapState extends State<ViewMap> {
 
   void _onSave(Map<String, dynamic> attributes) {
     final isNew = attributes['GlobalID'] == null;
-    final shapeType = _selectedShapeType;
-    final scaffold = ScaffoldMessenger.of(context);
+    final userService = sl<UserService>();
+    final geometryCubit = context.read<NewGeometryCubit>();
+    final buildingCubit = context.read<BuildingCubit>();
+    final shapeType =
+        geometryCubit.points.length > 1 ? ShapeType.polygon : ShapeType.point;
 
     if (shapeType == ShapeType.point) {
-      scaffold.showSnackBar(
-        SnackBar(content: Text(isNew ? 'add entrance' : 'update entrance')),
-      );
-
       final entranceCubit = context.read<EntranceCubit>();
+      // buildingCubit.globalId
 
       if (isNew) {
-        entranceCubit.addEntranceFeature(attributes, _newPolygonPoints);
+        attributes[EntranceFields.entBldGlobalID] = buildingCubit.globalId;
+        attributes[EntranceFields.entLatitude] =
+            geometryCubit.points.first.latitude;
+        attributes[EntranceFields.entLongitude] =
+            geometryCubit.points.first.longitude;
+        attributes['external_creator'] = userService.userInfo?.nameId;
+        entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
       } else {
         entranceCubit.updateEntranceFeature(attributes);
       }
     } else if (shapeType == ShapeType.polygon) {
-      scaffold.showSnackBar(
-        SnackBar(content: Text(isNew ? 'add building' : 'update building')),
-      );
-
-      final buildingCubit = context.read<BuildingCubit>();
-
       if (isNew) {
-        buildingCubit.addBuildingFeature(attributes, _newPolygonPoints);
+        // attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+        attributes['BldMunicipality'] = userService.userInfo?.municipality;
+        buildingCubit.addBuildingFeature(attributes, geometryCubit.points);
       } else {
         buildingCubit.updateBuildingFeature(attributes);
       }
     }
-
-    setState(() {
-      _isDrawing = false;
-    });
-  }
-
-  void handleBuildingOnTap(TapPosition tapPosition, LatLng point) {
-    if (buildingsData == null) return;
-
-    try {
-      final buildingFeatures =
-          List<Map<String, dynamic>>.from(buildingsData!['features']);
-
-      final tappedFeature = buildingFeatures.firstWhere(
-        (feature) {
-          final geometry = feature['geometry'];
-          final polygonPoints = GeometryHelper.parseCoordinates(geometry);
-          return GeometryHelper.isPointInPolygon(point, polygonPoints);
-        },
-        orElse: () => {},
-      );
-
-      if (tappedFeature.isEmpty) return;
-
-      final props = tappedFeature['properties'];
-      final globalId = props[EntranceFields.globalID];
-
-      setState(() {
-        _selectedShapeType = ShapeType.polygon;
-        _selectedGlobalId = globalId;
-        // _isDwellingVisible = false;
-        highlightedBuildingIds = null;
-        highlightMarkersGlobalId = [];
-        _selectedBuildingId = globalId;
-        _showLocationMarker=false;
-        _isDwellingVisible = false;
-
-        //find entrances of the selected building
-        if (entranceData != null) {
-          final entranceFeatures = entranceData?['features'] as List<dynamic>?;
-
-          if (entranceFeatures != null) {
-            highlightMarkersGlobalId = entranceFeatures
-                .whereType<Map<String, dynamic>>()
-                .where((feature) {
-                  final props = feature['properties'] as Map<String, dynamic>?;
-                  return props != null &&
-                      props['EntBldGlobalID']
-                              ?.toString()
-                              .toLowerCase()
-                              .replaceAll(RegExp(r'[{}]'), '') ==
-                          globalId
-                              .toLowerCase()
-                              .replaceAll(RegExp(r'[{}]'), '');
-                })
-                .map((feature) => feature['properties']?['GlobalID'])
-                .where((id) => id != null)
-                .toList();
-          }
-        }
-
-        _schema = _buildingSchema;
-        _isPropertyVisibile = true;
-        _initialData = props;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
-    }
-  }
-
-  List<Marker> _buildMarkers() {
-    return _newPolygonPoints.map((point) {
-      return Marker(
-        width: 30,
-        height: 30,
-        point: point,
-        child: GestureDetector(
-          onTap: () => handleEntranceTap(_initialData),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.orange,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-          ),
-        ),
-      );
-    }).toList();
-  }
-
-  double? _previousZoom;
-  void _onPositionChanged(
-      MapCamera camera, bool hasGesture, int municipalityId) {
-    // Check if zoom has changed
-    final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-    _previousZoom = camera.zoom;
-
-    // Trigger only if the user moved the map or zoomed in/out
-    if (!hasGesture && !zoomChanged) return;
-
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      context
-          .read<BuildingCubit>()
-          .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
-    });
-
-    zoom = camera.zoom;
-    visibleBounds = mapController.camera.visibleBounds;
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   void onLegendChangeAttribute(String seletedAttribute) {
@@ -377,248 +239,108 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
-  void _goToCurrentLocation() async {
-    try {
-      final location = await LocationService.getCurrentLocation();
-      mapController.move(location, EsriConfig.initZoom);
-      setState(() {
-        _userLocation = location;
-         _showLocationMarker = true;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching location: $e')),
-      );
-    }
-  }
-
-  void _handleResponse(BuildContext context, bool isAdded, String actionName,
-      int municipalityId) {
-    _showSnackBar(
-      context,
-      isAdded ? "$actionName u krye" : "$actionName dështoi",
-    );
-    if (isAdded) {
-      context
-          .read<BuildingCubit>()
-          .getBuildings(visibleBounds, zoom, municipalityId);
-      setState(() => _newPolygonPoints.clear());
-    }
-  }
+  // void _handleResponse(BuildContext context, bool isAdded, String actionName,
+  //     int municipalityId) {
+  //   _showSnackBar(
+  //     context,
+  //     isAdded ? "$actionName u krye" : "$actionName dështoi",
+  //   );
+  //   if (isAdded) {
+  //     context
+  //         .read<BuildingCubit>()
+  //         .getBuildings(visibleBounds, zoom, municipalityId);
+  //     setState(() => _newPolygonPoints.clear());
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final userService = sl<UserService>();
+    // final userService = sl<UserService>();
     return Scaffold(
       appBar: const MapAppBar(),
       drawer: const SideMenu(),
-      body: BlocConsumer<BuildingCubit, BuildingState>(
-        listener: (context, state) {
-          if (state is Buildings) {
-            if (state.buildings.isNotEmpty) {
-              buildingsData = state.buildings;
-              context.read<EntranceCubit>().getEntrances(
-                  zoom,
-                  EsriConditionHelper.getPropertiesAsList(
-                      'GlobalID', state.buildings));
-            }
-          } else if (state is BuildingAttributes) {
-            _buildingSchema = state.attributes;
-          } else if (state is BuildingAddResponse) {
-            _handleResponse(context, state.isAdded, "Shtimi i nderteses",
-                userService.userInfo!.municipality);
-          } else if (state is BuildingUpdateResponse) {
-            _handleResponse(context, state.isAdded, "Perditesimi i nderteses",
-                userService.userInfo!.municipality);
-          } else if (state is BuildingError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
-        builder: (context, state) {
-          return BlocConsumer<EntranceCubit, EntranceState>(
-            listener: (context, state) {
-              switch (state) {
-                case Entrances(:final entrances):
-                  entranceData = entrances;
-                case Entrance(:final entrance):
-                  if (entrance.isNotEmpty) {
-                    List<dynamic> features = entrance['features'];
-                    if (features.isNotEmpty &&
-                        features[0] is Map<String, dynamic>) {
-                      Map<String, dynamic> firstFeature = features[0];
-                      Map<String, dynamic> properties =
-                          firstFeature['properties'];
-                      _initialData = properties;
-                      _isPropertyVisibile = true;
-                    }
-                  }
-                case EntranceAttributes(:final attributes):
-                  _entranceSchema = attributes;
-                case EntranceAddResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Shtimi i hyrjes",
-                      userService.userInfo!.municipality);
-                case EntranceUpdateResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Perditesimi i hyrjes",
-                      userService.userInfo!.municipality);
-                case EntranceDeleteResponse(:final isAdded):
-                  _handleResponse(context, isAdded, "Fshirja e hyrjes",
-                      userService.userInfo!.municipality);
-                case EntranceError(:final message):
-                  _showSnackBar(context, message);
-              }
-            },
-            builder: (context, state) {
-              return Row(
-                children: [
-                  Expanded(
-                    flex: _isPropertyVisibile ? 3 : 2,
-                    child: Stack(
-                      children: [
-                        FlutterMap(
-                          mapController: mapController,
-                          options: MapOptions(
-                            initialCenter: currentPosition,
-                            initialZoom: EsriConfig.initZoom,
-                            onMapReady: () => {
-                              context.read<BuildingCubit>().getBuildings(
-                                  mapController.camera.visibleBounds,
-                                  EsriConfig.buildingMinZoom,
-                                  userService.userInfo!.municipality),
-                              // context.read<EntranceCubit>().getEntrances(
-                              //     mapController.camera.visibleBounds,
-                              //     EsriConfig.entranceMinZoom,),
-                              // zoom = EsriConfig.initZoom,
-                              visibleBounds =
-                                  mapController.camera.visibleBounds,
-                            },
-                            onPositionChanged:
-                                (MapCamera camera, bool hasGesture) =>
-                                    _onPositionChanged(camera, hasGesture,
-                                        userService.userInfo!.municipality),
-                            onLongPress: (tapPosition, point) => (),
-                            onTap: (tapPosition, point) {
-                              if (!_isDrawing) {
-                                handleBuildingOnTap(tapPosition, point);
-                              }
-                            },
-                          ),
-                          children: [
-                            TileLayer(
-                              tileProvider:
-                                  ft.FileTileProvider(tileDirPath, false),
-                            ),
-                            BuildingMarker(
-                              buildingsData: buildingsData,
-                              selectedGlobalID: _selectedGlobalId,
-                              selectedShapeType: _selectedShapeType,
-                              attributeLegend: attributeLegend,
-                              highlightedBuildingIds: highlightedBuildingIds,
-                            ),
-                            entranceData != null && entranceData!.isNotEmpty
-                                ? EntranceMarker(
-                                    entranceData: entranceData,
-                                    onTap: handleEntranceTap,
-                                    selectedGlobalId: _selectedGlobalId,
-                                    selectedShapeType: _selectedShapeType,
-                                    mapController: mapController,
-                                    highilghGlobalIds: highlightMarkersGlobalId,
-                                  )
-                                : const SizedBox(),
-                            if (_showLocationMarker)
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: _userLocation!,
-                                    width: 40,
-                                    height: 40,
-                                    child: const Icon(
-                                      Icons.my_location,
-                                      color: Colors.blueAccent,
-                                      size: 30,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            if (_newPolygonPoints.isNotEmpty)
-                              MarkerLayer(markers: _buildMarkers()),
-                            if (_newPolygonPoints.isNotEmpty &&
-                                _selectedShapeType == ShapeType.polygon)
-                              PolygonLayer(polygons: [
-                                Polygon(
-                                  points: _newPolygonPoints,
-                                  color: Colors.green.withOpacity(0.3),
-                                  borderStrokeWidth: 2.0,
-                                  borderColor: Colors.green,
-                                )
-                              ]),
-                          ],
-                        ),
-                        _isDrawing
-                            ? MapActionEvents(
-                                onClose: _onClose,
-                                onUndo: _onUndo,
-                                onRedo: _onRedo,
-                                onSave: _onDrawFinished,
-                                newPolygonPoints: [..._newPolygonPoints],
-                                mapController: mapController,
-                                isEntrance:
-                                    _selectedShapeType == ShapeType.point,
-                                onMarkerPlaced: (LatLng position) {
-                                  _onAddShape(position);
-                                },
-                              )
-                            : MapActionButtons(
-                                mapController: mapController,
-                                enableDrawing: (ShapeType type) {
+      body: Row(
+        children: [
+          Expanded(
+            flex: _isPropertyVisibile ? 3 : 2,
+            child: Stack(
+              children: [
+                AsrdbMap(
+                  mapController: mapController,
+                ),
+                BlocConsumer<NewGeometryCubit, NewGeometryState>(
+                    listener: (context, state) {},
+                    builder: (context, state) {
+                      return (state as NewGeometry).isDrawing
+                          ? MapActionEvents(
+                              mapController: mapController,
+                              onSave: _onSave,
+                            )
+                          : MapActionButtons(
+                              mapController: mapController,
+                              enableDrawing: (ShapeType type) {
                                 enableDrawing(type);
                                 setState(() {
                                   _showLocationMarker = false;
                                 });
-                                },
-                                onLocateMe: _goToCurrentLocation,
-                                selectedBuildingId: _selectedBuildingId),
-                        Positioned(
-                          top: 20,
-                          right: 20,
-                          child: CombinedLegendWidget(
-                            buildingLegends: buildingLegends,
-                            initialBuildingAttribute: 'quality',
-                            entranceLegends: entranceLegends,
-                            onChange: onLegendChangeAttribute,
-                          ),
-                        ),
-                        Visibility(
-                          visible: false,
-                          child: Positioned(
-                            top: 20,
-                            right: 150,
-                            child: FloatingActionButton(
-                              onPressed: () => {},
-                              backgroundColor: Colors.white,
-                              foregroundColor: const Color(0xFF374151),
-                              elevation: 3,
-                              child: const Icon(
-                                Icons.layers,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                              },
+                              onLocateMe: () => {},
+                              selectedBuildingId: _selectedBuildingId);
+                    }),
+                Positioned(
+                  top: 20,
+                  right: 20,
+                  child: CombinedLegendWidget(
+                    buildingLegends: buildingLegends,
+                    initialBuildingAttribute: 'quality',
+                    entranceLegends: entranceLegends,
+                    onChange: onLegendChangeAttribute,
+                  ),
+                ),
+                Visibility(
+                  visible: false,
+                  child: Positioned(
+                    top: 20,
+                    right: 150,
+                    child: FloatingActionButton(
+                      onPressed: () => {},
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF374151),
+                      elevation: 3,
+                      child: const Icon(
+                        Icons.layers,
+                        size: 22,
+                      ),
                     ),
                   ),
-                  Visibility(
-                    visible: _isPropertyVisibile,
+                ),
+              ],
+            ),
+          ),
+          BlocConsumer<AttributesCubit, AttributesState>(
+              listener: (context, state) {
+            if (state is AttributesError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          }, builder: (context, state) {
+            return (state is AttributesVisibility &&
+                    state.showAttributes == false)
+                ? const SizedBox()
+                : Visibility(
+                    visible: true,
                     child: ViewAttribute(
-                      schema: _schema,
-                      selectedShapeType: _selectedShapeType,
-                      initialData: _initialData,
+                      schema: state is Attributes ? state.schema : [],
+                      selectedShapeType: state is Attributes
+                          ? state.shapeType
+                          : ShapeType.point,
+                      initialData: state is Attributes ? state.initialData : {},
+                      isLoading: state is AttributesLoading,
                       save: _onSave,
                       onClose: () {
+                        context.read<AttributesCubit>().showAttributes(false);
                         setState(() {
-                          _isPropertyVisibile = false;
                           _isDrawing = false;
                           _selectedGlobalId = null;
                           highlightedBuildingIds = null;
@@ -626,18 +348,15 @@ class _ViewMapState extends State<ViewMap> {
                         });
                       },
                       onOpenDwelling: () {
-                      setState(() {
-                        _isPropertyVisibile = false;
-                        _isDwellingVisible = true;
-                      });
-                    },
+                        setState(() {
+                          context.read<AttributesCubit>().showAttributes(false);
+                          _isDwellingVisible = true;
+                        });
+                      },
                     ),
-                  )
-                ],
-              );
-            },
-          );
-        },
+                  );
+          })
+        ],
       ),
     );
   }

@@ -58,6 +58,7 @@ dependencies:
   path: ^1.8.3
   flutter_typeahead: ^5.2.0
   flutter_speed_dial: ^7.0.0
+  shimmer: ^3.0.0
 
 dependency_overrides:
   geolocator_android: 4.6.1

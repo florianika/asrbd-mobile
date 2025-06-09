@@ -17,7 +17,7 @@ class EntranceApi {
 
   Future<Response> getEntranceDetails(String esriToken, String globalId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriEntranceByObjectId(globalId)}&token=$esriToken');
+        '${ApiEndpoints.getEsriEntranceByGlobalId(globalId)}&token=$esriToken');
   }
 
   Future<Response> getEntranceAttributes(String esriToken) async {
@@ -37,7 +37,7 @@ class EntranceApi {
         'y': points[0].latitude,
         'spatialReference': {'wkid': 4326},
       },
-      'attributes': attributes,
+      'properties': attributes,
     };
 
     final payload = {

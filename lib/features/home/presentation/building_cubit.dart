@@ -1,10 +1,11 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-// Define Buildingentication states
+// States
 abstract class BuildingState {}
 
 class BuildingInitial extends BuildingState {}
@@ -21,6 +22,11 @@ class BuildingAttributes extends BuildingState {
   BuildingAttributes(this.attributes);
 }
 
+class BuildingGlobalId extends BuildingState {
+  final String? globalId;
+  BuildingGlobalId(this.globalId);
+}
+
 class BuildingError extends BuildingState {
   final String message;
   BuildingError(this.message);
@@ -32,55 +38,87 @@ class BuildingAddResponse extends BuildingState {
 }
 
 class BuildingUpdateResponse extends BuildingState {
-  final bool isAdded;
-  BuildingUpdateResponse(this.isAdded);
+  final bool isUpdated;
+  BuildingUpdateResponse(this.isUpdated);
 }
 
+// Cubit
 class BuildingCubit extends Cubit<BuildingState> {
   final BuildingUseCases buildingUseCases;
+  final AttributesCubit attributesCubit;
 
-  BuildingCubit(this.buildingUseCases) : super(BuildingInitial());
+  String? _selectedBuildingGlobalId;
 
-  // Login method
+  BuildingCubit(this.buildingUseCases, this.attributesCubit)
+      : super(BuildingInitial());
+
+  /// Get buildings by bounds
   Future<void> getBuildings(
       LatLngBounds? bounds, double zoom, int municipalityId) async {
     emit(BuildingLoading());
     try {
-      emit(Buildings(
-          await buildingUseCases.getBuildings(bounds, zoom, municipalityId)));
+      final buildings = await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
+      emit(Buildings(buildings));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
   }
 
-  Future<void> getBuildingAttibutes() async {
+  /// Select and load building details
+  Future<void> getBuildingDetails(String globalId) async {
     emit(BuildingLoading());
     try {
-      emit(BuildingAttributes(await buildingUseCases.getBuildingAttibutes()));
+      _selectedBuildingGlobalId = globalId;
+      emit(BuildingGlobalId(globalId));
+
+      // Show attribute panel
+      attributesCubit.showAttributes(true);
+      await attributesCubit.showBuildingAttributes(globalId);
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
   }
 
+  /// Load attribute schema
+  Future<void> getBuildingAttributes() async {
+    emit(BuildingLoading());
+    try {
+      final schema = await buildingUseCases.getBuildingAttibutes();
+      emit(BuildingAttributes(schema));
+    } catch (e) {
+      emit(BuildingError(e.toString()));
+    }
+  }
+
+  /// Add new building geometry
   Future<void> addBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(BuildingLoading());
     try {
-      emit(BuildingAddResponse(
-          await buildingUseCases.addBuildingFeature(attributes, points)));
+      final result = await buildingUseCases.addBuildingFeature(attributes, points);
+      emit(BuildingAddResponse(result));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
   }
 
-  Future<void> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
+  /// Update existing building
+  Future<void> updateBuildingFeature(Map<String, dynamic> attributes) async {
     emit(BuildingLoading());
     try {
-      emit(BuildingUpdateResponse(
-          await buildingUseCases.updateBuildingFeature(attributes)));
+      final result = await buildingUseCases.updateBuildingFeature(attributes);
+      emit(BuildingUpdateResponse(result));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
+  }
+
+  /// Public getter for current globalId
+  String? get globalId => _selectedBuildingGlobalId;
+
+  /// Public method to manually set and emit globalId
+  void selectBuildingByGlobalId(String? globalId) {
+    _selectedBuildingGlobalId = globalId;
+    emit(BuildingGlobalId(globalId));
   }
 }

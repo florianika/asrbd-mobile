@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
@@ -68,6 +70,47 @@ class BuildingService {
       final response =
           await buildingApi.addBuildingFeature(esriToken, attributes, points);
       if (response.statusCode == 200) {
+        // Ensure response data is decoded
+        final dynamic rawData = response.data;
+        final Map<String, dynamic> mapData = rawData is String
+            ? jsonDecode(rawData)
+            : rawData as Map<String, dynamic>;
+
+        if (mapData.containsKey('error')) {
+          final errorMsg = mapData['error']['message'] ?? 'Unknown error';
+          final details = mapData['error']['details']?.join(', ') ?? '';
+          throw Exception('Server error: $errorMsg. $details');
+        }
+
+        // Check the 'success' value in addResults
+        final addResults = mapData['addResults'];
+        if (addResults is List && addResults.isNotEmpty) {
+          final result = addResults[0];
+          if (result is Map && result['success'] == true) {
+            return true;
+          } else {
+            throw Exception(
+                'Feature add failed: ${result['error']?['message'] ?? 'Unknown reason'}');
+          }
+        }
+
+        throw Exception('Unexpected response format.');
+      } else {
+        throw Exception('Failed request: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<bool> updateBuildingFeature(Map<String, dynamic> attributes) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response =
+          await buildingApi.updateBuildingFeature(esriToken, attributes);
+      if (response.statusCode == 200) {
         return true;
       } else {
         return false;
@@ -77,21 +120,28 @@ class BuildingService {
     }
   }
 
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
+  Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await buildingApi.updateBuildingFeature(
-          esriToken, attributes);
+      final response =
+          await buildingApi.getBuildingDetails(esriToken, globalId);
+
+      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
-        return true;
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception(
+              'Error fetching entrance details: ${mapData['error']['message']}');
+        } else {
+          return mapData;
+        }
       } else {
-        return false;
+        throw Exception('Failed to login');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception(e);
     }
   }
 }

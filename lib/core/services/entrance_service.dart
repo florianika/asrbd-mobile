@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/esri_response_parser.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -88,31 +91,60 @@ class EntranceService {
   }
 
   Future<bool> addEntranceFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+    Map<String, dynamic> attributes,
+    List<LatLng> points,
+  ) async {
+    try {
+      final esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Missing Esri token');
+
+      final response = await entranceApi.addEntranceFeature(
+        esriToken,
+        attributes,
+        points,
+      );
+
+      if (response.statusCode == 200) {
+        // Ensure response data is decoded
+        final dynamic rawData = response.data;
+        final Map<String, dynamic> mapData = rawData is String
+            ? jsonDecode(rawData)
+            : rawData as Map<String, dynamic>;
+
+        if (mapData.containsKey('error')) {
+          final errorMsg = mapData['error']['message'] ?? 'Unknown error';
+          final details = mapData['error']['details']?.join(', ') ?? '';
+          throw Exception('Server error: $errorMsg. $details');
+        }
+
+        // Check the 'success' value in addResults
+        final addResults = mapData['addResults'];
+        if (addResults is List && addResults.isNotEmpty) {
+          final result = addResults[0];
+          if (result is Map && result['success'] == true) {
+            return true;
+          } else {
+            throw Exception(
+                'Feature add failed: ${result['error']?['message'] ?? 'Unknown reason'}');
+          }
+        }
+
+        throw Exception('Unexpected response format.');
+      } else {
+        throw Exception('Failed request: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Add entrance failed: $e');
+    }
+  }
+
+  Future<bool> updateEntranceFeature(Map<String, dynamic> attributes) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
-          await entranceApi.addEntranceFeature(esriToken, attributes, points);
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (e) {
-      throw Exception('Login failed: $e');
-    }
-  }
-
-  Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes) async {
-    try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response = await entranceApi.updateEntranceFeature(
-          esriToken, attributes);
+          await entranceApi.updateEntranceFeature(esriToken, attributes);
       if (response.statusCode == 200) {
         return true;
       } else {

@@ -1,5 +1,6 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -47,8 +48,10 @@ class EntranceError extends EntranceState {
 
 class EntranceCubit extends Cubit<EntranceState> {
   final EntranceUseCases entranceUseCases;
+  final AttributesCubit attributesCubit;
 
-  EntranceCubit(this.entranceUseCases) : super(EntranceInitial());
+  EntranceCubit(this.entranceUseCases, this.attributesCubit)
+      : super(EntranceInitial());
 
   Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
     emit(EntranceLoading());
@@ -61,9 +64,13 @@ class EntranceCubit extends Cubit<EntranceState> {
   }
 
   Future<void> getEntranceDetails(String globalId) async {
+    // final AttributesCubit attributesCubit;
     emit(EntranceLoading());
     try {
-      emit(Entrance(await entranceUseCases.getEntranceDetails(globalId)));
+      // emit(Entrance(await entranceUseCases.getEntranceDetails(globalId)));
+      // emit(Attributes(schema, initialData, shapeType))
+      attributesCubit.showAttributes(true);
+      await attributesCubit.showEntranceAttributes(globalId);
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -89,8 +96,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> updateEntranceFeature(
-      Map<String, dynamic> attributes) async {
+  Future<void> updateEntranceFeature(Map<String, dynamic> attributes) async {
     emit(EntranceLoading());
     try {
       emit(EntranceUpdateResponse(

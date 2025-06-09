@@ -22,6 +22,10 @@ class BuildingUseCases {
     return await _buildingRepository.getBuildings(bounds, zoom, municipalityId);
   }
 
+  Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
+    return await _buildingRepository.getBuildingDetails(globalId);
+  }
+
   Future<List<FieldSchema>> getBuildingAttibutes() async {
     return await _buildingRepository.getBuildingAttributes();
   }
@@ -31,8 +35,7 @@ class BuildingUseCases {
     return await _buildingRepository.addBuildingFeature(attributes, points);
   }
 
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes) async {
+  Future<bool> updateBuildingFeature(Map<String, dynamic> attributes) async {
     return await _buildingRepository.updateBuildingFeature(attributes);
   }
 }

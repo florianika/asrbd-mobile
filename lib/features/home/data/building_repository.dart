@@ -13,6 +13,11 @@ class BuildingRepository {
     return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 
+    Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
+    return await buildingService.getBuildingDetails(globalId);
+  }
+
+
   Future<List<FieldSchema>> getBuildingAttributes() async {
     return await buildingService.getBuildingAttributes();
   }
