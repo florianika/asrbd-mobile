@@ -25,7 +25,9 @@ import 'package:latlong2/latlong.dart';
 
 class AsrdbMap extends StatefulWidget {
   final MapController mapController;
-  const AsrdbMap({super.key, required this.mapController});
+  final String attributeLegend;
+  const AsrdbMap(
+      {super.key, required this.mapController, required this.attributeLegend});
 
   @override
   State<AsrdbMap> createState() => _AsrdbMapState();
@@ -36,25 +38,20 @@ class _AsrdbMapState extends State<AsrdbMap> {
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   LatLngBounds? visibleBounds;
   late String tileDirPath = '';
-  List<LatLng> _newPolygonPoints = [];
   ShapeType _selectedShapeType = ShapeType.point;
   double zoom = 0;
   String? _selectedGlobalId;
-  String? _selectedBuildingId;
 
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
 
-  List<FieldSchema> _schema = [];
   Map<String, dynamic> _initialData = {};
 
-  List<FieldSchema> _buildingSchema = [];
-  List<FieldSchema> _entranceSchema = [];
   List<dynamic> highlightMarkersGlobalId = [];
 
   bool _showLocationMarker = false;
-  bool _isDwellingVisible = false;
-  bool _isPropertyVisibile = false;
+  // bool _isDwellingVisible = false;
+  // bool _isPropertyVisibile = false;
 
   String? highlightedBuildingIds;
   LatLng? _userLocation;
@@ -64,9 +61,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Map<String, dynamic>? buildingsData;
   Map<String, dynamic>? entranceData;
 
-  bool _isDrawing = false;
+  // bool _isDrawing = false;
 
-  String attributeLegend = 'quality';
+  // String attributeLegend = 'quality';
 
   Timer? _debounce;
 
@@ -118,7 +115,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (_selectedGlobalId == null) return;
 
       highlightMarkersGlobalId = [];
-      _schema = _entranceSchema;
+
       _selectedShapeType = ShapeType.point;
 
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
@@ -128,7 +125,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       setState(() {
         highlightedBuildingIds = bldGlobalId;
         _showLocationMarker = false;
-        _isDwellingVisible = false;
+        // _isDwellingVisible = false;
       });
     } catch (e) {
       // Display error message to the user in case of exception
@@ -162,9 +159,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Future<void> _handleBuildingOnTap(String globalID) async {
     try {
       await context.read<BuildingCubit>().getBuildingDetails(globalID);
-      // await context
-      //     .read<BuildingCubit>()
-      //     .setSelectedBuildingAGlobalId(globalID);
 
       List<dynamic> buildingEntrances = [];
       if (entranceData != null) {
@@ -250,7 +244,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               selectedGlobalID: _selectedGlobalId,
               onTap: _handleBuildingOnTap,
               selectedShapeType: _selectedShapeType,
-              attributeLegend: attributeLegend,
+              attributeLegend: widget.attributeLegend,
               highlightedBuildingIds: highlightedBuildingIds,
             );
           },
@@ -269,11 +263,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     Map<String, dynamic> properties =
                         firstFeature['properties'];
                     _initialData = properties;
-                    _isPropertyVisibile = true;
+                    // _isPropertyVisibile = true;
                   }
                 }
-              case EntranceAttributes(:final attributes):
-                _entranceSchema = attributes;
+              // case EntranceAttributes(:final attributes):
+              //   _entranceSchema = attributes;
 
               case EntranceError(:final message):
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -293,6 +287,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
             return EntranceMarker(
               entranceData: entranceData,
               onTap: _handleEntranceTap,
+              attributeLegend: widget.attributeLegend,
               selectedGlobalId: _selectedGlobalId,
               selectedShapeType: _selectedShapeType,
               mapController: widget.mapController,
@@ -337,9 +332,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 ? PolygonLayer(polygons: [
                     Polygon(
                       points: state.points,
-                      color: Colors.green.withOpacity(0.3),
-                      borderStrokeWidth: 2.0,
-                      borderColor: Colors.green,
+                      color: Colors.red.withOpacity(0.25),
+                      borderStrokeWidth: 3.0,
+                      borderColor: Colors.red.shade700,
+                      pattern: StrokePattern.dashed(
+                        segments: const [10, 5],
+                      ),
                     )
                   ])
                 : const SizedBox();

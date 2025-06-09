@@ -1,3 +1,4 @@
+import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
@@ -10,16 +11,15 @@ import 'package:flutter_map/flutter_map.dart';
 
 class MapActionButtons extends StatelessWidget {
   final MapController mapController;
-  final Function enableDrawing;
-  final String? selectedBuildingId;
-  final VoidCallback onLocateMe;
   const MapActionButtons({
     super.key,
     required this.mapController,
-    required this.enableDrawing,
-    this.selectedBuildingId,
-    required this.onLocateMe,
   });
+
+  void _goToCurrentLocation() async {
+    final location = await LocationService.getCurrentLocation();
+    mapController.move(location, EsriConfig.initZoom);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class MapActionButtons extends StatelessWidget {
             child: FloatingButton(
               heroTag: 'locate_me',
               isEnabled: true,
-              onPressed: onLocateMe,
+              onPressed: _goToCurrentLocation,
               icon: Icons.my_location,
             )),
         Positioned(
@@ -71,7 +71,8 @@ class MapActionButtons extends StatelessWidget {
                   isEnabled: true,
                   onPressed: () => {
                     context.read<NewGeometryCubit>().setDrawing(true),
-                    context.read<NewGeometryCubit>().setType(ShapeType.polygon)
+                    context.read<NewGeometryCubit>().setType(ShapeType.polygon),
+                    context.read<AttributesCubit>().showAttributes(false)
                   },
                   icon: Icons.rectangle_outlined,
                 );

@@ -11,6 +11,7 @@ class EntranceMarker extends StatefulWidget {
   final Map<String, dynamic>? entranceData;
   final String? selectedGlobalId;
   final ShapeType? selectedShapeType;
+  final String attributeLegend;
   final Function onTap;
   final MapController mapController; // Add MapController to control zoom
   final List<dynamic> highilghGlobalIds;
@@ -22,7 +23,7 @@ class EntranceMarker extends StatefulWidget {
     this.selectedShapeType,
     required this.onTap,
     required this.mapController,
-    required this.highilghGlobalIds,
+    required this.highilghGlobalIds, required this.attributeLegend,
   });
 
   @override
@@ -46,7 +47,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                     final globalId = props[EntranceFields.globalID];
 
                     Color fillColor = legendService.getColorForValue(
-                            LegendType.entrance, 'quality', value) ??
+                            LegendType.entrance, widget.attributeLegend, value) ??
                         Colors.black;
 
                     if (widget.selectedShapeType == ShapeType.point &&

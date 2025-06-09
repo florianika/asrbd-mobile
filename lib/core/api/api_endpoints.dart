@@ -25,8 +25,8 @@ class ApiEndpoints {
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/1/query',
       queryParameters: {
-        'where': 'BldMunicipality = $municipalityId',
-        // 'where': '1=1',
+        // 'where': 'BldMunicipality = $municipalityId',
+        'where': '1=1',
         'objectIds': '',
         'time': '',
         'geometry': geometry,
@@ -72,6 +72,23 @@ class ApiEndpoints {
     ).toString();
   }
 
+  static String getEsriBuildingInteresections(Map<String, dynamic> geometry) {
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/1/query',
+      queryParameters: {
+        'where': '1=1',
+        'geometry': geometry,
+        'geometryType': 'esriGeometryPolygon',
+        'inSR': '4326',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'outFields': 'GlobalID',
+        'returnGeometry': 'true',
+        'f': 'geojson',
+      },
+    ).toString();
+  }
 
   static String getEsriBuldingByGlobalId(String globalId) {
     return Uri(
@@ -79,7 +96,7 @@ class ApiEndpoints {
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/1/query',
       queryParameters: {
-         'where': 'GlobalID = \'$globalId\'',
+        'where': 'GlobalID = \'$globalId\'',
         'objectIds': '',
         'time': '',
         'geometry': '',

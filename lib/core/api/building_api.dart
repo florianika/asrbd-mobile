@@ -15,6 +15,12 @@ class BuildingApi {
         '${ApiEndpoints.getEsriBulding(geometry, municipalityId)}&token=$esriToken');
   }
 
+  Future<Response> getBuildingIntersection(
+      String esriToken, Map<String, dynamic> geometry) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriBuildingInteresections(geometry)}&token=$esriToken');
+  }
+
   Future<Response> getBuildingDetails(String esriToken, String globalId) async {
     return await _apiClient.get(
         '${ApiEndpoints.getEsriBuldingByGlobalId(globalId)}&token=$esriToken');
@@ -47,11 +53,11 @@ class BuildingApi {
         'rings': [coordinates],
         'spatialReference': {'wkid': 4326},
       },
-      'properties': attributes,
+      'attributes': attributes,
     };
 
     final payload = {
-      'f': 'pjson',
+      'f': 'json',
       'features': jsonEncode([feature]),
       'rollbackOnFailure': 'true',
       'token': esriToken

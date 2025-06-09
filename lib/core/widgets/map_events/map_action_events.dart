@@ -8,12 +8,10 @@ import 'package:flutter_map/flutter_map.dart';
 
 class MapActionEvents extends StatefulWidget {
   final MapController mapController;
-  final Function onSave;
 
   const MapActionEvents({
     super.key,
     required this.mapController,
-    required this.onSave,
   });
 
   @override
@@ -21,16 +19,12 @@ class MapActionEvents extends StatefulWidget {
 }
 
 class _MapActionEventsState extends State<MapActionEvents> {
-  bool _isDrawingMarker = true;
+  final _isDrawingMarker = true;
 
   void _placeMarker() {
     final center = widget.mapController.camera.center;
 
     context.read<NewGeometryCubit>().addPoint(center);
-  }
-
-  void _save() {
-    widget.onSave();
   }
 
   @override
@@ -98,16 +92,14 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       onPressed: () => {
                         context.read<NewGeometryCubit>().setDrawing(false),
                         _placeMarker(),
-                        context
-                            .read<AttributesCubit>()
-                            .showBuildingAttributes(null),
-                        context
-                            .read<AttributesCubit>()
-                            .showEntranceAttributes(null),
-                        // if (state.type == ShapeType.point)
-                        //   _save()
-                        // else if (state.points.length > 2)
-                        //   _save()
+                        if (state.type == ShapeType.point)
+                          context
+                              .read<AttributesCubit>()
+                              .showEntranceAttributes(null)
+                        else if (state.type == ShapeType.polygon)
+                          context
+                              .read<AttributesCubit>()
+                              .showBuildingAttributes(null),
                       },
                       isEnabled: (((state).points.length > 2 &&
                               (state).type != ShapeType.point) ||

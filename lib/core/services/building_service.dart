@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:asrdb/core/api/building_api.dart';
+import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
@@ -66,6 +67,10 @@ class BuildingService {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
+
+      // bool intersected = await getBuildingIntersections(EsriConditionHelper.createEsriPolygonGeometry(points));
+
+      // if (intersected) throw Exception("Polygon is intersected with other one");
 
       final response =
           await buildingApi.addBuildingFeature(esriToken, attributes, points);
@@ -136,6 +141,30 @@ class BuildingService {
               'Error fetching entrance details: ${mapData['error']['message']}');
         } else {
           return mapData;
+        }
+      } else {
+        throw Exception('Failed to login');
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
+    try {
+      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response =
+          await buildingApi.getBuildingIntersection(esriToken, geometry);
+
+      if (response.statusCode == 200) {
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception(
+              'Error fetching entrance details: ${mapData['error']['message']}');
+        } else {
+          return mapData.isNotEmpty;
         }
       } else {
         throw Exception('Failed to login');

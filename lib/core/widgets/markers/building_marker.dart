@@ -48,8 +48,7 @@ class _BuildingMarkerState extends State<BuildingMarker> {
 
   void _onPolygonHit() {
     final hits = _hitNotifier.value;
-    if (hits != null) {
-      // Handle the hit
+    if (hits != null) {    
       final globalId = hits.hitValues.first;
       widget.onTap(globalId.toString());
     }

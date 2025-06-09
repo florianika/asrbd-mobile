@@ -32,7 +32,7 @@ class AttributesCubit extends Cubit<AttributesState> {
   final BuildingUseCases buildingUseCases;
 
   AttributesCubit(this.entranceUseCases, this.buildingUseCases)
-      : super(AttributesInitial());
+      : super(AttributesVisibility(false));
   // AttributesCubit(super.initialState);
 
   void showAttributes(bool showAttributes) {
