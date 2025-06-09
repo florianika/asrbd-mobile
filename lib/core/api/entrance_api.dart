@@ -37,7 +37,7 @@ class EntranceApi {
         'y': points[0].latitude,
         'spatialReference': {'wkid': 4326},
       },
-      'properties': attributes,
+      'attributes': attributes,
     };
 
     final payload = {
@@ -54,8 +54,8 @@ class EntranceApi {
         data: payload);
   }
 
-  Future<Response> updateEntranceFeature(String esriToken,
-      Map<String, dynamic> attributes) async {
+  Future<Response> updateEntranceFeature(
+      String esriToken, Map<String, dynamic> attributes) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };

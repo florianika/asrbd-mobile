@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
@@ -96,13 +97,12 @@ class _ViewMapState extends State<ViewMap> {
     final userService = sl<UserService>();
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
-    // final attributesCubit = context.read<AttributesCubit>();
 
-    String msg =
-        'New: $isNew, type: ${geometryCubit.type}, NoPoints: ${geometryCubit.points.length}, municip: ${userService.userInfo?.municipality}';
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    // String msg =
+    //     'New: $isNew, type: ${geometryCubit.type}, NoPoints: ${geometryCubit.points.length}, municip: ${userService.userInfo?.municipality}';
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text(msg)),
+    // );
 
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
@@ -111,6 +111,8 @@ class _ViewMapState extends State<ViewMap> {
         attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
         attributes['external_creator_date'] =
             DateTime.now().millisecondsSinceEpoch;
+        attributes['EntLatitude'] = geometryCubit.points.first.latitude;
+        attributes['EntLongitude'] = geometryCubit.points.first.longitude;
         entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
       } else {
         attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
@@ -120,8 +122,12 @@ class _ViewMapState extends State<ViewMap> {
       }
     } else if (geometryCubit.type == ShapeType.polygon) {
       if (isNew) {
+        LatLng centroid =
+            GeometryHelper.getPolygonCentroid(geometryCubit.points);
         attributes['BldMunicipality'] = userService.userInfo?.municipality;
         attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+        attributes['BldLatitude'] = centroid.latitude;
+        attributes['BldLongitude'] = centroid.longitude;
         attributes['external_creator_date'] =
             DateTime.now().millisecondsSinceEpoch;
         buildingCubit.addBuildingFeature(attributes, geometryCubit.points);
@@ -131,6 +137,9 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         buildingCubit.updateBuildingFeature(attributes);
       }
+
+      geometryCubit.setDrawing(false);
+      geometryCubit.clearPoints();
     }
   }
 
