@@ -33,8 +33,8 @@ class BuildingError extends BuildingState {
 }
 
 class BuildingAddResponse extends BuildingState {
-  final bool isAdded;
-  BuildingAddResponse(this.isAdded);
+  final String globalId;
+  BuildingAddResponse(this.globalId);
 }
 
 class BuildingUpdateResponse extends BuildingState {
@@ -57,7 +57,8 @@ class BuildingCubit extends Cubit<BuildingState> {
       LatLngBounds? bounds, double zoom, int municipalityId) async {
     emit(BuildingLoading());
     try {
-      final buildings = await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
+      final buildings =
+          await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
       emit(Buildings(buildings));
     } catch (e) {
       emit(BuildingError(e.toString()));
@@ -95,7 +96,8 @@ class BuildingCubit extends Cubit<BuildingState> {
       Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(BuildingLoading());
     try {
-      final result = await buildingUseCases.addBuildingFeature(attributes, points);
+      final result =
+          await buildingUseCases.addBuildingFeature(attributes, points);
       emit(BuildingAddResponse(result));
     } catch (e) {
       emit(BuildingError(e.toString()));

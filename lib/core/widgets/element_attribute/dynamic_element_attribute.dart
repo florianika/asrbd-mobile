@@ -136,6 +136,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       widget.onSave!(formValues);
     }
   }
+  
   Map<String, List<dynamic>> _groupAttributesBySection() {
     final schemaService = sl<SchemaService>();
     final schema = widget.selectedShapeType == ShapeType.point

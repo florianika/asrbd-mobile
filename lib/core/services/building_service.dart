@@ -62,7 +62,7 @@ class BuildingService {
     }
   }
 
-  Future<bool> addBuildingFeature(
+  Future<String> addBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng> points) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
@@ -92,7 +92,7 @@ class BuildingService {
         if (addResults is List && addResults.isNotEmpty) {
           final result = addResults[0];
           if (result is Map && result['success'] == true) {
-            return true;
+            return result['globalId'];
           } else {
             throw Exception(
                 'Feature add failed: ${result['error']?['message'] ?? 'Unknown reason'}');

@@ -1,1 +1,7 @@
-enum ValidationLevel { warning, error }
+enum ValidationLevel {
+  error,
+  warning,
+  info,
+  missing,
+  question,
+}

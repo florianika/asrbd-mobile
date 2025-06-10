@@ -1,12 +1,14 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -38,6 +40,8 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
   final GlobalKey<DynamicElementAttributeState> _dynamicFormKey =
       GlobalKey<DynamicElementAttributeState>();
 
+  List<ValidationResult>? validationResult;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,31 +67,31 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             bodyMedium: TextStyle(color: Colors.black),
                           ),
                         ),
-                        child: DynamicElementAttribute(
-                          key: _dynamicFormKey,
-                          schema: widget.schema,
-                          selectedShapeType: widget.selectedShapeType,
-                          initialData: widget.initialData,
-                          onSave: (formValues) {
-                            widget.save(formValues);
+                        child: BlocConsumer<OutputLogsCubit, OutputLogsState>(
+                          listener: (context, state) {
+                            if (state is OutputLogs) {
+                              validationResult = state.validationResult
+                                  .toValidationResults(
+                                      useAlbanianMessage: true);
+                              validationResult ??= [];
+                            }
                           },
-                          validationResults: [
-                            ValidationResult(
-                              name: 'BldCentroidStatus',
-                              message:
-                                  'This field has an error that needs attention',
-                              level: ValidationLevel.error,
-                            ),
-                            ValidationResult(
-                              name: 'BldReview',
-                              message: 'This field has a warning',
-                              level: ValidationLevel.warning,
-                            ),
-                          ],
-                          onClose: widget.onClose,
-                          onDwelling: _openNewDwellingForm,
-                          showButtons: false,
-                          readOnly: widget.readOnly,
+                          builder: (context, state) {
+                            return DynamicElementAttribute(
+                              key: _dynamicFormKey,
+                              schema: widget.schema,
+                              selectedShapeType: widget.selectedShapeType,
+                              initialData: widget.initialData,
+                              onSave: (formValues) {
+                                widget.save(formValues);
+                              },
+                              validationResults: validationResult,
+                              onClose: widget.onClose,
+                              onDwelling: _openNewDwellingForm,
+                              showButtons: false,
+                              readOnly: widget.readOnly,
+                            );
+                          },
                         ),
                       ),
                     ),

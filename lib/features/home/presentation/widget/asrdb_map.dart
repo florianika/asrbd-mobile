@@ -228,10 +228,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               }
             } else if (state is BuildingAddResponse) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(state.isAdded
-                        ? 'Building addedd successfully'
-                        : 'Building not added')),
+                const SnackBar(content: Text('Building addedd successfully')),
               );
             } else if (state is Attributes) {
               final lat = (state as Attributes).initialData['BldLatitude'];

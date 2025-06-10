@@ -6,6 +6,9 @@ class ApiEndpoints {
   static const String login = '/auth/login';
   static const String loginEsri = '/auth/gis/login';
   static const String refreshToken = '/auth/refreshToken';
+  static const String checkAutomatic = '/qms/check/automatic';
+  static const String checkBuilding = '/qms/check/buildings';
+  static const String outputLogs = '/qms/outputlogs/buildings';
   static const String entranceSchema = '/admin/metadata/entity/entrance';
   static const String buildingSchema = '/admin/metadata/entity/building';
   static const String dwellingSchema = '/admin/metadata/entity/dwelling';

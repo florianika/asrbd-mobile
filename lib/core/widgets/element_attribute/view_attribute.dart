@@ -5,9 +5,7 @@ import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dar
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute_shimmer.dart';
-import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
