@@ -7,6 +7,7 @@ import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/chat/chat_form_tablet.dart';
+import 'package:asrdb/core/widgets/chat/note_form_tablet.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -798,11 +799,12 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                         padding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom,
                         ),
-                        child: const Scaffold(
+                       child: const Scaffold(
                           backgroundColor: Colors.transparent,
                           body: SafeArea(
-                            child: ChatWidget(),
+                            child: NotesWidget(),
                           ),
+                        
                         ),
                       ),
                     ),
