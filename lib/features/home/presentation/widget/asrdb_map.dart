@@ -13,6 +13,7 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/target_marker.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -156,9 +157,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
     visibleBounds = widget.mapController.camera.visibleBounds;
   }
 
-  Future<void> _handleBuildingOnTap(String globalID) async {
+  void _handleBuildingOnTap(String globalID) {
     try {
-      await context.read<BuildingCubit>().getBuildingDetails(globalID);
+      context.read<BuildingCubit>().getBuildingDetails(globalID);
 
       List<dynamic> buildingEntrances = [];
       if (entranceData != null) {
@@ -232,6 +233,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
                         ? 'Building addedd successfully'
                         : 'Building not added')),
               );
+            } else if (state is Attributes) {
+              final lat = (state as Attributes).initialData['BldLatitude'];
+              final lng = (state as Attributes).initialData['BldLongitude'];
+
+              if (lat != null && lng != null) {
+                widget.mapController.move(LatLng(lat, lng), 19);
+              }
             } else if (state is BuildingError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),

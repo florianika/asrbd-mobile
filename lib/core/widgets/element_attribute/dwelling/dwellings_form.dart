@@ -6,7 +6,6 @@ import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/widgets.dart'; // Required for WidgetStateProperty
 
 class DwellingForm extends StatefulWidget {
   final ShapeType selectedShapeType;
@@ -178,9 +177,9 @@ class _DwellingFormState extends State<DwellingForm> {
                     children: [
                       const Icon(Icons.home, color: Colors.blue, size: 24),
                       const SizedBox(width: 12),
-                     const Text(
+                      const Text(
                         'Dwellings',
-                        style:  TextStyle(
+                        style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -865,7 +864,8 @@ class _DwellingFormState extends State<DwellingForm> {
       _isEditMode = true;
     });
 
-    context.read<DwellingCubit>().getDwellingAttibutes();
+    context.read<DwellingCubit>().getDwellingDetails(row['OBJECTID']);
+    widget.onBack();
   }
 
   void _onAddNewDwelling() {

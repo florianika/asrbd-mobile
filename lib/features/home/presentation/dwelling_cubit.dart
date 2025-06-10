@@ -91,8 +91,8 @@ class DwellingCubit extends Cubit<DwellingState> {
     emit(DwellingLoading());
     try {
       attributesCubit.showAttributes(true);
-      // await attributesCubit.showDwellingAttributes(objectId);
-      emit(Dwelling(await dwellingUseCases.getDwellingDetails(objectId!)));
+      await attributesCubit.showDwellingAttributes(objectId!);
+      // emit(Dwelling(await attributesCubit.showDwellingAttributes(objectId!)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }

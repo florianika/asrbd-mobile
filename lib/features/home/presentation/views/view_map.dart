@@ -98,12 +98,6 @@ class _ViewMapState extends State<ViewMap> {
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
 
-    // String msg =
-    //     'New: $isNew, type: ${geometryCubit.type}, NoPoints: ${geometryCubit.points.length}, municip: ${userService.userInfo?.municipality}';
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(content: Text(msg)),
-    // );
-
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
       if (isNew) {

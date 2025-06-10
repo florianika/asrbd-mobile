@@ -35,20 +35,17 @@ class _BuildingMarkerState extends State<BuildingMarker> {
   @override
   void initState() {
     super.initState();
-
-    _hitNotifier.addListener(_onPolygonHit);
   }
 
   @override
   void dispose() {
-    _hitNotifier.removeListener(_onPolygonHit);
     _hitNotifier.dispose();
     super.dispose();
   }
 
   void _onPolygonHit() {
     final hits = _hitNotifier.value;
-    if (hits != null) {    
+    if (hits != null) {
       final globalId = hits.hitValues.first;
       widget.onTap(globalId.toString());
     }
@@ -63,58 +60,64 @@ class _BuildingMarkerState extends State<BuildingMarker> {
 
     return Stack(
       children: [
-        PolygonLayer(
-          hitNotifier: _hitNotifier,
-          polygons: features.map((feature) {
-            final props = feature['properties'] as Map<String, dynamic>;
-            final value = widget.attributeLegend == 'quality'
-                ? props['BldQuality']
-                : props['BldReview'];
+        GestureDetector(
+          behavior: HitTestBehavior.deferToChild,
+          onTapUp: (TapUpDetails details) {
+            _onPolygonHit();
+          },
+          child: PolygonLayer(
+            hitNotifier: _hitNotifier,
+            polygons: features.map((feature) {
+              final props = feature['properties'] as Map<String, dynamic>;
+              final value = widget.attributeLegend == 'quality'
+                  ? props['BldQuality']
+                  : props['BldReview'];
 
-            Color fillColor = legendService.getColorForValue(
-                    LegendType.building, widget.attributeLegend, value) ??
-                Colors.black;
-            if (widget.selectedShapeType == ShapeType.polygon &&
-                widget.selectedGlobalID == props['GlobalID']) {
-              fillColor = Colors.red.withOpacity(0.7);
-            }
+              Color fillColor = legendService.getColorForValue(
+                      LegendType.building, widget.attributeLegend, value) ??
+                  Colors.black;
+              if (widget.selectedShapeType == ShapeType.polygon &&
+                  widget.selectedGlobalID == props['GlobalID']) {
+                fillColor = Colors.red.withOpacity(0.7);
+              }
 
-            return Polygon(
-              hitValue: props['GlobalID'],
-              points: GeometryHelper.parseCoordinates(feature['geometry']),
-              color: fillColor,
-              label: props['OBJECTID'].toString(),
-              labelStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                shadows: [
-                  Shadow(
-                    offset: Offset(-1.0, -1.0),
-                    color: Colors.black,
-                  ),
-                  Shadow(
-                    offset: Offset(1.0, -1.0),
-                    color: Colors.black,
-                  ),
-                  Shadow(
-                    offset: Offset(1.0, 1.0),
-                    color: Colors.black,
-                  ),
-                  Shadow(
-                    offset: Offset(-1.0, 1.0),
-                    color: Colors.black,
-                  ),
-                ],
-              ),
-              borderStrokeWidth:
-                  widget.highlightedBuildingIds != props['GlobalID']
-                      ? 1.0
-                      : 8.0,
-              borderColor: widget.highlightedBuildingIds != props['GlobalID']
-                  ? Colors.blue
-                  : const Color.fromARGB(255, 215, 25, 11).withOpacity(0.3),
-            );
-          }).toList(),
+              return Polygon(
+                hitValue: props['GlobalID'],
+                points: GeometryHelper.parseCoordinates(feature['geometry']),
+                color: fillColor,
+                label: props['OBJECTID'].toString(),
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(-1.0, -1.0),
+                      color: Colors.black,
+                    ),
+                    Shadow(
+                      offset: Offset(1.0, -1.0),
+                      color: Colors.black,
+                    ),
+                    Shadow(
+                      offset: Offset(1.0, 1.0),
+                      color: Colors.black,
+                    ),
+                    Shadow(
+                      offset: Offset(-1.0, 1.0),
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+                borderStrokeWidth:
+                    widget.highlightedBuildingIds != props['GlobalID']
+                        ? 1.0
+                        : 8.0,
+                borderColor: widget.highlightedBuildingIds != props['GlobalID']
+                    ? Colors.blue
+                    : const Color.fromARGB(255, 215, 25, 11).withOpacity(0.3),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
