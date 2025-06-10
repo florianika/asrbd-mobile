@@ -6,7 +6,6 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
-import 'package:asrdb/core/widgets/chat/chat_form_tablet.dart';
 import 'package:asrdb/core/widgets/chat/note_form_tablet.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -777,41 +776,49 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           ),
         ),
         Positioned(
-          top: 0,
-          right: 0,
-          child: IconButton(
-            icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
-            tooltip: 'Comments',
-           onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.white,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+  top: 0,
+  right: 0,
+  child: IconButton(
+    icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
+    tooltip: 'Comments',
+    onPressed: () {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true, 
+        backgroundColor: Colors.transparent, 
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (context) {
+          final Color backgroundStart = Theme.of(context).colorScheme.background;
+          final Color backgroundEnd = Theme.of(context).colorScheme.surface;
+          return DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.8,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            builder: (context, scrollController) => Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [backgroundStart, backgroundEnd],
+                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              ),
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: NotesWidget(scrollController: scrollController), 
+              ),
             ),
-                    builder: (context) => DraggableScrollableSheet(
-                      expand: false,
-                      initialChildSize: 0.8,
-                      minChildSize: 0.5,
-                      maxChildSize: 0.95,
-                      builder: (context, scrollController) => Padding(
-                        padding: EdgeInsets.only(
-                          bottom: MediaQuery.of(context).viewInsets.bottom,
-                        ),
-                       child: const Scaffold(
-                          backgroundColor: Colors.transparent,
-                          body: SafeArea(
-                            child: NotesWidget(),
-                          ),
-                        
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                ),
-                ),
+          );
+        },
+      );
+    },
+  ),
+),
               ],
     );
   }
