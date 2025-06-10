@@ -12,6 +12,7 @@ import 'package:asrdb/features/home/data/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
+import 'package:asrdb/features/home/dwelling_module.dart';
 import 'package:asrdb/features/home/entrance_module.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
@@ -70,8 +71,8 @@ void main() async {
 
   sl.registerSingleton<UserService>(UserService());
 
-  sl.registerLazySingleton<AttributesCubit>(
-      () => AttributesCubit(sl<EntranceUseCases>(), sl<BuildingUseCases>()));
+  sl.registerLazySingleton<AttributesCubit>(() => AttributesCubit(
+      sl<EntranceUseCases>(), sl<BuildingUseCases>(), sl<DwellingUseCases>()));
 
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();
@@ -81,6 +82,7 @@ void main() async {
   initAuthModule(sl);
   initEntranceModule(sl);
   initBuildingModule(sl);
+  initDwellingModule(sl);
 
   runApp(const MyApp());
 }
@@ -102,11 +104,11 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<BuildingCubit>()),
         BlocProvider(create: (context) => sl<AttributesCubit>()),
         BlocProvider(create: (context) => sl<NewGeometryCubit>()),
-        BlocProvider(
-            create: (_) => DwellingCubit(DwellingUseCases(
-                DwellingRepository(DwellingService(DwellingApi()))))),
-        BlocProvider(
-            create: (context) => LangCubit()), // Provide LangCubit here
+        BlocProvider(create: (context) => sl<DwellingCubit>()),
+        // BlocProvider(
+        //     create: (_) => DwellingCubit(DwellingUseCases(
+        //         DwellingRepository(DwellingService(DwellingApi()))))),
+        BlocProvider(create: (context) => LangCubit()),
       ],
       child: BlocBuilder<LangCubit, String>(
         builder: (context, langCode) {

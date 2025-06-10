@@ -1,0 +1,894 @@
+import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/widgets.dart'; // Required for WidgetStateProperty
+
+class DwellingForm extends StatefulWidget {
+  final ShapeType selectedShapeType;
+  final String? entranceGlobalId;
+  final VoidCallback onBack;
+
+  const DwellingForm({
+    super.key,
+    required this.selectedShapeType,
+    this.entranceGlobalId,
+    required this.onBack,
+  });
+
+  @override
+  State<DwellingForm> createState() => _DwellingFormState();
+}
+
+class _DwellingFormState extends State<DwellingForm> {
+  final List<Map<String, dynamic>> _dwellingRows = [];
+  List<FieldSchema> _dwellingSchema = [];
+  bool _showDwellingForm = false;
+  Map<String, dynamic> _initialData = {};
+  bool _isEditMode = false;
+  Map<String, dynamic>? _viewPendingRow;
+  Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
+  Set<String> _expandedFloors = {}; // Track which floors are expanded
+
+  late Map<String, String> _columnLabels;
+  late List<String> _columnOrder;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final id = widget.entranceGlobalId;
+    _initialData['DwlEntGlobalID'] = id;
+
+    final schemaService = sl<SchemaService>();
+    final dwellingSchema = schemaService.dwellingSchema;
+
+    _columnLabels = {
+      for (var attr in dwellingSchema.attributes) attr.name: attr.label.al,
+    };
+
+    _columnOrder = dwellingSchema.attributes
+        .where((attr) => attr.display.enumerator != "none")
+        .map((attr) => attr.name)
+        .toList();
+
+    context.read<DwellingCubit>().getDwellings(id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<DwellingCubit, DwellingState>(
+      listener: (context, state) {
+        if (state is Dwellings) {
+          final features = state.dwellings['features'] as List<dynamic>;
+          setState(() {
+            _dwellingRows.clear();
+            _dwellingRows.addAll(
+              features.map((f) => Map<String, dynamic>.from(f['properties'])),
+            );
+          });
+        } else if (state is DwellingAttributes) {
+          setState(() {
+            _dwellingSchema = state.attributes;
+            _showDwellingForm = _viewPendingRow == null;
+          });
+
+          if (_viewPendingRow != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showViewDialog(_viewPendingRow!);
+              _viewPendingRow = null;
+            });
+          }
+        } else if (state is DwellingError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: null, // Removed AppBar
+          backgroundColor: Colors.white,
+          body: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Constrain the main content width
+                SizedBox(
+                  width: 600, // Set fixed width (adjust as needed: 500-800)
+                  child: Column(
+                    children: [
+                      // Custom header replacing AppBar
+                      _buildCustomHeader(),
+                      const SizedBox(height: 16),
+                      if (state is DwellingLoading)
+                        const Center(child: CircularProgressIndicator()),
+                      if (_dwellingRows.isEmpty && state is! DwellingLoading)
+                        Expanded(child: _buildEmptyState()),
+                      if (_dwellingRows.isNotEmpty)
+                        Expanded(child: _buildDwellingsList()),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16), // Spacing
+                if (_showDwellingForm)
+                  Expanded(
+                    child: TabletElementAttribute(
+                      schema: _dwellingSchema,
+                      selectedShapeType: ShapeType.noShape,
+                      initialData: _initialData,
+                      onClose: () {
+                        setState(() {
+                          _showDwellingForm = false;
+                          _isEditMode = false;
+                        });
+                      },
+                      save: (formValues) async {
+                        await _onSaveDwelling(formValues);
+                        setState(() {
+                          _showDwellingForm = false;
+                          _isEditMode = false;
+                        });
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCustomHeader() {
+    // Get the first dwelling's OBJECTID for display
+    final objectId = _dwellingRows.isNotEmpty
+        ? _dwellingRows.first['OBJECTID']?.toString() ?? "N/A"
+        : "N/A";
+
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            // Back button
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: widget.onBack,
+              tooltip: 'Go Back',
+            ),
+            const SizedBox(width: 8),
+
+            // Title and info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.home, color: Colors.blue, size: 24),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Dwellings',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Text(
+                          '${_dwellingRows.length} total',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Object ID: $objectId',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Add button
+            ElevatedButton.icon(
+              onPressed: _onAddNewDwelling,
+              icon: const Icon(Icons.add, size: 20),
+              label: const Text('Add'),
+              style: ElevatedButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDwellingsList() {
+    // Group dwellings by floor
+    final groupedByFloor = _groupDwellingsByFloor();
+
+    return Expanded(
+      child: ListView.separated(
+        padding: const EdgeInsets.all(8),
+        itemCount: groupedByFloor.keys.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          final floor = groupedByFloor.keys.elementAt(index);
+          final dwellings = groupedByFloor[floor]!;
+          return _buildFloorGroup(floor, dwellings);
+        },
+      ),
+    );
+  }
+
+  Widget _buildListHeader() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            const Icon(Icons.home, color: Colors.blue),
+            const SizedBox(width: 12),
+            Text(
+              '${_dwellingRows.length} Dwellings',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // const Spacer(),
+            // Text(
+            //   'Object ID: ${dwelling['OBJECTID']?.toString() ?? "N/A"}',
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     color: Colors.grey[600],
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandableDwellingItem(
+      Map<String, dynamic> dwelling, int index) {
+    final isExpanded = _expandedDwellings.contains(index);
+    final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
+    final apartNumber = dwelling['DwlApartNumber']?.toString() ?? 'N/A';
+    final quality = dwelling['DwlQuality']?.toString() ?? '0';
+    final qualityInfo = _getQualityInfo(quality);
+
+    return Card(
+      elevation: isExpanded ? 3 : 1,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      child: Column(
+        children: [
+          // Header - Always visible
+          InkWell(
+            onTap: () => _toggleExpansion(index),
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  // Apartment info
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.home,
+                          color: Colors.grey[600],
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          apartNumber != 'N/A'
+                              ? 'Apt $apartNumber'
+                              : 'No Apartment',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Quality status icon
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: qualityInfo['color'].withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          qualityInfo['icon'],
+                          color: qualityInfo['color'],
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          quality,
+                          style: TextStyle(
+                            color: qualityInfo['color'],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // Expand/collapse icon
+                  AnimatedRotation(
+                    turns: isExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Expanded content
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: _buildExpandedContent(dwelling, index),
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpandedContent(Map<String, dynamic> dwelling, int index) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Divider(),
+          const SizedBox(height: 12),
+
+          // Display all dwelling data
+          _buildDwellingDataGrid(dwelling),
+
+          const SizedBox(height: 16),
+
+          // Action buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => _onViewDwelling(dwelling),
+                icon: const Icon(Icons.visibility, size: 18),
+                label: const Text('View Details'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                onPressed: () => _onEditDwelling(dwelling),
+                icon: const Icon(Icons.edit, size: 18),
+                label: const Text('Edit'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDwellingDataGrid(Map<String, dynamic> dwelling) {
+    // Show only 3 specific attributes
+    const allowedKeys = {'DwlFloor', 'DwlApartNumber', 'DwlQuality'};
+    final dataItems = <MapEntry<String, dynamic>>[];
+
+    for (final key in _columnOrder) {
+      if (allowedKeys.contains(key) &&
+          dwelling.containsKey(key) &&
+          dwelling[key] != null) {
+        dataItems.add(MapEntry(key, dwelling[key]));
+      }
+    }
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 12,
+      children: dataItems.map((entry) {
+        return _buildDataItem(entry.key, entry.value);
+      }).toList(),
+    );
+  }
+
+  Widget _buildDataItem(String key, dynamic value) {
+    String displayValue = value?.toString() ?? 'N/A';
+    String label = _columnLabels[key] ?? key;
+
+    // Special handling for quality field
+    if (key == 'DwlQuality') {
+      const qualityLabels = {
+        '1': 'Complete (No errors)',
+        '2': 'Incomplete (Missing data)',
+        '3': 'Conflicted (Contradictory)',
+        '9': 'Untested',
+        '0': 'Deleted',
+      };
+      displayValue = qualityLabels[displayValue] ?? displayValue;
+    }
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 120),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: Text(
+              displayValue,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.home_outlined,
+            size: 64,
+            color: Colors.grey[400],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'No dwellings found',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add your first dwelling to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _onAddNewDwelling,
+            icon: const Icon(Icons.add),
+            label: const Text('Add First Dwelling'),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper methods
+  Map<String, List<Map<String, dynamic>>> _groupDwellingsByFloor() {
+    final grouped = <String, List<Map<String, dynamic>>>{};
+
+    for (final dwelling in _dwellingRows) {
+      final floor = dwelling['DwlFloor']?.toString() ?? 'Unknown';
+      if (!grouped.containsKey(floor)) {
+        grouped[floor] = [];
+      }
+      grouped[floor]!.add(dwelling);
+    }
+
+    // Sort floors numerically
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        if (a == 'Unknown') return 1;
+        if (b == 'Unknown') return -1;
+        final aNum = int.tryParse(a) ?? 0;
+        final bNum = int.tryParse(b) ?? 0;
+        return aNum.compareTo(bNum);
+      });
+
+    return Map.fromEntries(
+        sortedKeys.map((key) => MapEntry(key, grouped[key]!)));
+  }
+
+  bool _floorHasErrors(List<Map<String, dynamic>> dwellings) {
+    return dwellings.any((dwelling) {
+      final quality = dwelling['DwlQuality']?.toString() ?? '0';
+      return quality == '2' || quality == '3'; // Missing data or Contradictory
+    });
+  }
+
+  Widget _buildFloorGroup(String floor, List<Map<String, dynamic>> dwellings) {
+    final isFloorExpanded = _expandedFloors.contains(floor);
+    final hasErrors = _floorHasErrors(dwellings);
+
+    return Card(
+      elevation: isFloorExpanded ? 4 : 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          // Floor header
+          InkWell(
+            onTap: () => _toggleFloorExpansion(floor),
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.apartment,
+                    color: Colors.blue[700],
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Floor $floor',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${dwellings.length} dwelling${dwellings.length != 1 ? 's' : ''}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.blue[700],
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+
+                  // Error flag
+                  if (hasErrors) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.warning,
+                            color: Colors.red[700],
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Issues',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+
+                  // Expand/collapse icon
+                  AnimatedRotation(
+                    turns: isFloorExpanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Floor content (dwellings)
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: _buildFloorContent(floor, dwellings),
+            crossFadeState: isFloorExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 250),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloorContent(
+      String floor, List<Map<String, dynamic>> dwellings) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        children: [
+          const Divider(),
+          const SizedBox(height: 8),
+          ...dwellings.asMap().entries.map((entry) {
+            final dwelling = entry.value;
+            final dwellingIndex = _dwellingRows.indexOf(dwelling);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildExpandableDwellingItem(dwelling, dwellingIndex),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  void _toggleFloorExpansion(String floor) {
+    setState(() {
+      if (_expandedFloors.contains(floor)) {
+        _expandedFloors.remove(floor);
+        // Also collapse all dwellings in this floor
+        for (final dwelling in _dwellingRows) {
+          if (dwelling['DwlFloor']?.toString() == floor) {
+            final index = _dwellingRows.indexOf(dwelling);
+            _expandedDwellings.remove(index);
+          }
+        }
+      } else {
+        _expandedFloors.add(floor);
+      }
+    });
+  }
+
+  void _toggleExpansion(int index) {
+    setState(() {
+      if (_expandedDwellings.contains(index)) {
+        _expandedDwellings.remove(index);
+      } else {
+        _expandedDwellings.add(index);
+      }
+    });
+  }
+
+  Map<String, dynamic> _getQualityInfo(String quality) {
+    switch (quality) {
+      case '1':
+        return {
+          'color': Colors.green,
+          'icon': Icons.check_circle,
+          'label': 'Complete',
+        };
+      case '2':
+        return {
+          'color': Colors.orange,
+          'icon': Icons.warning,
+          'label': 'Incomplete',
+        };
+      case '3':
+        return {
+          'color': Colors.red,
+          'icon': Icons.error,
+          'label': 'Conflicted',
+        };
+      case '9':
+        return {
+          'color': Colors.blue,
+          'icon': Icons.help_outline,
+          'label': 'Untested',
+        };
+      case '0':
+      default:
+        return {
+          'color': Colors.grey,
+          'icon': Icons.delete_outline,
+          'label': 'Deleted',
+        };
+    }
+  }
+
+  void _onViewDwelling(Map<String, dynamic> row) {
+    if (_dwellingSchema.isEmpty) {
+      _viewPendingRow = row;
+      context.read<DwellingCubit>().getDwellingAttibutes();
+      return;
+    }
+    _showViewDialog(row);
+  }
+
+  void _showViewDialog(Map<String, dynamic> row) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: SizedBox(
+          width: 700,
+          height: 750,
+          child: Column(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Dwelling Details',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    )
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Expanded(
+                child: TabletElementAttribute(
+                  schema: _dwellingSchema,
+                  selectedShapeType: ShapeType.noShape,
+                  initialData: row,
+                  onClose: () => Navigator.pop(context),
+                  save: (_) {},
+                  readOnly: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _onEditDwelling(Map<String, dynamic> row) {
+    // final id = widget.entranceGlobalId;
+    // if (id != null) {
+    //   row['DwlEntGlobalID'] = id;
+    // }
+
+    // setState(() {
+    //   _initialData = row;
+    //   _isEditMode = true;
+    // });
+
+    context.read<DwellingCubit>().getDwellingDetails(row['ObjectID']);
+  }
+
+  void _onAddNewDwelling() {
+    final id = widget.entranceGlobalId;
+    setState(() {
+      _initialData = {'DwlEntGlobalID': id};
+      _isEditMode = false;
+    });
+
+    context.read<DwellingCubit>().getDwellingAttibutes();
+  }
+
+  Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
+    if (_isEditMode) {
+      await context.read<DwellingCubit>().updateDwellingFeature(attributes);
+    } else {
+      await context.read<DwellingCubit>().addDwellingFeature(attributes);
+    }
+
+    // final id = widget.entranceGlobalId;
+    // if (id != null) {
+    //   await context.read<DwellingCubit>().getDwellings(id);
+    // }
+
+    setState(() {
+      _showDwellingForm = false;
+      _isEditMode = false;
+    });
+  }
+}

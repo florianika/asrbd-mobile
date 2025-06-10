@@ -220,6 +220,9 @@ class _ViewMapState extends State<ViewMap> {
                     selectedShapeType:
                         state is Attributes ? state.shapeType : ShapeType.point,
                     initialData: state is Attributes ? state.initialData : {},
+                    showDwellings: state is Attributes
+                        ? state.shapeType == ShapeType.noShape
+                        : false,
                     isLoading: state is AttributesLoading,
                     save: _onSave,
                     onClose: () {

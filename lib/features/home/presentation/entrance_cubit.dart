@@ -66,9 +66,7 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> getEntranceDetails(String globalId) async {
     // final AttributesCubit attributesCubit;
     emit(EntranceLoading());
-    try {
-      // emit(Entrance(await entranceUseCases.getEntranceDetails(globalId)));
-      // emit(Attributes(schema, initialData, shapeType))
+    try {    
       attributesCubit.showAttributes(true);
       await attributesCubit.showEntranceAttributes(globalId);
     } catch (e) {

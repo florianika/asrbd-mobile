@@ -1,5 +1,6 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class DwellingState {}
@@ -22,6 +23,7 @@ class DwellingUpdateResponse extends DwellingState {
   final bool isAdded;
   DwellingUpdateResponse(this.isAdded);
 }
+
 class DwellingAddResponse extends DwellingState {
   final bool isAdded;
   DwellingAddResponse(this.isAdded);
@@ -39,8 +41,10 @@ class DwellingError extends DwellingState {
 
 class DwellingCubit extends Cubit<DwellingState> {
   final DwellingUseCases dwellingUseCases;
+  final AttributesCubit attributesCubit;
 
-  DwellingCubit(this.dwellingUseCases) : super(DwellingInitial());
+  DwellingCubit(this.dwellingUseCases, this.attributesCubit)
+      : super(DwellingInitial());
 
   // Login method
   Future<void> getDwellings(String? entranceGlobalId) async {
@@ -61,8 +65,9 @@ class DwellingCubit extends Cubit<DwellingState> {
     }
   }
 
-    Future<void> addDwellingFeature(
-      Map<String, dynamic> attributes,) async {
+  Future<void> addDwellingFeature(
+    Map<String, dynamic> attributes,
+  ) async {
     emit(DwellingLoading());
     try {
       emit(DwellingAddResponse(
@@ -72,8 +77,7 @@ class DwellingCubit extends Cubit<DwellingState> {
     }
   }
 
-   Future<void> updateDwellingFeature(
-      Map<String, dynamic> attributes) async {
+  Future<void> updateDwellingFeature(Map<String, dynamic> attributes) async {
     emit(DwellingLoading());
     try {
       emit(DwellingUpdateResponse(
@@ -82,14 +86,15 @@ class DwellingCubit extends Cubit<DwellingState> {
       emit(DwellingError(e.toString()));
     }
   }
-  
-  Future<void> getDwellingDetails(int objectId) async {
+
+  Future<void> getDwellingDetails(int? objectId) async {
     emit(DwellingLoading());
     try {
-      emit(Dwelling(await dwellingUseCases.getDwellingDetails(objectId)));
+      attributesCubit.showAttributes(true);
+      // await attributesCubit.showDwellingAttributes(objectId);
+      emit(Dwelling(await dwellingUseCases.getDwellingDetails(objectId!)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
   }
-
 }

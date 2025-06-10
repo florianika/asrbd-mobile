@@ -2,9 +2,13 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
+import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
@@ -104,7 +108,12 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               child: EventButtonAttribute(
                 onSave: () => _dynamicFormKey.currentState?.handleSave(),
                 onClose: () => widget.onClose(),
-                openDwelling: () => _openNewDwellingForm(null),
+                openDwelling: () => {
+                  context
+                      .read<DwellingCubit>()
+                      .getDwellings(widget.initialData['GlobalID']),
+                  _openNewDwellingForm(null),
+                },
                 selectedShapeType: widget.selectedShapeType,
               ),
             ),

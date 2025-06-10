@@ -1,16 +1,19 @@
 import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/widgets/element_attribute/dwellings_form.dart';
+import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute_shimmer.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
   final VoidCallback onClose;
+  final bool showDwellings;
   final bool isLoading;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -25,6 +28,7 @@ class ViewAttribute extends StatefulWidget {
     required this.save,
     this.onOpenDwelling,
     required this.isLoading,
+    required this.showDwellings,
   });
 
   @override
@@ -35,6 +39,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
   bool _isDwellingVisible = false;
   double _sidePanelFractionDefualt = 0.4;
   final double _defaultDwellingWidthFraction = 0.8;
+  bool _showDwellings = false;
 
   bool _isMobileSheetVisible = false;
   bool? _isMobile; // Nullable so we know if it's initialized
@@ -153,14 +158,14 @@ class _ViewAttributeState extends State<ViewAttribute> {
         width: MediaQuery.of(context).size.width * _sidePanelFractionDefualt,
         child: widget.isLoading
             ? const ViewAttributeShimmer()
-            : _isDwellingVisible
+            : _showDwellings
                 ? DwellingForm(
                     selectedShapeType: ShapeType.point,
                     entranceGlobalId:
                         widget.initialData['GlobalID']?.toString(),
                     onBack: () {
                       setState(() {
-                        _isDwellingVisible = false;
+                        _showDwellings = false;
                       });
                     },
                   )
@@ -172,7 +177,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
                     onClose: widget.onClose,
                     onOpenDwelling: () {
                       setState(() {
-                        _isDwellingVisible = true;
+                        _showDwellings = true;
                         _sidePanelFractionDefualt =
                             _defaultDwellingWidthFraction;
                       });
