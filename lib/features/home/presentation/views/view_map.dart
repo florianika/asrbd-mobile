@@ -13,10 +13,12 @@ import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
@@ -79,7 +81,7 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _initialize() async {
-    context.read<BuildingCubit>().attributesCubit;
+    context.read<BuildingCubit>().getBuildingAttributes();
     context.read<EntranceCubit>().getEntranceAttributes();
 
     buildingLegends = {
@@ -92,11 +94,12 @@ class _ViewMapState extends State<ViewMap> {
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }
 
-  void _onSave(Map<String, dynamic> attributes) {
+  Future<void> _onSave(Map<String, dynamic> attributes) async {
     final isNew = attributes['GlobalID'] == null;
     final userService = sl<UserService>();
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
+    final outputLogsCubit = context.read<OutputLogsCubit>();
 
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
@@ -107,14 +110,17 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         attributes['EntLatitude'] = geometryCubit.points.first.latitude;
         attributes['EntLongitude'] = geometryCubit.points.first.longitude;
-        entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
+        await entranceCubit.addEntranceFeature(
+            attributes, geometryCubit.points);
       } else {
         attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
         attributes['external_editor_date'] =
             DateTime.now().millisecondsSinceEpoch;
-        entranceCubit.updateEntranceFeature(attributes);
+        await entranceCubit.updateEntranceFeature(attributes);
       }
     } else if (geometryCubit.type == ShapeType.polygon) {
+      String globalId;
+      final buildingUseCase = sl<BuildingUseCases>();
       if (isNew) {
         LatLng centroid =
             GeometryHelper.getPolygonCentroid(geometryCubit.points);
@@ -124,16 +130,26 @@ class _ViewMapState extends State<ViewMap> {
         attributes['BldLongitude'] = centroid.longitude;
         attributes['external_creator_date'] =
             DateTime.now().millisecondsSinceEpoch;
-        buildingCubit.addBuildingFeature(attributes, geometryCubit.points);
+
+        globalId = await buildingUseCase.addBuildingFeature(
+            attributes, geometryCubit.points);
       } else {
+        globalId = attributes['GlobalID'];
         attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
         attributes['external_editor_date'] =
             DateTime.now().millisecondsSinceEpoch;
-        buildingCubit.updateBuildingFeature(attributes);
+        await buildingUseCase.updateBuildingFeature(attributes);
       }
 
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
+
+      // if (mounted) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(content: Text(globalId)),
+      //   );
+      // }
+      // await outputLogsCubit.checkAutomatic(globalId);
     }
   }
 

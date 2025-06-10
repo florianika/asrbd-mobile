@@ -30,7 +30,7 @@ class BuildingUseCases {
     return await _buildingRepository.getBuildingAttributes();
   }
 
-  Future<bool> addBuildingFeature(
+  Future<String> addBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng> points) async {
     return await _buildingRepository.addBuildingFeature(attributes, points);
   }

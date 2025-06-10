@@ -14,11 +14,13 @@ import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/dwelling_module.dart';
 import 'package:asrdb/features/home/entrance_module.dart';
+import 'package:asrdb/features/home/output_logs_module.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,6 +85,7 @@ void main() async {
   initEntranceModule(sl);
   initBuildingModule(sl);
   initDwellingModule(sl);
+  initOutputLogsModule(sl);
 
   runApp(const MyApp());
 }
@@ -105,9 +108,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<AttributesCubit>()),
         BlocProvider(create: (context) => sl<NewGeometryCubit>()),
         BlocProvider(create: (context) => sl<DwellingCubit>()),
-        // BlocProvider(
-        //     create: (_) => DwellingCubit(DwellingUseCases(
-        //         DwellingRepository(DwellingService(DwellingApi()))))),
+        BlocProvider(create: (context) => sl<OutputLogsCubit>()),
         BlocProvider(create: (context) => LangCubit()),
       ],
       child: BlocBuilder<LangCubit, String>(
