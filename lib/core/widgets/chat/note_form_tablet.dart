@@ -1,134 +1,181 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; // For timestamp formatting
 
 class NotesWidget extends StatefulWidget {
-  const NotesWidget({Key? key}) : super(key: key);
+  const NotesWidget({super.key});
 
   @override
   State<NotesWidget> createState() => _NotesWidgetState();
 }
 
 class _NotesWidgetState extends State<NotesWidget> {
-  final List<_Message> _messages = [];
+  final List<Note> _notes = [];
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
-  final String getCommentsUrl = 'https://8c08e31d-84d8-44bb-aa2e-ac6e98956308.mock.pstmn.io/getSms';
-  final String postCommentUrl = 'https://your-api.com/post-comment'; // Replace with your real endpoint
+  final String getNotesUrl =
+      'https://544bad0f-a2ef-48ee-a676-f7fae5c413f9.mock.pstmn.io/getsms';
+  final String postNoteUrl = 'https://your-api.com/post-comment';
 
   @override
   void initState() {
     super.initState();
-    _fetchMessages();
+    _fetchNotes();
   }
 
-  Future<void> _fetchMessages() async {
+  Future<void> _fetchNotes() async {
     try {
-      final response = await http.get(Uri.parse(getCommentsUrl));
+      final response = await http.get(Uri.parse(getNotesUrl));
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          _messages.clear();
-          _messages.addAll(data.map((item) => _Message(
-                content: item['message'],
-                isUser: item['isUser'],
-              )));
+          _notes.clear();
+          _notes.addAll(data.map((item) => Note.fromJson(item)));
+          _notes.sort((a, b) => b.createdTimestamp.compareTo(a.createdTimestamp));
         });
+      } else {
+        debugPrint('Failed to load notes');
       }
     } catch (e) {
-      debugPrint('Error fetching messages: $e');
+      debugPrint('Error fetching notes: $e');
     }
   }
 
-  Future<void> _addComment() async {
+  Future<void> _addNote() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    final newComment = _Message(content: text, isUser: true);
+    final now = DateTime.now();
+    final newNote = Note(
+      noteId: -1,
+      bldId: 'demo-id',
+      noteText: text,
+      createdUser: 'You',
+      createdTimestamp: now,
+    );
+
     setState(() {
-      _messages.add(newComment);
+      _notes.insert(0, newNote);
       _controller.clear();
     });
 
     try {
       final response = await http.post(
-        Uri.parse(postCommentUrl),
+        Uri.parse(postNoteUrl),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'message': text}),
+        body: json.encode({
+          'NoteText': text,
+          'CreatedUser': 'You',
+          'CreatedTimestamp': now.toIso8601String(),
+        }),
       );
+
       if (response.statusCode != 200) {
-        debugPrint('Failed to post comment');
+        debugPrint('Failed to post note');
       }
     } catch (e) {
-      debugPrint('Error posting comment: $e');
+      debugPrint('Error posting note: $e');
     }
+  }
+
+  String _formatDate(DateTime timestamp) {
+    return DateFormat('yyyy-MM-dd – kk:mm').format(timestamp);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Notes")),
-      resizeToAvoidBottomInset: true,
+      appBar: AppBar(title: const Text("Building Notes")),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(12),
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  final msg = _messages[index];
-                  return Card(
-                    elevation: 1,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: Icon(
-                        msg.isUser ? Icons.person : Icons.engineering,
-                        color: msg.isUser ? Colors.blue : Colors.grey,
-                      ),
-                      title: Text(msg.content),
-                      subtitle: Text(msg.isUser ? "You" : "System"),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const Divider(height: 1),
-            Padding(
-              padding: EdgeInsets.only(
-                left: 12,
-                right: 12,
-                bottom: MediaQuery.of(context).viewInsets.bottom + 12,
-                top: 12,
-              ),
-              child: Row(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: 'Add a comment...',
-                        border: OutlineInputBorder(),
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Add a note...',
+                        contentPadding: const EdgeInsets.all(16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 12),
                   ElevatedButton(
-                    onPressed: _addComment,
+                    onPressed: _addNote,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 24,
+                      ),
+                    ),
                     child: const Icon(Icons.send),
-                  )
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _notes.length,
+                  itemBuilder: (context, index) {
+                    final note = _notes[index];
+                    return Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        leading: const Icon(Icons.note_alt_outlined),
+                        title: Text(note.noteText),
+                        subtitle: Text(
+                          'By ${note.createdUser} on ${_formatDate(note.createdTimestamp)}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _Message {
-  final String content;
-  final bool isUser;
-  _Message({required this.content, required this.isUser});
+class Note {
+  final int noteId;
+  final String bldId;
+  final String noteText;
+  final String createdUser;
+  final DateTime createdTimestamp;
+
+  Note({
+    required this.noteId,
+    required this.bldId,
+    required this.noteText,
+    required this.createdUser,
+    required this.createdTimestamp,
+  });
+
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      noteId: json['NoteId'],
+      bldId: json['BldId'],
+      noteText: json['NoteText'],
+      createdUser: json['CreatedUser'],
+      createdTimestamp: DateTime.parse(json['CreatedTimestamp']),
+    );
+  }
 }
