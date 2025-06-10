@@ -38,7 +38,7 @@ class ViewAttribute extends StatefulWidget {
 class _ViewAttributeState extends State<ViewAttribute> {
   bool _isDwellingVisible = false;
   double _sidePanelFractionDefualt = 0.4;
-  final double _defaultDwellingWidthFraction = 0.8;
+  // final double _defaultDwellingWidthFraction = 0.8;
   bool _showDwellings = false;
 
   bool _isMobileSheetVisible = false;
@@ -178,8 +178,8 @@ class _ViewAttributeState extends State<ViewAttribute> {
                     onOpenDwelling: () {
                       setState(() {
                         _showDwellings = true;
-                        _sidePanelFractionDefualt =
-                            _defaultDwellingWidthFraction;
+                        // _sidePanelFractionDefualt =
+                        //     _defaultDwellingWidthFraction;
                       });
                     },
                   ),
