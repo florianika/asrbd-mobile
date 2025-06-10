@@ -100,7 +100,8 @@ class _DwellingFormState extends State<DwellingForm> {
               children: [
                 // Main content that fits parent width
                 Expanded(
-                  flex: 2, // Takes 2/3 of available width when form is shown, full width when hidden
+                  flex:
+                      2, // Takes 2/3 of available width when form is shown, full width when hidden
                   child: Column(
                     children: [
                       // Custom header replacing AppBar
@@ -149,10 +150,10 @@ class _DwellingFormState extends State<DwellingForm> {
 
   Widget _buildCustomHeader() {
     // Get the first dwelling's OBJECTID for display
-    final objectId = _dwellingRows.isNotEmpty 
+    final objectId = _dwellingRows.isNotEmpty
         ? _dwellingRows.first['OBJECTID']?.toString() ?? "N/A"
         : "N/A";
-        
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -167,7 +168,7 @@ class _DwellingFormState extends State<DwellingForm> {
               tooltip: 'Go Back',
             ),
             const SizedBox(width: 8),
-            
+
             // Title and info
             Expanded(
               child: Column(
@@ -177,9 +178,9 @@ class _DwellingFormState extends State<DwellingForm> {
                     children: [
                       const Icon(Icons.home, color: Colors.blue, size: 24),
                       const SizedBox(width: 12),
-                      Text(
+                     const Text(
                         'Dwellings',
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -216,14 +217,15 @@ class _DwellingFormState extends State<DwellingForm> {
                 ],
               ),
             ),
-            
+
             // Add button
             ElevatedButton.icon(
               onPressed: _onAddNewDwelling,
               icon: const Icon(Icons.add, size: 20),
-              label: const Text('Add'),
+              label: const Text('Shto'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -238,12 +240,13 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildDwellingsList() {
     // Group dwellings by floor
     final groupedByFloor = _groupDwellingsByFloor();
-    
+
     return Expanded(
       child: ListView.separated(
         padding: const EdgeInsets.all(4), // Reduced padding
         itemCount: groupedByFloor.keys.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 6), // Reduced spacing
+        separatorBuilder: (context, index) =>
+            const SizedBox(height: 6), // Reduced spacing
         itemBuilder: (context, index) {
           final floor = groupedByFloor.keys.elementAt(index);
           final dwellings = groupedByFloor[floor]!;
@@ -284,7 +287,8 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildExpandableDwellingItem(Map<String, dynamic> dwelling, int index) {
+  Widget _buildExpandableDwellingItem(
+      Map<String, dynamic> dwelling, int index) {
     final isExpanded = _expandedDwellings.contains(index);
     final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
     final apartNumber = dwelling['DwlApartNumber']?.toString() ?? 'N/A';
@@ -316,7 +320,9 @@ class _DwellingFormState extends State<DwellingForm> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          apartNumber != 'N/A' ? 'Apt $apartNumber' : 'No Apartment',
+                          apartNumber != 'N/A'
+                              ? 'Apt $apartNumber'
+                              : 'No Apartment',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -325,7 +331,7 @@ class _DwellingFormState extends State<DwellingForm> {
                       ],
                     ),
                   ),
-                  
+
                   // Quality status icon
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -344,21 +350,21 @@ class _DwellingFormState extends State<DwellingForm> {
                           color: qualityInfo['color'],
                           size: 14,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          quality,
-                          style: TextStyle(
-                            color: qualityInfo['color'],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 11,
-                          ),
-                        ),
+                        // const SizedBox(width: 4),
+                        // Text(
+                        //   quality,
+                        //   style: TextStyle(
+                        //     color: qualityInfo['color'],
+                        //     fontWeight: FontWeight.bold,
+                        //     fontSize: 11,
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(width: 8),
-                  
+
                   // Expand/collapse icon
                   AnimatedRotation(
                     turns: isExpanded ? 0.5 : 0,
@@ -373,13 +379,13 @@ class _DwellingFormState extends State<DwellingForm> {
               ),
             ),
           ),
-          
+
           // Expanded content
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: _buildExpandedContent(dwelling, index),
-            crossFadeState: isExpanded 
-                ? CrossFadeState.showSecond 
+            crossFadeState: isExpanded
+                ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 200),
           ),
@@ -396,12 +402,12 @@ class _DwellingFormState extends State<DwellingForm> {
         children: [
           const Divider(),
           const SizedBox(height: 12),
-          
+
           // Display all dwelling data
           _buildDwellingDataGrid(dwelling),
-          
+
           const SizedBox(height: 16),
-          
+
           // Action buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -446,10 +452,10 @@ class _DwellingFormState extends State<DwellingForm> {
     // Show only 3 specific attributes
     const allowedKeys = {'DwlFloor', 'DwlApartNumber', 'DwlQuality'};
     final dataItems = <MapEntry<String, dynamic>>[];
-    
+
     for (final key in _columnOrder) {
-      if (allowedKeys.contains(key) && 
-          dwelling.containsKey(key) && 
+      if (allowedKeys.contains(key) &&
+          dwelling.containsKey(key) &&
           dwelling[key] != null) {
         dataItems.add(MapEntry(key, dwelling[key]));
       }
@@ -467,7 +473,7 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildDataItem(String key, dynamic value) {
     String displayValue = value?.toString() ?? 'N/A';
     String label = _columnLabels[key] ?? key;
-    
+
     // Special handling for quality field
     if (key == 'DwlQuality') {
       const qualityLabels = {
@@ -565,7 +571,7 @@ class _DwellingFormState extends State<DwellingForm> {
   // Helper methods
   Map<String, List<Map<String, dynamic>>> _groupDwellingsByFloor() {
     final grouped = <String, List<Map<String, dynamic>>>{};
-    
+
     for (final dwelling in _dwellingRows) {
       final floor = dwelling['DwlFloor']?.toString() ?? 'Unknown';
       if (!grouped.containsKey(floor)) {
@@ -573,19 +579,19 @@ class _DwellingFormState extends State<DwellingForm> {
       }
       grouped[floor]!.add(dwelling);
     }
-    
+
     // Sort floors numerically
-    final sortedKeys = grouped.keys.toList()..sort((a, b) {
-      if (a == 'Unknown') return 1;
-      if (b == 'Unknown') return -1;
-      final aNum = int.tryParse(a) ?? 0;
-      final bNum = int.tryParse(b) ?? 0;
-      return aNum.compareTo(bNum);
-    });
-    
+    final sortedKeys = grouped.keys.toList()
+      ..sort((a, b) {
+        if (a == 'Unknown') return 1;
+        if (b == 'Unknown') return -1;
+        final aNum = int.tryParse(a) ?? 0;
+        final bNum = int.tryParse(b) ?? 0;
+        return aNum.compareTo(bNum);
+      });
+
     return Map.fromEntries(
-      sortedKeys.map((key) => MapEntry(key, grouped[key]!))
-    );
+        sortedKeys.map((key) => MapEntry(key, grouped[key]!)));
   }
 
   bool _floorHasErrors(List<Map<String, dynamic>> dwellings) {
@@ -598,7 +604,7 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildFloorGroup(String floor, List<Map<String, dynamic>> dwellings) {
     final isFloorExpanded = _expandedFloors.contains(floor);
     final hasErrors = _floorHasErrors(dwellings);
-    
+
     return Card(
       elevation: isFloorExpanded ? 4 : 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -645,7 +651,7 @@ class _DwellingFormState extends State<DwellingForm> {
                     ),
                   ),
                   const Spacer(),
-                  
+
                   // Error flag
                   if (hasErrors) ...[
                     Container(
@@ -679,7 +685,7 @@ class _DwellingFormState extends State<DwellingForm> {
                     ),
                     const SizedBox(width: 8),
                   ],
-                  
+
                   // Expand/collapse icon
                   AnimatedRotation(
                     turns: isFloorExpanded ? 0.5 : 0,
@@ -690,13 +696,13 @@ class _DwellingFormState extends State<DwellingForm> {
               ),
             ),
           ),
-          
+
           // Floor content (dwellings)
           AnimatedCrossFade(
             firstChild: const SizedBox.shrink(),
             secondChild: _buildFloorContent(floor, dwellings),
-            crossFadeState: isFloorExpanded 
-                ? CrossFadeState.showSecond 
+            crossFadeState: isFloorExpanded
+                ? CrossFadeState.showSecond
                 : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 250),
           ),
@@ -705,7 +711,8 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildFloorContent(String floor, List<Map<String, dynamic>> dwellings) {
+  Widget _buildFloorContent(
+      String floor, List<Map<String, dynamic>> dwellings) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12), // Reduced padding
       child: Column(
@@ -869,6 +876,7 @@ class _DwellingFormState extends State<DwellingForm> {
     });
 
     context.read<DwellingCubit>().getDwellingAttibutes();
+    widget.onBack();
   }
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
