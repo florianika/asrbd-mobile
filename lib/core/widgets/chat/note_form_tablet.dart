@@ -1,3 +1,5 @@
+import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 // ignore: depend_on_referenced_packages
@@ -13,10 +15,13 @@ class NotesWidget extends StatefulWidget {
   State<NotesWidget> createState() => _NotesWidgetState();
 }
 
+ final userService = sl<UserService>();
 class _NotesWidgetState extends State<NotesWidget> with SingleTickerProviderStateMixin {
   final List<Note> _notes = [];
   final TextEditingController _controller = TextEditingController();
+ 
 
+  final user = '{${userService.userInfo?.nameId}}';
   ScrollController? _internalScrollController;
   late ScrollController _effectiveScrollController;
 

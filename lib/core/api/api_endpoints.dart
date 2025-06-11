@@ -12,9 +12,10 @@ class ApiEndpoints {
   static const String entranceSchema = '/admin/metadata/entity/entrance';
   static const String buildingSchema = '/admin/metadata/entity/building';
   static const String dwellingSchema = '/admin/metadata/entity/dwelling';
-
   static const String register = '/auth/register';
   static const String userProfile = '/user/profile';
+  static const String getNotes = '/qms/notes/buildings/';
+  static const String postNotes = '/qms/notes';
 
   static Uri esriBaseUri = Uri(
     scheme: 'https',
