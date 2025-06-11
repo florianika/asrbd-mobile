@@ -57,6 +57,7 @@ class _ViewMapState extends State<ViewMap> {
   List<Legend> entranceLegends = [];
 
   final legendService = sl<LegendService>();
+  // final outputLogsCubit = context.read<OutputLogsCubit>();
 
   @override
   void dispose() {
@@ -94,7 +95,7 @@ class _ViewMapState extends State<ViewMap> {
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
     final attributesCubit = context.read<AttributesCubit>();
-    final outputLogsCubit = context.read<OutputLogsCubit>();
+    //
 
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
@@ -113,9 +114,10 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         await entranceCubit.updateEntranceFeature(attributes);
       }
+      setState(() {
+        isLoading = false;
+      });
     } else if (geometryCubit.type == ShapeType.polygon) {
-      String globalId;
-      final buildingUseCase = sl<BuildingUseCases>();
       if (isNew) {
         LatLng centroid =
             GeometryHelper.getPolygonCentroid(geometryCubit.points);
@@ -126,25 +128,17 @@ class _ViewMapState extends State<ViewMap> {
         attributes['external_creator_date'] =
             DateTime.now().millisecondsSinceEpoch;
 
-        globalId = await buildingUseCase.addBuildingFeature(
+        await buildingCubit.addBuildingFeature(
             attributes, geometryCubit.points);
       } else {
-        globalId = attributes['GlobalID'];
         attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
         attributes['external_editor_date'] =
             DateTime.now().millisecondsSinceEpoch;
-        await buildingUseCase.updateBuildingFeature(attributes);
+        await buildingCubit.updateBuildingFeature(attributes);
       }
 
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
-
-      // if (mounted) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(content: Text(globalId)),
-      //   );
-      // }
-      // await outputLogsCubit.checkAutomatic(globalId);
     } else if (geometryCubit.type == ShapeType.noShape) {
       if (isNew) {
         attributes['DwlEntGlobalID'] = attributesCubit.currentGlobalId;
@@ -158,10 +152,10 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         await dwellingCubit.updateDwellingFeature(attributes);
       }
+      setState(() {
+        isLoading = false;
+      });
     }
-    setState(() {
-      isLoading = false;
-    });
   }
 
   void onLegendChangeAttribute(String seletedAttribute) {
@@ -227,6 +221,47 @@ class _ViewMapState extends State<ViewMap> {
                   ),
                 ],
               ),
+            ),
+            BlocConsumer<OutputLogsCubit, OutputLogsState>(
+              listener: (context, state) {
+                if (state is OutputLogsError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                }
+                setState(() {
+                  isLoading = false;
+                });
+              },
+              builder: (context, state) {
+                return const SizedBox.shrink();
+              },
+            ),
+            BlocConsumer<BuildingCubit, BuildingState>(
+              listener: (context, state) {
+                if (state is BuildingError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                } else if (state is BuildingAddResponse) {
+                  context.read<OutputLogsCubit>().checkAutomatic(
+                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
+                  //  outputLogsCubit.checkAutomatic(globalId);
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(
+                  //       content: Text("Building added successfully")),
+                  // );
+                } else if (state is BuildingUpdateResponse) {
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text(state.globalId)),
+                  // );
+                  context.read<OutputLogsCubit>().checkAutomatic(
+                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
+                }
+              },
+              builder: (context, state) {
+                return const SizedBox.shrink();
+              },
             ),
             BlocConsumer<DwellingCubit, DwellingState>(
               listener: (context, state) {

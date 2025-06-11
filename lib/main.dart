@@ -1,16 +1,13 @@
-import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
-import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
-import 'package:asrdb/features/home/data/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';

@@ -65,6 +65,12 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                         child: BlocConsumer<OutputLogsCubit, OutputLogsState>(
                           listener: (context, state) {
                             if (state is OutputLogs) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(state.validationResult
+                                        .processOutputLogDto.length
+                                        .toString())),
+                              );
                               validationResult = state.validationResult
                                   .toValidationResults(
                                       useAlbanianMessage: true);

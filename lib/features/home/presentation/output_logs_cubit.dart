@@ -28,7 +28,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       : super(OutputLogsInitial());
 
   Future<void> checkAutomatic(String buildingGlobalId) async {
-    emit(OutputLogsLoading());
+    // emit(OutputLogsLoading());
     try {
       await checkUseCases.checkAutomatic(buildingGlobalId);
       emit(
@@ -39,7 +39,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
   }
 
   Future<void> checkBuildings(String buildingGlobalId) async {
-    emit(OutputLogsLoading());
+    // emit(OutputLogsLoading());
     try {
       await checkUseCases.checkBuildings(buildingGlobalId);
       emit(

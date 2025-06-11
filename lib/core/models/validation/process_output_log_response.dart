@@ -20,7 +20,7 @@ class ProcessOutputLogDto {
   final int ruleId;
   final String reference;
   final String bldId;
-  final String entId;
+  final String? entId;
   final String? dwlId;
   final String entityType;
   final String variable;
@@ -56,7 +56,7 @@ class ProcessOutputLogDto {
       ruleId: json['ruleId'] as int,
       reference: json['reference'] as String,
       bldId: json['bldId'] as String,
-      entId: json['entId'] as String,
+      entId: json['entId'] as String?,
       dwlId: json['dwlId'] as String?,
       entityType: json['entityType'] as String,
       variable: json['variable'] as String,
