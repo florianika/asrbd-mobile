@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/note/note_response.dart';
 import 'package:asrdb/features/home/data/note_repository.dart';
 
 class NoteUseCases {
@@ -5,7 +6,7 @@ class NoteUseCases {
 
   NoteUseCases(this._noteRepository);
 
-  Future<bool> getNotes(String buildingGlobalId) async {
+  Future<NoteApiResponse> getNotes(String buildingGlobalId) async {
     return await _noteRepository.getNotes(buildingGlobalId);
   }
 

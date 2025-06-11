@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/note/note_response.dart';
 import 'package:asrdb/core/services/note_service.dart';
 
 class NoteRepository {
@@ -5,7 +6,7 @@ class NoteRepository {
 
   NoteRepository(this.noteService);
 
-  Future<bool> getNotes(String buildingGlobalId) async {
+  Future<NoteApiResponse> getNotes(String buildingGlobalId) async {
     return await noteService.getNotes(buildingGlobalId);
   }
 
