@@ -7,7 +7,7 @@ extension ProcessOutputLogResponseExtension on ProcessOutputLogResponse {
       {bool useAlbanianMessage = false}) {
     return processOutputLogDto.map((logDto) {
       return ValidationResult(
-        name: '${logDto.reference} - ${logDto.variable}',
+        name: logDto.variable,
         message: useAlbanianMessage
             ? logDto.qualityMessageAl
             : logDto.qualityMessageEn,

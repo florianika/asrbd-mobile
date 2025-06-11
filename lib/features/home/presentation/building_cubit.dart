@@ -1,7 +1,9 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -39,8 +41,8 @@ class BuildingAddResponse extends BuildingState {
 }
 
 class BuildingUpdateResponse extends BuildingState {
-  final bool isUpdated;
-  BuildingUpdateResponse(this.isUpdated);
+  final String globalId;
+  BuildingUpdateResponse(this.globalId);
 }
 
 // Cubit
@@ -48,11 +50,15 @@ class BuildingCubit extends Cubit<BuildingState> {
   final BuildingUseCases buildingUseCases;
   final AttributesCubit attributesCubit;
   final DwellingCubit dwellingCubit;
-
+  final OutputLogsCubit outputLogsCubit;
   String? _selectedBuildingGlobalId;
 
-  BuildingCubit(this.buildingUseCases, this.attributesCubit, this.dwellingCubit)
-      : super(BuildingInitial());
+  BuildingCubit(
+    this.buildingUseCases,
+    this.attributesCubit,
+    this.dwellingCubit,
+    this.outputLogsCubit,
+  ) : super(BuildingInitial());
 
   /// Get buildings by bounds
   Future<void> getBuildings(
@@ -98,9 +104,10 @@ class BuildingCubit extends Cubit<BuildingState> {
       Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(BuildingLoading());
     try {
-      final result =
+      final globalId =
           await buildingUseCases.addBuildingFeature(attributes, points);
-      emit(BuildingAddResponse(result));
+      // await outputLogsCubit.checkAutomatic(globalId);
+      emit(BuildingAddResponse(globalId));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
@@ -110,8 +117,9 @@ class BuildingCubit extends Cubit<BuildingState> {
   Future<void> updateBuildingFeature(Map<String, dynamic> attributes) async {
     emit(BuildingLoading());
     try {
-      final result = await buildingUseCases.updateBuildingFeature(attributes);
-      emit(BuildingUpdateResponse(result));
+      await buildingUseCases.updateBuildingFeature(attributes);
+      // await outputLogsCubit.checkAutomatic(attributes['GlobalID']);
+      emit(BuildingUpdateResponse(attributes['GlobalID']));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }

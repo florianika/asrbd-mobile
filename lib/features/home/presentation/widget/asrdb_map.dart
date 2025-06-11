@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:asrdb/core/config/esri_config.dart';
-import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
-import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
@@ -70,18 +68,18 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _goToCurrentLocation() async {
-    try {
-      final location = await LocationService.getCurrentLocation();
-      widget.mapController.move(location, EsriConfig.initZoom);
-      setState(() {
-        _userLocation = location;
-        _showLocationMarker = true;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching location: $e')),
-      );
-    }
+    // try {
+    final location = await LocationService.getCurrentLocation();
+    widget.mapController.move(location, EsriConfig.initZoom);
+    setState(() {
+      _userLocation = location;
+      _showLocationMarker = true;
+    });
+    // } catch (e) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('Error fetching location: $e')),
+    //   );
+    // }
   }
 
   List<Marker> _buildMarkers(List<LatLng> points) {
@@ -115,6 +113,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       _selectedShapeType = ShapeType.point;
 
       context.read<DwellingCubit>().closeDwellings();
+      context.read<NewGeometryCubit>().setType(ShapeType.point);
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
 
       final bldGlobalId = data['EntBldGlobalID'];
@@ -156,6 +155,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   void _handleBuildingOnTap(String globalID) {
     try {
       context.read<DwellingCubit>().closeDwellings();
+      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
       context.read<BuildingCubit>().getBuildingDetails(globalID);
 
       List<dynamic> buildingEntrances = [];
@@ -213,7 +213,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
         TileLayer(
           tileProvider: ft.FileTileProvider(tileDirPath, false),
         ),
-       
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is Buildings) {
@@ -224,10 +223,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     EsriConditionHelper.getPropertiesAsList(
                         'GlobalID', state.buildings));
               }
-            } else if (state is BuildingAddResponse) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Building addedd successfully')),
-              );
             } else if (state is Attributes) {
               final lat = (state as Attributes).initialData['BldLatitude'];
               final lng = (state as Attributes).initialData['BldLongitude'];
@@ -235,10 +230,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
               if (lat != null && lng != null) {
                 widget.mapController.move(LatLng(lat, lng), 19);
               }
-            } else if (state is BuildingError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
             }
           },
           builder: (context, state) {
@@ -269,18 +260,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     // _isPropertyVisibile = true;
                   }
                 }
-              case EntranceError(:final message):
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(message)),
-                );
-
-              case EntranceAddResponse(:final isAdded):
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                      content: Text(isAdded
-                          ? 'Entrance addedd successfully'
-                          : 'Entrance not added')),
-                );
             }
           },
           builder: (context, state) {

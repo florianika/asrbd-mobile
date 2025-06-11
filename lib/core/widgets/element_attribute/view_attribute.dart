@@ -11,11 +11,9 @@ class ViewAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
   final VoidCallback onClose;
-  // final bool showDwellings;
   final bool isLoading;
   final Map<String, dynamic> initialData;
   final Function save;
-  // final void Function()? onOpenDwelling;
 
   const ViewAttribute({
     super.key,
@@ -24,9 +22,7 @@ class ViewAttribute extends StatefulWidget {
     required this.onClose,
     required this.initialData,
     required this.save,
-    // this.onOpenDwelling,
-    required this.isLoading,
-    // required this.showDwellings,
+    required this.isLoading
   });
 
   @override
