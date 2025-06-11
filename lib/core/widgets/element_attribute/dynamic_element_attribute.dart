@@ -782,6 +782,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             ],
           ),
         ),
+        if (widget.selectedShapeType == ShapeType.polygon)
         Positioned(
         top: 0,
         right: 0,
