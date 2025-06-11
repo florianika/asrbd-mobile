@@ -15,6 +15,7 @@ import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -51,8 +52,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   List<dynamic> highlightMarkersGlobalId = [];
 
   bool _showLocationMarker = false;
-  // bool _isDwellingVisible = false;
-  // bool _isPropertyVisibile = false;
 
   String? highlightedBuildingIds;
   LatLng? _userLocation;
@@ -61,10 +60,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   Map<String, dynamic>? buildingsData;
   Map<String, dynamic>? entranceData;
-
-  // bool _isDrawing = false;
-
-  // String attributeLegend = 'quality';
 
   Timer? _debounce;
 
@@ -119,6 +114,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       _selectedShapeType = ShapeType.point;
 
+      context.read<DwellingCubit>().closeDwellings();
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
 
       final bldGlobalId = data['EntBldGlobalID'];
@@ -159,6 +155,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleBuildingOnTap(String globalID) {
     try {
+      context.read<DwellingCubit>().closeDwellings();
       context.read<BuildingCubit>().getBuildingDetails(globalID);
 
       List<dynamic> buildingEntrances = [];
@@ -216,6 +213,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         TileLayer(
           tileProvider: ft.FileTileProvider(tileDirPath, false),
         ),
+       
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is Buildings) {
@@ -271,9 +269,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     // _isPropertyVisibile = true;
                   }
                 }
-              // case EntranceAttributes(:final attributes):
-              //   _entranceSchema = attributes;
-
               case EntranceError(:final message):
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(message)),

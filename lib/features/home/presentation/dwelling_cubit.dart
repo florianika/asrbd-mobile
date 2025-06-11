@@ -11,7 +11,8 @@ class DwellingLoading extends DwellingState {}
 
 class Dwellings extends DwellingState {
   final Map<String, dynamic> dwellings;
-  Dwellings(this.dwellings);
+  final bool showDwellingList;
+  Dwellings(this.dwellings, this.showDwellingList);
 }
 
 class Dwelling extends DwellingState {
@@ -44,13 +45,23 @@ class DwellingCubit extends Cubit<DwellingState> {
   final AttributesCubit attributesCubit;
 
   DwellingCubit(this.dwellingUseCases, this.attributesCubit)
-      : super(DwellingInitial());
+      : super(Dwellings({}, false));
 
-  // Login method
   Future<void> getDwellings(String? entranceGlobalId) async {
     emit(DwellingLoading());
     try {
-      emit(Dwellings(await dwellingUseCases.getDwellings(entranceGlobalId)));
+      attributesCubit.showAttributes(false);
+      emit(Dwellings(
+          await dwellingUseCases.getDwellings(entranceGlobalId), true));
+    } catch (e) {
+      emit(DwellingError(e.toString()));
+    }
+  }
+
+  void closeDwellings() {
+    emit(DwellingLoading());
+    try {
+      emit(Dwellings({}, false));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }

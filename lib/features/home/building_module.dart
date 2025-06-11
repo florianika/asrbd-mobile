@@ -4,6 +4,7 @@ import 'package:asrdb/features/home/data/building_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 void initBuildingModule(GetIt slBuilding) {
@@ -27,5 +28,6 @@ void initBuildingModule(GetIt slBuilding) {
   slBuilding.registerFactory<BuildingCubit>(() => BuildingCubit(
         slBuilding<BuildingUseCases>(),
         slBuilding<AttributesCubit>(),
+        slBuilding<DwellingCubit>(),
       ));
 }

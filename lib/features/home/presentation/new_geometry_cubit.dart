@@ -5,8 +5,6 @@ import 'package:latlong2/latlong.dart';
 /// State
 abstract class NewGeometryState {}
 
-// class GeometryInitial extends NewGeometryState {}
-
 class NewGeometry extends NewGeometryState {
   final List<LatLng> points;
   final ShapeType type;

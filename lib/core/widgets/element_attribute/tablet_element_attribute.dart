@@ -1,12 +1,9 @@
 import 'package:asrdb/core/enums/shape_type.dart';
-import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
-import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
-import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +15,6 @@ class TabletElementAttribute extends StatefulWidget {
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
-  final void Function()? onOpenDwelling;
   final bool readOnly;
 
   const TabletElementAttribute(
@@ -28,7 +24,6 @@ class TabletElementAttribute extends StatefulWidget {
       required this.onClose,
       required this.initialData,
       required this.save,
-      this.onOpenDwelling,
       this.readOnly = false});
 
   @override
@@ -87,7 +82,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                               },
                               validationResults: validationResult,
                               onClose: widget.onClose,
-                              onDwelling: _openNewDwellingForm,
                               showButtons: false,
                               readOnly: widget.readOnly,
                             );
@@ -116,7 +110,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   context
                       .read<DwellingCubit>()
                       .getDwellings(widget.initialData['GlobalID']),
-                  _openNewDwellingForm(null),
                 },
                 selectedShapeType: widget.selectedShapeType,
               ),
@@ -126,9 +119,12 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
     );
   }
 
-  void _openNewDwellingForm(String? entranceGlobalId) {
-    if (widget.onOpenDwelling != null) {
-      widget.onOpenDwelling!();
-    }
-  }
+  // Future<void> _openNewDwellingForm() async {
+  //   // if (widget.onOpenDwelling != null) {
+  //   //   widget.onOpenDwelling!();
+  //   // }
+  //   await context
+  //       .read<AttributesCubit>()
+  //       .showDwellingAttributes(widget.initialData['OBJECTID']);
+  // }
 }

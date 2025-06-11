@@ -16,11 +16,13 @@ class Attributes extends AttributesState {
   final Map<String, dynamic> initialData;
   final ShapeType shapeType;
   final bool viewDwelling;
+  final String globalId;
 
   Attributes(
     this.schema,
     this.initialData,
-    this.shapeType, {
+    this.shapeType,
+    this.globalId, {
     this.viewDwelling = false,
   });
 }
@@ -55,17 +57,17 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (objectId == null) {
-        emit(Attributes(schema, {}, ShapeType.noShape, viewDwelling: true));
+        emit(Attributes(schema, {}, ShapeType.noShape, '', viewDwelling: true));
         return;
       }
 
       final dwellingData = await dwellingUseCases.getDwellingDetails(objectId);
       if (dwellingData.isNotEmpty) {
         final features = dwellingData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.point,
+        emit(Attributes(schema, features[0]['properties'], ShapeType.noShape, '',
             viewDwelling: true));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point, viewDwelling: true));
+        emit(Attributes(schema, {}, ShapeType.point, '', viewDwelling: true));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -77,16 +79,17 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
       if (globalID == null) {
-        emit(Attributes(schema, {}, ShapeType.point));
+        emit(Attributes(schema, {}, ShapeType.point, globalID ?? ''));
         return;
       }
 
       final entranceData = await entranceUseCases.getEntranceDetails(globalID);
       if (entranceData.isNotEmpty) {
         final features = entranceData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.point));
+        emit(Attributes(
+            schema, features[0]['properties'], ShapeType.point, globalID));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point));
+        emit(Attributes(schema, {}, ShapeType.point, globalID));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -98,19 +101,28 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       if (globalID == null) {
-        emit(Attributes(schema, {}, ShapeType.polygon));
+        emit(Attributes(schema, {}, ShapeType.polygon, globalID ?? ''));
         return;
       }
 
       final buildingData = await buildingUseCases.getBuildingDetails(globalID);
       if (buildingData.isNotEmpty) {
         final features = buildingData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.polygon));
+        emit(Attributes(
+            schema, features[0]['properties'], ShapeType.polygon, globalID));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point));
+        emit(Attributes(schema, {}, ShapeType.point, globalID));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
+  }
+
+  String? get currentGlobalId {
+    final currentState = state;
+    if (currentState is Attributes) {
+      return currentState.globalId;
+    }
+    return null;
   }
 }

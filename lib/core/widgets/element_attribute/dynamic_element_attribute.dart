@@ -2,6 +2,7 @@ import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
+import 'package:asrdb/core/models/attributes/attribute_schema.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
@@ -18,11 +19,10 @@ class DynamicElementAttribute extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   final void Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
-  final void Function(String?)? onDwelling;
+  // final void Function(String?)? onDwelling;
   final bool readOnly;
   final bool showButtons;
-  final List<ValidationResult>?
-      validationResults; 
+  final List<ValidationResult>? validationResults;
 
   const DynamicElementAttribute({
     required this.schema,
@@ -31,10 +31,10 @@ class DynamicElementAttribute extends StatefulWidget {
     this.initialData,
     this.onSave,
     this.onClose,
-    this.onDwelling,
+    // this.onDwelling,
     this.showButtons = true,
     this.readOnly = false,
-    this.validationResults, 
+    this.validationResults,
     super.key,
   });
 
@@ -112,11 +112,13 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     validationErrors.clear();
 
     final schemaService = sl<SchemaService>();
-    final schemaItems = widget.selectedShapeType == ShapeType.point
-        ? schemaService.entranceSchema
-        : widget.selectedShapeType == ShapeType.polygon
-            ? schemaService.buildingSchema
-            : schemaService.dwellingSchema;
+    AttributeSchema schemaItems = schemaService.entranceSchema;
+
+    if (widget.selectedShapeType == ShapeType.polygon) {
+      schemaItems = schemaService.buildingSchema;
+    } else if (widget.selectedShapeType == ShapeType.noShape) {
+      schemaItems = schemaService.dwellingSchema;
+    }
 
     schemaItems.attributes.map((attribute) {
       final itemFound =
@@ -136,19 +138,21 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       widget.onSave!(formValues);
     }
   }
-  
+
   Map<String, List<dynamic>> _groupAttributesBySection() {
     final schemaService = sl<SchemaService>();
-    final schema = widget.selectedShapeType == ShapeType.point
-        ? schemaService.entranceSchema
-        : (widget.selectedShapeType == ShapeType.polygon
-            ? schemaService.buildingSchema
-            : schemaService.dwellingSchema);
+    AttributeSchema schema = schemaService.entranceSchema;
+
+    if (widget.selectedShapeType == ShapeType.polygon) {
+      schema = schemaService.buildingSchema;
+    } else if (widget.selectedShapeType == ShapeType.noShape) {
+      schema = schemaService.dwellingSchema;
+    }
+
     final sectionOrder = [
       'title',
       'technical',
       'identifier',
-      // 'map',
       'info',
       'history'
     ];
@@ -236,6 +240,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       ),
     );
   }
+
   InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
@@ -303,6 +308,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       ),
     );
   }
+
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
@@ -777,50 +783,53 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           ),
         ),
         Positioned(
-  top: 0,
-  right: 0,
-  child: IconButton(
-    icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
-    tooltip: 'Comments',
-    onPressed: () {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true, 
-        backgroundColor: Colors.transparent, 
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          top: 0,
+          right: 0,
+          child: IconButton(
+            icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
+            tooltip: 'Comments',
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                builder: (context) {
+                  final Color backgroundStart =
+                      Theme.of(context).colorScheme.background;
+                  final Color backgroundEnd =
+                      Theme.of(context).colorScheme.surface;
+                  return DraggableScrollableSheet(
+                    expand: false,
+                    initialChildSize: 0.8,
+                    minChildSize: 0.5,
+                    maxChildSize: 0.95,
+                    builder: (context, scrollController) => Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [backgroundStart, backgroundEnd],
+                        ),
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16)),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: NotesWidget(scrollController: scrollController),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
-        builder: (context) {
-          final Color backgroundStart = Theme.of(context).colorScheme.background;
-          final Color backgroundEnd = Theme.of(context).colorScheme.surface;
-          return DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.8,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            builder: (context, scrollController) => Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [backgroundStart, backgroundEnd],
-                ),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              ),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: NotesWidget(scrollController: scrollController), 
-              ),
-            ),
-          );
-        },
-      );
-    },
-  ),
-),
-              ],
+      ],
     );
   }
 }

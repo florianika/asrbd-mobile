@@ -1,6 +1,7 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -46,10 +47,11 @@ class BuildingUpdateResponse extends BuildingState {
 class BuildingCubit extends Cubit<BuildingState> {
   final BuildingUseCases buildingUseCases;
   final AttributesCubit attributesCubit;
+  final DwellingCubit dwellingCubit;
 
   String? _selectedBuildingGlobalId;
 
-  BuildingCubit(this.buildingUseCases, this.attributesCubit)
+  BuildingCubit(this.buildingUseCases, this.attributesCubit, this.dwellingCubit)
       : super(BuildingInitial());
 
   /// Get buildings by bounds
@@ -72,7 +74,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       _selectedBuildingGlobalId = globalId;
       emit(BuildingGlobalId(globalId));
 
-      // Show attribute panel
+      // dwellingCubit.closeDwellings();
       attributesCubit.showAttributes(true);
       await attributesCubit.showBuildingAttributes(globalId);
     } catch (e) {

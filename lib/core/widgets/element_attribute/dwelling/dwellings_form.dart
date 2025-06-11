@@ -2,21 +2,17 @@ import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
+import 'package:asrdb/core/widgets/side_container.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DwellingForm extends StatefulWidget {
-  final ShapeType selectedShapeType;
-  final String? entranceGlobalId;
-  final VoidCallback onBack;
-
   const DwellingForm({
     super.key,
-    required this.selectedShapeType,
-    this.entranceGlobalId,
-    required this.onBack,
   });
 
   @override
@@ -27,11 +23,11 @@ class _DwellingFormState extends State<DwellingForm> {
   final List<Map<String, dynamic>> _dwellingRows = [];
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
-  Map<String, dynamic> _initialData = {};
+  final Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
   Map<String, dynamic>? _viewPendingRow;
-  Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
-  Set<String> _expandedFloors = {}; // Track which floors are expanded
+  final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
+  final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
   late Map<String, String> _columnLabels;
   late List<String> _columnOrder;
@@ -40,8 +36,10 @@ class _DwellingFormState extends State<DwellingForm> {
   void initState() {
     super.initState();
 
-    final id = widget.entranceGlobalId;
-    _initialData['DwlEntGlobalID'] = id;
+    String? globalId = context.read<AttributesCubit>().currentGlobalId;
+
+    // final id = widget.entranceGlobalId;
+    _initialData['DwlEntGlobalID'] = globalId;
 
     final schemaService = sl<SchemaService>();
     final dwellingSchema = schemaService.dwellingSchema;
@@ -55,7 +53,7 @@ class _DwellingFormState extends State<DwellingForm> {
         .map((attr) => attr.name)
         .toList();
 
-    context.read<DwellingCubit>().getDwellings(id);
+    context.read<DwellingCubit>().getDwellings(globalId);
   }
 
   @override
@@ -89,60 +87,66 @@ class _DwellingFormState extends State<DwellingForm> {
         }
       },
       builder: (context, state) {
-        return Scaffold(
-          appBar: null, // Removed AppBar
-          backgroundColor: Colors.white,
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Main content that fits parent width
-                Expanded(
-                  flex:
-                      2, // Takes 2/3 of available width when form is shown, full width when hidden
-                  child: Column(
-                    children: [
-                      // Custom header replacing AppBar
-                      _buildCustomHeader(),
-                      const SizedBox(height: 16),
-                      if (state is DwellingLoading)
-                        const Center(child: CircularProgressIndicator()),
-                      if (_dwellingRows.isEmpty && state is! DwellingLoading)
-                        Expanded(child: _buildEmptyState()),
-                      if (_dwellingRows.isNotEmpty)
-                        Expanded(child: _buildDwellingsList()),
-                    ],
-                  ),
-                ),
-                if (_showDwellingForm) ...[
-                  const SizedBox(width: 16), // Spacing when form is shown
-                  Expanded(
-                    flex: 1, // Takes 1/3 of available width
-                    child: TabletElementAttribute(
-                      schema: _dwellingSchema,
-                      selectedShapeType: ShapeType.noShape,
-                      initialData: _initialData,
-                      onClose: () {
-                        setState(() {
-                          _showDwellingForm = false;
-                          _isEditMode = false;
-                        });
-                      },
-                      save: (formValues) async {
-                        await _onSaveDwelling(formValues);
-                        setState(() {
-                          _showDwellingForm = false;
-                          _isEditMode = false;
-                        });
-                      },
+        return (state is Dwellings && state.showDwellingList)
+            ? SideContainer(
+                child: Scaffold(
+                  appBar: null, // Removed AppBar
+                  backgroundColor: Colors.white,
+                  body: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Main content that fits parent width
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            children: [
+                              // Custom header replacing AppBar
+                              _buildCustomHeader(),
+                              const SizedBox(height: 16),
+                              if (state is DwellingLoading)
+                                const Center(
+                                    child: CircularProgressIndicator()),
+                              if (_dwellingRows.isEmpty &&
+                                  state is! DwellingLoading)
+                                Expanded(child: _buildEmptyState()),
+                              if (_dwellingRows.isNotEmpty)
+                                Expanded(child: _buildDwellingsList()),
+                            ],
+                          ),
+                        ),
+                        if (_showDwellingForm) ...[
+                          const SizedBox(
+                              width: 16), // Spacing when form is shown
+                          Expanded(
+                            flex: 1, // Takes 1/3 of available width
+                            child: TabletElementAttribute(
+                              schema: _dwellingSchema,
+                              selectedShapeType: ShapeType.noShape,
+                              initialData: _initialData,
+                              onClose: () {
+                                setState(() {
+                                  _showDwellingForm = false;
+                                  _isEditMode = false;
+                                });
+                              },
+                              save: (formValues) async {
+                                await _onSaveDwelling(formValues);
+                                setState(() {
+                                  _showDwellingForm = false;
+                                  _isEditMode = false;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                ],
-              ],
-            ),
-          ),
-        );
+                ),
+              )
+            : const SizedBox.shrink();
       },
     );
   }
@@ -163,7 +167,7 @@ class _DwellingFormState extends State<DwellingForm> {
             // Back button
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: widget.onBack,
+              onPressed: handleOnClose,
               tooltip: 'Go Back',
             ),
             const SizedBox(width: 8),
@@ -854,41 +858,28 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void _onEditDwelling(Map<String, dynamic> row) {
-    final id = widget.entranceGlobalId;
-    if (id != null) {
-      row['DwlEntGlobalID'] = id;
-    }
+    context.read<DwellingCubit>().closeDwellings();
+    context.read<NewGeometryCubit>().setType(ShapeType.noShape);
+    context.read<AttributesCubit>().showDwellingAttributes(row['OBJECTID']);
+  }
 
-    setState(() {
-      _initialData = row;
-      _isEditMode = true;
-    });
-
-    context.read<DwellingCubit>().getDwellingDetails(row['OBJECTID']);
-    widget.onBack();
+  void handleOnClose() {
+    context.read<DwellingCubit>().closeDwellings();
   }
 
   void _onAddNewDwelling() {
-    final id = widget.entranceGlobalId;
-    setState(() {
-      _initialData = {'DwlEntGlobalID': id};
-      _isEditMode = false;
-    });
-
-    context.read<DwellingCubit>().getDwellingAttibutes();
-    widget.onBack();
+    context.read<DwellingCubit>().closeDwellings();
+    context.read<NewGeometryCubit>().setType(ShapeType.noShape);
+    context.read<AttributesCubit>().showDwellingAttributes(null);
   }
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
+    attributes['DwlEntGlobalID'] =
+        context.read<AttributesCubit>().currentGlobalId;
     if (_isEditMode) {
       await context.read<DwellingCubit>().updateDwellingFeature(attributes);
     } else {
       await context.read<DwellingCubit>().addDwellingFeature(attributes);
-    }
-
-    final id = widget.entranceGlobalId;
-    if (id != null) {
-      await context.read<DwellingCubit>().getDwellings(id);
     }
 
     setState(() {
