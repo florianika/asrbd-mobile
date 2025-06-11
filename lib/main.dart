@@ -2,6 +2,7 @@ import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
@@ -67,8 +68,9 @@ void main() async {
   sl.registerSingleton<SchemaService>(
     SchemaService(sl<SchemaApi>()),
   );
-
+   sl.registerLazySingleton<NoteApi>(() => NoteApi());
   sl.registerSingleton<UserService>(UserService());
+    sl.registerLazySingleton<NoteService>(() => NoteService(sl<NoteApi>()));
 
   sl.registerLazySingleton<AttributesCubit>(() => AttributesCubit(
       sl<EntranceUseCases>(), sl<BuildingUseCases>(), sl<DwellingUseCases>()));
