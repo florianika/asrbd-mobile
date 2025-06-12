@@ -4,6 +4,7 @@ class Note {
   final String noteText;
   final String createdUser;
   final DateTime createdTimestamp;
+   final String userId;
 
   Note({
     required this.noteId,
@@ -11,6 +12,7 @@ class Note {
     required this.noteText,
     required this.createdUser,
     required this.createdTimestamp,
+    required this.userId,
   });
 
   factory Note.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Note {
       noteText: json['noteText'],
       createdUser: json['createdUser'],
       createdTimestamp: DateTime.parse(json['createdTimestamp']),
+      userId: json['userId'],
     );
   }
 }

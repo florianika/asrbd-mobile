@@ -27,11 +27,11 @@ Future<NoteApiResponse> getNotes(String buildingGlobalId) async {
 }
 
 
-  Future<bool> postNote(String buildingGlobalId, String noteText, String createdUser) async {
+  Future<bool> postNote(String buildingGlobalId, String noteText, String createdUser,String userId) async {
   try {
     String? accessToken = await _storage.getString(StorageKeys.accessToken);
     if (accessToken == null) throw Exception('Access token missing');
-    final response = await noteApi.postNote(accessToken, buildingGlobalId, noteText, createdUser);
+    final response = await noteApi.postNote(accessToken, buildingGlobalId, noteText, createdUser,userId);
     if (response.statusCode == 200) {
       final data = response.data;
       if (data != null && data['noteId'] != null) {

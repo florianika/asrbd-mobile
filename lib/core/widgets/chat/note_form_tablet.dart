@@ -72,6 +72,7 @@ class _NotesWidgetState extends State<NotesWidget> with SingleTickerProviderStat
 void _postNote(BuildContext context) {
   final userService = sl<UserService>();
   final userName = '${userService.userInfo?.uniqueName ?? ''} ${userService.userInfo?.familyName ?? ''}';
+  final userId = '${userService.userInfo?.nameId}';
   final text = _controller.text.trim();
   if (text.isEmpty) {
     _showSnackBar('Note cannot be empty!');
@@ -84,7 +85,7 @@ void _postNote(BuildContext context) {
     return;
   }
   _sendButtonAnimationController.forward().then((_) => _sendButtonAnimationController.reverse());
-  context.read<NoteCubit>().postNote(buildingGlobalId, text, userName);
+  context.read<NoteCubit>().postNote(buildingGlobalId, text, userName,userId);
   _controller.clear();
 }
 

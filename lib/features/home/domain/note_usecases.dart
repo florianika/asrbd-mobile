@@ -10,7 +10,7 @@ class NoteUseCases {
     return await _noteRepository.getNotes(buildingGlobalId);
   }
 
-  Future<bool> postNotes(String buildingGlobalId, String noteText, String createdUser) async {
-    return await _noteRepository.postNote(buildingGlobalId,noteText,createdUser);
+  Future<bool> postNotes(String buildingGlobalId, String noteText, String createdUser,String userId) async {
+    return await _noteRepository.postNote(buildingGlobalId,noteText,createdUser,userId);
   }
 }

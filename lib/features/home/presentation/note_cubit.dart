@@ -34,10 +34,10 @@ class NoteCubit extends Cubit<NoteState> {
     }
   }
 
-  Future<void> postNote(String buildingGlobalId, String noteText, String createdUser) async {
+  Future<void> postNote(String buildingGlobalId, String noteText, String createdUser,String userId) async {
     emit(NoteLoading());
     try {
-      final success = await noteService.postNote(buildingGlobalId, noteText, createdUser);
+      final success = await noteService.postNote(buildingGlobalId, noteText, createdUser,userId);
       if (success) {
         emit(NotePostSuccess());
         await getNotes(buildingGlobalId);

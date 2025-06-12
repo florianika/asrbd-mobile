@@ -17,7 +17,7 @@ class NoteApi {
       return await _apiClient.get(fullUrl);
     }
 
-Future<Response> postNote(String authToken, String buildingGlobalId, String noteText, String createdUser) async {
+Future<Response> postNote(String authToken, String buildingGlobalId, String noteText, String createdUser,String userId) async {
   _apiClient.setHeaders({
     "Authorization": 'Bearer $authToken',
   });
@@ -28,6 +28,7 @@ Future<Response> postNote(String authToken, String buildingGlobalId, String note
       'bldId': buildingGlobalId,
       'noteText': noteText,
       'createdUser': createdUser,
+      'userId': userId,
     },
   );
  }
