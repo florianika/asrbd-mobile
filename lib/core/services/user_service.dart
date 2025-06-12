@@ -17,7 +17,7 @@ class UserService {
       return userInfo;
     } catch (e) {
       // print('Error initializing schemas: $e');
-      throw Exception('Failed to initialize schemas: $e');
+      throw Exception('Failed to initialize user service: $e');
     }
   }
 }

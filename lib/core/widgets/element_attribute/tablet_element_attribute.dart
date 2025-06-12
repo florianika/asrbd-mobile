@@ -75,6 +75,10 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                   .toValidationResults(
                                       useAlbanianMessage: true);
                               validationResult ??= [];
+                            } else if (state is OutputLogsError) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(state.message)),
+                              );
                             }
                           },
                           builder: (context, state) {

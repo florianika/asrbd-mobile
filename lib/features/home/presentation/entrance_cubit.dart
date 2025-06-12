@@ -21,6 +21,11 @@ class Entrance extends EntranceState {
   Entrance(this.entrance);
 }
 
+class EntranceGlobalId extends EntranceState {
+  final String globalId;
+  EntranceGlobalId(this.globalId);
+}
+
 class EntranceAttributes extends EntranceState {
   final List<FieldSchema> attributes;
   EntranceAttributes(this.attributes);
@@ -70,6 +75,7 @@ class EntranceCubit extends Cubit<EntranceState> {
       // dwellingCubit.closeDwellings();
       attributesCubit.showAttributes(true);
       await attributesCubit.showEntranceAttributes(globalId);
+      emit(EntranceGlobalId(globalId));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

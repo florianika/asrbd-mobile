@@ -1,17 +1,33 @@
-// core/services/storage_service.dart
-
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 
 class StorageService {
-  // Save a value in SharedPreferences
-  Future<void> saveString(String key, String value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
+  final String _boxName = 'app_storage';
+
+  // Open box (lazy singleton pattern)
+  Future<Box> _getBox() async {
+    if (!Hive.isBoxOpen(_boxName)) {
+      return await Hive.openBox(_boxName);
+    }
+    return Hive.box(_boxName);
   }
 
-  // Retrieve a value from SharedPreferences
+  // Save a string value
+  Future<void> saveString(String key, String value) async {
+    final box = await _getBox();
+    await box.put(key, value);
+  }
+
+  // Retrieve a string value
   Future<String?> getString(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    final box = await _getBox();
+    final value = box.get(key);
+    return value is String ? value : null;
+  }
+
+  // Clear all stored values
+  Future<bool> clear() async {
+    final box = await _getBox();
+    await box.clear();
+    return true;
   }
 }

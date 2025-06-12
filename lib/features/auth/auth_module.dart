@@ -1,3 +1,4 @@
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:asrdb/core/api/auth_api.dart';
 import 'package:asrdb/core/services/auth_service.dart';
@@ -19,7 +20,7 @@ void initAuthModule(GetIt sl) {
 
   // Register use cases
   sl.registerLazySingleton<AuthUseCases>(
-      () => AuthUseCases(sl<AuthRepository>()));
+      () => AuthUseCases(sl<AuthRepository>(), sl<StorageRepository>()));
 
   // Register Cubit (State Management)
   sl.registerFactory<AuthCubit>(() => AuthCubit(sl<AuthUseCases>()));

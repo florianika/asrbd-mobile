@@ -111,7 +111,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         emit(Attributes(
             schema, features[0]['properties'], ShapeType.polygon, globalID));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point, globalID));
+        emit(Attributes(schema, {}, ShapeType.polygon, globalID));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));

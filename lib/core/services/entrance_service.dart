@@ -30,10 +30,10 @@ class EntranceService {
           return mapData;
         }
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get entrances');
       }
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Get entrances: $e');
     }
   }
 
@@ -55,10 +55,10 @@ class EntranceService {
           return mapData;
         }
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get entrance details');
       }
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Get entrance details: $e');
     }
   }
 
@@ -84,7 +84,7 @@ class EntranceService {
             'Schema fetch failed: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get entrance attributes: $e');
     }
   }
 
@@ -126,13 +126,12 @@ class EntranceService {
                 'Feature add failed: ${result['error']?['message'] ?? 'Unknown reason'}');
           }
         }
-
         throw Exception('Unexpected response format.');
       } else {
         throw Exception('Failed request: HTTP ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Add entrance failed: $e');
+      throw Exception('Add entrance feature failed: $e');
     }
   }
 
@@ -149,7 +148,7 @@ class EntranceService {
         return false;
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Update entrance feature: $e');
     }
   }
 
@@ -166,7 +165,7 @@ class EntranceService {
         return false;
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('delete entrance feature: $e');
     }
   }
 }

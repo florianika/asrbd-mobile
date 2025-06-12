@@ -21,9 +21,9 @@ class OutputLogsService {
       if (response.statusCode == 200) {
         return ProcessOutputLogResponse.fromJson(response.data);
       }
-      throw Exception('Failed to login');
+      throw Exception('Get ouptut logs');
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get ouptut logs: $e');
     }
   }
 }

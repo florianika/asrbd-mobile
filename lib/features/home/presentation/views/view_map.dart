@@ -14,7 +14,6 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
-import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -57,7 +56,6 @@ class _ViewMapState extends State<ViewMap> {
   List<Legend> entranceLegends = [];
 
   final legendService = sl<LegendService>();
-  // final outputLogsCubit = context.read<OutputLogsCubit>();
 
   @override
   void dispose() {
@@ -95,7 +93,6 @@ class _ViewMapState extends State<ViewMap> {
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
     final attributesCubit = context.read<AttributesCubit>();
-    //
 
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
@@ -152,9 +149,6 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         await dwellingCubit.updateDwellingFeature(attributes);
       }
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
@@ -222,16 +216,12 @@ class _ViewMapState extends State<ViewMap> {
                 ],
               ),
             ),
-            BlocConsumer<OutputLogsCubit, OutputLogsState>(
+            BlocConsumer<EntranceCubit, EntranceState>(
               listener: (context, state) {
-                if (state is OutputLogsError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                if (state is EntranceGlobalId) {
+                  context.read<OutputLogsCubit>().outputLogsBuildings(
+                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
                 }
-                setState(() {
-                  isLoading = false;
-                });
               },
               builder: (context, state) {
                 return const SizedBox.shrink();
@@ -244,20 +234,19 @@ class _ViewMapState extends State<ViewMap> {
                     SnackBar(content: Text(state.message)),
                   );
                 } else if (state is BuildingAddResponse) {
-                  context.read<OutputLogsCubit>().checkAutomatic(
+                  context.read<AttributesCubit>().showBuildingAttributes(
                       state.globalId.replaceAll('{', '').replaceAll('}', ''));
-                  //  outputLogsCubit.checkAutomatic(globalId);
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(
-                  //       content: Text("Building added successfully")),
-                  // );
                 } else if (state is BuildingUpdateResponse) {
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text(state.globalId)),
-                  // );
-                  context.read<OutputLogsCubit>().checkAutomatic(
+                  context.read<AttributesCubit>().showBuildingAttributes(
                       state.globalId.replaceAll('{', '').replaceAll('}', ''));
                 }
+                // else if (state is BuildingGlobalId) {
+                //   // setState(() {
+                //   //   isLoading = true;
+                //   // });
+                //   context.read<OutputLogsCubit>().outputLogsBuildings(
+                //       state.globalId!.replaceAll('{', '').replaceAll('}', ''));
+                // }
               },
               builder: (context, state) {
                 return const SizedBox.shrink();
@@ -296,6 +285,12 @@ class _ViewMapState extends State<ViewMap> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
                 );
+              } else if (state is Attributes) {
+                // setState(() {
+                //   isLoading = true;
+                // });
+                // context.read<OutputLogsCubit>().outputLogsBuildings(
+                //     state.globalId.replaceAll('{', '').replaceAll('}', ''));
               }
             }, builder: (context, state) {
               return (state is AttributesVisibility && !state.showAttributes)
@@ -306,7 +301,7 @@ class _ViewMapState extends State<ViewMap> {
                           ? state.shapeType
                           : ShapeType.point,
                       initialData: state is Attributes ? state.initialData : {},
-                      isLoading: state is AttributesLoading,
+                      isLoading: state is AttributesLoading || isLoading,
                       save: _onSave,
                       onClose: () {
                         context.read<AttributesCubit>().showAttributes(false);

@@ -2,6 +2,7 @@ import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/services/building_service.dart';
 import 'package:asrdb/features/home/data/building_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -22,8 +23,8 @@ void initBuildingModule(GetIt slBuilding) {
       () => BuildingRepository(slBuilding<BuildingService>()));
 
   // Register use cases
-  slBuilding.registerLazySingleton<BuildingUseCases>(
-      () => BuildingUseCases(slBuilding<BuildingRepository>()));
+  slBuilding.registerLazySingleton<BuildingUseCases>(() => BuildingUseCases(
+      slBuilding<BuildingRepository>(), slBuilding<CheckUseCases>()));
 
   // Register Cubit (State Management)
   slBuilding.registerFactory<BuildingCubit>(() => BuildingCubit(

@@ -5,7 +5,7 @@ class CheckUseCases {
 
   CheckUseCases(this._checkRepository);
 
-  Future<bool> checkAutomatic(String buildingGlobalId) async {
+  Future<bool> checkAutomatic(String buildingGlobalId) async {  
     return await _checkRepository.checkAutomatic(buildingGlobalId);
   }
 

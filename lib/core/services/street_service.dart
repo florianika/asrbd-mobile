@@ -22,10 +22,10 @@ class StreetService {
       if (response.statusCode == 200) {
         return StreetApiResponse.fromJson(response.data).streets;
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get streets');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get streets: $e');
     }
   }
 

@@ -1,6 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
-import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
@@ -77,12 +76,13 @@ class BuildingCubit extends Cubit<BuildingState> {
   Future<void> getBuildingDetails(String globalId) async {
     emit(BuildingLoading());
     try {
-      _selectedBuildingGlobalId = globalId;
-      emit(BuildingGlobalId(globalId));
+      _selectedBuildingGlobalId =
+          globalId.replaceAll('{', '').replaceAll('}', '');
 
-      // dwellingCubit.closeDwellings();
       attributesCubit.showAttributes(true);
-      await attributesCubit.showBuildingAttributes(globalId);
+      await attributesCubit.showBuildingAttributes(_selectedBuildingGlobalId);
+      await outputLogsCubit.outputLogsBuildings(_selectedBuildingGlobalId!);
+      emit(BuildingGlobalId(_selectedBuildingGlobalId));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
@@ -106,7 +106,6 @@ class BuildingCubit extends Cubit<BuildingState> {
     try {
       final globalId =
           await buildingUseCases.addBuildingFeature(attributes, points);
-      // await outputLogsCubit.checkAutomatic(globalId);
       emit(BuildingAddResponse(globalId));
     } catch (e) {
       emit(BuildingError(e.toString()));
@@ -118,7 +117,6 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(BuildingLoading());
     try {
       await buildingUseCases.updateBuildingFeature(attributes);
-      // await outputLogsCubit.checkAutomatic(attributes['GlobalID']);
       emit(BuildingUpdateResponse(attributes['GlobalID']));
     } catch (e) {
       emit(BuildingError(e.toString()));

@@ -18,7 +18,7 @@ class CheckService {
           await checkApi.checkAutomatic(accessToken, buildingGlobalId);
       return response.statusCode == 200;
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Check automatic for building $buildingGlobalId: $e');
     }
   }
 
@@ -32,7 +32,7 @@ class CheckService {
           await checkApi.checkBuildings(accessToken, buildingGlobalId);
       return response.statusCode == 200;
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Check buildings: $e');
     }
   }
 }

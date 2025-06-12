@@ -9,21 +9,21 @@ class DwellingService {
 
   final StorageService _storage = StorageService();
 
-  Future<Map<String, dynamic>> getDwellings(
-     String? entranceGlobalId) async {
+  Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
-     
+
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await dwellingApi.getDwellings(esriToken, entranceGlobalId);
+      final response =
+          await dwellingApi.getDwellings(esriToken, entranceGlobalId);
       if (response.statusCode == 200) {
         return response.data as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get dwellings');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get dwellings: $e');
     }
   }
 
@@ -47,7 +47,7 @@ class DwellingService {
             'Schema fetch failed: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get dwelling attributes: $e');
     }
   }
 
@@ -69,15 +69,14 @@ class DwellingService {
           return mapData;
         }
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get dwelling details');
       }
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Get dwelling details: $e');
     }
   }
-  
-  Future<bool> addDwellingFeature(
-      Map<String, dynamic> attributes) async {
+
+  Future<bool> addDwellingFeature(Map<String, dynamic> attributes) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
@@ -90,25 +89,24 @@ class DwellingService {
         return false;
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Add dwelling feature: $e');
     }
   }
 
-   Future<bool> updateDwellingFeature(
-      Map<String, dynamic> attributes) async {
+  Future<bool> updateDwellingFeature(Map<String, dynamic> attributes) async {
     try {
       String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await dwellingApi.updateDwellingFeature(
-          esriToken, attributes);
+      final response =
+          await dwellingApi.updateDwellingFeature(esriToken, attributes);
       if (response.statusCode == 200) {
         return true;
       } else {
         return false;
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('update dwelling feature: $e');
     }
   }
 }

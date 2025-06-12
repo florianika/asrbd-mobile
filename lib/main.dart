@@ -5,9 +5,11 @@ import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/building_module.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
@@ -29,11 +31,12 @@ import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/features/auth/presentation/lang_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:get_it/get_it.dart';
-import 'core/local_storage/local_storage_service.dart';
 import 'routing/route_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final sl = GetIt.instance; // Service locator instance
@@ -47,31 +50,34 @@ void main() async {
   ]);
 
   await dotenv.load();
-  await LocalStorageService().init();
+  // await LocalStorageService().init();
 
   sl.registerLazySingleton<StreetApi>(() => StreetApi());
 
   final legendService = LegendService();
   final streetService = StreetService(sl<StreetApi>());
-  // final localDbService = LocalDatabaseService();
   await legendService.loadLegendConfigs();
-
+  await Hive.initFlutter();
   await StreetDatabase.database;
 
   sl.registerSingleton<LegendService>(legendService);
   sl.registerSingleton<StreetService>(streetService);
-  // sl.registerSingleton<LocalDatabaseService>(localDbService);
 
   // Register API
   sl.registerLazySingleton<SchemaApi>(() => SchemaApi());
+
+  sl.registerLazySingleton<StorageService>(() => StorageService());
+  sl.registerLazySingleton<StorageRepository>(
+      () => StorageRepository(sl<StorageService>()));
 
   // Register SchemaService as singleton
   sl.registerSingleton<SchemaService>(
     SchemaService(sl<SchemaApi>()),
   );
-   sl.registerLazySingleton<NoteApi>(() => NoteApi());
+  sl.registerLazySingleton<NoteApi>(() => NoteApi());
   sl.registerSingleton<UserService>(UserService());
-    sl.registerLazySingleton<NoteService>(() => NoteService(sl<NoteApi>()));
+
+  sl.registerLazySingleton<NoteService>(() => NoteService(sl<NoteApi>()));
 
   sl.registerLazySingleton<AttributesCubit>(() => AttributesCubit(
       sl<EntranceUseCases>(), sl<BuildingUseCases>(), sl<DwellingUseCases>()));

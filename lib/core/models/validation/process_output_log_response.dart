@@ -13,6 +13,13 @@ class ProcessOutputLogResponse {
           .toList(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'processOutputLogDto':
+          processOutputLogDto.map((item) => item.toJson()).toList(),
+    };
+  }
 }
 
 class ProcessOutputLogDto {

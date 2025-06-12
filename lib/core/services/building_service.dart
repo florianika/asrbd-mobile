@@ -30,7 +30,7 @@ class BuildingService {
         throw Exception('Failed to login');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get buildings failed: $e');
     }
   }
 
@@ -56,7 +56,7 @@ class BuildingService {
             'Schema fetch failed: ${response.statusCode} - ${response.data}');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Get buildings attributes: $e');
     }
   }
 
@@ -102,7 +102,7 @@ class BuildingService {
         throw Exception('Failed request: HTTP ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Add building feature: $e');
     }
   }
 
@@ -119,7 +119,7 @@ class BuildingService {
         return false;
       }
     } catch (e) {
-      throw Exception('Login failed: $e');
+      throw Exception('Update building feature: $e');
     }
   }
 
@@ -141,10 +141,10 @@ class BuildingService {
           return mapData;
         }
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get building details error');
       }
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Get building details: $e');
     }
   }
 
@@ -165,10 +165,10 @@ class BuildingService {
           return mapData.isNotEmpty;
         }
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Get building intersection');
       }
     } catch (e) {
-      throw Exception(e);
+      throw Exception('Get building intersection: $e');
     }
   }
 }

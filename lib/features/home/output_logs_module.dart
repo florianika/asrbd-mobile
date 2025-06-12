@@ -4,6 +4,7 @@ import 'package:asrdb/core/services/check_service.dart';
 import 'package:asrdb/core/services/output_logs_service.dart';
 import 'package:asrdb/features/home/data/check_repository.dart';
 import 'package:asrdb/features/home/data/output_log_repository.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/output_logs_usecases.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
@@ -37,6 +38,8 @@ void initOutputLogsModule(GetIt slLogs) {
       () => CheckUseCases(slLogs<CheckRepository>()));
 
   // Register Cubit (State Management)
-  slLogs.registerFactory<OutputLogsCubit>(() =>
-      OutputLogsCubit(slLogs<OuputLogsUseCases>(), slLogs<CheckUseCases>()));
+  slLogs.registerFactory<OutputLogsCubit>(() => OutputLogsCubit(
+      slLogs<OuputLogsUseCases>(),
+      slLogs<CheckUseCases>(),
+      slLogs<StorageRepository>()));
 }
