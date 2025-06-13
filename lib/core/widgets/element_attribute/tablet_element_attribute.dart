@@ -132,13 +132,4 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
       ),
     );
   }
-
-  // Future<void> _openNewDwellingForm() async {
-  //   // if (widget.onOpenDwelling != null) {
-  //   //   widget.onOpenDwelling!();
-  //   // }
-  //   await context
-  //       .read<AttributesCubit>()
-  //       .showDwellingAttributes(widget.initialData['OBJECTID']);
-  // }
 }

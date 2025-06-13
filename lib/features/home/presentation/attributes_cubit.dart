@@ -42,18 +42,25 @@ class AttributesCubit extends Cubit<AttributesState> {
   final BuildingUseCases buildingUseCases;
   final DwellingUseCases dwellingUseCases;
 
+  bool showLoading = true; // ✅ Loading control flag
+
   AttributesCubit(
     this.entranceUseCases,
     this.buildingUseCases,
     this.dwellingUseCases,
   ) : super(AttributesVisibility(false));
 
+  /// ✅ Control loading indicator visibility
+  void setShowLoading(bool value) {
+    showLoading = value;
+  }
+
   void showAttributes(bool showAttributes) {
     emit(AttributesVisibility(showAttributes));
   }
 
   Future<void> showDwellingAttributes(int? objectId) async {
-    emit(AttributesLoading());
+    if (showLoading) emit(AttributesLoading());
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (objectId == null) {
@@ -64,7 +71,8 @@ class AttributesCubit extends Cubit<AttributesState> {
       final dwellingData = await dwellingUseCases.getDwellingDetails(objectId);
       if (dwellingData.isNotEmpty) {
         final features = dwellingData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.noShape, '',
+        emit(Attributes(
+            schema, features[0]['properties'], ShapeType.noShape, '',
             viewDwelling: true));
       } else {
         emit(Attributes(schema, {}, ShapeType.point, '', viewDwelling: true));
@@ -75,7 +83,7 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showEntranceAttributes(String? globalID) async {
-    emit(AttributesLoading());
+    if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
       if (globalID == null) {
@@ -97,7 +105,7 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showBuildingAttributes(String? globalID) async {
-    emit(AttributesLoading());
+    if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       if (globalID == null) {

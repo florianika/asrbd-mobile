@@ -140,7 +140,7 @@ class _ViewMapState extends State<ViewMap> {
       });
     } else if (geometryCubit.type == ShapeType.noShape) {
       if (isNew) {
-         final entranceCubit = context.read<EntranceCubit>();
+        final entranceCubit = context.read<EntranceCubit>();
         attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
         attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
         attributes['external_creator_date'] =
@@ -153,7 +153,7 @@ class _ViewMapState extends State<ViewMap> {
         await dwellingCubit.updateDwellingFeature(attributes);
       }
 
-       setState(() {
+      setState(() {
         isLoading = false;
       });
     }
@@ -170,163 +170,177 @@ class _ViewMapState extends State<ViewMap> {
     return Scaffold(
       appBar: const MapAppBar(),
       drawer: const SideMenu(),
-      body: LoadingIndicator(
-        isLoading: isLoading,
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Stack(
-                children: [
-                  AsrdbMap(
-                    mapController: mapController,
-                    attributeLegend: attributeLegend,
-                  ),
-                  BlocConsumer<NewGeometryCubit, NewGeometryState>(
-                      listener: (context, state) {},
-                      builder: (context, state) {
-                        return (state as NewGeometry).isDrawing
-                            ? MapActionEvents(
-                                mapController: mapController,
-                              )
-                            : MapActionButtons(
-                                mapController: mapController,
-                              );
-                      }),
-                  Positioned(
-                    top: 20,
-                    right: 20,
-                    child: CombinedLegendWidget(
-                      buildingLegends: buildingLegends,
-                      initialBuildingAttribute: 'quality',
-                      entranceLegends: entranceLegends,
-                      onChange: onLegendChangeAttribute,
-                    ),
-                  ),
-                  Visibility(
-                    visible: false,
-                    child: Positioned(
-                      top: 20,
-                      right: 150,
-                      child: FloatingActionButton(
-                        onPressed: () => {},
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF374151),
-                        elevation: 3,
-                        child: const Icon(
-                          Icons.layers,
-                          size: 22,
+      body: BlocBuilder<AttributesCubit, AttributesState>(
+        builder: (context, state) {
+          final isDataLoading = state is AttributesLoading;
+
+          return LoadingIndicator(
+            isLoading: isDataLoading,
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Stack(
+                    children: [
+                      AsrdbMap(
+                        mapController: mapController,
+                        attributeLegend: attributeLegend,
+                      ),
+                      BlocConsumer<NewGeometryCubit, NewGeometryState>(
+                          listener: (context, state) {},
+                          builder: (context, state) {
+                            return (state as NewGeometry).isDrawing
+                                ? MapActionEvents(
+                                    mapController: mapController,
+                                  )
+                                : MapActionButtons(
+                                    mapController: mapController,
+                                  );
+                          }),
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child: CombinedLegendWidget(
+                          buildingLegends: buildingLegends,
+                          initialBuildingAttribute: 'quality',
+                          entranceLegends: entranceLegends,
+                          onChange: onLegendChangeAttribute,
                         ),
                       ),
-                    ),
+                      Visibility(
+                        visible: false,
+                        child: Positioned(
+                          top: 20,
+                          right: 150,
+                          child: FloatingActionButton(
+                            onPressed: () => {},
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF374151),
+                            elevation: 3,
+                            child: const Icon(
+                              Icons.layers,
+                              size: 22,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            BlocListener<BuildingCubit, BuildingState>(
-              listener: (context, state) {
-                if (state is BuildingError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                } else if (state is BuildingAddResponse ||
-                    state is BuildingUpdateResponse) {
-                  final id = (state as BuildingAddResponse)
-                      .globalId
-                      .replaceAll('{', '')
-                      .replaceAll('}', '');
-                  context.read<AttributesCubit>().showBuildingAttributes(id);
-                }
-              },
-              child:
-                  const SizedBox.shrink(), // or whatever widget is appropriate
-            ),
-            BlocListener<EntranceCubit, EntranceState>(
-              listener: (context, state) {
-                if (state is EntranceError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                } else if (state is EntranceAddResponse ||
-                    state is EntranceUpdateResponse) {
-                  final id = (state as EntranceAddResponse)
-                      .buildingGlboalId
-                      .replaceAll('{', '')
-                      .replaceAll('}', '');
-                  context.read<AttributesCubit>().showBuildingAttributes(id);
-                }
-              },
-              child:
-                  const SizedBox.shrink(), // or whatever widget is appropriate
-            ),
-            BlocListener<DwellingCubit, DwellingState>(
-              listener: (context, state) {
-                if (state is DwellingError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                } else if (state is DwellingUpdateResponse) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        state.isAdded
-                            ? "Dwelling updated successfully"
-                            : "Dwelling could not be updated",
-                      ),
-                    ),
-                  );
-                } else if (state is DwellingAddResponse) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        state.isAdded
-                            ? "Dwelling added successfully"
-                            : "Dwelling could not be added",
-                      ),
-                    ),
-                  );
-                }
-              },
-              child: const SizedBox
-                  .shrink(), // or your actual widget if it wraps something
-            ),
-            const DwellingForm(),
-            BlocConsumer<AttributesCubit, AttributesState>(
-                listener: (context, state) {
-              if (state is AttributesError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              } else if (state is Attributes) {
-                // setState(() {
-                //   isLoading = true;
-                // });
-                // context.read<OutputLogsCubit>().outputLogsBuildings(
-                //     state.globalId.replaceAll('{', '').replaceAll('}', ''));
-              }
-            }, builder: (context, state) {
-              return (state is AttributesVisibility && !state.showAttributes)
-                  ? const SizedBox.shrink()
-                  : ViewAttribute(
-                      schema: state is Attributes ? state.schema : [],
-                      selectedShapeType: state is Attributes
-                          ? state.shapeType
-                          : ShapeType.point,
-                      initialData: state is Attributes ? state.initialData : {},
-                      isLoading: state is AttributesLoading || isLoading,
-                      save: _onSave,
-                      onClose: () {
-                        context.read<AttributesCubit>().showAttributes(false);
-                        setState(() {
-                          // _selectedGlobalId = null;
-                          highlightedBuildingIds = null;
-                          highlightMarkersGlobalId = [];
-                        });
-                      },
+                ),
+                BlocListener<BuildingCubit, BuildingState>(
+                  listener: (context, state) {
+                    if (state is BuildingError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    } else if (state is BuildingAddResponse ||
+                        state is BuildingUpdateResponse) {
+                      final id = (state as BuildingAddResponse)
+                          .globalId
+                          .replaceAll('{', '')
+                          .replaceAll('}', '');
+                      context
+                          .read<AttributesCubit>()
+                          .showBuildingAttributes(id);
+                    }
+                  },
+                  child: const SizedBox
+                      .shrink(), // or whatever widget is appropriate
+                ),
+                BlocListener<EntranceCubit, EntranceState>(
+                  listener: (context, state) {
+                    if (state is EntranceError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    } else if (state is EntranceAddResponse ||
+                        state is EntranceUpdateResponse) {
+                      final id = (state as EntranceAddResponse)
+                          .buildingGlboalId
+                          .replaceAll('{', '')
+                          .replaceAll('}', '');
+                      context
+                          .read<AttributesCubit>()
+                          .showBuildingAttributes(id);
+                    }
+                  },
+                  child: const SizedBox
+                      .shrink(), // or whatever widget is appropriate
+                ),
+                BlocListener<DwellingCubit, DwellingState>(
+                  listener: (context, state) {
+                    if (state is DwellingError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    } else if (state is DwellingUpdateResponse) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            state.isAdded
+                                ? "Dwelling updated successfully"
+                                : "Dwelling could not be updated",
+                          ),
+                        ),
+                      );
+                    } else if (state is DwellingAddResponse) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            state.isAdded
+                                ? "Dwelling added successfully"
+                                : "Dwelling could not be added",
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: const SizedBox
+                      .shrink(), // or your actual widget if it wraps something
+                ),
+                const DwellingForm(),
+                BlocConsumer<AttributesCubit, AttributesState>(
+                    listener: (context, state) {
+                  if (state is AttributesError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
                     );
-            })
-          ],
-        ),
+                  } else if (state is Attributes) {
+                    // setState(() {
+                    //   isLoading = true;
+                    // });
+                    // context.read<OutputLogsCubit>().outputLogsBuildings(
+                    //     state.globalId.replaceAll('{', '').replaceAll('}', ''));
+                  }
+                }, builder: (context, state) {
+                  return (state is AttributesVisibility &&
+                          !state.showAttributes)
+                      ? const SizedBox.shrink()
+                      : ViewAttribute(
+                          schema: state is Attributes ? state.schema : [],
+                          selectedShapeType: state is Attributes
+                              ? state.shapeType
+                              : ShapeType.point,
+                          initialData:
+                              state is Attributes ? state.initialData : {},
+                          isLoading: state is AttributesLoading || isLoading,
+                          save: _onSave,
+                          onClose: () {
+                            context
+                                .read<AttributesCubit>()
+                                .showAttributes(false);
+                            setState(() {
+                              // _selectedGlobalId = null;
+                              highlightedBuildingIds = null;
+                              highlightMarkersGlobalId = [];
+                            });
+                          },
+                        );
+                })
+              ],
+            ),
+          );
+        },
       ),
     );
   }

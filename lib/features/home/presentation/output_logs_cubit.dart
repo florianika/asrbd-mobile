@@ -106,15 +106,6 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       if (cachedJson != null) {
         var parsed = ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
 
-        // String entity = entityType == EntityType.building
-        //     ? 'BUILDING'
-        //     : entityType == EntityType.entrance
-        //         ? 'ENTRANCE'
-        //         : 'DWELLING';
-        // parsed.processOutputLogDto = parsed.processOutputLogDto
-        //     .where((x) => x.entityType == entity)
-        //     .toList();
-
         emit(OutputLogs(parsed));
       } else {
         final freshData =

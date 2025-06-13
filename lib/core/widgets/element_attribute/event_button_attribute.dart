@@ -1,5 +1,9 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class EventButtonAttribute extends StatelessWidget {
@@ -20,10 +24,23 @@ class EventButtonAttribute extends StatelessWidget {
     this.onViewValidationResult,
   });
 
+  void handleValidation() {}
+
   @override
   Widget build(BuildContext context) {
     const double buttonWidth = 90;
     const double buttonHeight = 40;
+
+    void validateData() {
+      context.read<AttributesCubit>().setShowLoading(true);
+      final buildingCubit = context.read<BuildingCubit>();
+      final validateCubit = context.read<OutputLogsCubit>();
+
+      if (buildingCubit.globalId != null) {
+        validateCubit.checkBuildings(buildingCubit.globalId!);
+      }
+      context.read<AttributesCubit>().setShowLoading(false);
+    }
 
     return SafeArea(
       child: Row(
@@ -103,21 +120,23 @@ class EventButtonAttribute extends StatelessWidget {
                   color: Colors.black87,
                   fontSize: 14,
                 ),
-                onTap: () => onValidateData?.call(),
+                onTap: () => validateData(),
               ),
-              SpeedDialChild(
-                child: const Icon(Icons.visibility),
-                backgroundColor: Colors.purple,
-                foregroundColor: Colors.white,
-                label: 'View Validation Result',
-                labelBackgroundColor: Colors.white,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                  fontSize: 14,
+              if (selectedShapeType == ShapeType.point ||
+                  selectedShapeType == ShapeType.polygon)
+                SpeedDialChild(
+                  child: const Icon(Icons.edit),
+                  backgroundColor: Colors.purple,
+                  foregroundColor: Colors.white,
+                  label: 'Edit Position',
+                  labelBackgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onTap: () => {},
                 ),
-                onTap: () => onViewValidationResult?.call(),
-              ),
             ],
           ),
         ],
