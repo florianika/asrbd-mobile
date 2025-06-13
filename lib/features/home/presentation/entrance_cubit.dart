@@ -58,14 +58,18 @@ class EntranceCubit extends Cubit<EntranceState> {
   final AttributesCubit attributesCubit;
   final DwellingCubit dwellingCubit;
 
-  EntranceCubit(this.entranceUseCases, this.attributesCubit, this.dwellingCubit)
-      : super(EntranceInitial());
+  String? currentGlobalId; // ✅ Store current globalId
+
+  EntranceCubit(
+    this.entranceUseCases,
+    this.attributesCubit,
+    this.dwellingCubit,
+  ) : super(EntranceInitial());
 
   Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
     emit(EntranceLoading());
     try {
-      emit(Entrances(
-          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
+      emit(Entrances(await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -74,9 +78,9 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> getEntranceDetails(String globalId) async {
     emit(EntranceLoading());
     try {
-      // dwellingCubit.closeDwellings();
       attributesCubit.showAttributes(true);
       await attributesCubit.showEntranceAttributes(globalId);
+      currentGlobalId = globalId; // ✅ Save the globalId for later access
       emit(EntranceGlobalId(globalId));
     } catch (e) {
       emit(EntranceError(e.toString()));
@@ -96,8 +100,9 @@ class EntranceCubit extends Cubit<EntranceState> {
       Map<String, dynamic> attributes, List<LatLng> points) async {
     emit(EntranceLoading());
     try {
-      emit(EntranceAddResponse(
-          await entranceUseCases.addEntranceFeature(attributes, points), attributes['EntBldGlobalID']));
+      final success =
+          await entranceUseCases.addEntranceFeature(attributes, points);
+      emit(EntranceAddResponse(success, attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -106,8 +111,9 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> updateEntranceFeature(Map<String, dynamic> attributes) async {
     emit(EntranceLoading());
     try {
-      emit(EntranceUpdateResponse(
-          await entranceUseCases.updateEntranceFeature(attributes), attributes['EntBldGlobalID']));
+      final success =
+          await entranceUseCases.updateEntranceFeature(attributes);
+      emit(EntranceUpdateResponse(success, attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -122,4 +128,7 @@ class EntranceCubit extends Cubit<EntranceState> {
       emit(EntranceError(e.toString()));
     }
   }
+
+  /// ✅ Public getter to access the currently active entrance global ID
+  String? get selectedEntranceGlobalId => currentGlobalId;
 }

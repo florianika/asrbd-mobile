@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
@@ -96,15 +97,24 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
     }
   }
 
-  Future<void> outputLogsBuildings(String buildingGlobalId) async {
+  Future<void> outputLogsBuildings(
+      String buildingGlobalId) async {
     try {
       // emit(OutputLogsLoading());
       final cachedJson = await storageRepository.getString(buildingGlobalId);
 
       if (cachedJson != null) {
-        final parsed =
-            ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
-      
+        var parsed = ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
+
+        // String entity = entityType == EntityType.building
+        //     ? 'BUILDING'
+        //     : entityType == EntityType.entrance
+        //         ? 'ENTRANCE'
+        //         : 'DWELLING';
+        // parsed.processOutputLogDto = parsed.processOutputLogDto
+        //     .where((x) => x.entityType == entity)
+        //     .toList();
+
         emit(OutputLogs(parsed));
       } else {
         final freshData =
@@ -113,6 +123,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
           buildingGlobalId,
           jsonEncode(freshData.toJson()),
         );
+        
         emit(OutputLogs(freshData));
       }
     } catch (e) {

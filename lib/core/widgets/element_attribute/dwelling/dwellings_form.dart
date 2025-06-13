@@ -128,6 +128,7 @@ class _DwellingFormState extends State<DwellingForm> {
                             child: TabletElementAttribute(
                               schema: _dwellingSchema,
                               selectedShapeType: ShapeType.noShape,
+                              readOnly: false,
                               initialData: _initialData,
                               onClose: () {
                                 setState(() {
@@ -263,36 +264,7 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildListHeader() {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            const Icon(Icons.home, color: Colors.blue),
-            const SizedBox(width: 12),
-            Text(
-              '${_dwellingRows.length} Dwellings',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            // const Spacer(),
-            // Text(
-            //   'Object ID: ${dwelling['OBJECTID']?.toString() ?? "N/A"}',
-            //   style: TextStyle(
-            //     fontSize: 14,
-            //     color: Colors.grey[600],
-            //   ),
-            // ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildExpandableDwellingItem(
       Map<String, dynamic> dwelling, int index) {

@@ -1,3 +1,4 @@
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
@@ -66,8 +67,17 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                           builder: (context, state) {
                             if (state is OutputLogs) {
                               final validationResult = state.validationResult
-                                  .toValidationResults(
-                                      useAlbanianMessage: true);
+                                  .toValidationResults(useAlbanianMessage: true)
+                                  .where((x) =>
+                                      x.entityType ==
+                                      (widget.selectedShapeType ==
+                                              ShapeType.polygon
+                                          ? EntityType.building
+                                          : widget.selectedShapeType ==
+                                                  ShapeType.point
+                                              ? EntityType.entrance
+                                              : EntityType.dwelling))
+                                  .toList();
 
                               return DynamicElementAttribute(
                                 key: _dynamicFormKey,

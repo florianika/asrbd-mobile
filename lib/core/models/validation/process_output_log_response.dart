@@ -1,5 +1,5 @@
 class ProcessOutputLogResponse {
-  final List<ProcessOutputLogDto> processOutputLogDto;
+   List<ProcessOutputLogDto> processOutputLogDto;
 
   ProcessOutputLogResponse({
     required this.processOutputLogDto,

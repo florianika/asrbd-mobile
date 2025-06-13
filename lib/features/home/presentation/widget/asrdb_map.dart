@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';

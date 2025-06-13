@@ -91,7 +91,6 @@ class _ViewMapState extends State<ViewMap> {
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
-    final attributesCubit = context.read<AttributesCubit>();
 
     if (geometryCubit.type == ShapeType.point) {
       final entranceCubit = context.read<EntranceCubit>();
@@ -141,7 +140,8 @@ class _ViewMapState extends State<ViewMap> {
       });
     } else if (geometryCubit.type == ShapeType.noShape) {
       if (isNew) {
-        attributes['DwlEntGlobalID'] = attributesCubit.currentGlobalId;
+         final entranceCubit = context.read<EntranceCubit>();
+        attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
         attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
         attributes['external_creator_date'] =
             DateTime.now().millisecondsSinceEpoch;
@@ -152,6 +152,10 @@ class _ViewMapState extends State<ViewMap> {
             DateTime.now().millisecondsSinceEpoch;
         await dwellingCubit.updateDwellingFeature(attributes);
       }
+
+       setState(() {
+        isLoading = false;
+      });
     }
   }
 
