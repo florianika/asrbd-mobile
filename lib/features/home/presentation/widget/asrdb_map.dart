@@ -16,6 +16,7 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -115,6 +116,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<DwellingCubit>().closeDwellings();
       context.read<NewGeometryCubit>().setType(ShapeType.point);
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
+      context.read<OutputLogsCubit>().outputLogsBuildings(
+          data['EntBldGlobalID'].replaceAll('{', '').replaceAll('}', ''));
 
       final bldGlobalId = data['EntBldGlobalID'];
 
@@ -157,6 +160,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<DwellingCubit>().closeDwellings();
       context.read<NewGeometryCubit>().setType(ShapeType.polygon);
       context.read<BuildingCubit>().getBuildingDetails(globalID);
+      context.read<OutputLogsCubit>().outputLogsBuildings(
+          globalID.replaceAll('{', '').replaceAll('}', ''));
 
       List<dynamic> buildingEntrances = [];
       if (entranceData != null) {

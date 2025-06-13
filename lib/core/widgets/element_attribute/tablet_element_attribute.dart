@@ -62,39 +62,33 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             bodyMedium: TextStyle(color: Colors.black),
                           ),
                         ),
-                        child: BlocConsumer<OutputLogsCubit, OutputLogsState>(
-                          listener: (context, state) {
+                        child: BlocBuilder<OutputLogsCubit, OutputLogsState>(
+                          builder: (context, state) {
                             if (state is OutputLogs) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(state.validationResult
-                                        .processOutputLogDto.length
-                                        .toString())),
-                              );
-                              validationResult = state.validationResult
+                              final validationResult = state.validationResult
                                   .toValidationResults(
                                       useAlbanianMessage: true);
-                              validationResult ??= [];
-                            } else if (state is OutputLogsError) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(state.message)),
+
+                              return DynamicElementAttribute(
+                                key: _dynamicFormKey,
+                                schema: widget.schema,
+                                selectedShapeType: widget.selectedShapeType,
+                                initialData: widget.initialData,
+                                onSave: (formValues) => widget.save(formValues),
+                                validationResults: validationResult ?? [],
+                                onClose: widget.onClose,
+                                showButtons: false,
+                                readOnly: widget.readOnly,
                               );
                             }
-                          },
-                          builder: (context, state) {
-                            return DynamicElementAttribute(
-                              key: _dynamicFormKey,
-                              schema: widget.schema,
-                              selectedShapeType: widget.selectedShapeType,
-                              initialData: widget.initialData,
-                              onSave: (formValues) {
-                                widget.save(formValues);
-                              },
-                              validationResults: validationResult,
-                              onClose: widget.onClose,
-                              showButtons: false,
-                              readOnly: widget.readOnly,
-                            );
+
+                            if (state is OutputLogsError) {
+                              return Center(
+                                  child: Text('Error: ${state.message}'));
+                            }
+
+                            return const Center(
+                                child: CircularProgressIndicator());
                           },
                         ),
                       ),

@@ -61,13 +61,17 @@ class _DwellingFormState extends State<DwellingForm> {
     return BlocConsumer<DwellingCubit, DwellingState>(
       listener: (context, state) {
         if (state is Dwellings) {
-          final features = state.dwellings['features'] as List<dynamic>;
-          setState(() {
-            _dwellingRows.clear();
-            _dwellingRows.addAll(
-              features.map((f) => Map<String, dynamic>.from(f['properties'])),
-            );
-          });
+          final featuresRaw = state.dwellings['features'];
+
+          if (featuresRaw is List) {
+            final features = featuresRaw;
+            setState(() {
+              _dwellingRows.clear();
+              _dwellingRows.addAll(
+                features.map((f) => Map<String, dynamic>.from(f['properties'])),
+              );
+            });
+          }
         } else if (state is DwellingAttributes) {
           setState(() {
             _dwellingSchema = state.attributes;

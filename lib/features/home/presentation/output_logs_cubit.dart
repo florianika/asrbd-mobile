@@ -4,9 +4,13 @@ import 'package:asrdb/core/models/validation/process_output_log_response.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/output_logs_usecases.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class OutputLogsState {}
+abstract class OutputLogsState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class OutputLogsInitial extends OutputLogsState {}
 
@@ -14,8 +18,12 @@ class OutputLogsLoading extends OutputLogsState {}
 
 class OutputLogs extends OutputLogsState {
   final ProcessOutputLogResponse validationResult;
+  final DateTime emittedAt;
 
-  OutputLogs(this.validationResult);
+  OutputLogs(this.validationResult) : emittedAt = DateTime.now();
+
+  @override
+  List<Object?> get props => [validationResult, emittedAt];
 }
 
 class OutputLogsTest extends OutputLogsState {
@@ -90,11 +98,13 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
 
   Future<void> outputLogsBuildings(String buildingGlobalId) async {
     try {
+      // emit(OutputLogsLoading());
       final cachedJson = await storageRepository.getString(buildingGlobalId);
 
       if (cachedJson != null) {
         final parsed =
             ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
+      
         emit(OutputLogs(parsed));
       } else {
         final freshData =

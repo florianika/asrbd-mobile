@@ -33,12 +33,14 @@ class EntranceAttributes extends EntranceState {
 
 class EntranceAddResponse extends EntranceState {
   final bool isAdded;
-  EntranceAddResponse(this.isAdded);
+  final String buildingGlboalId;
+  EntranceAddResponse(this.isAdded, this.buildingGlboalId);
 }
 
 class EntranceUpdateResponse extends EntranceState {
   final bool isAdded;
-  EntranceUpdateResponse(this.isAdded);
+  final String buildingGlobalId;
+  EntranceUpdateResponse(this.isAdded, this.buildingGlobalId);
 }
 
 class EntranceDeleteResponse extends EntranceState {
@@ -95,7 +97,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     emit(EntranceLoading());
     try {
       emit(EntranceAddResponse(
-          await entranceUseCases.addEntranceFeature(attributes, points)));
+          await entranceUseCases.addEntranceFeature(attributes, points), attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -105,7 +107,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     emit(EntranceLoading());
     try {
       emit(EntranceUpdateResponse(
-          await entranceUseCases.updateEntranceFeature(attributes)));
+          await entranceUseCases.updateEntranceFeature(attributes), attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }

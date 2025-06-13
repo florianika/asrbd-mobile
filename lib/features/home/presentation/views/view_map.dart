@@ -19,7 +19,6 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
-import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
@@ -136,6 +135,10 @@ class _ViewMapState extends State<ViewMap> {
 
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
+
+      setState(() {
+        isLoading = false;
+      });
     } else if (geometryCubit.type == ShapeType.noShape) {
       if (isNew) {
         attributes['DwlEntGlobalID'] = attributesCubit.currentGlobalId;
@@ -216,43 +219,43 @@ class _ViewMapState extends State<ViewMap> {
                 ],
               ),
             ),
-            BlocConsumer<EntranceCubit, EntranceState>(
-              listener: (context, state) {
-                if (state is EntranceGlobalId) {
-                  context.read<OutputLogsCubit>().outputLogsBuildings(
-                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
-                }
-              },
-              builder: (context, state) {
-                return const SizedBox.shrink();
-              },
-            ),
-            BlocConsumer<BuildingCubit, BuildingState>(
+            BlocListener<BuildingCubit, BuildingState>(
               listener: (context, state) {
                 if (state is BuildingError) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.message)),
                   );
-                } else if (state is BuildingAddResponse) {
-                  context.read<AttributesCubit>().showBuildingAttributes(
-                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
-                } else if (state is BuildingUpdateResponse) {
-                  context.read<AttributesCubit>().showBuildingAttributes(
-                      state.globalId.replaceAll('{', '').replaceAll('}', ''));
+                } else if (state is BuildingAddResponse ||
+                    state is BuildingUpdateResponse) {
+                  final id = (state as BuildingAddResponse)
+                      .globalId
+                      .replaceAll('{', '')
+                      .replaceAll('}', '');
+                  context.read<AttributesCubit>().showBuildingAttributes(id);
                 }
-                // else if (state is BuildingGlobalId) {
-                //   // setState(() {
-                //   //   isLoading = true;
-                //   // });
-                //   context.read<OutputLogsCubit>().outputLogsBuildings(
-                //       state.globalId!.replaceAll('{', '').replaceAll('}', ''));
-                // }
               },
-              builder: (context, state) {
-                return const SizedBox.shrink();
-              },
+              child:
+                  const SizedBox.shrink(), // or whatever widget is appropriate
             ),
-            BlocConsumer<DwellingCubit, DwellingState>(
+            BlocListener<EntranceCubit, EntranceState>(
+              listener: (context, state) {
+                if (state is EntranceError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                } else if (state is EntranceAddResponse ||
+                    state is EntranceUpdateResponse) {
+                  final id = (state as EntranceAddResponse)
+                      .buildingGlboalId
+                      .replaceAll('{', '')
+                      .replaceAll('}', '');
+                  context.read<AttributesCubit>().showBuildingAttributes(id);
+                }
+              },
+              child:
+                  const SizedBox.shrink(), // or whatever widget is appropriate
+            ),
+            BlocListener<DwellingCubit, DwellingState>(
               listener: (context, state) {
                 if (state is DwellingError) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -261,22 +264,27 @@ class _ViewMapState extends State<ViewMap> {
                 } else if (state is DwellingUpdateResponse) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content: Text(state.isAdded
+                      content: Text(
+                        state.isAdded
                             ? "Dwelling updated successfully"
-                            : "Dwelling could not be updated")),
+                            : "Dwelling could not be updated",
+                      ),
+                    ),
                   );
                 } else if (state is DwellingAddResponse) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                        content: Text(state.isAdded
+                      content: Text(
+                        state.isAdded
                             ? "Dwelling added successfully"
-                            : "Dwelling could not be added")),
+                            : "Dwelling could not be added",
+                      ),
+                    ),
                   );
                 }
               },
-              builder: (context, state) {
-                return const SizedBox.shrink();
-              },
+              child: const SizedBox
+                  .shrink(), // or your actual widget if it wraps something
             ),
             const DwellingForm(),
             BlocConsumer<AttributesCubit, AttributesState>(
