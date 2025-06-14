@@ -73,11 +73,11 @@ class _ViewMapState extends State<ViewMap> {
     context.read<EntranceCubit>().getEntranceAttributes();
 
     buildingLegends = {
-      'quality':
-          legendService.getLegendForStyle(LegendType.building, 'quality'),
-      'review': legendService.getLegendForStyle(LegendType.building, 'review'),
+      'quality': legendService.getLegendForStyle(LegendType.building,'quality'),
+      'review': legendService.getLegendForStyle(LegendType.building,'review'),
+      'status': legendService.getLegendForStyle(LegendType.building,'status'),
+      'centroidStatus': legendService.getLegendForStyle(LegendType.building,'centroidStatus'),
     };
-
     entranceLegends =
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }

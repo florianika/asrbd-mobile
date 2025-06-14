@@ -1,56 +1,100 @@
 {
-    "quality": {
-        "Të dhëna pa gabime": {
-            "color": "#1B5E20",
-            "value": 1
-        },
-        "Mungesa në të dhënat": {
-            "color": "#263238",
-            "value": 2
-        },
-        "Të dhëna kontradiktore": {
-            "color": "#4A148C",
-            "value": 3
-        },
-        "Të dhëna të patestuara": {
-            "color": "#004D40",
-            "value": 9
-        },
-        "Të dhëna të fshira": {
-            "color": "#1A237E",
-            "value": 0
-        }
+  "quality": {
+    "Të dhëna pa gabime": {
+      "color": "#2E7D32",
+      "value": 1
     },
-    "review": {
-        "Nuk ka nevojë për rishikim": {
-            "color": "#4A90E2",
-            "value": 1
-        },
-        "Rishikimi i aprovuar": {
-            "color": "#9575CD",
-            "value": 2
-        },
-        "Rishikimi i ekzekutuar": {
-            "color": "#1E88E5",
-            "value": 3
-        },
-        "Rishikimi në pritje": {
-            "color": "#1A88E5",
-            "value": 4
-        },
-        "Rishikimi i rihapur": {
-            "color": "#64B5F6",
-            "value": 5
-        },
-        "Kërkohet rishikim": {
-            "color": "#B0838F",
-            "value": 6
-        }
+    "Mungesa në të dhënat": {
+      "color": "#455A64",
+      "value": 2
     },
-    "DEFAULT": {
-        "Default": {
-            "color": "#90A4AE",
-            "value": 0
-        }
+    "Të dhëna kontradiktore": {
+      "color": "#6A1B9A",
+      "value": 3
+    },
+    "Të dhëna të patestuara": {
+      "color": "#00796B",
+      "value": 9
+    },
+    "Të dhëna të fshira": {
+      "color": "#303F9F",
+      "value": 0
     }
+  },
+  "review": {
+    "Nuk ka nevojë për rishikim": {
+      "color": "#1976D2",
+      "value": 1
+    },
+    "Rishikimi i aprovuar": {
+      "color": "#7B1FA2",
+      "value": 2
+    },
+    "Rishikimi i ekzekutuar": {
+      "color": "#1565C0",
+      "value": 3
+    },
+    "Rishikimi në pritje": {
+      "color": "#0277BD",
+      "value": 4
+    },
+    "Rishikimi i rihapur": {
+      "color": "#039BE5",
+      "value": 5
+    },
+    "Kërkohet rishikim": {
+      "color": "#AD1457",
+      "value": 6
+    }
+  },
+  "status": {
+    "Leja e ndërtimit e lëshuar": {
+      "color": "#43A047",
+      "value": 1
+    },
+    "Në ndërtim": {
+      "color": "#F9A825",
+      "value": 2
+    },
+    "Ekzistuese": {
+      "color": "#0288D1",
+      "value": 4
+    },
+    "E rrënuar": {
+      "color": "#FB8C00",
+      "value": 5
+    },
+    "E shkatërruar / nuk ekziston më": {
+      "color": "#D32F2F",
+      "value": 6
+    }
+  },
+  "centroidStatus": {
+    "Vlera zëvendësuese": {
+      "color": "#66BB6A",
+      "value": 1
+    },
+    "Vlera e importuar": {
+      "color": "#AB47BC",
+      "value": 3
+    },
+    "Vlera nga terreni": {
+      "color": "#26C6DA",
+      "value": 4
+    },
+    "Vlera e verifikuar": {
+      "color": "#5C6BC0",
+      "value": 5
+    },
+    "Vlera e vjetëruar": {
+      "color": "#FBC02D",
+      "value": 6
+    }
+  },
+  "DEFAULT": {
+    "Default": {
+      "color": "#90A4AE",
+      "value": 0
+    }
+  }
 }
