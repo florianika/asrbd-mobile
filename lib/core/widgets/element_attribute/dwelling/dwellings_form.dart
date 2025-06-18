@@ -53,7 +53,7 @@ class _DwellingFormState extends State<DwellingForm> {
         .map((attr) => attr.name)
         .toList();
 
-    context.read<DwellingCubit>().getDwellings(globalId);
+    // context.read<DwellingCubit>().getDwellings(globalId);
   }
 
   @override

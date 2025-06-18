@@ -81,7 +81,7 @@ class BuildingCubit extends Cubit<BuildingState> {
 
       attributesCubit.showAttributes(true);
       await attributesCubit.showBuildingAttributes(_selectedBuildingGlobalId);
-      
+
       emit(BuildingGlobalId(_selectedBuildingGlobalId));
     } catch (e) {
       emit(BuildingError(e.toString()));

@@ -20,6 +20,7 @@ import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final sl = GetIt.instance; // Service locator instance
@@ -115,6 +115,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<NewGeometryCubit>()),
         BlocProvider(create: (context) => sl<DwellingCubit>()),
         BlocProvider(create: (context) => sl<OutputLogsCubit>()),
+        BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
       ],
       child: BlocBuilder<LangCubit, String>(

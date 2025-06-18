@@ -1,6 +1,7 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,15 +32,20 @@ class EventButtonAttribute extends StatelessWidget {
     const double buttonWidth = 90;
     const double buttonHeight = 40;
 
-    void validateData() {
-      context.read<AttributesCubit>().setShowLoading(true);
+    Future<void> validateData() async {
+      var loadingCubit = context.read<LoadingCubit>();
+
+      loadingCubit.show();
       final buildingCubit = context.read<BuildingCubit>();
       final validateCubit = context.read<OutputLogsCubit>();
 
-      if (buildingCubit.globalId != null) {
-        validateCubit.checkBuildings(buildingCubit.globalId!);
+      try {
+        if (buildingCubit.globalId != null) {
+          await validateCubit.checkBuildings(buildingCubit.globalId!);
+        }
+      } finally {
+        loadingCubit.hide();
       }
-      context.read<AttributesCubit>().setShowLoading(false);
     }
 
     return SafeArea(

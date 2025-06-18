@@ -18,6 +18,7 @@ import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
@@ -73,89 +74,84 @@ class _ViewMapState extends State<ViewMap> {
     context.read<EntranceCubit>().getEntranceAttributes();
 
     buildingLegends = {
-      'quality': legendService.getLegendForStyle(LegendType.building,'quality'),
-      'review': legendService.getLegendForStyle(LegendType.building,'review'),
-      'status': legendService.getLegendForStyle(LegendType.building,'status'),
-      'centroidStatus': legendService.getLegendForStyle(LegendType.building,'centroidStatus'),
+      'quality':
+          legendService.getLegendForStyle(LegendType.building, 'quality'),
+      'review': legendService.getLegendForStyle(LegendType.building, 'review'),
+      'status': legendService.getLegendForStyle(LegendType.building, 'status'),
+      'centroidStatus': legendService.getLegendForStyle(
+          LegendType.building, 'centroidStatus'),
     };
     entranceLegends =
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }
 
   Future<void> _onSave(Map<String, dynamic> attributes) async {
-    setState(() {
-      isLoading = true;
-    });
-    final isNew = attributes['GlobalID'] == null;
-    final userService = sl<UserService>();
+    final loadingCubit = context.read<LoadingCubit>();
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
+    final entranceCubit = context.read<EntranceCubit>(); // always read upfront
+    final userService = sl<UserService>();
 
-    if (geometryCubit.type == ShapeType.point) {
-      final entranceCubit = context.read<EntranceCubit>();
-      if (isNew) {
-        attributes[EntranceFields.entBldGlobalID] = buildingCubit.globalId;
-        attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-        attributes['external_creator_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-        attributes['EntLatitude'] = geometryCubit.points.first.latitude;
-        attributes['EntLongitude'] = geometryCubit.points.first.longitude;
-        await entranceCubit.addEntranceFeature(
-            attributes, geometryCubit.points);
-      } else {
-        attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-        attributes['external_editor_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-        await entranceCubit.updateEntranceFeature(attributes);
+    loadingCubit.show();
+
+    final isNew = attributes['GlobalID'] == null;
+
+    try {
+      if (geometryCubit.type == ShapeType.point) {
+        if (isNew) {
+          attributes[EntranceFields.entBldGlobalID] = buildingCubit.globalId;
+          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_creator_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          attributes['EntLatitude'] = geometryCubit.points.first.latitude;
+          attributes['EntLongitude'] = geometryCubit.points.first.longitude;
+          await entranceCubit.addEntranceFeature(
+              attributes, geometryCubit.points);
+        } else {
+          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_editor_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          await entranceCubit.updateEntranceFeature(attributes);
+        }
+      } else if (geometryCubit.type == ShapeType.polygon) {
+        if (isNew) {
+          final centroid =
+              GeometryHelper.getPolygonCentroid(geometryCubit.points);
+          attributes['BldMunicipality'] = userService.userInfo?.municipality;
+          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_creator_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          attributes['BldLatitude'] = centroid.latitude;
+          attributes['BldLongitude'] = centroid.longitude;
+
+          await buildingCubit.addBuildingFeature(
+              attributes, geometryCubit.points);
+        } else {
+          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_editor_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          await buildingCubit.updateBuildingFeature(attributes);
+        }
+
+        geometryCubit.setDrawing(false);
+        geometryCubit.clearPoints();
+      } else if (geometryCubit.type == ShapeType.noShape) {
+        if (isNew) {
+          attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
+          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_creator_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          await dwellingCubit.addDwellingFeature(attributes);
+        } else {
+          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_editor_date'] =
+              DateTime.now().millisecondsSinceEpoch;
+          await dwellingCubit.updateDwellingFeature(attributes);
+        }
       }
-      setState(() {
-        isLoading = false;
-      });
-    } else if (geometryCubit.type == ShapeType.polygon) {
-      if (isNew) {
-        LatLng centroid =
-            GeometryHelper.getPolygonCentroid(geometryCubit.points);
-        attributes['BldMunicipality'] = userService.userInfo?.municipality;
-        attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-        attributes['BldLatitude'] = centroid.latitude;
-        attributes['BldLongitude'] = centroid.longitude;
-        attributes['external_creator_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-
-        await buildingCubit.addBuildingFeature(
-            attributes, geometryCubit.points);
-      } else {
-        attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-        attributes['external_editor_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-        await buildingCubit.updateBuildingFeature(attributes);
-      }
-
-      geometryCubit.setDrawing(false);
-      geometryCubit.clearPoints();
-
-      setState(() {
-        isLoading = false;
-      });
-    } else if (geometryCubit.type == ShapeType.noShape) {
-      if (isNew) {
-        final entranceCubit = context.read<EntranceCubit>();
-        attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
-        attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-        attributes['external_creator_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-        await dwellingCubit.addDwellingFeature(attributes);
-      } else {
-        attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-        attributes['external_editor_date'] =
-            DateTime.now().millisecondsSinceEpoch;
-        await dwellingCubit.updateDwellingFeature(attributes);
-      }
-
-      setState(() {
-        isLoading = false;
-      });
+    } finally {
+      loadingCubit.hide();
     }
   }
 
@@ -170,12 +166,10 @@ class _ViewMapState extends State<ViewMap> {
     return Scaffold(
       appBar: const MapAppBar(),
       drawer: const SideMenu(),
-      body: BlocBuilder<AttributesCubit, AttributesState>(
+      body: BlocBuilder<LoadingCubit, LoadingState>(
         builder: (context, state) {
-          final isDataLoading = state is AttributesLoading;
-
           return LoadingIndicator(
-            isLoading: isDataLoading,
+            isLoading: state.isLoading,
             child: Row(
               children: [
                 Expanded(
