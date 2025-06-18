@@ -14,6 +14,7 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -150,6 +151,17 @@ class _ViewMapState extends State<ViewMap> {
           await dwellingCubit.updateDwellingFeature(attributes);
         }
       }
+    } finally {
+      loadingCubit.hide();
+    }
+  }
+
+  Future<void> startReviewing(String globalId) async {
+    final loadingCubit = context.read<LoadingCubit>();
+    final buildingCubit = context.read<BuildingCubit>();
+    try {
+      loadingCubit.show();
+      await buildingCubit.startReviewing(globalId, 4);
     } finally {
       loadingCubit.hide();
     }
@@ -319,6 +331,7 @@ class _ViewMapState extends State<ViewMap> {
                               state is Attributes ? state.initialData : {},
                           isLoading: state is AttributesLoading || isLoading,
                           save: _onSave,
+                          startReviewing: startReviewing,
                           onClose: () {
                             context
                                 .read<AttributesCubit>()

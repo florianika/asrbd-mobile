@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
@@ -14,6 +15,9 @@ class EventButtonAttribute extends StatelessWidget {
   final Function openDwelling;
   final Function? onValidateData;
   final Function? onViewValidationResult;
+  final Function? startReviewingBuilding;
+  final Function? finishReviewingBuilding;
+  final String? globalId;
 
   const EventButtonAttribute({
     super.key,
@@ -23,6 +27,9 @@ class EventButtonAttribute extends StatelessWidget {
     required this.openDwelling,
     this.onValidateData,
     this.onViewValidationResult,
+    this.globalId,
+    this.startReviewingBuilding,
+    this.finishReviewingBuilding,
   });
 
   void handleValidation() {}
@@ -45,6 +52,36 @@ class EventButtonAttribute extends StatelessWidget {
         }
       } finally {
         loadingCubit.hide();
+      }
+    }
+
+    Future<void> startReviewing() async {
+      // if BldReview == 7 update it to 4 using esri
+      final confirmed = await showConfirmationDialog(
+        context: context,
+        title: 'Start Reviewing',
+        content: 'Are you sure you want to start reviewing this building?',
+      );
+
+      if (confirmed && startReviewingBuilding != null) {
+        startReviewingBuilding!(globalId);
+      }
+    }
+
+    Future<void> finishReviewing() async {
+      // if BldQuality == 9 show message 'You cant proceed without first validating the building
+      // else {
+      // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
+      //}
+
+      final confirmed = await showConfirmationDialog(
+        context: context,
+        title: 'Finish Reviewing',
+        content: 'Are you sure you want to finish reviewing this building?',
+      );
+
+      if (confirmed && finishReviewingBuilding != null) {
+        finishReviewingBuilding!();
       }
     }
 
@@ -128,6 +165,34 @@ class EventButtonAttribute extends StatelessWidget {
                 ),
                 onTap: () => validateData(),
               ),
+              if (selectedShapeType == ShapeType.polygon)
+                SpeedDialChild(
+                  child: const Icon(Icons.start),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  label: 'Start Reviewing',
+                  labelBackgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onTap: () => startReviewing(),
+                ),
+              if (selectedShapeType == ShapeType.polygon)
+                SpeedDialChild(
+                  child: const Icon(Icons.stop),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  label: 'Finish Review',
+                  labelBackgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onTap: () => finishReviewing(),
+                ),
               if (selectedShapeType == ShapeType.point ||
                   selectedShapeType == ShapeType.polygon)
                 SpeedDialChild(
