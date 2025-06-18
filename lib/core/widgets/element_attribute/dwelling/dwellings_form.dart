@@ -143,6 +143,7 @@ class _DwellingFormState extends State<DwellingForm> {
                                   _isEditMode = false;
                                 });
                               },
+                              startReviewing: () => {},
                             ),
                           ),
                         ],
@@ -263,8 +264,6 @@ class _DwellingFormState extends State<DwellingForm> {
       ),
     );
   }
-
-
 
   Widget _buildExpandableDwellingItem(
       Map<String, dynamic> dwelling, int index) {
@@ -824,6 +823,7 @@ class _DwellingFormState extends State<DwellingForm> {
                   onClose: () => Navigator.pop(context),
                   save: (_) {},
                   readOnly: true,
+                  startReviewing: () => {},
                 ),
               ),
             ],

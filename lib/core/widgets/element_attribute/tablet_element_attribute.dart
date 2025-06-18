@@ -17,6 +17,7 @@ class TabletElementAttribute extends StatefulWidget {
   final Map<String, dynamic> initialData;
   final Function save;
   final bool readOnly;
+  final Function startReviewing;
 
   const TabletElementAttribute(
       {super.key,
@@ -25,6 +26,7 @@ class TabletElementAttribute extends StatefulWidget {
       required this.onClose,
       required this.initialData,
       required this.save,
+      required this.startReviewing,
       this.readOnly = false});
 
   @override
@@ -120,6 +122,8 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
               child: EventButtonAttribute(
                 onSave: () => _dynamicFormKey.currentState?.handleSave(),
                 onClose: () => widget.onClose(),
+                globalId: widget.initialData['GlobalID'],
+                startReviewingBuilding: widget.startReviewing,
                 openDwelling: () => {
                   context
                       .read<DwellingCubit>()

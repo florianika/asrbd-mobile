@@ -14,7 +14,6 @@ class BuildingUseCases {
     this._checkUseCases,
   );
 
-  // Use case for logging in
   Future<Map<String, dynamic>> getBuildings(
       LatLngBounds? bounds, double zoom, int municipalityId) async {
     if (bounds == null) {
@@ -51,5 +50,17 @@ class BuildingUseCases {
     await _checkUseCases.checkAutomatic(
         globalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return globalId;
+  }
+
+  Future<bool> startReviewing(String globalId, int value) async {
+    var attributes = await getBuildingDetails(globalId);
+
+    if (attributes['BldQuality'] == 7) {
+      attributes['BldQuality'] = 4;
+      await _buildingRepository.updateBuildingFeature(attributes);
+      return true;
+    }
+
+    return false;
   }
 }

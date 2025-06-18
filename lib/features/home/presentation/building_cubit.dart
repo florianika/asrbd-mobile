@@ -123,6 +123,16 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
+  Future<void> startReviewing(String globalId, int value) async {
+    emit(BuildingLoading());
+    try {
+      await buildingUseCases.startReviewing(globalId, value);
+      emit(BuildingUpdateResponse(globalId));
+    } catch (e) {
+      emit(BuildingError(e.toString()));
+    }
+  }
+
   /// Public getter for current globalId
   String? get globalId => _selectedBuildingGlobalId;
 
