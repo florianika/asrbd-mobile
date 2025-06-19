@@ -2,6 +2,7 @@ import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/attribute_schema.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
@@ -10,7 +11,9 @@ import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/chat/note_form_tablet.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:latlong2/latlong.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
@@ -23,6 +26,8 @@ class DynamicElementAttribute extends StatefulWidget {
   final bool readOnly;
   final bool showButtons;
   final List<ValidationResult>? validationResults;
+  final List<LatLng>? entrancePointsOnMap; // Pass entrance coordinates for visibility check
+  final LatLngBounds? visibleBounds; 
 
   const DynamicElementAttribute({
     required this.schema,
@@ -35,6 +40,8 @@ class DynamicElementAttribute extends StatefulWidget {
     this.showButtons = true,
     this.readOnly = false,
     this.validationResults,
+    this.entrancePointsOnMap,
+    this.visibleBounds,
     super.key,
   });
 
@@ -755,8 +762,44 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget build(BuildContext context) {
     final sections = _groupAttributesBySection();
 
+  bool hasEntranceOutsideView() {
+  final points = widget.entrancePointsOnMap;
+  final bounds = widget.visibleBounds;
+
+  if (points == null || bounds == null) return false;
+
+  return GeometryHelper.anyPointOutsideBounds(points, bounds);
+}
+
+
+
     return Stack(
       children: [
+       // if (isEntranceFar)
+       if (widget.selectedShapeType == ShapeType.polygon && hasEntranceOutsideView())
+        Positioned(
+          top: 12,
+          right: 50,
+          child: Tooltip(
+            message: "Heads up! The entrance linked to this building may be positioned far from the building.",
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.yellow[100],
+              border: Border.all(color: Colors.orange),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            textStyle: const TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+            ),
+            child: Icon(
+              Icons.info_outline,
+              color: Colors.orange[700],
+              size: 22,
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(top: 20),
           child: Column(

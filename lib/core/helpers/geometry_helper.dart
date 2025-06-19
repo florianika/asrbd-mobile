@@ -1,7 +1,21 @@
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
 
 class GeometryHelper {
+
+  static bool isPointInsideBounds(LatLng point, LatLngBounds bounds) {
+  return bounds.contains(point);
+}
+
+static bool anyPointOutsideBounds(List<LatLng> points, LatLngBounds bounds) {
+  for (final point in points) {
+    if (!isPointInsideBounds(point, bounds)) {
+      return true;
+    }
+  }
+  return false;
+}
 
   static double _degToRad(double deg) => deg * pi / 180.0;
   static const double _earthRadius = 6378137.0;
