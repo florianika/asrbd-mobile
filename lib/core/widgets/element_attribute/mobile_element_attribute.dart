@@ -8,6 +8,7 @@ void mobileElementAttribute(
   BuildContext context,
   List<FieldSchema> schema,
   ShapeType shapeType,
+  bool entranceOutsideVisibleArea,
   Map<String, dynamic> initialData,
   Function onSave,
 ) {
@@ -48,6 +49,7 @@ void mobileElementAttribute(
                       child: DynamicElementAttribute(
                         schema: schema,
                         selectedShapeType: shapeType,
+                        entranceOutsideVisibleArea: entranceOutsideVisibleArea,
                         initialData: initialData,
                         onSave: (formValues) {
                           onSave(formValues);

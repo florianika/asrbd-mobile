@@ -13,6 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
+    final bool entranceOutsideVisibleArea;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -23,6 +24,7 @@ class TabletElementAttribute extends StatefulWidget {
       {super.key,
       required this.schema,
       required this.selectedShapeType,
+      required this.entranceOutsideVisibleArea,
       required this.onClose,
       required this.initialData,
       required this.save,
@@ -85,6 +87,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                 key: _dynamicFormKey,
                                 schema: widget.schema,
                                 selectedShapeType: widget.selectedShapeType,
+                                entranceOutsideVisibleArea: widget.entranceOutsideVisibleArea,
                                 initialData: widget.initialData,
                                 onSave: (formValues) => widget.save(formValues),
                                 validationResults: validationResult ?? [],

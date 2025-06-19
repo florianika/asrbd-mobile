@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 class ViewAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
+  final bool entranceOutsideVisibleArea;
   final VoidCallback onClose;
   final bool isLoading;
   final Map<String, dynamic> initialData;
@@ -20,6 +21,7 @@ class ViewAttribute extends StatefulWidget {
     super.key,
     required this.schema,
     required this.selectedShapeType,
+    required this.entranceOutsideVisibleArea,
     required this.onClose,
     required this.initialData,
     required this.save,
@@ -79,6 +81,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
       context,
       widget.schema,
       widget.selectedShapeType,
+      widget.entranceOutsideVisibleArea,
       widget.initialData,
       widget.save,
     );
@@ -110,6 +113,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
           : TabletElementAttribute(
               schema: widget.schema,
               selectedShapeType: widget.selectedShapeType,
+              entranceOutsideVisibleArea: widget.entranceOutsideVisibleArea,
               initialData: widget.initialData,
               save: widget.save,
               startReviewing: widget.startReviewing,

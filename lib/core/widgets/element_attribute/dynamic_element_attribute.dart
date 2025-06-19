@@ -18,6 +18,7 @@ import 'package:latlong2/latlong.dart';
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
+  final bool entranceOutsideVisibleArea;
   final String? entranceGlobalId;
   final Map<String, dynamic>? initialData;
   final void Function(Map<String, dynamic>)? onSave;
@@ -32,6 +33,7 @@ class DynamicElementAttribute extends StatefulWidget {
   const DynamicElementAttribute({
     required this.schema,
     required this.selectedShapeType,
+    required this.entranceOutsideVisibleArea,
     this.entranceGlobalId,
     this.initialData,
     this.onSave,
@@ -762,21 +764,9 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget build(BuildContext context) {
     final sections = _groupAttributesBySection();
 
-  bool hasEntranceOutsideView() {
-  final points = widget.entrancePointsOnMap;
-  final bounds = widget.visibleBounds;
-
-  if (points == null || bounds == null) return false;
-
-  return GeometryHelper.anyPointOutsideBounds(points, bounds);
-}
-
-
-
     return Stack(
       children: [
-       // if (isEntranceFar)
-       if (widget.selectedShapeType == ShapeType.polygon && hasEntranceOutsideView())
+       if (widget.selectedShapeType == ShapeType.polygon && widget.entranceOutsideVisibleArea)
         Positioned(
           top: 12,
           right: 50,

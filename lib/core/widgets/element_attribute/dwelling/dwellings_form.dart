@@ -128,6 +128,7 @@ class _DwellingFormState extends State<DwellingForm> {
                             child: TabletElementAttribute(
                               schema: _dwellingSchema,
                               selectedShapeType: ShapeType.noShape,
+                              entranceOutsideVisibleArea: false,
                               readOnly: false,
                               initialData: _initialData,
                               onClose: () {
@@ -819,6 +820,7 @@ class _DwellingFormState extends State<DwellingForm> {
                 child: TabletElementAttribute(
                   schema: _dwellingSchema,
                   selectedShapeType: ShapeType.noShape,
+                  entranceOutsideVisibleArea: false,
                   initialData: row,
                   onClose: () => Navigator.pop(context),
                   save: (_) {},

@@ -4,6 +4,7 @@ import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
@@ -28,8 +29,9 @@ import 'package:latlong2/latlong.dart';
 class AsrdbMap extends StatefulWidget {
   final MapController mapController;
   final String attributeLegend;
+  final void Function(bool)? onEntranceVisibilityChange;
   const AsrdbMap(
-      {super.key, required this.mapController, required this.attributeLegend});
+      {super.key, required this.mapController, required this.attributeLegend ,this.onEntranceVisibilityChange});
 
   @override
   State<AsrdbMap> createState() => _AsrdbMapState();
@@ -52,6 +54,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   List<dynamic> highlightMarkersGlobalId = [];
 
   bool _showLocationMarker = false;
+  bool _entranceOutsideVisibleArea = false;
 
   String? highlightedBuildingIds;
   LatLng? _userLocation;
@@ -156,43 +159,58 @@ class _AsrdbMapState extends State<AsrdbMap> {
     visibleBounds = widget.mapController.camera.visibleBounds;
   }
 
-  void _handleBuildingOnTap(String globalID) {
-    try {
-      context.read<DwellingCubit>().closeDwellings();
-      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
-      context.read<BuildingCubit>().getBuildingDetails(globalID);
-      context.read<OutputLogsCubit>().outputLogsBuildings(
-          globalID.replaceAll('{', '').replaceAll('}', ''));
+void _handleBuildingOnTap(String globalID) {
+  try {
+    context.read<DwellingCubit>().closeDwellings();
+    context.read<NewGeometryCubit>().setType(ShapeType.polygon);
+    context.read<BuildingCubit>().getBuildingDetails(globalID);
+    context.read<OutputLogsCubit>().outputLogsBuildings(
+        globalID.replaceAll('{', '').replaceAll('}', ''));
 
-      List<dynamic> buildingEntrances = [];
-      if (entranceData != null) {
-        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+    List<dynamic> buildingEntrances = [];
+    List<LatLng> entrancePoints = [];
 
-        if (entranceFeatures != null) {
-          buildingEntrances = entranceFeatures
-              .whereType<Map<String, dynamic>>()
-              .where((feature) {
-                final props = feature['properties'] as Map<String, dynamic>?;
-                return props != null &&
-                    props['EntBldGlobalID']?.toString() == globalID;
-              })
-              .map((feature) => feature['properties']?['GlobalID'])
-              .where((id) => id != null)
-              .toList();
+    if (entranceData != null) {
+      final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+
+      if (entranceFeatures != null) {
+        for (final feature in entranceFeatures.whereType<Map<String, dynamic>>()) {
+          final props = feature['properties'] as Map<String, dynamic>?;
+          final geom = feature['geometry'] as Map<String, dynamic>?;
+          if (props != null &&
+              props['EntBldGlobalID']?.toString() == globalID &&
+              geom != null &&
+              geom['type'] == 'Point') {
+            final coords = geom['coordinates'];
+            entrancePoints.add(LatLng(coords[1], coords[0]));
+            buildingEntrances.add(props['GlobalID']);
+          }
         }
       }
-
-      setState(() {
-        _selectedGlobalId = globalID;
-        _selectedShapeType = ShapeType.polygon;
-        highlightMarkersGlobalId = buildingEntrances;
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
     }
+
+    
+
+
+    // ✅ Check if any entrance is outside visible area
+    final bounds = widget.mapController.camera.visibleBounds;
+    final anyOutside = GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
+
+    setState(() {
+      _selectedGlobalId = globalID;
+      _selectedShapeType = ShapeType.polygon;
+      highlightMarkersGlobalId = buildingEntrances;
+      _entranceOutsideVisibleArea = anyOutside;
+    });
+    if (widget.onEntranceVisibilityChange != null) {
+     widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+    } 
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.toString()}')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

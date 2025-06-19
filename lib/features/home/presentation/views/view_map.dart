@@ -55,6 +55,7 @@ class _ViewMapState extends State<ViewMap> {
 
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
+  bool _entranceOutsideVisibleArea = false;
 
   final legendService = sl<LegendService>();
 
@@ -188,10 +189,15 @@ class _ViewMapState extends State<ViewMap> {
                   flex: 2,
                   child: Stack(
                     children: [
-                      AsrdbMap(
-                        mapController: mapController,
-                        attributeLegend: attributeLegend,
-                      ),
+                    AsrdbMap(
+                      mapController: mapController,
+                      attributeLegend: attributeLegend,
+                      onEntranceVisibilityChange: (value) {
+                        setState(() {
+                          _entranceOutsideVisibleArea = value;
+                        });
+                      },
+                    ),
                       BlocConsumer<NewGeometryCubit, NewGeometryState>(
                           listener: (context, state) {},
                           builder: (context, state) {
@@ -327,6 +333,7 @@ class _ViewMapState extends State<ViewMap> {
                           selectedShapeType: state is Attributes
                               ? state.shapeType
                               : ShapeType.point,
+                          entranceOutsideVisibleArea: _entranceOutsideVisibleArea,    
                           initialData:
                               state is Attributes ? state.initialData : {},
                           isLoading: state is AttributesLoading || isLoading,
