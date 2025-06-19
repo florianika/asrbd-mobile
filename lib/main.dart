@@ -8,6 +8,7 @@ import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
@@ -84,6 +85,7 @@ void main() async {
 
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();
+   sl.registerFactory<TileCubit>(() => TileCubit());
 
   sl.registerFactory<NewGeometryCubit>(() => NewGeometryCubit());
 
@@ -115,6 +117,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<NewGeometryCubit>()),
         BlocProvider(create: (context) => sl<DwellingCubit>()),
         BlocProvider(create: (context) => sl<OutputLogsCubit>()),
+        BlocProvider(create: (context) => sl<TileCubit>()),
         BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
       ],

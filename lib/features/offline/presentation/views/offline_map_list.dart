@@ -1,7 +1,9 @@
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
@@ -342,9 +344,20 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
   //   return null;
   // }
 
-  void _applyMap(int index) {
+  Future<void> _applyMap(int index) async {
     final map = _downloadedMaps[index];
     StorageService storageService = sl<StorageService>();
+
+     final Directory appDocDir = await getApplicationDocumentsDirectory();
+
+      // Create unique folder for this download session
+      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final String sessionId = 'map_$timestamp';
+      final String offlineMapPath = '${appDocDir.path}/offline_maps/$sessionId';
+
+if (!mounted) return;
+
+    context.read<TileCubit>().setPath(offlineMapPath);
     storageService.saveString(
         boxName: HiveBoxes.offlineMap, key: "map", value: map.sessionId);
   }
