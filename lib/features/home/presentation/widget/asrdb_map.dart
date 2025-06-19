@@ -65,6 +65,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   Map<String, dynamic>? buildingsData;
   Map<String, dynamic>? entranceData;
+  String? _selectedBuildingGlobalId;
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
@@ -164,25 +165,53 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   double? _previousZoom;
-  void _onPositionChanged(
-      MapCamera camera, bool hasGesture, int municipalityId) {
-    // Check if zoom has changed
-    final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-    _previousZoom = camera.zoom;
+ void _onPositionChanged(
+    MapCamera camera, bool hasGesture, int municipalityId) {
+  final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
+  _previousZoom = camera.zoom;
 
-    // Trigger only if the user moved the map or zoomed in/out
-    if (!hasGesture && !zoomChanged) return;
+  if (!hasGesture && !zoomChanged) return;
 
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      context
-          .read<BuildingCubit>()
-          .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
-    });
+  if (_debounce?.isActive ?? false) _debounce!.cancel();
+  _debounce = Timer(const Duration(milliseconds: 500), () {
+    context
+        .read<BuildingCubit>()
+        .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
+  });
 
-    zoom = camera.zoom;
-    visibleBounds = widget.mapController.camera.visibleBounds;
+  zoom = camera.zoom;
+  visibleBounds = widget.mapController.camera.visibleBounds;
+  if (_selectedBuildingGlobalId != null && entranceData != null) {
+    final features = entranceData?['features'] as List<dynamic>?;
+
+    final entrancePoints = features
+        ?.whereType<Map<String, dynamic>>()
+        .where((f) =>
+            f['properties']?['EntBldGlobalID']?.toString() ==
+            _selectedBuildingGlobalId)
+        .map((f) {
+          final coords = f['geometry']['coordinates'];
+          return LatLng(coords[1], coords[0]);
+        })
+        .toList();
+
+    if (entrancePoints != null && entrancePoints.isNotEmpty) {
+      final isOutside = GeometryHelper.anyPointOutsideBounds(
+        entrancePoints,
+        camera.visibleBounds,
+      );
+
+      if (_entranceOutsideVisibleArea != isOutside) {
+        setState(() {
+          _entranceOutsideVisibleArea = isOutside;
+        });
+
+        widget.onEntranceVisibilityChange?.call(isOutside);
+      }
+    }
   }
+}
+
 
 void _handleBuildingOnTap(String globalID) {
   try {
@@ -191,6 +220,7 @@ void _handleBuildingOnTap(String globalID) {
     context.read<BuildingCubit>().getBuildingDetails(globalID);
     context.read<OutputLogsCubit>().outputLogsBuildings(
         globalID.replaceAll('{', '').replaceAll('}', ''));
+    _selectedBuildingGlobalId = globalID;
 
     List<dynamic> buildingEntrances = [];
     List<LatLng> entrancePoints = [];
@@ -213,11 +243,6 @@ void _handleBuildingOnTap(String globalID) {
         }
       }
     }
-
-    
-
-
-    // ✅ Check if any entrance is outside visible area
     final bounds = widget.mapController.camera.visibleBounds;
     final anyOutside = GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
 

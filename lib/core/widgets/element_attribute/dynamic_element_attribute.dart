@@ -739,7 +739,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                       : Icons.warning_amber_outlined,
                   color: validationResult.level == ValidationLevel.error
                       ? Colors.red
-                      : Colors.orange,
+                      : const Color.fromARGB(255, 241, 193, 2),
                   size: 16,
                 ),
                 const SizedBox(width: 6),
@@ -769,28 +769,29 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       children: [
        if (widget.selectedShapeType == ShapeType.polygon && widget.entranceOutsideVisibleArea)
         Positioned(
-          top: 12,
-          right: 50,
-          child: Tooltip(
-            message: "Heads up! The entrance linked to this building may be positioned far from the building.",
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.yellow[100],
-              border: Border.all(color: Colors.orange),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: const TextStyle(
-              color: Colors.black87,
-              fontWeight: FontWeight.w500,
-              fontSize: 13,
-            ),
-            child: Icon(
-              Icons.info_outline,
-              color: Colors.orange[700],
-              size: 22,
-            ),
-          ),
-        ),
+  top: 10,
+  right: 450,
+  child: Tooltip(
+    message:
+        "Heads up! The entrance linked to this building may be positioned far from the building.",
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      color: Colors.yellow[100],
+      border: Border.all(color: Colors.orange, width: 2),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    textStyle: const TextStyle(
+      color: Colors.black87,
+      fontWeight: FontWeight.w600,
+      fontSize: 14,
+    ),
+    child:const Icon(
+      Icons.warning_amber_rounded,
+      color:  Color.fromARGB(255, 247, 174, 3),
+      size: 25,
+    ),
+  ),
+),
         Padding(
           padding: const EdgeInsets.only(top: 20),
           child: Column(
