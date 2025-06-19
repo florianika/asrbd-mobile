@@ -14,6 +14,7 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/target_marker.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -241,9 +242,17 @@ class _AsrdbMapState extends State<AsrdbMap> {
         onLongPress: (tapPosition, point) => (),
       ),
       children: [
-        TileLayer(
-          tileProvider: ft.FileTileProvider(tileDirPath, false),
-        ),
+        BlocConsumer<TileCubit, TileCubitState>(listener: (context, state) {
+          if (state is Tile) {
+            setState(() {
+              tileDirPath = state.path;
+            });
+          }
+        }, builder: (context, state) {
+          return TileLayer(
+            tileProvider: ft.FileTileProvider(tileDirPath, false),
+          );
+        }),
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is Buildings) {
