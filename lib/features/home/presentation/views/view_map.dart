@@ -305,8 +305,7 @@ class _ViewMapState extends State<ViewMap> {
                           .showBuildingAttributes(id);
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or whatever widget is appropriate
+                  child: const SizedBox.shrink(),
                 ),
                 BlocListener<EntranceCubit, EntranceState>(
                   listener: (context, state) {
@@ -325,8 +324,7 @@ class _ViewMapState extends State<ViewMap> {
                           .showBuildingAttributes(id);
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or whatever widget is appropriate
+                  child: const SizedBox.shrink(),
                 ),
                 BlocListener<DwellingCubit, DwellingState>(
                   listener: (context, state) {
@@ -356,50 +354,44 @@ class _ViewMapState extends State<ViewMap> {
                       );
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or your actual widget if it wraps something
+                  child: const SizedBox.shrink(),
                 ),
                 const DwellingForm(),
                 BlocConsumer<AttributesCubit, AttributesState>(
-                    listener: (context, state) {
-                  if (state is AttributesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
-                  } else if (state is Attributes) {
-                    // setState(() {
-                    //   isLoading = true;
-                    // });
-                    // context.read<OutputLogsCubit>().outputLogsBuildings(
-                    //     state.globalId.replaceAll('{', '').replaceAll('}', ''));
-                  }
-                }, builder: (context, state) {
-                  return (state is AttributesVisibility &&
-                          !state.showAttributes)
-                      ? const SizedBox.shrink()
-                      : ViewAttribute(
-                          schema: state is Attributes ? state.schema : [],
-                          selectedShapeType: state is Attributes
-                              ? state.shapeType
-                              : ShapeType.point,
-                          initialData:
-                              state is Attributes ? state.initialData : {},
-                          isLoading: state is AttributesLoading || isLoading,
-                          save: _onSave,
-                          startReviewing: _startReviewing,
-                          onClose: () {
-                            context
-                                .read<AttributesCubit>()
-                                .showAttributes(false);
-                            setState(() {
-                              // _selectedGlobalId = null;
-                              highlightedBuildingIds = null;
-                              highlightMarkersGlobalId = [];
-                            });
-                          },
-                          finishReviewing: _finishReviewing,
-                        );
-                })
+                  listener: (context, state) {
+                    if (state is AttributesError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return (state is AttributesVisibility &&
+                            !state.showAttributes)
+                        ? const SizedBox.shrink()
+                        : ViewAttribute(
+                            schema: state is Attributes ? state.schema : [],
+                            selectedShapeType: state is Attributes
+                                ? state.shapeType
+                                : ShapeType.point,
+                            initialData:
+                                state is Attributes ? state.initialData : {},
+                            isLoading: state is AttributesLoading || isLoading,
+                            save: _onSave,
+                            startReviewing: _startReviewing,
+                            onClose: () {
+                              context
+                                  .read<AttributesCubit>()
+                                  .showAttributes(false);
+                              setState(() {
+                                highlightedBuildingIds = null;
+                                highlightMarkersGlobalId = [];
+                              });
+                            },
+                            finishReviewing: _finishReviewing,
+                          );
+                  },
+                )
               ],
             ),
           );

@@ -1,3 +1,4 @@
+import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 
 class SideMenu extends StatelessWidget {
@@ -22,9 +23,9 @@ class SideMenu extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Item 1'),
+            title: const Text('View maps'),
             onTap: () {
-              // Handle the tap
+              Navigator.pushNamed(context, RouteManager.downloadedMapList);
             },
           ),
           ListTile(

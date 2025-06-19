@@ -136,7 +136,7 @@ class _OfflineMapPageState extends State<OfflineMapPage> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Offline map downloaded successfully!')),
+        const SnackBar(content: Text('Offline map downloaded successfully!')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

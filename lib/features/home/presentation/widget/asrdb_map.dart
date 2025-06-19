@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
@@ -8,6 +9,7 @@ import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
+import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
@@ -62,11 +64,34 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Map<String, dynamic>? entranceData;
 
   Timer? _debounce;
+  StorageService storageService = sl<StorageService>();
 
   @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    applyTile();
+    super.initState();
+  }
+
+  Future<void> applyTile() async {
+    String? path = await storageService.getString(
+        boxName: HiveBoxes.offlineMap, key: "map");
+    if (path != null) {
+      setState(() {
+        tileDirPath = path;
+      });
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(path.toString())),
+      );
+    }
   }
 
   void _goToCurrentLocation() async {
