@@ -1,3 +1,4 @@
+import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 
 class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -41,6 +42,26 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
                   Icon(Icons.satellite, color: Colors.grey[600]),
                   const SizedBox(width: 12),
                   const Text('Satellite'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        PopupMenuButton<String>(
+          icon: const Icon(
+            Icons.download,
+            size: 25,
+          ),
+          onSelected: (String result) =>
+              Navigator.pushNamed(context, RouteManager.downloadMapRoute),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            PopupMenuItem<String>(
+              value: 'download',
+              child: Row(
+                children: [
+                  Icon(Icons.download, color: Colors.grey[600]),
+                  const SizedBox(width: 12),
+                  const Text('Download'),
                 ],
               ),
             ),

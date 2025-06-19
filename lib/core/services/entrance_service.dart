@@ -14,7 +14,8 @@ class EntranceService {
   Future<Map<String, dynamic>> getEntrances(
       double zoom, List<String> entBldGlobalID) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -39,7 +40,8 @@ class EntranceService {
 
   Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -64,7 +66,8 @@ class EntranceService {
 
   Future<List<FieldSchema>> getEntranceAttributes() async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await entranceApi.getEntranceAttributes(esriToken);
@@ -93,7 +96,8 @@ class EntranceService {
     List<LatLng> points,
   ) async {
     try {
-      final esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      final esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Missing Esri token');
 
       final response = await entranceApi.addEntranceFeature(
@@ -137,7 +141,8 @@ class EntranceService {
 
   Future<bool> updateEntranceFeature(Map<String, dynamic> attributes) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -154,7 +159,8 @@ class EntranceService {
 
   Future<bool> deleteEntranceFeature(String objectId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =

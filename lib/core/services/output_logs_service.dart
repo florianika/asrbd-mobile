@@ -12,7 +12,7 @@ class OutputLogsService {
   Future<ProcessOutputLogResponse> getOutputLogs(
       String buildingGlobalId) async {
     try {
-      String? accessToken = await _storage.getString(StorageKeys.accessToken);
+      String? accessToken = await _storage.getString(key: StorageKeys.accessToken);
 
       if (accessToken == null) throw Exception('Login failed:');
 

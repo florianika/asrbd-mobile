@@ -7,12 +7,12 @@ import 'package:latlong2/latlong.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
-class OfflineMap extends StatefulWidget {
+class OfflineMap1 extends StatefulWidget {
   @override
-  _OfflineMapState createState() => _OfflineMapState();
+  _OfflineMap1State createState() => _OfflineMap1State();
 }
 
-class _OfflineMapState extends State<OfflineMap> {
+class _OfflineMap1State extends State<OfflineMap1> {
   late String tileDirPath;
   bool isInitialized = false;
   bool isDownloading = false;
@@ -301,14 +301,16 @@ class _OfflineMapState extends State<OfflineMap> {
         height: 50.0,
         point: point,
         child: Draggable(
-          feedback: Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
+          feedback:
+              Icon(Icons.circle, size: 20, color: Colors.red.withOpacity(0.5)),
           childWhenDragging: Container(), // Hide original marker during drag
           onDragEnd: (details) {
             setState(() {
               int index = _newPolygonPoints.indexOf(point);
 
               // Get the RenderBox of the map
-              final RenderBox mapRenderBox = context.findRenderObject() as RenderBox;
+              final RenderBox mapRenderBox =
+                  context.findRenderObject() as RenderBox;
 
               // Get the top-left position of the map in global coordinates
               final mapPosition = mapRenderBox.localToGlobal(Offset.zero);

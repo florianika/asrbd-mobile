@@ -15,7 +15,8 @@ class BuildingService {
   Future<Map<String, dynamic>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
       if (esriToken == null) throw Exception('Login failed:');
@@ -36,7 +37,8 @@ class BuildingService {
 
   Future<List<FieldSchema>> getBuildingAttributes() async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.getBuildingAttributes(esriToken);
@@ -63,7 +65,8 @@ class BuildingService {
   Future<String> addBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng> points) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       // bool intersected = await getBuildingIntersections(EsriConditionHelper.createEsriPolygonGeometry(points));
@@ -108,7 +111,8 @@ class BuildingService {
 
   Future<bool> updateBuildingFeature(Map<String, dynamic> attributes) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -125,7 +129,8 @@ class BuildingService {
 
   Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -150,7 +155,8 @@ class BuildingService {
 
   Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =

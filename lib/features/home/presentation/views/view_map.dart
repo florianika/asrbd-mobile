@@ -7,6 +7,8 @@ import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/core/widgets/chat/notes_modal.dart';
+import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
@@ -157,12 +159,65 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> startReviewing(String globalId) async {
+  Future<void> _startReviewing(String globalId) async {
     final loadingCubit = context.read<LoadingCubit>();
     final buildingCubit = context.read<BuildingCubit>();
     try {
       loadingCubit.show();
       await buildingCubit.startReviewing(globalId, 4);
+    } finally {
+      loadingCubit.hide();
+    }
+  }
+
+  Future<void> _finishReviewing(String globalId) async {
+    final loadingCubit = context.read<LoadingCubit>();
+    final buildingUseCases = sl<BuildingUseCases>();
+    final buildingCubit = context.read<BuildingCubit>();
+
+    // if BldQuality == 9 show message 'You cant proceed without first validating the building
+    // else {
+    // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
+    //}
+
+    try {
+      loadingCubit.show();
+      var buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
+      var attributes = buildingDetails['attributes'];
+
+      if (attributes['BldQuality'] == 9 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  "You cant proceed without first validating the building")),
+        );
+      } else {
+        if (!mounted) return;
+
+        final confirmed = await showConfirmationDialog(
+          context: context,
+          title: 'Add note',
+          content: 'Doni te shtoni nje shenim?',
+        );
+
+        if (confirmed && mounted) {
+          await showNotesForm(context: context);
+          //TODO: Check if user added notes or not and follow the logic
+        } else {
+          if (attributes['BldQuality'] == 1) {
+            attributes['BldReview'] = 2;
+          } else {
+            attributes['BldReview'] = 3;
+          }
+        }
+        await buildingCubit.updateBuildingFeature(attributes);
+      }
+    } catch (error) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString())),
+      );
     } finally {
       loadingCubit.hide();
     }
@@ -256,8 +311,7 @@ class _ViewMapState extends State<ViewMap> {
                           .showBuildingAttributes(id);
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or whatever widget is appropriate
+                  child: const SizedBox.shrink(),
                 ),
                 BlocListener<EntranceCubit, EntranceState>(
                   listener: (context, state) {
@@ -276,8 +330,7 @@ class _ViewMapState extends State<ViewMap> {
                           .showBuildingAttributes(id);
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or whatever widget is appropriate
+                  child: const SizedBox.shrink(),
                 ),
                 BlocListener<DwellingCubit, DwellingState>(
                   listener: (context, state) {
@@ -307,50 +360,45 @@ class _ViewMapState extends State<ViewMap> {
                       );
                     }
                   },
-                  child: const SizedBox
-                      .shrink(), // or your actual widget if it wraps something
+                  child: const SizedBox.shrink(),
                 ),
                 const DwellingForm(),
                 BlocConsumer<AttributesCubit, AttributesState>(
-                    listener: (context, state) {
-                  if (state is AttributesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
-                  } else if (state is Attributes) {
-                    // setState(() {
-                    //   isLoading = true;
-                    // });
-                    // context.read<OutputLogsCubit>().outputLogsBuildings(
-                    //     state.globalId.replaceAll('{', '').replaceAll('}', ''));
-                  }
-                }, builder: (context, state) {
-                  return (state is AttributesVisibility &&
-                          !state.showAttributes)
-                      ? const SizedBox.shrink()
-                      : ViewAttribute(
-                          schema: state is Attributes ? state.schema : [],
-                          selectedShapeType: state is Attributes
-                              ? state.shapeType
-                              : ShapeType.point,
-                          entranceOutsideVisibleArea: _entranceOutsideVisibleArea,    
-                          initialData:
-                              state is Attributes ? state.initialData : {},
-                          isLoading: state is AttributesLoading || isLoading,
-                          save: _onSave,
-                          startReviewing: startReviewing,
-                          onClose: () {
-                            context
-                                .read<AttributesCubit>()
-                                .showAttributes(false);
-                            setState(() {
-                              // _selectedGlobalId = null;
-                              highlightedBuildingIds = null;
-                              highlightMarkersGlobalId = [];
-                            });
-                          },
-                        );
-                })
+                  listener: (context, state) {
+                    if (state is AttributesError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return (state is AttributesVisibility &&
+                            !state.showAttributes)
+                        ? const SizedBox.shrink()
+                        : ViewAttribute(
+                            schema: state is Attributes ? state.schema : [],
+                            selectedShapeType: state is Attributes
+                                ? state.shapeType
+                                : ShapeType.point,
+                                entranceOutsideVisibleArea: _entranceOutsideVisibleArea,
+                            initialData:
+                                state is Attributes ? state.initialData : {},
+                            isLoading: state is AttributesLoading || isLoading,
+                            save: _onSave,
+                            startReviewing: _startReviewing,
+                            onClose: () {
+                              context
+                                  .read<AttributesCubit>()
+                                  .showAttributes(false);
+                              setState(() {
+                                highlightedBuildingIds = null;
+                                highlightMarkersGlobalId = [];
+                              });
+                            },
+                            finishReviewing: _finishReviewing,
+                          );
+                  },
+                )
               ],
             ),
           );

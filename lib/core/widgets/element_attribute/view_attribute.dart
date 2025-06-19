@@ -16,6 +16,7 @@ class ViewAttribute extends StatefulWidget {
   final Map<String, dynamic> initialData;
   final Function save;
   final Function startReviewing;
+  final Function finishReviewing;
 
   const ViewAttribute({
     super.key,
@@ -27,6 +28,7 @@ class ViewAttribute extends StatefulWidget {
     required this.save,
     required this.isLoading,
     required this.startReviewing,
+    required this.finishReviewing,
   });
 
   @override
@@ -118,6 +120,7 @@ class _ViewAttributeState extends State<ViewAttribute> {
               save: widget.save,
               startReviewing: widget.startReviewing,
               onClose: widget.onClose,
+              finishReviewing: widget.finishReviewing,
             ),
     );
   }

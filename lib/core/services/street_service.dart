@@ -13,7 +13,8 @@ class StreetService {
 
   Future<List<Street>> getStreets(int municipalityId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.getStreets(esriToken, municipalityId);

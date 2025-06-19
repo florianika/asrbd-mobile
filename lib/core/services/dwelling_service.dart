@@ -11,7 +11,7 @@ class DwellingService {
 
   Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken = await _storage.getString(key: StorageKeys.esriAccessToken);
 
       if (esriToken == null) throw Exception('Login failed:');
 
@@ -29,7 +29,7 @@ class DwellingService {
 
   Future<List<FieldSchema>> getDwellingAttributes() async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken = await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await dwellingApi.getDwellingAttributes(esriToken);
@@ -53,7 +53,7 @@ class DwellingService {
 
   Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken = await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -78,7 +78,7 @@ class DwellingService {
 
   Future<bool> addDwellingFeature(Map<String, dynamic> attributes) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken = await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -95,7 +95,8 @@ class DwellingService {
 
   Future<bool> updateDwellingFeature(Map<String, dynamic> attributes) async {
     try {
-      String? esriToken = await _storage.getString(StorageKeys.esriAccessToken);
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =

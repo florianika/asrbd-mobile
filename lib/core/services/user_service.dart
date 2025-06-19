@@ -8,7 +8,7 @@ class UserService {
   Future<DecodedJwt?> initialize() async {
     try {
       StorageService storageService = StorageService();
-      final token = await storageService.getString(StorageKeys.idhToken);
+      final token = await storageService.getString(key: StorageKeys.idhToken);
       if (token == null) return null;
 
       Map<String, dynamic> decoded = JwtDecoder.decode(token);
