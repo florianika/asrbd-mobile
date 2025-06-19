@@ -144,6 +144,7 @@ class _DwellingFormState extends State<DwellingForm> {
                                 });
                               },
                               startReviewing: () => {},
+                              finishReviewing: () => {},
                             ),
                           ),
                         ],
@@ -692,16 +693,16 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildFloorContent(
       String floor, List<Map<String, dynamic>> dwellings) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12), // Reduced padding
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: Column(
         children: [
           const Divider(),
-          const SizedBox(height: 6), // Reduced spacing
+          const SizedBox(height: 6),
           ...dwellings.asMap().entries.map((entry) {
             final dwelling = entry.value;
             final dwellingIndex = _dwellingRows.indexOf(dwelling);
             return Padding(
-              padding: const EdgeInsets.only(bottom: 6), // Reduced spacing
+              padding: const EdgeInsets.only(bottom: 6),
               child: _buildExpandableDwellingItem(dwelling, dwellingIndex),
             );
           }),
@@ -824,6 +825,7 @@ class _DwellingFormState extends State<DwellingForm> {
                   save: (_) {},
                   readOnly: true,
                   startReviewing: () => {},
+                  finishReviewing: () => {},
                 ),
               ),
             ],

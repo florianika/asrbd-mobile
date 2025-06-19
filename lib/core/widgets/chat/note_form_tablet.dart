@@ -19,14 +19,14 @@ class NotesWrapper extends StatelessWidget {
     final building = context.read<BuildingCubit>();
     final buildingGlobalId = building.globalId!;
     return BlocProvider(
-      create: (context) => NoteCubit(sl<NoteService>())..getNotes(buildingGlobalId),
+      create: (context) =>
+          NoteCubit(sl<NoteService>())..getNotes(buildingGlobalId),
       child: NotesWidget(
         scrollController: scrollController,
       ),
     );
   }
 }
-
 
 class NotesWidget extends StatefulWidget {
   final ScrollController? scrollController;
@@ -35,7 +35,8 @@ class NotesWidget extends StatefulWidget {
   State<NotesWidget> createState() => _NotesWidgetState();
 }
 
-class _NotesWidgetState extends State<NotesWidget> with SingleTickerProviderStateMixin {
+class _NotesWidgetState extends State<NotesWidget>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   ScrollController? _internalScrollController;
   late ScrollController _effectiveScrollController;
@@ -57,7 +58,8 @@ class _NotesWidgetState extends State<NotesWidget> with SingleTickerProviderStat
       duration: const Duration(milliseconds: 200),
     );
     _sendButtonScaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _sendButtonAnimationController, curve: Curves.easeOut),
+      CurvedAnimation(
+          parent: _sendButtonAnimationController, curve: Curves.easeOut),
     );
   }
 
@@ -69,26 +71,30 @@ class _NotesWidgetState extends State<NotesWidget> with SingleTickerProviderStat
     super.dispose();
   }
 
-void _postNote(BuildContext context) {
-  final userService = sl<UserService>();
-  final userName = '${userService.userInfo?.uniqueName ?? ''} ${userService.userInfo?.familyName ?? ''}';
-  final userId = '${userService.userInfo?.nameId}';
-  final text = _controller.text.trim();
-  if (text.isEmpty) {
-    _showSnackBar('Note cannot be empty!');
-    return;
+  void _postNote(BuildContext context) {
+    final userService = sl<UserService>();
+    final userName =
+        '${userService.userInfo?.uniqueName ?? ''} ${userService.userInfo?.familyName ?? ''}';
+    final userId = '${userService.userInfo?.nameId}';
+    final text = _controller.text.trim();
+    if (text.isEmpty) {
+      _showSnackBar('Note cannot be empty!');
+      return;
+    }
+    final rawId = context.read<BuildingCubit>().globalId;
+    final buildingGlobalId = rawId?.replaceAll(RegExp(r'[{}]'), '');
+    if (buildingGlobalId == null) {
+      _showSnackBar('No building selected!');
+      return;
+    }
+    _sendButtonAnimationController
+        .forward()
+        .then((_) => _sendButtonAnimationController.reverse());
+    context
+        .read<NoteCubit>()
+        .postNote(buildingGlobalId, text, userName, userId);
+    _controller.clear();
   }
- final rawId = context.read<BuildingCubit>().globalId;
- final buildingGlobalId = rawId?.replaceAll(RegExp(r'[{}]'), '');
-  if (buildingGlobalId == null) {
-    _showSnackBar('No building selected!');
-    return;
-  }
-  _sendButtonAnimationController.forward().then((_) => _sendButtonAnimationController.reverse());
-  context.read<NoteCubit>().postNote(buildingGlobalId, text, userName,userId);
-  _controller.clear();
-}
-
 
   String _formatDate(DateTime timestamp) {
     return DateFormat('MMM dd, yyyy – HH:mm').format(timestamp);
@@ -149,33 +155,47 @@ void _postNote(BuildContext context) {
               child: BlocBuilder<NoteCubit, NoteState>(
                 builder: (context, state) {
                   if (state is NoteLoading) {
-                    return Center(child: CircularProgressIndicator(color: colorScheme.primary));
+                    return Center(
+                        child: CircularProgressIndicator(
+                            color: colorScheme.primary));
                   } else if (state is NoteLoaded) {
-                    if (state.notes.isEmpty) return _buildEmptyState(colorScheme);
+                    if (state.notes.isEmpty)
+                      return _buildEmptyState(colorScheme);
                     final now = DateTime.now();
-                    final todayNotes = state.notes.where((n) =>
-                      n.createdTimestamp.year == now.year &&
-                      n.createdTimestamp.month == now.month &&
-                      n.createdTimestamp.day == now.day).toList();
+                    final todayNotes = state.notes
+                        .where((n) =>
+                            n.createdTimestamp.year == now.year &&
+                            n.createdTimestamp.month == now.month &&
+                            n.createdTimestamp.day == now.day)
+                        .toList();
 
-                    final earlierNotes = state.notes.where((n) =>
-                      !(n.createdTimestamp.year == now.year &&
-                        n.createdTimestamp.month == now.month &&
-                        n.createdTimestamp.day == now.day)).toList();
+                    final earlierNotes = state.notes
+                        .where((n) => !(n.createdTimestamp.year == now.year &&
+                            n.createdTimestamp.month == now.month &&
+                            n.createdTimestamp.day == now.day))
+                        .toList();
 
                     return ListView(
                       controller: _effectiveScrollController,
                       children: [
                         if (todayNotes.isNotEmpty) ...[
-                          Text("Today", style: _sectionHeaderStyle(colorScheme)),
+                          Text("Today",
+                              style: _sectionHeaderStyle(colorScheme)),
                           const SizedBox(height: 6),
-                          ...todayNotes.map((note) => NoteCard(note: note, formatDate: _formatDate, colorScheme: colorScheme)),
+                          ...todayNotes.map((note) => NoteCard(
+                              note: note,
+                              formatDate: _formatDate,
+                              colorScheme: colorScheme)),
                           const SizedBox(height: 12),
                         ],
                         if (earlierNotes.isNotEmpty) ...[
-                          Text("Earlier", style: _sectionHeaderStyle(colorScheme)),
+                          Text("Earlier",
+                              style: _sectionHeaderStyle(colorScheme)),
                           const SizedBox(height: 6),
-                          ...earlierNotes.map((note) => NoteCard(note: note, formatDate: _formatDate, colorScheme: colorScheme)),
+                          ...earlierNotes.map((note) => NoteCard(
+                              note: note,
+                              formatDate: _formatDate,
+                              colorScheme: colorScheme)),
                         ],
                       ],
                     );
@@ -208,14 +228,18 @@ void _postNote(BuildContext context) {
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
                   hintText: 'Shkruaj një shënim rreth kësaj ndërtesë...',
-                  hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.6), fontSize: 15),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  hintStyle: TextStyle(
+                      color: colorScheme.onSurface.withOpacity(0.6),
+                      fontSize: 15),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  fillColor:
+                      colorScheme.surfaceContainerHighest.withOpacity(0.3),
                 ),
                 style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
               ),
@@ -241,10 +265,12 @@ void _postNote(BuildContext context) {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.notes, size: 60, color: colorScheme.primary.withOpacity(0.4)),
+          Icon(Icons.notes,
+              size: 60, color: colorScheme.primary.withOpacity(0.4)),
           const SizedBox(height: 10),
           Text('Nuk ka shenime per kete ndertese!',
-              style: TextStyle(fontSize: 16, color: colorScheme.onSurface.withOpacity(0.7))),
+              style: TextStyle(
+                  fontSize: 16, color: colorScheme.onSurface.withOpacity(0.7))),
         ],
       ),
     );
@@ -256,7 +282,11 @@ class NoteCard extends StatelessWidget {
   final Function(DateTime) formatDate;
   final ColorScheme colorScheme;
 
-  const NoteCard({super.key, required this.note, required this.formatDate, required this.colorScheme});
+  const NoteCard(
+      {super.key,
+      required this.note,
+      required this.formatDate,
+      required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {
@@ -272,12 +302,20 @@ class NoteCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(note.noteText, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: colorScheme.onSurface)),
+            Text(note.noteText,
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface)),
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.bottomRight,
-              child: Text('By ${note.createdUser} on ${formatDate(note.createdTimestamp)}',
-                  style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: colorScheme.onSurface.withOpacity(0.7))),
+              child: Text(
+                  'By ${note.createdUser} on ${formatDate(note.createdTimestamp)}',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                      color: colorScheme.onSurface.withOpacity(0.7))),
             )
           ],
         ),

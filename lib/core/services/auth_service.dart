@@ -18,10 +18,11 @@ class AuthService {
       if (response.statusCode == 200) {
         AuthResponse authResponse = AuthResponse.fromJson(response.data);
         await _storage.saveString(
-            StorageKeys.accessToken, authResponse.accessToken);
+            key: StorageKeys.accessToken, value: authResponse.accessToken);
         await _storage.saveString(
-            StorageKeys.refreshToken, authResponse.refreshToken);
-        await _storage.saveString(StorageKeys.idhToken, authResponse.idToken);
+            key: StorageKeys.refreshToken, value: authResponse.refreshToken);
+        await _storage.saveString(
+            key: StorageKeys.idhToken, value: authResponse.idToken);
 
         return authResponse;
       } else {
@@ -33,7 +34,8 @@ class AuthService {
   }
 
   Future<AuthEsriResponse> loginEsri() async {
-      String? accessToken = await _storage.getString(StorageKeys.accessToken);
+    String? accessToken =
+        await _storage.getString(key: StorageKeys.accessToken);
     try {
       if (accessToken == null) throw Exception('Failed to login to esri!!');
 
@@ -44,7 +46,7 @@ class AuthService {
         AuthEsriResponse authResponse =
             AuthEsriResponse.fromJson(response.data);
         await _storage.saveString(
-            StorageKeys.esriAccessToken, authResponse.accessToken);
+            key: StorageKeys.esriAccessToken, value: authResponse.accessToken);
 
         return authResponse;
       } else {
@@ -57,8 +59,10 @@ class AuthService {
 
   Future<AuthResponse> refreshToken() async {
     try {
-      String? refreshToken = await _storage.getString(StorageKeys.refreshToken);
-      String? accessToken = await _storage.getString(StorageKeys.accessToken);
+      String? refreshToken =
+          await _storage.getString(key: StorageKeys.refreshToken);
+      String? accessToken =
+          await _storage.getString(key: StorageKeys.accessToken);
       if (refreshToken == null || accessToken == null) {
         throw Exception('Failed login');
       }
@@ -73,17 +77,19 @@ class AuthService {
       if (response.statusCode == 200) {
         AuthResponse authResponse = AuthResponse.fromJson(response.data);
         await _storage.saveString(
-            StorageKeys.accessToken, authResponse.accessToken);
+            key: StorageKeys.accessToken, value: authResponse.accessToken);
         await _storage.saveString(
-            StorageKeys.refreshToken, authResponse.refreshToken);
-        await _storage.saveString(StorageKeys.idhToken, authResponse.idToken);
+            key: StorageKeys.refreshToken, value: authResponse.refreshToken);
+        await _storage.saveString(
+            key: StorageKeys.idhToken, value: authResponse.idToken);
 
         final esriResponse = await authApi.loginEsri(accessToken);
         if (esriResponse.statusCode == 200) {
           AuthEsriResponse authResponse =
               AuthEsriResponse.fromJson(response.data);
           await _storage.saveString(
-              StorageKeys.esriAccessToken, authResponse.accessToken);
+              key: StorageKeys.esriAccessToken,
+              value: authResponse.accessToken);
         }
         return authResponse;
       } else {

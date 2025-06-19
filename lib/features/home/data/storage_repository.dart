@@ -6,16 +6,14 @@ class StorageRepository {
   StorageRepository(this._storageService);
 
   Future<void> saveString(String key, String value) async {
-    await _storageService.saveString(key, value);
+    await _storageService.saveString(key: key, value: value);
   }
 
   Future<String?> getString(String key) async {
-    return _storageService.getString(key);
+    return _storageService.getString(key: key);
   }
 
   Future<bool?> clear() async {
     return await _storageService.clear();
   }
-
-
 }

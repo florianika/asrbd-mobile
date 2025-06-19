@@ -18,6 +18,7 @@ class TabletElementAttribute extends StatefulWidget {
   final Function save;
   final bool readOnly;
   final Function startReviewing;
+  final Function finishReviewing;
 
   const TabletElementAttribute(
       {super.key,
@@ -27,7 +28,8 @@ class TabletElementAttribute extends StatefulWidget {
       required this.initialData,
       required this.save,
       required this.startReviewing,
-      this.readOnly = false});
+      this.readOnly = false,
+      required this.finishReviewing});
 
   @override
   State<TabletElementAttribute> createState() =>
@@ -124,6 +126,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 onClose: () => widget.onClose(),
                 globalId: widget.initialData['GlobalID'],
                 startReviewingBuilding: widget.startReviewing,
+                finishReviewingBuilding: widget.finishReviewing,
                 openDwelling: () => {
                   context
                       .read<DwellingCubit>()
