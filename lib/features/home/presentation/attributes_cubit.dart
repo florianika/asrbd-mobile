@@ -82,12 +82,14 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  Future<void> showEntranceAttributes(String? globalID) async {
+  Future<void> showEntranceAttributes(
+      String? globalID, String? buildingGlobalID) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
       if (globalID == null) {
-        emit(Attributes(schema, {}, ShapeType.point, globalID ?? ''));
+        emit(Attributes(schema, {'EntBldGlobalID': buildingGlobalID},
+            ShapeType.point, globalID ?? ''));
         return;
       }
 
@@ -132,5 +134,13 @@ class AttributesCubit extends Cubit<AttributesState> {
       return currentState.globalId;
     }
     return null;
+  }
+
+  ShapeType get shapeType {
+    final currentState = state;
+    if (currentState is Attributes) {
+      return currentState.shapeType;
+    }
+    return ShapeType.point;
   }
 }

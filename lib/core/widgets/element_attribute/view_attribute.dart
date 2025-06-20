@@ -37,7 +37,7 @@ class ViewAttribute extends StatefulWidget {
 
 class _ViewAttributeState extends State<ViewAttribute> {
   bool _isMobileSheetVisible = false;
-  bool? _isMobile; // Nullable so we know if it's initialized
+  bool? _isMobile; 
   String? _lastGlobalId;
 
   @override

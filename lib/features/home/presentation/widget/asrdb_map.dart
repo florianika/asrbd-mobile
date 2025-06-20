@@ -22,6 +22,7 @@ import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/features/home/presentation/widget/edit_shape_elements.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,7 +35,10 @@ class AsrdbMap extends StatefulWidget {
   final String attributeLegend;
   final void Function(bool)? onEntranceVisibilityChange;
   const AsrdbMap(
-      {super.key, required this.mapController, required this.attributeLegend ,this.onEntranceVisibilityChange});
+      {super.key,
+      required this.mapController,
+      required this.attributeLegend,
+      this.onEntranceVisibilityChange});
 
   @override
   State<AsrdbMap> createState() => _AsrdbMapState();
@@ -42,6 +46,8 @@ class AsrdbMap extends StatefulWidget {
 
 class _AsrdbMapState extends State<AsrdbMap> {
   // MapController mapController = MapController();
+  final GlobalKey mapKey = GlobalKey();
+
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   LatLngBounds? visibleBounds;
   late String tileDirPath = '';
@@ -166,107 +172,108 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   double? _previousZoom;
- void _onPositionChanged(
-    MapCamera camera, bool hasGesture, int municipalityId) {
-  final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-  _previousZoom = camera.zoom;
+  void _onPositionChanged(
+      MapCamera camera, bool hasGesture, int municipalityId) {
+    final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
+    _previousZoom = camera.zoom;
 
-  if (!hasGesture && !zoomChanged) return;
+    if (!hasGesture && !zoomChanged) return;
 
-  if (_debounce?.isActive ?? false) _debounce!.cancel();
-  _debounce = Timer(const Duration(milliseconds: 500), () {
-    context
-        .read<BuildingCubit>()
-        .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
-  });
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      context
+          .read<BuildingCubit>()
+          .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
+    });
 
-  zoom = camera.zoom;
-  visibleBounds = widget.mapController.camera.visibleBounds;
-  if (_selectedBuildingGlobalId != null && entranceData != null) {
-    final features = entranceData?['features'] as List<dynamic>?;
+    zoom = camera.zoom;
+    visibleBounds = widget.mapController.camera.visibleBounds;
+    if (_selectedBuildingGlobalId != null && entranceData != null) {
+      final features = entranceData?['features'] as List<dynamic>?;
 
-    final entrancePoints = features
-        ?.whereType<Map<String, dynamic>>()
-        .where((f) =>
-            f['properties']?['EntBldGlobalID']?.toString() ==
-            _selectedBuildingGlobalId)
-        .map((f) {
-          final coords = f['geometry']['coordinates'];
-          return LatLng(coords[1], coords[0]);
-        })
-        .toList();
+      final entrancePoints = features
+          ?.whereType<Map<String, dynamic>>()
+          .where((f) =>
+              f['properties']?['EntBldGlobalID']?.toString() ==
+              _selectedBuildingGlobalId)
+          .map((f) {
+        final coords = f['geometry']['coordinates'];
+        return LatLng(coords[1], coords[0]);
+      }).toList();
 
-    if (entrancePoints != null && entrancePoints.isNotEmpty) {
-      final isOutside = GeometryHelper.anyPointOutsideBounds(
-        entrancePoints,
-        camera.visibleBounds,
-      );
+      if (entrancePoints != null && entrancePoints.isNotEmpty) {
+        final isOutside = GeometryHelper.anyPointOutsideBounds(
+          entrancePoints,
+          camera.visibleBounds,
+        );
 
-      if (_entranceOutsideVisibleArea != isOutside) {
-        setState(() {
-          _entranceOutsideVisibleArea = isOutside;
-        });
+        if (_entranceOutsideVisibleArea != isOutside) {
+          setState(() {
+            _entranceOutsideVisibleArea = isOutside;
+          });
 
-        widget.onEntranceVisibilityChange?.call(isOutside);
-      }
-    }
-  }
-}
-
-
-void _handleBuildingOnTap(String globalID) {
-  try {
-    context.read<DwellingCubit>().closeDwellings();
-    context.read<NewGeometryCubit>().setType(ShapeType.polygon);
-    context.read<BuildingCubit>().getBuildingDetails(globalID);
-    context.read<OutputLogsCubit>().outputLogsBuildings(
-        globalID.replaceAll('{', '').replaceAll('}', ''));
-    _selectedBuildingGlobalId = globalID;
-
-    List<dynamic> buildingEntrances = [];
-    List<LatLng> entrancePoints = [];
-
-    if (entranceData != null) {
-      final entranceFeatures = entranceData?['features'] as List<dynamic>?;
-
-      if (entranceFeatures != null) {
-        for (final feature in entranceFeatures.whereType<Map<String, dynamic>>()) {
-          final props = feature['properties'] as Map<String, dynamic>?;
-          final geom = feature['geometry'] as Map<String, dynamic>?;
-          if (props != null &&
-              props['EntBldGlobalID']?.toString() == globalID &&
-              geom != null &&
-              geom['type'] == 'Point') {
-            final coords = geom['coordinates'];
-            entrancePoints.add(LatLng(coords[1], coords[0]));
-            buildingEntrances.add(props['GlobalID']);
-          }
+          widget.onEntranceVisibilityChange?.call(isOutside);
         }
       }
     }
-    final bounds = widget.mapController.camera.visibleBounds;
-    final anyOutside = GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
-
-    setState(() {
-      _selectedGlobalId = globalID;
-      _selectedShapeType = ShapeType.polygon;
-      highlightMarkersGlobalId = buildingEntrances;
-      _entranceOutsideVisibleArea = anyOutside;
-    });
-    if (widget.onEntranceVisibilityChange != null) {
-     widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
-    } 
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: ${e.toString()}')),
-    );
   }
-}
+
+  void _handleBuildingOnTap(String globalID) {
+    try {
+      context.read<DwellingCubit>().closeDwellings();
+      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
+      context.read<BuildingCubit>().getBuildingDetails(globalID);
+      context.read<OutputLogsCubit>().outputLogsBuildings(
+          globalID.replaceAll('{', '').replaceAll('}', ''));
+      _selectedBuildingGlobalId = globalID;
+
+      List<dynamic> buildingEntrances = [];
+      List<LatLng> entrancePoints = [];
+
+      if (entranceData != null) {
+        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+
+        if (entranceFeatures != null) {
+          for (final feature
+              in entranceFeatures.whereType<Map<String, dynamic>>()) {
+            final props = feature['properties'] as Map<String, dynamic>?;
+            final geom = feature['geometry'] as Map<String, dynamic>?;
+            if (props != null &&
+                props['EntBldGlobalID']?.toString() == globalID &&
+                geom != null &&
+                geom['type'] == 'Point') {
+              final coords = geom['coordinates'];
+              entrancePoints.add(LatLng(coords[1], coords[0]));
+              buildingEntrances.add(props['GlobalID']);
+            }
+          }
+        }
+      }
+      final bounds = widget.mapController.camera.visibleBounds;
+      final anyOutside =
+          GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
+
+      setState(() {
+        _selectedGlobalId = globalID;
+        _selectedShapeType = ShapeType.polygon;
+        highlightMarkersGlobalId = buildingEntrances;
+        _entranceOutsideVisibleArea = anyOutside;
+      });
+      if (widget.onEntranceVisibilityChange != null) {
+        widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
     return FlutterMap(
+      key: mapKey,
       mapController: widget.mapController,
       options: MapOptions(
         initialCenter: currentPosition,
@@ -274,14 +281,18 @@ void _handleBuildingOnTap(String globalID) {
         onMapReady: () => {
           _goToCurrentLocation(),
           context.read<BuildingCubit>().getBuildings(
-              widget.mapController.camera.visibleBounds,
-              EsriConfig.buildingMinZoom,
-              userService.userInfo!.municipality),
+                widget.mapController.camera.visibleBounds,
+                EsriConfig.buildingMinZoom,
+                userService.userInfo!.municipality,
+              ),
           visibleBounds = widget.mapController.camera.visibleBounds,
         },
         onPositionChanged: (MapCamera camera, bool hasGesture) =>
             _onPositionChanged(
-                camera, hasGesture, userService.userInfo!.municipality),
+          camera,
+          hasGesture,
+          userService.userInfo!.municipality,
+        ),
         onLongPress: (tapPosition, point) => (),
       ),
       children: [
@@ -372,38 +383,11 @@ void _handleBuildingOnTap(String globalID) {
               ),
             ],
           ),
-        BlocConsumer<NewGeometryCubit, NewGeometryState>(
-            listener: (context, state) {},
-            builder: (context, state) {
-              return (state as NewGeometry).isDrawing
-                  ? const Center(child: TargetMarker())
-                  : const SizedBox();
-            }),
-        BlocConsumer<NewGeometryCubit, NewGeometryState>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            return MarkerLayer(
-              markers: _buildMarkers((state as NewGeometry).points),
-            );
-          },
-        ),
-        BlocConsumer<NewGeometryCubit, NewGeometryState>(
-          listener: (context, state) {},
-          builder: (context, state) {
-            return (state as NewGeometry).points.isNotEmpty
-                ? PolygonLayer(polygons: [
-                    Polygon(
-                      points: state.points,
-                      color: Colors.red.withOpacity(0.25),
-                      borderStrokeWidth: 3.0,
-                      borderColor: Colors.red.shade700,
-                      pattern: StrokePattern.dashed(
-                        segments: const [10, 5],
-                      ),
-                    )
-                  ])
-                : const SizedBox();
-          },
+        EditShapeElements(
+          mapKey: mapKey,
+          mapController: widget.mapController,
+          handleEntranceTap: _handleEntranceTap,
+          initialData: _initialData,
         ),
       ],
     );

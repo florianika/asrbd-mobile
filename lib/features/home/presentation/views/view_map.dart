@@ -104,6 +104,9 @@ class _ViewMapState extends State<ViewMap> {
     try {
       if (geometryCubit.type == ShapeType.point) {
         if (isNew) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(buildingCubit.globalId!)));
+
           attributes[EntranceFields.entBldGlobalID] = buildingCubit.globalId;
           attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
           attributes['external_creator_date'] =
@@ -244,15 +247,15 @@ class _ViewMapState extends State<ViewMap> {
                   flex: 2,
                   child: Stack(
                     children: [
-                    AsrdbMap(
-                      mapController: mapController,
-                      attributeLegend: attributeLegend,
-                      onEntranceVisibilityChange: (value) {
-                        setState(() {
-                          _entranceOutsideVisibleArea = value;
-                        });
-                      },
-                    ),
+                      AsrdbMap(
+                        mapController: mapController,
+                        attributeLegend: attributeLegend,
+                        onEntranceVisibilityChange: (value) {
+                          setState(() {
+                            _entranceOutsideVisibleArea = value;
+                          });
+                        },
+                      ),
                       BlocConsumer<NewGeometryCubit, NewGeometryState>(
                           listener: (context, state) {},
                           builder: (context, state) {
@@ -380,7 +383,8 @@ class _ViewMapState extends State<ViewMap> {
                             selectedShapeType: state is Attributes
                                 ? state.shapeType
                                 : ShapeType.point,
-                                entranceOutsideVisibleArea: _entranceOutsideVisibleArea,
+                            entranceOutsideVisibleArea:
+                                _entranceOutsideVisibleArea,
                             initialData:
                                 state is Attributes ? state.initialData : {},
                             isLoading: state is AttributesLoading || isLoading,

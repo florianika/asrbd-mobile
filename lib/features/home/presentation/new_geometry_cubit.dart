@@ -70,6 +70,28 @@ class NewGeometryCubit extends Cubit<NewGeometryState> {
     _emitCurrentState();
   }
 
+  // NEW METHOD: Update a specific point position by index
+  void updatePointPosition(int index, LatLng newPosition) {
+    if (index < 0 || index >= _points.length) return;
+
+    _pushToUndo();
+    _redoStack.clear();
+
+    _points[index] = newPosition;
+    _emitCurrentState();
+  }
+
+  // NEW METHOD: Update a point by finding its current position
+  void updatePointByPosition(LatLng oldPosition, LatLng newPosition) {
+    final index = _points.indexWhere((point) =>
+        (point.latitude - oldPosition.latitude).abs() < 0.0001 &&
+        (point.longitude - oldPosition.longitude).abs() < 0.0001);
+
+    if (index != -1) {
+      updatePointPosition(index, newPosition);
+    }
+  }
+
   void undo() {
     if (_undoStack.isEmpty) return;
     _redoStack.add(List.from(_points));

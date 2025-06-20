@@ -74,7 +74,7 @@ class MapActionButtons extends StatelessWidget {
                     context.read<NewGeometryCubit>().setType(ShapeType.polygon),
                     context.read<AttributesCubit>().showAttributes(false)
                   },
-                  icon: Icons.rectangle_outlined,
+                  icon: Icons.hexagon_outlined,
                 );
               }),
         ),
@@ -91,10 +91,11 @@ class MapActionButtons extends StatelessWidget {
                     context.read<NewGeometryCubit>().setType(ShapeType.point),
                     context.read<AttributesCubit>().showAttributes(false)
                   },
-                  isEnabled: state is BuildingGlobalId
-                      ? state.globalId != null
-                      : false,
-                  icon: Icons.sensor_door_outlined,
+                  isEnabled:
+                      context.read<AttributesCubit>().currentGlobalId != null &&
+                          context.read<AttributesCubit>().shapeType ==
+                              ShapeType.polygon,
+                  icon: Icons.adjust,
                 );
               }),
         ),

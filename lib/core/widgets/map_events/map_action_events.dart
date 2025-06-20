@@ -1,6 +1,7 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +24,6 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
   void _placeMarker() {
     final center = widget.mapController.camera.center;
-
     context.read<NewGeometryCubit>().addPoint(center);
   }
 
@@ -70,13 +70,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       icon: Icons.undo,
                       heroTag: 'undo',
                       onPressed: context.read<NewGeometryCubit>().undo,
-                      //  widget.newPolygonPoints.isNotEmpty &&
-                      //         widget.onUndo != null
-                      //     ? () => widget.onUndo!()
-                      //     : null,
-                      isEnabled: ((state as NewGeometry))
-                          .points
-                          .isNotEmpty, // widget.newPolygonPoints.isNotEmpty,
+                      isEnabled: ((state as NewGeometry)).points.isNotEmpty,
                     ),
                     const SizedBox(height: 20),
                     FloatingButton(
@@ -91,11 +85,14 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       heroTag: 'done',
                       onPressed: () => {
                         context.read<NewGeometryCubit>().setDrawing(false),
-                        _placeMarker(),
                         if (state.type == ShapeType.point)
-                          context
-                              .read<AttributesCubit>()
-                              .showEntranceAttributes(null)
+                          {
+                            _placeMarker(),
+                            context
+                                .read<AttributesCubit>()
+                                .showEntranceAttributes(null,
+                                    context.read<BuildingCubit>().globalId)
+                          }
                         else if (state.type == ShapeType.polygon)
                           context
                               .read<AttributesCubit>()
@@ -108,7 +105,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                     if (state.type == ShapeType.polygon) ...[
                       const SizedBox(height: 20),
                       FloatingButton(
-                        icon: Icons.edit_location_alt,
+                        icon: Icons.add_location_alt_outlined,
                         heroTag: 'pin',
                         isEnabled: true,
                         onPressed: _placeMarker,

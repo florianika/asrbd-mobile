@@ -69,7 +69,8 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
     emit(EntranceLoading());
     try {
-      emit(Entrances(await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
+      emit(Entrances(
+          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -79,7 +80,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     emit(EntranceLoading());
     try {
       attributesCubit.showAttributes(true);
-      await attributesCubit.showEntranceAttributes(globalId);
+      await attributesCubit.showEntranceAttributes(globalId, null);
       currentGlobalId = globalId; // ✅ Save the globalId for later access
       emit(EntranceGlobalId(globalId));
     } catch (e) {
@@ -111,8 +112,7 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> updateEntranceFeature(Map<String, dynamic> attributes) async {
     emit(EntranceLoading());
     try {
-      final success =
-          await entranceUseCases.updateEntranceFeature(attributes);
+      final success = await entranceUseCases.updateEntranceFeature(attributes);
       emit(EntranceUpdateResponse(success, attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));

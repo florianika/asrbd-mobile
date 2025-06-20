@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class TabletElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
   final ShapeType selectedShapeType;
-    final bool entranceOutsideVisibleArea;
+  final bool entranceOutsideVisibleArea;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
   final Function save;
@@ -71,8 +71,10 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                         ),
                         child: BlocBuilder<OutputLogsCubit, OutputLogsState>(
                           builder: (context, state) {
+                            List<ValidationResult> validationResult = [];
+
                             if (state is OutputLogs) {
-                              final validationResult = state.validationResult
+                              validationResult = state.validationResult
                                   .toValidationResults(useAlbanianMessage: true)
                                   .where((x) =>
                                       x.entityType ==
@@ -84,19 +86,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                               ? EntityType.entrance
                                               : EntityType.dwelling))
                                   .toList();
-
-                              return DynamicElementAttribute(
-                                key: _dynamicFormKey,
-                                schema: widget.schema,
-                                selectedShapeType: widget.selectedShapeType,
-                                entranceOutsideVisibleArea: widget.entranceOutsideVisibleArea,
-                                initialData: widget.initialData,
-                                onSave: (formValues) => widget.save(formValues),
-                                validationResults: validationResult ?? [],
-                                onClose: widget.onClose,
-                                showButtons: false,
-                                readOnly: widget.readOnly,
-                              );
                             }
 
                             if (state is OutputLogsError) {
@@ -104,8 +93,19 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                   child: Text('Error: ${state.message}'));
                             }
 
-                            return const Center(
-                                child: CircularProgressIndicator());
+                            return DynamicElementAttribute(
+                              key: _dynamicFormKey,
+                              schema: widget.schema,
+                              selectedShapeType: widget.selectedShapeType,
+                              entranceOutsideVisibleArea:
+                                  widget.entranceOutsideVisibleArea,
+                              initialData: widget.initialData,
+                              onSave: (formValues) => widget.save(formValues),
+                              validationResults: validationResult,
+                              onClose: widget.onClose,
+                              showButtons: false,
+                              readOnly: widget.readOnly,
+                            );
                           },
                         ),
                       ),

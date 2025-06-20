@@ -20,7 +20,7 @@ class FloatingButton extends StatelessWidget {
       mini: true,
       backgroundColor: Colors.white,
       foregroundColor: isEnabled ? Colors.black : Colors.grey,
-      onPressed: onPressed,
+      onPressed: isEnabled ? onPressed : null,
       child: Icon(icon),
     );
   }
