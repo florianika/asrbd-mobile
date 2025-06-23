@@ -21,6 +21,10 @@ class StringHelper {
 
     return guid.replaceAll('{', '').replaceAll('}', '');
   }
+
+  static String removeCurlyBracesFromString(String guid) {
+    return guid.replaceAll('{', '').replaceAll('}', '');
+  }
 }
 
 extension GuidCleaner on String? {

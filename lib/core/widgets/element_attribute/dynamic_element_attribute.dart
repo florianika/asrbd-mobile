@@ -28,8 +28,9 @@ class DynamicElementAttribute extends StatefulWidget {
   final bool readOnly;
   final bool showButtons;
   final List<ValidationResult>? validationResults;
-  final List<LatLng>? entrancePointsOnMap; // Pass entrance coordinates for visibility check
-  final LatLngBounds? visibleBounds; 
+  final List<LatLng>?
+      entrancePointsOnMap; // Pass entrance coordinates for visibility check
+  final LatLngBounds? visibleBounds;
 
   const DynamicElementAttribute({
     required this.schema,
@@ -767,31 +768,32 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     return Stack(
       children: [
-       if (widget.selectedShapeType == ShapeType.polygon && widget.entranceOutsideVisibleArea)
-        Positioned(
-  top: 10,
-  right: 450,
-  child: Tooltip(
-    message:
-        "Heads up! The entrance linked to this building may be positioned far from the building.",
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: Colors.yellow[100],
-      border: Border.all(color: Colors.orange, width: 2),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    textStyle: const TextStyle(
-      color: Colors.black87,
-      fontWeight: FontWeight.w600,
-      fontSize: 14,
-    ),
-    child:const Icon(
-      Icons.warning_amber_rounded,
-      color:  Color.fromARGB(255, 247, 174, 3),
-      size: 25,
-    ),
-  ),
-),
+        if (widget.selectedShapeType == ShapeType.polygon &&
+            widget.entranceOutsideVisibleArea)
+          Positioned(
+            top: 10,
+            left: 0,
+            child: Tooltip(
+              message:
+                  "Heads up! The entrance linked to this building may be positioned far from the building.",
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.yellow[100],
+                border: Border.all(color: Colors.orange, width: 2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              textStyle: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: Color.fromARGB(255, 247, 174, 3),
+                size: 25,
+              ),
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.only(top: 20),
           child: Column(

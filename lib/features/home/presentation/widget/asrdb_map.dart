@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
-import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
@@ -14,9 +14,7 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
-import 'package:asrdb/core/widgets/markers/target_marker.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -51,7 +49,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   LatLngBounds? visibleBounds;
   late String tileDirPath = '';
-  ShapeType _selectedShapeType = ShapeType.point;
   double zoom = 0;
   String? _selectedGlobalId;
 
@@ -106,38 +103,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _goToCurrentLocation() async {
-    // try {
     final location = await LocationService.getCurrentLocation();
     widget.mapController.move(location, EsriConfig.initZoom);
     setState(() {
       _userLocation = location;
       _showLocationMarker = true;
     });
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text('Error fetching location: $e')),
-    //   );
-    // }
-  }
-
-  List<Marker> _buildMarkers(List<LatLng> points) {
-    return points.map((point) {
-      return Marker(
-        width: 30,
-        height: 30,
-        point: point,
-        child: GestureDetector(
-          onTap: () => _handleEntranceTap(_initialData),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.orange,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.black, width: 1),
-            ),
-          ),
-        ),
-      );
-    }).toList();
   }
 
   void _handleEntranceTap(Map<String, dynamic> data) {
@@ -148,23 +119,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       highlightMarkersGlobalId = [];
 
-      _selectedShapeType = ShapeType.point;
 
       context.read<DwellingCubit>().closeDwellings();
       context.read<NewGeometryCubit>().setType(ShapeType.point);
       context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
       context.read<OutputLogsCubit>().outputLogsBuildings(
-          data['EntBldGlobalID'].replaceAll('{', '').replaceAll('}', ''));
-
-      // final bldGlobalId = data['EntBldGlobalID'];
-
-      // setState(() {
-      //   highlightedBuildingIds = bldGlobalId;
-      //   _showLocationMarker = false;
-      
-      // });
+          StringHelper.removeCurlyBracesFromString(
+              data['EntBldGlobalID'].toString()));
     } catch (e) {
-      // Display error message to the user in case of exception
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
@@ -224,48 +186,44 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<NewGeometryCubit>().setType(ShapeType.polygon);
       context.read<BuildingCubit>().getBuildingDetails(globalID);
       context.read<OutputLogsCubit>().outputLogsBuildings(
-          globalID.replaceAll('{', '').replaceAll('}', ''));
+          StringHelper.removeCurlyBracesFromString(globalID));
+
       _selectedBuildingGlobalId = globalID;
 
+      List<dynamic> buildingEntrances = [];
+      List<LatLng> entrancePoints = [];
 
+      if (entranceData != null) {
+        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
 
+        if (entranceFeatures != null) {
+          for (final feature
+              in entranceFeatures.whereType<Map<String, dynamic>>()) {
+            final props = feature['properties'] as Map<String, dynamic>?;
+            final geom = feature['geometry'] as Map<String, dynamic>?;
+            if (props != null &&
+                props['EntBldGlobalID']?.toString() == globalID &&
+                geom != null &&
+                geom['type'] == 'Point') {
+              final coords = geom['coordinates'];
+              entrancePoints.add(LatLng(coords[1], coords[0]));
+              buildingEntrances.add(props['GlobalID']);
+            }
+          }
+        }
+      }
+      final bounds = widget.mapController.camera.visibleBounds;
+      final anyOutside =
+          GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
 
-      // List<dynamic> buildingEntrances = [];
-      // List<LatLng> entrancePoints = [];
-
-      // if (entranceData != null) {
-      //   final entranceFeatures = entranceData?['features'] as List<dynamic>?;
-
-      //   if (entranceFeatures != null) {
-      //     for (final feature
-      //         in entranceFeatures.whereType<Map<String, dynamic>>()) {
-      //       final props = feature['properties'] as Map<String, dynamic>?;
-      //       final geom = feature['geometry'] as Map<String, dynamic>?;
-      //       if (props != null &&
-      //           props['EntBldGlobalID']?.toString() == globalID &&
-      //           geom != null &&
-      //           geom['type'] == 'Point') {
-      //         final coords = geom['coordinates'];
-      //         entrancePoints.add(LatLng(coords[1], coords[0]));
-      //         buildingEntrances.add(props['GlobalID']);
-      //       }
-      //     }
-      //   }
-      // }
-      
-      // final bounds = widget.mapController.camera.visibleBounds;
-      // final anyOutside =
-      //     GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
-
-      // setState(() {
-      //   _selectedGlobalId = globalID;
-      //   _selectedShapeType = ShapeType.polygon;
-      //   highlightMarkersGlobalId = buildingEntrances;
-      //   _entranceOutsideVisibleArea = anyOutside;
-      // });
-      // if (widget.onEntranceVisibilityChange != null) {
-      //   widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
-      // }
+      setState(() {
+        _selectedGlobalId = globalID;
+        highlightMarkersGlobalId = buildingEntrances;
+        _entranceOutsideVisibleArea = anyOutside;
+      });
+      if (widget.onEntranceVisibilityChange != null) {
+        widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -321,25 +279,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     EsriConditionHelper.getPropertiesAsList(
                         'GlobalID', state.buildings));
               }
-            } 
-            
-            // else if (state is Attributes) {
-            //   final lat = (state as Attributes).initialData['BldLatitude'];
-            //   final lng = (state as Attributes).initialData['BldLongitude'];
-
-            //   if (lat != null && lng != null) {
-            //     widget.mapController.move(LatLng(lat, lng), 19);
-            //   }
-            // }
+            }
           },
           builder: (context, state) {
             return BuildingMarker(
               buildingsData: buildingsData,
-              selectedGlobalID: _selectedGlobalId,
               onTap: _handleBuildingOnTap,
-              selectedShapeType: _selectedShapeType,
               attributeLegend: widget.attributeLegend,
-              highlightedBuildingIds: highlightedBuildingIds,
             );
           },
         ),
@@ -357,7 +303,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     Map<String, dynamic> properties =
                         firstFeature['properties'];
                     _initialData = properties;
-                    // _isPropertyVisibile = true;
                   }
                 }
             }
@@ -367,10 +312,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               entranceData: entranceData,
               onTap: _handleEntranceTap,
               attributeLegend: widget.attributeLegend,
-              selectedGlobalId: _selectedGlobalId,
-              selectedShapeType: _selectedShapeType,
               mapController: widget.mapController,
-              highilghGlobalIds: highlightMarkersGlobalId,
             );
           },
         ),

@@ -3,6 +3,7 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
@@ -305,10 +306,8 @@ class _ViewMapState extends State<ViewMap> {
                       );
                     } else if (state is BuildingAddResponse ||
                         state is BuildingUpdateResponse) {
-                      final id = (state as BuildingAddResponse)
-                          .globalId
-                          .replaceAll('{', '')
-                          .replaceAll('}', '');
+                      final id = StringHelper.removeCurlyBracesFromString(
+                          (state as BuildingAddResponse).globalId);
                       context
                           .read<AttributesCubit>()
                           .showBuildingAttributes(id);
@@ -324,10 +323,8 @@ class _ViewMapState extends State<ViewMap> {
                       );
                     } else if (state is EntranceAddResponse ||
                         state is EntranceUpdateResponse) {
-                      final id = (state as EntranceAddResponse)
-                          .buildingGlboalId
-                          .replaceAll('{', '')
-                          .replaceAll('}', '');
+                      final id = StringHelper.removeCurlyBracesFromString(
+                          (state as EntranceAddResponse).buildingGlboalId);
                       context
                           .read<AttributesCubit>()
                           .showBuildingAttributes(id);
@@ -396,7 +393,7 @@ class _ViewMapState extends State<ViewMap> {
                                   .showAttributes(false);
                               setState(() {
                                 highlightedBuildingIds = null;
-                                highlightMarkersGlobalId = [];                               
+                                highlightMarkersGlobalId = [];
                               });
                             },
                             finishReviewing: _finishReviewing,

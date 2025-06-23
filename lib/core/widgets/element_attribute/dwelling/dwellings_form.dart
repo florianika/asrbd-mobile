@@ -271,7 +271,7 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildExpandableDwellingItem(
       Map<String, dynamic> dwelling, int index) {
     final isExpanded = _expandedDwellings.contains(index);
-    final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
+    // final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
     final apartNumber = dwelling['DwlApartNumber']?.toString() ?? 'N/A';
     final quality = dwelling['DwlQuality']?.toString() ?? '0';
     final qualityInfo = _getQualityInfo(quality);

@@ -11,19 +11,19 @@ import 'package:flutter_map/flutter_map.dart';
 
 class BuildingMarker extends StatefulWidget {
   final Map<String, dynamic>? buildingsData;
-  final String? selectedGlobalID;
-  final ShapeType? selectedShapeType;
+  // final String? selectedGlobalID;
+  // final ShapeType? selectedShapeType;
   final String attributeLegend;
-  final String? highlightedBuildingIds;
+  // final String? highlightedBuildingIds;
   final Function(String) onTap;
 
   const BuildingMarker({
     super.key,
     this.buildingsData,
-    this.selectedGlobalID,
-    this.selectedShapeType,
+    // this.selectedGlobalID,
+    // this.selectedShapeType,
     required this.attributeLegend,
-    required this.highlightedBuildingIds,
+    // required this.highlightedBuildingIds,
     required this.onTap,
   });
 
