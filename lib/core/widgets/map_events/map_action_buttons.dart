@@ -92,7 +92,8 @@ class MapActionButtons extends StatelessWidget {
                     context.read<AttributesCubit>().showAttributes(false)
                   },
                   isEnabled:
-                      context.read<AttributesCubit>().currentGlobalId != null &&
+                      context.read<AttributesCubit>().currentBuildingGlobalId !=
+                              null &&
                           context.read<AttributesCubit>().shapeType ==
                               ShapeType.polygon,
                   icon: Icons.adjust,

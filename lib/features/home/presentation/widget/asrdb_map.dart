@@ -156,13 +156,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<OutputLogsCubit>().outputLogsBuildings(
           data['EntBldGlobalID'].replaceAll('{', '').replaceAll('}', ''));
 
-      final bldGlobalId = data['EntBldGlobalID'];
+      // final bldGlobalId = data['EntBldGlobalID'];
 
-      setState(() {
-        highlightedBuildingIds = bldGlobalId;
-        _showLocationMarker = false;
-        // _isDwellingVisible = false;
-      });
+      // setState(() {
+      //   highlightedBuildingIds = bldGlobalId;
+      //   _showLocationMarker = false;
+      
+      // });
     } catch (e) {
       // Display error message to the user in case of exception
       ScaffoldMessenger.of(context).showSnackBar(
@@ -227,41 +227,45 @@ class _AsrdbMapState extends State<AsrdbMap> {
           globalID.replaceAll('{', '').replaceAll('}', ''));
       _selectedBuildingGlobalId = globalID;
 
-      List<dynamic> buildingEntrances = [];
-      List<LatLng> entrancePoints = [];
 
-      if (entranceData != null) {
-        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
 
-        if (entranceFeatures != null) {
-          for (final feature
-              in entranceFeatures.whereType<Map<String, dynamic>>()) {
-            final props = feature['properties'] as Map<String, dynamic>?;
-            final geom = feature['geometry'] as Map<String, dynamic>?;
-            if (props != null &&
-                props['EntBldGlobalID']?.toString() == globalID &&
-                geom != null &&
-                geom['type'] == 'Point') {
-              final coords = geom['coordinates'];
-              entrancePoints.add(LatLng(coords[1], coords[0]));
-              buildingEntrances.add(props['GlobalID']);
-            }
-          }
-        }
-      }
-      final bounds = widget.mapController.camera.visibleBounds;
-      final anyOutside =
-          GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
 
-      setState(() {
-        _selectedGlobalId = globalID;
-        _selectedShapeType = ShapeType.polygon;
-        highlightMarkersGlobalId = buildingEntrances;
-        _entranceOutsideVisibleArea = anyOutside;
-      });
-      if (widget.onEntranceVisibilityChange != null) {
-        widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
-      }
+      // List<dynamic> buildingEntrances = [];
+      // List<LatLng> entrancePoints = [];
+
+      // if (entranceData != null) {
+      //   final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+
+      //   if (entranceFeatures != null) {
+      //     for (final feature
+      //         in entranceFeatures.whereType<Map<String, dynamic>>()) {
+      //       final props = feature['properties'] as Map<String, dynamic>?;
+      //       final geom = feature['geometry'] as Map<String, dynamic>?;
+      //       if (props != null &&
+      //           props['EntBldGlobalID']?.toString() == globalID &&
+      //           geom != null &&
+      //           geom['type'] == 'Point') {
+      //         final coords = geom['coordinates'];
+      //         entrancePoints.add(LatLng(coords[1], coords[0]));
+      //         buildingEntrances.add(props['GlobalID']);
+      //       }
+      //     }
+      //   }
+      // }
+      
+      // final bounds = widget.mapController.camera.visibleBounds;
+      // final anyOutside =
+      //     GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
+
+      // setState(() {
+      //   _selectedGlobalId = globalID;
+      //   _selectedShapeType = ShapeType.polygon;
+      //   highlightMarkersGlobalId = buildingEntrances;
+      //   _entranceOutsideVisibleArea = anyOutside;
+      // });
+      // if (widget.onEntranceVisibilityChange != null) {
+      //   widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+      // }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -317,14 +321,16 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     EsriConditionHelper.getPropertiesAsList(
                         'GlobalID', state.buildings));
               }
-            } else if (state is Attributes) {
-              final lat = (state as Attributes).initialData['BldLatitude'];
-              final lng = (state as Attributes).initialData['BldLongitude'];
+            } 
+            
+            // else if (state is Attributes) {
+            //   final lat = (state as Attributes).initialData['BldLatitude'];
+            //   final lng = (state as Attributes).initialData['BldLongitude'];
 
-              if (lat != null && lng != null) {
-                widget.mapController.move(LatLng(lat, lng), 19);
-              }
-            }
+            //   if (lat != null && lng != null) {
+            //     widget.mapController.move(LatLng(lat, lng), 19);
+            //   }
+            // }
           },
           builder: (context, state) {
             return BuildingMarker(

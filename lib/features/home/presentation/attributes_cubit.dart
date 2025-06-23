@@ -16,13 +16,17 @@ class Attributes extends AttributesState {
   final Map<String, dynamic> initialData;
   final ShapeType shapeType;
   final bool viewDwelling;
-  final String globalId;
+  final String? buildingGlobalId;
+  final String? entranceGlobalId;
+  final int? dwellingObjectId;
 
   Attributes(
     this.schema,
     this.initialData,
     this.shapeType,
-    this.globalId, {
+    this.buildingGlobalId,
+    this.entranceGlobalId,
+    this.dwellingObjectId, {
     this.viewDwelling = false,
   });
 }
@@ -42,7 +46,7 @@ class AttributesCubit extends Cubit<AttributesState> {
   final BuildingUseCases buildingUseCases;
   final DwellingUseCases dwellingUseCases;
 
-  bool showLoading = true; // ✅ Loading control flag
+  bool showLoading = true;
 
   AttributesCubit(
     this.entranceUseCases,
@@ -50,32 +54,39 @@ class AttributesCubit extends Cubit<AttributesState> {
     this.dwellingUseCases,
   ) : super(AttributesVisibility(false));
 
-  /// ✅ Control loading indicator visibility
   void setShowLoading(bool value) {
     showLoading = value;
   }
 
   void showAttributes(bool showAttributes) {
+    if (!showAttributes) {
+      emit(Attributes([], {}, ShapeType.point, null, null, null));
+    }
     emit(AttributesVisibility(showAttributes));
   }
 
-  Future<void> showDwellingAttributes(int? objectId) async {
+  Future<void> showDwellingAttributes(int? dwellingObjectID) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
-      if (objectId == null) {
-        emit(Attributes(schema, {}, ShapeType.noShape, '', viewDwelling: true));
+      if (dwellingObjectID == null) {
+        emit(Attributes(
+            schema, {}, ShapeType.noShape, null, null, dwellingObjectID,
+            viewDwelling: true));
         return;
       }
 
-      final dwellingData = await dwellingUseCases.getDwellingDetails(objectId);
+      final dwellingData =
+          await dwellingUseCases.getDwellingDetails(dwellingObjectID);
       if (dwellingData.isNotEmpty) {
         final features = dwellingData['features'];
-        emit(Attributes(
-            schema, features[0]['properties'], ShapeType.noShape, '',
+        emit(Attributes(schema, features[0]['properties'], ShapeType.noShape,
+            null, null, dwellingObjectID,
             viewDwelling: true));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point, '', viewDwelling: true));
+        emit(Attributes(
+            schema, {}, ShapeType.point, null, null, dwellingObjectID,
+            viewDwelling: true));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -83,55 +94,81 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showEntranceAttributes(
-      String? globalID, String? buildingGlobalID) async {
+      String? entranceGlobalID, String? buildingGlobalID) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
-      if (globalID == null) {
+      if (entranceGlobalID == null) {
         emit(Attributes(schema, {'EntBldGlobalID': buildingGlobalID},
-            ShapeType.point, globalID ?? ''));
+            ShapeType.point, buildingGlobalID, entranceGlobalID, null));
         return;
       }
 
-      final entranceData = await entranceUseCases.getEntranceDetails(globalID);
+      final entranceData =
+          await entranceUseCases.getEntranceDetails(entranceGlobalID);
       if (entranceData.isNotEmpty) {
         final features = entranceData['features'];
         emit(Attributes(
-            schema, features[0]['properties'], ShapeType.point, globalID));
+            schema,
+            features[0]['properties'],
+            ShapeType.point,
+            features[0]['properties']['EntBldGlobalID'],
+            entranceGlobalID,
+            null));
       } else {
-        emit(Attributes(schema, {}, ShapeType.point, globalID));
+        emit(Attributes(schema, {}, ShapeType.point, buildingGlobalID,
+            entranceGlobalID, null));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
   }
 
-  Future<void> showBuildingAttributes(String? globalID) async {
+  Future<void> showBuildingAttributes(String? buildingGlobalID) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
-      if (globalID == null) {
-        emit(Attributes(schema, {}, ShapeType.polygon, globalID ?? ''));
+      if (buildingGlobalID == null) {
+        emit(Attributes(
+            schema, {}, ShapeType.polygon, buildingGlobalID, null, null));
         return;
       }
 
-      final buildingData = await buildingUseCases.getBuildingDetails(globalID);
+      final buildingData =
+          await buildingUseCases.getBuildingDetails(buildingGlobalID);
       if (buildingData.isNotEmpty) {
         final features = buildingData['features'];
-        emit(Attributes(
-            schema, features[0]['properties'], ShapeType.polygon, globalID));
+        emit(Attributes(schema, features[0]['properties'], ShapeType.polygon,
+            buildingGlobalID, null, null));
       } else {
-        emit(Attributes(schema, {}, ShapeType.polygon, globalID));
+        emit(Attributes(
+            schema, {}, ShapeType.polygon, buildingGlobalID, null, null));
       }
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
   }
 
-  String? get currentGlobalId {
+  String? get currentBuildingGlobalId {
     final currentState = state;
     if (currentState is Attributes) {
-      return currentState.globalId;
+      return currentState.buildingGlobalId;
+    }
+    return null;
+  }
+
+  String? get currentEntranceGlobalId {
+    final currentState = state;
+    if (currentState is Attributes) {
+      return currentState.entranceGlobalId;
+    }
+    return null;
+  }
+
+  int? get currentDwellingObjectId {
+    final currentState = state;
+    if (currentState is Attributes) {
+      return currentState.dwellingObjectId;
     }
     return null;
   }

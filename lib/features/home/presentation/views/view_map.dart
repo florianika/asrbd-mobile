@@ -396,7 +396,7 @@ class _ViewMapState extends State<ViewMap> {
                                   .showAttributes(false);
                               setState(() {
                                 highlightedBuildingIds = null;
-                                highlightMarkersGlobalId = [];
+                                highlightMarkersGlobalId = [];                               
                               });
                             },
                             finishReviewing: _finishReviewing,

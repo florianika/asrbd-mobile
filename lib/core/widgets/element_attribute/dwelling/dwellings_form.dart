@@ -36,10 +36,11 @@ class _DwellingFormState extends State<DwellingForm> {
   void initState() {
     super.initState();
 
-    String? globalId = context.read<AttributesCubit>().currentGlobalId;
+    String? entranceGlobalId =
+        context.read<AttributesCubit>().currentEntranceGlobalId;
 
     // final id = widget.entranceGlobalId;
-    _initialData['DwlEntGlobalID'] = globalId;
+    _initialData['DwlEntGlobalID'] = entranceGlobalId;
 
     final schemaService = sl<SchemaService>();
     final dwellingSchema = schemaService.dwellingSchema;
@@ -855,7 +856,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
     attributes['DwlEntGlobalID'] =
-        context.read<AttributesCubit>().currentGlobalId;
+        context.read<AttributesCubit>().currentEntranceGlobalId;
     if (_isEditMode) {
       await context.read<DwellingCubit>().updateDwellingFeature(attributes);
     } else {
