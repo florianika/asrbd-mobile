@@ -95,7 +95,7 @@ class _ViewMapState extends State<ViewMap> {
     final geometryCubit = context.read<NewGeometryCubit>();
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
-    final entranceCubit = context.read<EntranceCubit>(); // always read upfront
+    final entranceCubit = context.read<EntranceCubit>();
     final userService = sl<UserService>();
 
     loadingCubit.show();
@@ -105,10 +105,8 @@ class _ViewMapState extends State<ViewMap> {
     try {
       if (geometryCubit.type == ShapeType.point) {
         if (isNew) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(buildingCubit.globalId!)));
-
-          attributes[EntranceFields.entBldGlobalID] = buildingCubit.globalId;
+          attributes[EntranceFields.entBldGlobalID] =
+              '{${buildingCubit.globalId}}';
           attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
           attributes['external_creator_date'] =
               DateTime.now().millisecondsSinceEpoch;
@@ -158,6 +156,11 @@ class _ViewMapState extends State<ViewMap> {
           await dwellingCubit.updateDwellingFeature(attributes);
         }
       }
+
+      geometryCubit.clearPoints();
+      //trick to trigger fetch of data again
+      mapController.move(
+          mapController.camera.center, mapController.camera.zoom + 0.01);
     } finally {
       loadingCubit.hide();
     }

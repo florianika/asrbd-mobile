@@ -94,12 +94,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
         tileDirPath = path;
       });
     }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(path.toString())),
-      );
-    }
   }
 
   void _goToCurrentLocation() async {
