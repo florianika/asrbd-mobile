@@ -17,6 +17,7 @@ import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -117,9 +118,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       highlightMarkersGlobalId = [];
 
+      final buildingGlobalId =
+          context.read<AttributesCubit>().currentBuildingGlobalId;
       context.read<DwellingCubit>().closeDwellings();
       context.read<NewGeometryCubit>().setType(ShapeType.point);
-      context.read<EntranceCubit>().getEntranceDetails(_selectedGlobalId!);
+      context
+          .read<EntranceCubit>()
+          .getEntranceDetails(_selectedGlobalId!, buildingGlobalId);
       context.read<OutputLogsCubit>().outputLogsBuildings(
           StringHelper.removeCurlyBracesFromString(
               data['EntBldGlobalID'].toString()));
@@ -179,21 +184,26 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleBuildingOnTap(LatLng position) {
     try {
-      final buildings = context.select<BuildingCubit, Map<String, dynamic>?>(
-        (cubit) => cubit.state is Buildings
-            ? (cubit.state as Buildings).buildings
-            : null,
-      );
+      final buildingsState = context.read<BuildingCubit>().state;
+
+      final buildings =
+          buildingsState is Buildings ? buildingsState.buildings : null;
 
       if (buildings == null) return;
 
       final globalId =
-          PolygonHitDetector.getPolygonIdAtPoint(buildings!, position);
+          PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
 
       if (globalId != null) {
         context
             .read<AttributesCubit>()
             .showBuildingAttributes(globalId.removeCurlyBraces());
+
+        final storageResponsitory = sl<StorageRepository>();
+        storageResponsitory.saveString(
+            boxName: HiveBoxes.selectedBuilding,
+            key: 'currentBuildingGlobalId',
+            value: globalId);
 
         _selectedBuildingGlobalId = globalId;
 

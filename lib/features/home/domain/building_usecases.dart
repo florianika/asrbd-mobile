@@ -55,8 +55,8 @@ class BuildingUseCases {
   Future<bool> startReviewing(String globalId, int value) async {
     var attributes = await getBuildingDetails(globalId);
 
-    if (attributes['BldQuality'] == 7) {
-      attributes['BldQuality'] = 4;
+    if (attributes['BldReview'] == 6) {
+      attributes['BldReview'] = 4;
       await _buildingRepository.updateBuildingFeature(attributes);
       return true;
     }

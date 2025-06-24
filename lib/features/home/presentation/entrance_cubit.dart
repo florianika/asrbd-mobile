@@ -76,11 +76,11 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> getEntranceDetails(String globalId) async {
+  Future<void> getEntranceDetails(String globalId, String? buildingGlobalId) async {
     emit(EntranceLoading());
     try {
       attributesCubit.showAttributes(true);
-      await attributesCubit.showEntranceAttributes(globalId, null);
+      await attributesCubit.showEntranceAttributes(globalId, buildingGlobalId);
       currentGlobalId = globalId; // ✅ Save the globalId for later access
       emit(EntranceGlobalId(globalId));
     } catch (e) {

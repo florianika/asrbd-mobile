@@ -29,6 +29,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
   @override
   Widget build(BuildContext context) {
+    final currentBuildingGlobalId =
+        context.watch<AttributesCubit>().currentBuildingGlobalId;
     return BlocConsumer<NewGeometryCubit, NewGeometryState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -90,8 +92,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             _placeMarker(),
                             context
                                 .read<AttributesCubit>()
-                                .showEntranceAttributes(null,
-                                    context.read<BuildingCubit>().globalId)
+                                .showEntranceAttributes(
+                                    null, currentBuildingGlobalId)
                           }
                         else if (state.type == ShapeType.polygon)
                           context

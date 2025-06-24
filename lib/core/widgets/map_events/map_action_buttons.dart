@@ -23,6 +23,7 @@ class MapActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final attributeContext = context.watch<AttributesCubit>();
     return Stack(
       children: [
         Positioned(
@@ -91,11 +92,8 @@ class MapActionButtons extends StatelessWidget {
                     context.read<NewGeometryCubit>().setType(ShapeType.point),
                     context.read<AttributesCubit>().showAttributes(false)
                   },
-                  isEnabled:
-                      context.read<AttributesCubit>().currentBuildingGlobalId !=
-                              null &&
-                          context.read<AttributesCubit>().shapeType ==
-                              ShapeType.polygon,
+                  isEnabled: attributeContext.currentBuildingGlobalId != null &&
+                      attributeContext.shapeType == ShapeType.polygon,
                   icon: Icons.adjust,
                 );
               }),

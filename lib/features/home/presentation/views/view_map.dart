@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -17,6 +18,7 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
@@ -93,6 +95,7 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
     final geometryCubit = context.read<NewGeometryCubit>();
+    final attributesCubit = context.read<AttributesCubit>();
     final buildingCubit = context.read<BuildingCubit>();
     final dwellingCubit = context.read<DwellingCubit>();
     final entranceCubit = context.read<EntranceCubit>();
@@ -103,10 +106,15 @@ class _ViewMapState extends State<ViewMap> {
     final isNew = attributes['GlobalID'] == null;
 
     try {
-      if (geometryCubit.type == ShapeType.point) {
+      if (attributesCubit.shapeType == ShapeType.point) {
         if (isNew) {
-          attributes[EntranceFields.entBldGlobalID] =
-              '{${buildingCubit.globalId}}';
+          final storageResponsitory = sl<StorageRepository>();
+          String? buildingGlobalId = await storageResponsitory.getString(
+            boxName: HiveBoxes.selectedBuilding,
+            key: 'currentBuildingGlobalId',
+          );
+
+          attributes[EntranceFields.entBldGlobalID] = buildingGlobalId;
           attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
           attributes['external_creator_date'] =
               DateTime.now().millisecondsSinceEpoch;
@@ -120,7 +128,7 @@ class _ViewMapState extends State<ViewMap> {
               DateTime.now().millisecondsSinceEpoch;
           await entranceCubit.updateEntranceFeature(attributes);
         }
-      } else if (geometryCubit.type == ShapeType.polygon) {
+      } else if (attributesCubit.shapeType == ShapeType.polygon) {
         if (isNew) {
           final centroid =
               GeometryHelper.getPolygonCentroid(geometryCubit.points);
@@ -138,8 +146,8 @@ class _ViewMapState extends State<ViewMap> {
           attributes['external_editor_date'] =
               DateTime.now().millisecondsSinceEpoch;
           await buildingCubit.updateBuildingFeature(attributes);
-        }        
-      } else if (geometryCubit.type == ShapeType.noShape) {
+        }
+      } else if (attributesCubit.shapeType == ShapeType.noShape) {
         if (isNew) {
           attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
           attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
@@ -205,16 +213,13 @@ class _ViewMapState extends State<ViewMap> {
         );
 
         if (confirmed && mounted) {
-          await showNotesForm(context: context);
-          //TODO: Check if user added notes or not and follow the logic
-        } else {
-          if (attributes['BldQuality'] == 1) {
+          if (attributes['BldQuality'] == 1 /* && no notes found */) {
             attributes['BldReview'] = 2;
           } else {
             attributes['BldReview'] = 3;
           }
+          await buildingCubit.updateBuildingFeature(attributes);
         }
-        await buildingCubit.updateBuildingFeature(attributes);
       }
     } catch (error) {
       if (!mounted) return;

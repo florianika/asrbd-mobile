@@ -43,12 +43,12 @@ class EventButtonAttribute extends StatelessWidget {
       var loadingCubit = context.read<LoadingCubit>();
 
       loadingCubit.show();
-      final buildingCubit = context.read<BuildingCubit>();
+      final buildingCubit = context.read<AttributesCubit>();
       final validateCubit = context.read<OutputLogsCubit>();
 
       try {
-        if (buildingCubit.globalId != null) {
-          await validateCubit.checkBuildings(buildingCubit.globalId!);
+        if (buildingCubit.currentBuildingGlobalId != null) {
+          await validateCubit.checkBuildings(buildingCubit.currentBuildingGlobalId!);
         }
       } finally {
         loadingCubit.hide();
