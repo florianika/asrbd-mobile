@@ -1,11 +1,15 @@
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-abstract class AttributesState {}
+abstract class AttributesState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class AttributesInitial extends AttributesState {}
 
@@ -29,16 +33,33 @@ class Attributes extends AttributesState {
     this.dwellingObjectId, {
     this.viewDwelling = false,
   });
+
+  @override
+  List<Object?> get props => [
+        schema,
+        initialData,
+        shapeType,
+        buildingGlobalId,
+        entranceGlobalId,
+        dwellingObjectId,
+        viewDwelling,
+      ];
 }
 
 class AttributesError extends AttributesState {
   final String message;
   AttributesError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 class AttributesVisibility extends AttributesState {
   final bool showAttributes;
   AttributesVisibility(this.showAttributes);
+
+  @override
+  List<Object?> get props => [showAttributes];
 }
 
 class AttributesCubit extends Cubit<AttributesState> {
@@ -60,9 +81,24 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   void showAttributes(bool showAttributes) {
     if (!showAttributes) {
-      emit(Attributes([], {}, ShapeType.point, null, null, null));
+      emit(Attributes(const [], const {}, ShapeType.point, null, null, null));
     }
     emit(AttributesVisibility(showAttributes));
+  }
+
+  void setCurrentBuildingGlobalId(String? id) {
+    final currentState = state;
+    if (currentState is Attributes) {
+      emit(Attributes(
+        currentState.schema,
+        currentState.initialData,
+        currentState.shapeType,
+        id,
+        currentState.entranceGlobalId,
+        currentState.dwellingObjectId,
+        viewDwelling: currentState.viewDwelling,
+      ));
+    }
   }
 
   Future<void> showDwellingAttributes(int? dwellingObjectID) async {
@@ -70,24 +106,23 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (dwellingObjectID == null) {
-        emit(Attributes(
-            schema, {}, ShapeType.noShape, null, null, dwellingObjectID,
+        emit(Attributes(schema, {}, ShapeType.noShape, null, null, null,
             viewDwelling: true));
         return;
       }
 
-      final dwellingData =
-          await dwellingUseCases.getDwellingDetails(dwellingObjectID);
-      if (dwellingData.isNotEmpty) {
-        final features = dwellingData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.noShape,
-            null, null, dwellingObjectID,
-            viewDwelling: true));
-      } else {
-        emit(Attributes(
-            schema, {}, ShapeType.point, null, null, dwellingObjectID,
-            viewDwelling: true));
-      }
+      final data = await dwellingUseCases.getDwellingDetails(dwellingObjectID);
+      final features = data['features'] ?? [];
+      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      emit(Attributes(
+        schema,
+        props,
+        ShapeType.noShape,
+        null,
+        null,
+        dwellingObjectID,
+        viewDwelling: true,
+      ));
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
@@ -104,21 +139,17 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final entranceData =
-          await entranceUseCases.getEntranceDetails(entranceGlobalID);
-      if (entranceData.isNotEmpty) {
-        final features = entranceData['features'];
-        emit(Attributes(
-            schema,
-            features[0]['properties'],
-            ShapeType.point,
-            features[0]['properties']['EntBldGlobalID'],
-            entranceGlobalID,
-            null));
-      } else {
-        emit(Attributes(schema, {}, ShapeType.point, buildingGlobalID,
-            entranceGlobalID, null));
-      }
+      final data = await entranceUseCases.getEntranceDetails(entranceGlobalID);
+      final features = data['features'] ?? [];
+      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      emit(Attributes(
+        schema,
+        props,
+        ShapeType.point,
+        props['EntBldGlobalID'] ?? buildingGlobalID,
+        entranceGlobalID,
+        null,
+      ));
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
@@ -129,55 +160,29 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       if (buildingGlobalID == null) {
-        emit(Attributes(
-            schema, {}, ShapeType.polygon, buildingGlobalID, null, null));
+        emit(Attributes(schema, const {}, ShapeType.polygon, null, null, null));
         return;
       }
 
-      final buildingData =
-          await buildingUseCases.getBuildingDetails(buildingGlobalID);
-      if (buildingData.isNotEmpty) {
-        final features = buildingData['features'];
-        emit(Attributes(schema, features[0]['properties'], ShapeType.polygon,
-            buildingGlobalID, null, null));
-      } else {
-        emit(Attributes(
-            schema, {}, ShapeType.polygon, buildingGlobalID, null, null));
-      }
+      final data = await buildingUseCases.getBuildingDetails(buildingGlobalID);
+      final features = data['features'] ?? [];
+      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      emit(Attributes(
+          schema, props, ShapeType.polygon, buildingGlobalID, null, null));
     } catch (e) {
       emit(AttributesError(e.toString()));
     }
   }
 
-  String? get currentBuildingGlobalId {
-    final currentState = state;
-    if (currentState is Attributes) {
-      return currentState.buildingGlobalId;
-    }
-    return null;
-  }
+  String? get currentBuildingGlobalId =>
+      state is Attributes ? (state as Attributes).buildingGlobalId : null;
 
-  String? get currentEntranceGlobalId {
-    final currentState = state;
-    if (currentState is Attributes) {
-      return currentState.entranceGlobalId;
-    }
-    return null;
-  }
+  String? get currentEntranceGlobalId =>
+      state is Attributes ? (state as Attributes).entranceGlobalId : null;
 
-  int? get currentDwellingObjectId {
-    final currentState = state;
-    if (currentState is Attributes) {
-      return currentState.dwellingObjectId;
-    }
-    return null;
-  }
+  int? get currentDwellingObjectId =>
+      state is Attributes ? (state as Attributes).dwellingObjectId : null;
 
-  ShapeType get shapeType {
-    final currentState = state;
-    if (currentState is Attributes) {
-      return currentState.shapeType;
-    }
-    return ShapeType.point;
-  }
+  ShapeType get shapeType =>
+      state is Attributes ? (state as Attributes).shapeType : ShapeType.point;
 }

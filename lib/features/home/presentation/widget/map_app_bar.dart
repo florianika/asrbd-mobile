@@ -1,5 +1,7 @@
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MapAppBar({super.key});
@@ -7,7 +9,8 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: const Text('My App'),
+      title: Text(
+          'My App - ${context.read<AttributesCubit>().currentBuildingGlobalId}'),
       backgroundColor: Colors.white,
       actions: [
         PopupMenuButton<String>(

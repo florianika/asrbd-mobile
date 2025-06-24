@@ -5,6 +5,7 @@ import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
@@ -16,6 +17,7 @@ import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -74,6 +76,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
+  LatLng? tappedLocation;
 
   @override
   void dispose() {
@@ -174,49 +177,56 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  void _handleBuildingOnTap(String globalID) {
+  void _handleBuildingOnTap(LatLng position) {
     try {
-      context.read<DwellingCubit>().closeDwellings();
-      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
-      context.read<BuildingCubit>().getBuildingDetails(globalID);
-      context.read<OutputLogsCubit>().outputLogsBuildings(
-          StringHelper.removeCurlyBracesFromString(globalID));
+      final buildings = context.select<BuildingCubit, Map<String, dynamic>?>(
+        (cubit) => cubit.state is Buildings
+            ? (cubit.state as Buildings).buildings
+            : null,
+      );
 
-      _selectedBuildingGlobalId = globalID;
+      final globalId =
+          PolygonHitDetector.getPolygonIdAtPoint(buildings!, position);
 
-      List<dynamic> buildingEntrances = [];
-      List<LatLng> entrancePoints = [];
+      if (globalId != null) {
+        context
+            .read<AttributesCubit>()
+            .showBuildingAttributes(globalId.removeCurlyBraces());
 
-      if (entranceData != null) {
-        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+        _selectedBuildingGlobalId = globalId;
 
-        if (entranceFeatures != null) {
-          for (final feature
-              in entranceFeatures.whereType<Map<String, dynamic>>()) {
-            final props = feature['properties'] as Map<String, dynamic>?;
-            final geom = feature['geometry'] as Map<String, dynamic>?;
-            if (props != null &&
-                props['EntBldGlobalID']?.toString() == globalID &&
-                geom != null &&
-                geom['type'] == 'Point') {
-              final coords = geom['coordinates'];
-              entrancePoints.add(LatLng(coords[1], coords[0]));
-              buildingEntrances.add(props['GlobalID']);
+        List<dynamic> buildingEntrances = [];
+        List<LatLng> entrancePoints = [];
+
+        if (entranceData != null) {
+          final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+
+          if (entranceFeatures != null) {
+            for (final feature
+                in entranceFeatures.whereType<Map<String, dynamic>>()) {
+              final props = feature['properties'] as Map<String, dynamic>?;
+              final geom = feature['geometry'] as Map<String, dynamic>?;
+              if (props != null &&
+                  props['EntBldGlobalID']?.toString() == globalId &&
+                  geom != null &&
+                  geom['type'] == 'Point') {
+                final coords = geom['coordinates'];
+                entrancePoints.add(LatLng(coords[1], coords[0]));
+                buildingEntrances.add(props['GlobalID']);
+              }
             }
           }
         }
-      }
-      final bounds = widget.mapController.camera.visibleBounds;
-      final anyOutside =
-          GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
+        final bounds = widget.mapController.camera.visibleBounds;
+        final anyOutside =
+            GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
 
-      setState(() {
-        _selectedGlobalId = globalID;
-        highlightMarkersGlobalId = buildingEntrances;
-        _entranceOutsideVisibleArea = anyOutside;
-      });
-      if (widget.onEntranceVisibilityChange != null) {
-        widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+        setState(() {        
+          _entranceOutsideVisibleArea = anyOutside;
+        });
+        if (widget.onEntranceVisibilityChange != null) {
+          widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -234,6 +244,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       options: MapOptions(
         initialCenter: currentPosition,
         initialZoom: EsriConfig.initZoom,
+        onTap: (TapPosition position, LatLng latlng) =>
+            _handleBuildingOnTap(latlng),
         onMapReady: () => {
           _goToCurrentLocation(),
           context.read<BuildingCubit>().getBuildings(
@@ -249,7 +261,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
           hasGesture,
           userService.userInfo!.municipality,
         ),
-        onLongPress: (tapPosition, point) => (),
       ),
       children: [
         BlocConsumer<TileCubit, TileCubitState>(listener: (context, state) {
@@ -264,6 +275,21 @@ class _AsrdbMapState extends State<AsrdbMap> {
           );
         }),
         const MunicipalityMarker(),
+        if (_showLocationMarker)
+          MarkerLayer(
+            markers: [
+              Marker(
+                point: _userLocation!,
+                width: 40,
+                height: 40,
+                child: const Icon(
+                  Icons.my_location,
+                  color: Colors.blueAccent,
+                  size: 30,
+                ),
+              ),
+            ],
+          ),
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is Buildings) {
@@ -279,7 +305,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
           builder: (context, state) {
             return BuildingMarker(
               buildingsData: buildingsData,
-              onTap: _handleBuildingOnTap,
               attributeLegend: widget.attributeLegend,
             );
           },
@@ -311,21 +336,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
             );
           },
         ),
-        if (_showLocationMarker)
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: _userLocation!,
-                width: 40,
-                height: 40,
-                child: const Icon(
-                  Icons.my_location,
-                  color: Colors.blueAccent,
-                  size: 30,
-                ),
-              ),
-            ],
-          ),
         EditShapeElements(
           mapKey: mapKey,
           mapController: widget.mapController,
