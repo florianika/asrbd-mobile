@@ -185,6 +185,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
             : null,
       );
 
+      if (buildings == null) return;
+
       final globalId =
           PolygonHitDetector.getPolygonIdAtPoint(buildings!, position);
 
@@ -221,7 +223,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         final anyOutside =
             GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
 
-        setState(() {        
+        setState(() {
           _entranceOutsideVisibleArea = anyOutside;
         });
         if (widget.onEntranceVisibilityChange != null) {
