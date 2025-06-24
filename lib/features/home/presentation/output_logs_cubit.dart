@@ -65,8 +65,8 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       // await storageRepository.saveString(
       //     buildingGlobalId, response.toJson().toString());
       await storageRepository.saveString(
-        buildingGlobalId,
-        jsonEncode(
+        key: buildingGlobalId,
+        value: jsonEncode(
             response.toJson()), // ✅ Correct: converts Map to proper JSON string
       );
       emit(OutputLogs(validationResult));
@@ -86,8 +86,8 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       // await storageRepository.saveString(
       //     buildingGlobalId, response.toJson().toString());
       await storageRepository.saveString(
-        buildingGlobalId,
-        jsonEncode(
+        key: buildingGlobalId,
+        value: jsonEncode(
             response.toJson()), // ✅ Correct: converts Map to proper JSON string
       );
       emit(OutputLogs(validationResult));
@@ -96,11 +96,11 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
     }
   }
 
-  Future<void> outputLogsBuildings(
-      String buildingGlobalId) async {
+  Future<void> outputLogsBuildings(String buildingGlobalId) async {
     try {
       // emit(OutputLogsLoading());
-      final cachedJson = await storageRepository.getString(buildingGlobalId);
+      final cachedJson =
+          await storageRepository.getString(key: buildingGlobalId);
 
       if (cachedJson != null) {
         var parsed = ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
@@ -110,10 +110,10 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
         final freshData =
             await outputLogsUseCases.getOutputLogs(buildingGlobalId);
         await storageRepository.saveString(
-          buildingGlobalId,
-          jsonEncode(freshData.toJson()),
+          key: buildingGlobalId,
+          value: jsonEncode(freshData.toJson()),
         );
-        
+
         emit(OutputLogs(freshData));
       }
     } catch (e) {

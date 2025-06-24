@@ -14,6 +14,7 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
+import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -112,7 +113,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (_selectedGlobalId == null) return;
 
       highlightMarkersGlobalId = [];
-
 
       context.read<DwellingCubit>().closeDwellings();
       context.read<NewGeometryCubit>().setType(ShapeType.point);
@@ -263,6 +263,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
             tileProvider: ft.FileTileProvider(tileDirPath, false),
           );
         }),
+        const MunicipalityMarker(),
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is Buildings) {

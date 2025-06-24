@@ -138,10 +138,7 @@ class _ViewMapState extends State<ViewMap> {
           attributes['external_editor_date'] =
               DateTime.now().millisecondsSinceEpoch;
           await buildingCubit.updateBuildingFeature(attributes);
-        }
-
-        geometryCubit.setDrawing(false);
-        geometryCubit.clearPoints();
+        }        
       } else if (geometryCubit.type == ShapeType.noShape) {
         if (isNew) {
           attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
@@ -156,7 +153,7 @@ class _ViewMapState extends State<ViewMap> {
           await dwellingCubit.updateDwellingFeature(attributes);
         }
       }
-
+      geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
       //trick to trigger fetch of data again
       mapController.move(

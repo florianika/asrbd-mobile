@@ -23,14 +23,55 @@ class ApiEndpoints {
     path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/',
   );
 
+  static Uri municipalityBaseUri = Uri(
+    scheme: 'https',
+    host: "services7.arcgis.com",
+    path: '/E9FE1JuiACmTPbPv/arcgis/rest/services/Municipality/FeatureServer',
+  );
+
+  static String getEsriMunicipality(int municipalityId) {
+    final uri = Uri(
+      scheme: municipalityBaseUri.scheme,
+      host: municipalityBaseUri.host,
+      path: '${municipalityBaseUri.path}/7/query',
+      queryParameters: {
+        'where': 'ID_MUNICIPALITY = $municipalityId',
+        'geometryType': 'esriGeometryEnvelope',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'units': 'esriSRUnit_Meter',
+        'returnGeodetic': 'false',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'returnCentroid': 'false',
+        'returnEnvelope': 'false',
+        'featureEncoding': 'esriDefault',
+        'multipatchOption': 'xyFootprint',
+        'applyVCSProjection': 'false',
+        'returnIdsOnly': 'false',
+        'returnUniqueIdsOnly': 'false',
+        'returnCountOnly': 'false',
+        'returnExtentOnly': 'false',
+        'returnQueryGeometry': 'false',
+        'returnDistinctValues': 'false',
+        'returnZ': 'false',
+        'returnM': 'false',
+        'returnTrueCurves': 'false',
+        'returnExceededLimitFeatures': 'true',
+        'sqlFormat': 'none',
+        'f': 'pgeojson',
+      },
+    );
+
+    return uri.toString();
+  }
+
   static String getEsriBulding(String geometry, int municipalityId) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/1/query',
       queryParameters: {
-        // 'where': 'BldMunicipality = $municipalityId',
-        'where': '1=1',
+        'where': 'BldMunicipality = $municipalityId',
         'objectIds': '',
         'time': '',
         'geometry': geometry,
