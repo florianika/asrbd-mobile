@@ -73,7 +73,7 @@ class EventButtonAttribute extends StatelessWidget {
       // else {
       // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
       //}
-      final buildingCubit = context.read<BuildingCubit>();
+      final buildingCubit = context.read<AttributesCubit>();
       final confirmed = await showConfirmationDialog(
         context: context,
         title: 'Finish Reviewing',
@@ -81,7 +81,7 @@ class EventButtonAttribute extends StatelessWidget {
       );
 
       if (confirmed && finishReviewingBuilding != null) {
-        finishReviewingBuilding!(buildingCubit.globalId);
+        finishReviewingBuilding!(buildingCubit.currentBuildingGlobalId);
       }
     }
 

@@ -10,6 +10,7 @@ import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
@@ -232,54 +233,51 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _finishReviewing(String globalId) async {
-    final loadingCubit = context.read<LoadingCubit>();
-    final buildingUseCases = sl<BuildingUseCases>();
-    final buildingCubit = context.read<BuildingCubit>();
+  final loadingCubit = context.read<LoadingCubit>();
+  final buildingUseCases = sl<BuildingUseCases>();
+  final buildingCubit = context.read<BuildingCubit>();
 
-    // if BldQuality == 9 show message 'You cant proceed without first validating the building
-    // else {
-    // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
-    //}
-
-    try {
-      loadingCubit.show();
-      var buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
-      var attributes = buildingDetails['attributes'];
-
-      if (attributes['BldQuality'] == 9 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  "You cant proceed without first validating the building")),
-        );
-      } else {
-        if (!mounted) return;
-
-        final confirmed = await showConfirmationDialog(
-          context: context,
-          title: 'Add note',
-          content: 'Doni te shtoni nje shenim?',
-        );
-
-        if (confirmed && mounted) {
-          if (attributes['BldQuality'] == 1 /* && no notes found */) {
-            attributes['BldReview'] = 2;
-          } else {
-            attributes['BldReview'] = 3;
-          }
-          await buildingCubit.updateBuildingFeature(attributes, null);
-        }
-      }
-    } catch (error) {
-      if (!mounted) return;
-
+  try {
+    loadingCubit.show();
+    final buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
+    final attributes = buildingDetails['features'][0]['properties'];
+    if (attributes['BldQuality'] == 9 && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
+        const SnackBar(
+          content: Text("You can't proceed without first validating the building"),
+        ),
       );
-    } finally {
-      loadingCubit.hide();
+      return;
     }
+
+    if (!mounted) return;
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Add note',
+      content: 'Doni të shtoni një shënim?',
+    );
+
+    if (confirmed && mounted) {
+      final building = context.read<AttributesCubit>();
+      final buildingGlobalId = building.currentBuildingGlobalId!;
+
+      final result = await sl<NoteService>().getNotes(buildingGlobalId);
+      final noteCount = result.notes.length;
+      if (attributes['BldQuality'] == 1 && noteCount == 0) {
+        attributes['BldReview'] = 2;
+      } else {
+        attributes['BldReview'] = 3;
+      }
+
+      await buildingCubit.updateBuildingFeature(attributes, null);
+    }
+  } catch (e) {
+    debugPrint("Error in _finishReviewing: $e");
+  } finally {
+    loadingCubit.hide();
   }
+}
+
 
   void onLegendChangeAttribute(String seletedAttribute) {
     setState(() {
