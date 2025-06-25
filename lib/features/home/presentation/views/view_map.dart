@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
+import 'package:asrdb/core/enums/service_mode.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
@@ -25,6 +27,7 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
+import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
@@ -104,10 +107,29 @@ class _ViewMapState extends State<ViewMap> {
     loadingCubit.show();
 
     final isNew = attributes['GlobalID'] == null;
+    bool isOutsideMunicipality = true;
 
     try {
+      final state = context.read<MunicipalityCubit>().state;
       if (attributesCubit.shapeType == ShapeType.point) {
         if (isNew) {
+          if (state is Municipality) {
+            final municipality = state.municipality;
+            isOutsideMunicipality =
+                PolygonHitDetector.hasPointOutsideMultiPolygon(
+                    municipality!['features']['geometry'],
+                    geometryCubit.points);
+          }
+
+          if (isOutsideMunicipality) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
+            );
+            return;
+          }
+
           final storageResponsitory = sl<StorageRepository>();
           String? buildingGlobalId = await storageResponsitory.getString(
             boxName: HiveBoxes.selectedBuilding,
@@ -130,17 +152,34 @@ class _ViewMapState extends State<ViewMap> {
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
         if (isNew) {
-          final centroid =
-              GeometryHelper.getPolygonCentroid(geometryCubit.points);
-          attributes['BldMunicipality'] = userService.userInfo?.municipality;
-          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_creator_date'] =
-              DateTime.now().millisecondsSinceEpoch;
-          attributes['BldLatitude'] = centroid.latitude;
-          attributes['BldLongitude'] = centroid.longitude;
+          if (state is Municipality) {
+            final municipality = state.municipality;
+            isOutsideMunicipality =
+                PolygonHitDetector.hasPointOutsideMultiPolygon(
+                    municipality!['features'][0]['geometry'],
+                    geometryCubit.points);
+          }
 
-          await buildingCubit.addBuildingFeature(
-              attributes, geometryCubit.points);
+          if (isOutsideMunicipality) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text(
+                      "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
+            );
+          } else {
+            final centroid =
+                GeometryHelper.getPolygonCentroid(geometryCubit.points);
+            attributes['BldMunicipality'] = userService.userInfo?.municipality;
+            attributes['external_creator'] =
+                '{${userService.userInfo?.nameId}}';
+            attributes['external_creator_date'] =
+                DateTime.now().millisecondsSinceEpoch;
+            attributes['BldLatitude'] = centroid.latitude;
+            attributes['BldLongitude'] = centroid.longitude;
+
+            await buildingCubit.addBuildingFeature(
+                attributes, geometryCubit.points);
+          }
         } else {
           attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
           attributes['external_editor_date'] =
@@ -166,6 +205,12 @@ class _ViewMapState extends State<ViewMap> {
       //trick to trigger fetch of data again
       mapController.move(
           mapController.camera.center, mapController.camera.zoom + 0.01);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString())),
+        );
+      }
     } finally {
       loadingCubit.hide();
     }

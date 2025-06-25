@@ -31,6 +31,38 @@ class PolygonHitDetector {
     return null;
   }
 
+  /// Returns true if any point in the list falls outside the MultiPolygon
+  static bool hasPointOutsideMultiPolygon(
+    Map<String, dynamic> multiPolygonGeometry,
+    List<LatLng> points,
+  ) {
+    final String type = multiPolygonGeometry['type'] ?? '';
+    final coordinates = multiPolygonGeometry['coordinates'];
+
+    if (type != 'MultiPolygon' || coordinates == null || points.isEmpty) {
+      return true; // Treat as invalid => outside
+    }
+
+    for (final point in points) {
+      bool isInsideAnyPolygon = false;
+
+      // Check against each polygon in the MultiPolygon
+      for (final polygonCoords in coordinates) {
+        if (_isPointInPolygonCoordinates(point, polygonCoords)) {
+          isInsideAnyPolygon = true;
+          break;
+        }
+      }
+
+      // If point is not inside any polygon, return true
+      if (!isInsideAnyPolygon) {
+        return true;
+      }
+    }
+
+    return false; // All points are inside
+  }
+
   /// Checks if a point is inside a polygon using ray casting algorithm
   /// Handles both Polygon and MultiPolygon geometries
   static bool _isPointInPolygon(LatLng point, Map<String, dynamic> geometry) {
