@@ -1,4 +1,5 @@
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +17,8 @@ class NotesWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final building = context.read<BuildingCubit>();
-    final buildingGlobalId = building.globalId!;
+    final building = context.read<AttributesCubit>();
+    final buildingGlobalId = building.currentBuildingGlobalId!;
     return BlocProvider(
       create: (context) =>
           NoteCubit(sl<NoteService>())..getNotes(buildingGlobalId),
@@ -81,8 +82,8 @@ class _NotesWidgetState extends State<NotesWidget>
       _showSnackBar('Note cannot be empty!');
       return;
     }
-    final rawId = context.read<BuildingCubit>().globalId;
-    final buildingGlobalId = rawId?.replaceAll(RegExp(r'[{}]'), '');
+    final rawId = context.read<AttributesCubit>();
+    final buildingGlobalId = rawId.currentBuildingGlobalId!;
     if (buildingGlobalId == null) {
       _showSnackBar('No building selected!');
       return;
