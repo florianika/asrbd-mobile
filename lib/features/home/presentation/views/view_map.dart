@@ -10,6 +10,7 @@ import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
@@ -260,15 +261,21 @@ class _ViewMapState extends State<ViewMap> {
           title: 'Add note',
           content: 'Doni te shtoni nje shenim?',
         );
+         
+          final building = context.read<AttributesCubit>();
+          final buildingGlobalId = building.currentBuildingGlobalId!;
+       if (confirmed && mounted) {
+            final result = await sl<NoteService>().getNotes(buildingGlobalId);
+            final noteCount = result.notes.length;
+            if (attributes['BldQuality'] == 1 && noteCount == 0) {
+              attributes['BldReview'] = 2;
+            } else {
+              attributes['BldReview'] = 3;
+            }
+  await buildingCubit.updateBuildingFeature(attributes, null);
+}
 
-        if (confirmed && mounted) {
-          if (attributes['BldQuality'] == 1 /* && no notes found */) {
-            attributes['BldReview'] = 2;
-          } else {
-            attributes['BldReview'] = 3;
-          }
-          await buildingCubit.updateBuildingFeature(attributes, null);
-        }
+      
       }
     } catch (error) {
       if (!mounted) return;
