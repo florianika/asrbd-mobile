@@ -233,60 +233,51 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _finishReviewing(String globalId) async {
-    final loadingCubit = context.read<LoadingCubit>();
-    final buildingUseCases = sl<BuildingUseCases>();
-    final buildingCubit = context.read<BuildingCubit>();
+  final loadingCubit = context.read<LoadingCubit>();
+  final buildingUseCases = sl<BuildingUseCases>();
+  final buildingCubit = context.read<BuildingCubit>();
 
-    // if BldQuality == 9 show message 'You cant proceed without first validating the building
-    // else {
-    // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
-    //}
+  try {
+    loadingCubit.show();
+    final buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
+    final attributes = buildingDetails['features'][0]['properties'];
+    if (attributes['BldQuality'] == 9 && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("You can't proceed without first validating the building"),
+        ),
+      );
+      return;
+    }
 
-    try {
-      loadingCubit.show();
-      var buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
-      var attributes = buildingDetails['attributes'];
+    if (!mounted) return;
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Add note',
+      content: 'Doni të shtoni një shënim?',
+    );
 
-      if (attributes['BldQuality'] == 9 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  "You cant proceed without first validating the building")),
-        );
+    if (confirmed && mounted) {
+      final building = context.read<AttributesCubit>();
+      final buildingGlobalId = building.currentBuildingGlobalId!;
+
+      final result = await sl<NoteService>().getNotes(buildingGlobalId);
+      final noteCount = result.notes.length;
+      if (attributes['BldQuality'] == 1 && noteCount == 0) {
+        attributes['BldReview'] = 2;
       } else {
-        if (!mounted) return;
+        attributes['BldReview'] = 3;
+      }
 
-        final confirmed = await showConfirmationDialog(
-          context: context,
-          title: 'Add note',
-          content: 'Doni te shtoni nje shenim?',
-        );
-         
-          final building = context.read<AttributesCubit>();
-          final buildingGlobalId = building.currentBuildingGlobalId!;
-       if (confirmed && mounted) {
-            final result = await sl<NoteService>().getNotes(buildingGlobalId);
-            final noteCount = result.notes.length;
-            if (attributes['BldQuality'] == 1 && noteCount == 0) {
-              attributes['BldReview'] = 2;
-            } else {
-              attributes['BldReview'] = 3;
-            }
-  await buildingCubit.updateBuildingFeature(attributes, null);
+      await buildingCubit.updateBuildingFeature(attributes, null);
+    }
+  } catch (e) {
+    debugPrint("Error in _finishReviewing: $e");
+  } finally {
+    loadingCubit.hide();
+  }
 }
 
-      
-      }
-    } catch (error) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.toString())),
-      );
-    } finally {
-      loadingCubit.hide();
-    }
-  }
 
   void onLegendChangeAttribute(String seletedAttribute) {
     setState(() {
