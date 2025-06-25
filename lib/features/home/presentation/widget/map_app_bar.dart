@@ -9,8 +9,14 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
-          'My App - ${context.read<AttributesCubit>().currentBuildingGlobalId}'),
+      title: BlocBuilder<AttributesCubit, AttributesState>(
+        builder: (context, state) {
+          if (state is Attributes) {
+            return Text('My App - ${state.buildingGlobalId ?? "None"}');
+          }
+          return const Text('My App');
+        },
+      ),
       backgroundColor: Colors.white,
       actions: [
         PopupMenuButton<String>(

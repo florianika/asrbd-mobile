@@ -182,6 +182,34 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
+  void _hanldeOnLongPress(LatLng position) {
+    final buildingsState = context.read<BuildingCubit>().state;
+
+    final buildings =
+        buildingsState is Buildings ? buildingsState.buildings : null;
+
+    if (buildings == null) return;
+
+    final globalId =
+        PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(globalId.toString())),
+    );
+
+    if (globalId != null) {
+      final geometry =
+          GeometryHelper.getPolygonGeometryById(buildings, globalId);
+
+      final coordinates = GeometryHelper.getPolygonPoints(geometry!);
+
+      context.read<AttributesCubit>().setCurrentBuildingGlobalId(globalId.removeCurlyBraces());
+      context.read<NewGeometryCubit>().setPoints(coordinates);
+      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
+      context.read<NewGeometryCubit>().setDrawing(true);
+    }
+  }
+
   void _handleBuildingOnTap(LatLng position) {
     try {
       final buildingsState = context.read<BuildingCubit>().state;
@@ -254,6 +282,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       key: mapKey,
       mapController: widget.mapController,
       options: MapOptions(
+        onLongPress: (tapPosition, point) => _hanldeOnLongPress(point),
         initialCenter: currentPosition,
         initialZoom: EsriConfig.initZoom,
         onTap: (TapPosition position, LatLng latlng) =>

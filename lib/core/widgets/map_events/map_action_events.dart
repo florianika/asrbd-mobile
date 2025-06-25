@@ -1,8 +1,6 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/building_cubit.dart';
-import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -97,9 +95,11 @@ class _MapActionEventsState extends State<MapActionEvents> {
                                     null, currentBuildingGlobalId)
                           }
                         else if (state.type == ShapeType.polygon)
-                          context
-                              .read<AttributesCubit>()
-                              .showBuildingAttributes(null),
+                          {
+                            context
+                                .read<AttributesCubit>()
+                                .showBuildingAttributes(currentBuildingGlobalId)
+                          },
                       },
                       isEnabled: (((state).points.length > 2 &&
                               (state).type != ShapeType.point) ||

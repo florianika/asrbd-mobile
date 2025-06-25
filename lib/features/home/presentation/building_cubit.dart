@@ -113,10 +113,11 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   /// Update existing building
-  Future<void> updateBuildingFeature(Map<String, dynamic> attributes) async {
+  Future<void> updateBuildingFeature(
+      Map<String, dynamic> attributes, List<LatLng>? points) async {
     emit(BuildingLoading());
     try {
-      await buildingUseCases.updateBuildingFeature(attributes);
+      await buildingUseCases.updateBuildingFeature(attributes, points);
       emit(BuildingUpdateResponse(attributes['GlobalID']));
     } catch (e) {
       emit(BuildingError(e.toString()));

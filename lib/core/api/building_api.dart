@@ -70,27 +70,37 @@ class BuildingApi {
         data: payload);
   }
 
-  Future<Response> updateBuildingFeature(
-      String esriToken, Map<String, dynamic> attributes) async {
+  Future<Response> updateBuildingFeature(String esriToken,
+      Map<String, dynamic> attributes, List<LatLng>? points) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    // List<List<double>> coordinates =
-    // points.map((point) => [point.longitude, point.latitude]).toList();
-    // if (coordinates.isNotEmpty &&
-    //     (coordinates.first[0] != coordinates.last[0] ||
-    //         coordinates.first[1] != coordinates.last[1])) {
-    //   coordinates.add([coordinates.first[0], coordinates.first[1]]);
-    // }
+    Map<String, dynamic> feature = {};
+    if (points != null && points.isNotEmpty) {
+      // Convert LatLng points to coordinate arrays for polygon geometry
+      List<List<double>> coordinates =
+          points.map((point) => [point.longitude, point.latitude]).toList();
 
-    final Map<String, dynamic> feature = {
-      // 'geometry': {
-      //   'rings': [coordinates],
-      //   'spatialReference': {'wkid': 4326},
-      // },
-      'properties': attributes,
-    };
+      // Ensure the polygon is closed by adding the first point at the end if needed
+      if (coordinates.isNotEmpty &&
+          (coordinates.first[0] != coordinates.last[0] ||
+              coordinates.first[1] != coordinates.last[1])) {
+        coordinates.add([coordinates.first[0], coordinates.first[1]]);
+      }
+
+      feature = {
+        'geometry': {
+          'rings': [coordinates],
+          'spatialReference': {'wkid': 4326},
+        },
+        'attributes': attributes,
+      };
+    } else {
+      feature = {
+        'attributes': attributes,
+      };
+    }
 
     final payload = {
       'f': 'pjson',
@@ -102,7 +112,7 @@ class BuildingApi {
     _apiClient.clearHeaders();
     _apiClient.setHeaders(contentType);
 
-    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
+    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.building),
         data: payload);
   }
 }

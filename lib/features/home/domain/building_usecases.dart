@@ -43,10 +43,11 @@ class BuildingUseCases {
     return globalId;
   }
 
-  Future<String> updateBuildingFeature(Map<String, dynamic> attributes) async {
+  Future<String> updateBuildingFeature(
+      Map<String, dynamic> attributes, List<LatLng>? points) async {
     final globalId = attributes['GlobalID'];
 
-    await _buildingRepository.updateBuildingFeature(attributes);
+    await _buildingRepository.updateBuildingFeature(attributes, points);
     await _checkUseCases.checkAutomatic(
         globalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return globalId;
@@ -57,7 +58,7 @@ class BuildingUseCases {
 
     if (attributes['BldReview'] == 6) {
       attributes['BldReview'] = 4;
-      await _buildingRepository.updateBuildingFeature(attributes);
+      await _buildingRepository.updateBuildingFeature(attributes, null);
       return true;
     }
 

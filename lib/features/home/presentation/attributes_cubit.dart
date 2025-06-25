@@ -86,18 +86,34 @@ class AttributesCubit extends Cubit<AttributesState> {
     emit(AttributesVisibility(showAttributes));
   }
 
-  void setCurrentBuildingGlobalId(String? id) {
-    final currentState = state;
-    if (currentState is Attributes) {
+  Future<void> setCurrentBuildingGlobalId(String? buildingGlobalID) async {
+    // final currentState = state;
+    // if (currentState is Attributes) {
+    //   emit(Attributes(
+    //     [...currentState.schema], // clone list
+    //     {...currentState.initialData}, // clone map
+    //     currentState.shapeType,
+    //     id,
+    //     currentState.entranceGlobalId,
+    //     currentState.dwellingObjectId,
+    //     viewDwelling: currentState.viewDwelling,
+    //   ));
+    // }
+
+    try {
+      final schema = await buildingUseCases.getBuildingAttibutes();
+      if (buildingGlobalID == null) {
+        emit(Attributes(schema, const {}, ShapeType.polygon, null, null, null));
+        return;
+      }
+
+      final data = await buildingUseCases.getBuildingDetails(buildingGlobalID);
+      final features = data['features'] ?? [];
+      final props = features.isNotEmpty ? features[0]['properties'] : {};
       emit(Attributes(
-        currentState.schema,
-        currentState.initialData,
-        currentState.shapeType,
-        id,
-        currentState.entranceGlobalId,
-        currentState.dwellingObjectId,
-        viewDwelling: currentState.viewDwelling,
-      ));
+          schema, props, ShapeType.polygon, buildingGlobalID, null, null));
+    } catch (e) {
+      emit(AttributesError(e.toString()));
     }
   }
 

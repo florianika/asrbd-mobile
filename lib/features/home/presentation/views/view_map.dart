@@ -107,10 +107,26 @@ class _ViewMapState extends State<ViewMap> {
     loadingCubit.show();
 
     final isNew = attributes['GlobalID'] == null;
-    bool isOutsideMunicipality = true;
+    bool isOutsideMunicipality = false;
 
     try {
       final state = context.read<MunicipalityCubit>().state;
+
+      if (state is Municipality && geometryCubit.points.isNotEmpty) {
+        final municipality = state.municipality;
+        isOutsideMunicipality = PolygonHitDetector.hasPointOutsideMultiPolygon(
+            municipality!['features'][0]['geometry'], geometryCubit.points);
+      }
+
+      if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
+        );
+        return;
+      }
+
       if (attributesCubit.shapeType == ShapeType.point) {
         if (isNew) {
           if (state is Municipality) {
@@ -151,40 +167,27 @@ class _ViewMapState extends State<ViewMap> {
           await entranceCubit.updateEntranceFeature(attributes);
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
+        if (geometryCubit.points.isNotEmpty) {
+          final centroid =
+              GeometryHelper.getPolygonCentroid(geometryCubit.points);
+          attributes['BldLatitude'] = centroid.latitude;
+          attributes['BldLongitude'] = centroid.longitude;
+        }
+
         if (isNew) {
-          if (state is Municipality) {
-            final municipality = state.municipality;
-            isOutsideMunicipality =
-                PolygonHitDetector.hasPointOutsideMultiPolygon(
-                    municipality!['features'][0]['geometry'],
-                    geometryCubit.points);
-          }
+          attributes['BldMunicipality'] = userService.userInfo?.municipality;
+          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
+          attributes['external_creator_date'] =
+              DateTime.now().millisecondsSinceEpoch;
 
-          if (isOutsideMunicipality) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text(
-                      "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
-            );
-          } else {
-            final centroid =
-                GeometryHelper.getPolygonCentroid(geometryCubit.points);
-            attributes['BldMunicipality'] = userService.userInfo?.municipality;
-            attributes['external_creator'] =
-                '{${userService.userInfo?.nameId}}';
-            attributes['external_creator_date'] =
-                DateTime.now().millisecondsSinceEpoch;
-            attributes['BldLatitude'] = centroid.latitude;
-            attributes['BldLongitude'] = centroid.longitude;
-
-            await buildingCubit.addBuildingFeature(
-                attributes, geometryCubit.points);
-          }
+          await buildingCubit.addBuildingFeature(
+              attributes, geometryCubit.points);
         } else {
           attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
           attributes['external_editor_date'] =
               DateTime.now().millisecondsSinceEpoch;
-          await buildingCubit.updateBuildingFeature(attributes);
+          await buildingCubit.updateBuildingFeature(
+              attributes, geometryCubit.points);
         }
       } else if (attributesCubit.shapeType == ShapeType.noShape) {
         if (isNew) {
@@ -202,6 +205,7 @@ class _ViewMapState extends State<ViewMap> {
       }
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
+
       //trick to trigger fetch of data again
       mapController.move(
           mapController.camera.center, mapController.camera.zoom + 0.01);
@@ -263,7 +267,7 @@ class _ViewMapState extends State<ViewMap> {
           } else {
             attributes['BldReview'] = 3;
           }
-          await buildingCubit.updateBuildingFeature(attributes);
+          await buildingCubit.updateBuildingFeature(attributes, null);
         }
       }
     } catch (error) {
