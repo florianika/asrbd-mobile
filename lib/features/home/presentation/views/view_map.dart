@@ -250,14 +250,7 @@ class _ViewMapState extends State<ViewMap> {
       return;
     }
 
-    if (!mounted) return;
-    final confirmed = await showConfirmationDialog(
-      context: context,
-      title: 'Add note',
-      content: 'Doni të shtoni një shënim?',
-    );
-
-    if (confirmed && mounted) {
+    if (mounted) {
       final building = context.read<AttributesCubit>();
       final buildingGlobalId = building.currentBuildingGlobalId!;
 
