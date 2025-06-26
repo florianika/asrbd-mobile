@@ -87,19 +87,6 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> setCurrentBuildingGlobalId(String? buildingGlobalID) async {
-    // final currentState = state;
-    // if (currentState is Attributes) {
-    //   emit(Attributes(
-    //     [...currentState.schema], // clone list
-    //     {...currentState.initialData}, // clone map
-    //     currentState.shapeType,
-    //     id,
-    //     currentState.entranceGlobalId,
-    //     currentState.dwellingObjectId,
-    //     viewDwelling: currentState.viewDwelling,
-    //   ));
-    // }
-
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       if (buildingGlobalID == null) {

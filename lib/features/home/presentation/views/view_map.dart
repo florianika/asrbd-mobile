@@ -130,23 +130,6 @@ class _ViewMapState extends State<ViewMap> {
 
       if (attributesCubit.shapeType == ShapeType.point) {
         if (isNew) {
-          if (state is Municipality) {
-            final municipality = state.municipality;
-            isOutsideMunicipality =
-                PolygonHitDetector.hasPointOutsideMultiPolygon(
-                    municipality!['features']['geometry'],
-                    geometryCubit.points);
-          }
-
-          if (isOutsideMunicipality) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content: Text(
-                      "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
-            );
-            return;
-          }
-
           final storageResponsitory = sl<StorageRepository>();
           String? buildingGlobalId = await storageResponsitory.getString(
             boxName: HiveBoxes.selectedBuilding,
@@ -233,44 +216,45 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _finishReviewing(String globalId) async {
-  final loadingCubit = context.read<LoadingCubit>();
-  final buildingUseCases = sl<BuildingUseCases>();
-  final buildingCubit = context.read<BuildingCubit>();
+    final loadingCubit = context.read<LoadingCubit>();
+    final buildingUseCases = sl<BuildingUseCases>();
+    final buildingCubit = context.read<BuildingCubit>();
 
-  try {
-    loadingCubit.show();
-    final buildingDetails = await buildingUseCases.getBuildingDetails(globalId);
-    final attributes = buildingDetails['features'][0]['properties'];
-    if (attributes['BldQuality'] == 9 && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("You can't proceed without first validating the building"),
-        ),
-      );
-      return;
-    }
-
-    if (mounted) {
-      final building = context.read<AttributesCubit>();
-      final buildingGlobalId = building.currentBuildingGlobalId!;
-
-      final result = await sl<NoteService>().getNotes(buildingGlobalId);
-      final noteCount = result.notes.length;
-      if (attributes['BldQuality'] == 1 && noteCount == 0) {
-        attributes['BldReview'] = 2;
-      } else {
-        attributes['BldReview'] = 3;
+    try {
+      loadingCubit.show();
+      final buildingDetails =
+          await buildingUseCases.getBuildingDetails(globalId);
+      final attributes = buildingDetails['features'][0]['properties'];
+      if (attributes['BldQuality'] == 9 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text("You can't proceed without first validating the building"),
+          ),
+        );
+        return;
       }
 
-      await buildingCubit.updateBuildingFeature(attributes, null);
-    }
-  } catch (e) {
-    debugPrint("Error in _finishReviewing: $e");
-  } finally {
-    loadingCubit.hide();
-  }
-}
+      if (mounted) {
+        final building = context.read<AttributesCubit>();
+        final buildingGlobalId = building.currentBuildingGlobalId!;
 
+        final result = await sl<NoteService>().getNotes(buildingGlobalId);
+        final noteCount = result.notes.length;
+        if (attributes['BldQuality'] == 1 && noteCount == 0) {
+          attributes['BldReview'] = 2;
+        } else {
+          attributes['BldReview'] = 3;
+        }
+
+        await buildingCubit.updateBuildingFeature(attributes, null);
+      }
+    } catch (e) {
+      debugPrint("Error in _finishReviewing: $e");
+    } finally {
+      loadingCubit.hide();
+    }
+  }
 
   void onLegendChangeAttribute(String seletedAttribute) {
     setState(() {
