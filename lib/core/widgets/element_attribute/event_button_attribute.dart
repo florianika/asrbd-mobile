@@ -38,6 +38,12 @@ class EventButtonAttribute extends StatelessWidget {
   Widget build(BuildContext context) {
     const double buttonWidth = 90;
     const double buttonHeight = 40;
+    final attributesCubit = context.read<AttributesCubit>();
+    final attributes = attributesCubit.state is Attributes
+        ? (attributesCubit.state as Attributes).initialData
+        : {};
+
+    final blwReview = attributes['BldReview'];
 
     Future<void> validateData() async {
       var loadingCubit = context.read<LoadingCubit>();
@@ -165,7 +171,7 @@ class EventButtonAttribute extends StatelessWidget {
                 ),
                 onTap: () => validateData(),
               ),
-              if (selectedShapeType == ShapeType.polygon)
+              if (selectedShapeType == ShapeType.polygon && blwReview == 6)
                 SpeedDialChild(
                   child: const Icon(Icons.start),
                   backgroundColor: Colors.orange,
@@ -179,7 +185,7 @@ class EventButtonAttribute extends StatelessWidget {
                   ),
                   onTap: () => startReviewing(),
                 ),
-              if (selectedShapeType == ShapeType.polygon)
+              if (selectedShapeType == ShapeType.polygon && blwReview == 4)
                 SpeedDialChild(
                   child: const Icon(Icons.stop),
                   backgroundColor: Colors.orange,
