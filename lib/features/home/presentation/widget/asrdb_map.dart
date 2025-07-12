@@ -128,6 +128,30 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<OutputLogsCubit>().outputLogsBuildings(
           StringHelper.removeCurlyBracesFromString(
               data['EntBldGlobalID'].toString()));
+           
+    if (entranceData != null) {
+      final features = entranceData?['features'] as List<dynamic>?;
+      if (features != null) {
+        final feature = features
+            .whereType<Map<String, dynamic>>()
+            .firstWhere(
+              (f) =>
+                  f['properties']?['GlobalID']?.toString() ==
+                  _selectedGlobalId,
+              orElse: () => <String, dynamic>{},
+            );
+
+        final coords = feature['geometry']?['coordinates'];
+        if (coords != null &&
+            coords is List &&
+            coords.length == 2 &&
+            coords[0] is num &&
+            coords[1] is num) {
+          final entrancePosition = LatLng(coords[1], coords[0]);
+          widget.mapController.move(entrancePosition, 19.0);
+        }
+      }
+    }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
@@ -267,8 +291,26 @@ class _AsrdbMapState extends State<AsrdbMap> {
         if (widget.onEntranceVisibilityChange != null) {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }
+        
+         final features = buildings['features'] as List<dynamic>?;
+         final building = features?.firstWhere(
+          (f) => f['properties']['GlobalID'].toString() == globalId,
+          orElse: () => null,
+         );
+
+         if (building != null) {
+          final geometry = building['geometry'];
+          final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
+
+          if (polygonPoints.isNotEmpty) {
+            final center = GeometryHelper.getPolygonCentroid(polygonPoints);
+
+            widget.mapController.move(center, 19.0);
+          }
+        }
       }
-    } catch (e) {
+    } 
+    catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
