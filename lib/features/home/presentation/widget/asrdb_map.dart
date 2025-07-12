@@ -267,8 +267,26 @@ class _AsrdbMapState extends State<AsrdbMap> {
         if (widget.onEntranceVisibilityChange != null) {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }
+        
+         final features = buildings['features'] as List<dynamic>?;
+         final building = features?.firstWhere(
+          (f) => f['properties']['GlobalID'].toString() == globalId,
+          orElse: () => null,
+         );
+
+         if (building != null) {
+          final geometry = building['geometry'];
+          final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
+
+          if (polygonPoints.isNotEmpty) {
+            final center = GeometryHelper.getPolygonCentroid(polygonPoints);
+
+            widget.mapController.move(center, 19.0);
+          }
+        }
       }
-    } catch (e) {
+    } 
+    catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}')),
       );
