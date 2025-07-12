@@ -211,69 +211,90 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _handleBuildingOnTap(LatLng position) {
-    try {
-      final buildingsState = context.read<BuildingCubit>().state;
+  try {
+    final buildingsState = context.read<BuildingCubit>().state;
+    final buildings =
+        buildingsState is Buildings ? buildingsState.buildings : null;
 
-      final buildings =
-          buildingsState is Buildings ? buildingsState.buildings : null;
+    if (buildings == null) return;
 
-      if (buildings == null) return;
+    final globalId =
+        PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
 
-      final globalId =
-          PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
+    if (globalId != null) {
+      context
+          .read<AttributesCubit>()
+          .showBuildingAttributes(globalId.removeCurlyBraces());
 
-      if (globalId != null) {
-        context
-            .read<AttributesCubit>()
-            .showBuildingAttributes(globalId.removeCurlyBraces());
+      final storageResponsitory = sl<StorageRepository>();
+      storageResponsitory.saveString(
+        boxName: HiveBoxes.selectedBuilding,
+        key: 'currentBuildingGlobalId',
+        value: globalId,
+      );
 
-        final storageResponsitory = sl<StorageRepository>();
-        storageResponsitory.saveString(
-            boxName: HiveBoxes.selectedBuilding,
-            key: 'currentBuildingGlobalId',
-            value: globalId);
+      _selectedBuildingGlobalId = globalId;
 
-        _selectedBuildingGlobalId = globalId;
+      // 🧭 Move map to the center of the selected building
+    final features = buildings['features'] as List<dynamic>?;
+final building = features?.firstWhere(
+  (f) => f['properties']['GlobalID'].toString() == globalId,
+  orElse: () => null,
+);
 
-        List<dynamic> buildingEntrances = [];
-        List<LatLng> entrancePoints = [];
 
-        if (entranceData != null) {
-          final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+      if (building != null) {
+        final geometry = building['geometry'];
+        final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
 
-          if (entranceFeatures != null) {
-            for (final feature
-                in entranceFeatures.whereType<Map<String, dynamic>>()) {
-              final props = feature['properties'] as Map<String, dynamic>?;
-              final geom = feature['geometry'] as Map<String, dynamic>?;
-              if (props != null &&
-                  props['EntBldGlobalID']?.toString() == globalId &&
-                  geom != null &&
-                  geom['type'] == 'Point') {
-                final coords = geom['coordinates'];
-                entrancePoints.add(LatLng(coords[1], coords[0]));
-                buildingEntrances.add(props['GlobalID']);
-              }
+        if (polygonPoints.isNotEmpty) {
+          final center = GeometryHelper.getPolygonCentroid(polygonPoints);
+          widget.mapController.move(center, widget.mapController.camera.zoom);
+        }
+      }
+
+      List<dynamic> buildingEntrances = [];
+      List<LatLng> entrancePoints = [];
+
+      if (entranceData != null) {
+        final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+
+        if (entranceFeatures != null) {
+          for (final feature
+              in entranceFeatures.whereType<Map<String, dynamic>>()) {
+            final props = feature['properties'] as Map<String, dynamic>?;
+            final geom = feature['geometry'] as Map<String, dynamic>?;
+            if (props != null &&
+                props['EntBldGlobalID']?.toString() == globalId &&
+                geom != null &&
+                geom['type'] == 'Point') {
+              final coords = geom['coordinates'];
+              entrancePoints.add(LatLng(coords[1], coords[0]));
+              buildingEntrances.add(props['GlobalID']);
             }
           }
         }
-        final bounds = widget.mapController.camera.visibleBounds;
-        final anyOutside =
-            GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
-
-        setState(() {
-          _entranceOutsideVisibleArea = anyOutside;
-        });
-        if (widget.onEntranceVisibilityChange != null) {
-          widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
-        }
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+
+      final bounds = widget.mapController.camera.visibleBounds;
+      final anyOutside =
+          GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
+
+      setState(() {
+        _entranceOutsideVisibleArea = anyOutside;
+      });
+
+      if (widget.onEntranceVisibilityChange != null) {
+        widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
+      }
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${e.toString()}')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
