@@ -188,4 +188,8 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   ShapeType get shapeType =>
       state is Attributes ? (state as Attributes).shapeType : ShapeType.point;
+      
+  void clearSelections() {
+    emit(AttributesVisibility(false));
+  }
 }
