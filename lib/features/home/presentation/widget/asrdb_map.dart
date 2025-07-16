@@ -217,10 +217,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     final globalId =
         PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(globalId.toString())),
-    );
-
     if (globalId != null) {
       final geometry =
           GeometryHelper.getPolygonGeometryById(buildings, globalId);
@@ -288,6 +284,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         setState(() {
           _entranceOutsideVisibleArea = anyOutside;
         });
+
         if (widget.onEntranceVisibilityChange != null) {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }

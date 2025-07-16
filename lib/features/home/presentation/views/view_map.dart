@@ -34,6 +34,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geodesy/geodesy.dart' show Geodesy;
 
 class ViewMap extends StatefulWidget {
   const ViewMap({super.key});
@@ -93,6 +94,53 @@ class _ViewMapState extends State<ViewMap> {
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }
 
+  Map<String, dynamic> _removeFeatureByAttribute(
+      String attributeKey, dynamic attributeValue, Map<String, dynamic> data) {
+    if (attributeValue == null) return data;
+    if (data['features'] == null || data['features'] is! List) {
+      return data;
+    }
+
+    // Make a deep copy to avoid mutating the original map (optional but safer)
+    final Map<String, dynamic> updatedData = Map<String, dynamic>.from(data);
+    updatedData['features'] = List<dynamic>.from(updatedData['features']);
+
+    updatedData['features'].removeWhere((feature) {
+      final properties = feature['properties'];
+      return properties != null && properties[attributeKey] == attributeValue;
+    });
+
+    return updatedData;
+  }
+
+  List<List<LatLng>> _extractPolygons(Map<String, dynamic> geoJson) {
+    final List<List<LatLng>> polygons = [];
+
+    final features = geoJson['features'];
+    if (features is! List) return polygons;
+
+    for (final feature in features) {
+      final geometry = feature['geometry'];
+      if (geometry != null && geometry['type'] == 'Polygon') {
+        final coordinates = geometry['coordinates'];
+
+        if (coordinates is List && coordinates.isNotEmpty) {
+          final outerRing = coordinates[0]; // Only outer ring
+          if (outerRing is List) {
+            final polygon = outerRing
+                .where((point) => point is List && point.length >= 2)
+                .map<LatLng>((point) => LatLng(point[1], point[0])) // lat, lon
+                .toList();
+
+            polygons.add(polygon);
+          }
+        }
+      }
+    }
+
+    return polygons;
+  }
+
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
     final geometryCubit = context.read<NewGeometryCubit>();
@@ -103,6 +151,7 @@ class _ViewMapState extends State<ViewMap> {
     final userService = sl<UserService>();
 
     loadingCubit.show();
+    final geodesy = Geodesy();
 
     final isNew = attributes['GlobalID'] == null;
     bool isOutsideMunicipality = false;
@@ -149,10 +198,28 @@ class _ViewMapState extends State<ViewMap> {
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
         if (geometryCubit.points.isNotEmpty) {
-          final centroid =
-              GeometryHelper.getPolygonCentroid(geometryCubit.points);
+          final centroid = geodesy.findPolygonCentroid(geometryCubit.points);
           attributes['BldLatitude'] = centroid.latitude;
           attributes['BldLongitude'] = centroid.longitude;
+
+          var buildingsList = (buildingCubit.state as Buildings).buildings;
+          var buildings = _removeFeatureByAttribute(
+              'GlobalID', attributes['GlobalID'], buildingsList);
+
+          var polygons = _extractPolygons(buildings);
+
+          for (int i = 0; i < polygons.length; i++) {
+            final polygon = polygons[i];
+            var intersectionPoints =
+                geodesy.getPolygonIntersection(geometryCubit.points, polygon);
+
+            if (intersectionPoints.isNotEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Pikprerje mf")),
+              );
+              return;
+            }
+          }
         }
 
         if (isNew) {
@@ -184,6 +251,7 @@ class _ViewMapState extends State<ViewMap> {
           await dwellingCubit.updateDwellingFeature(attributes);
         }
       }
+      
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
 

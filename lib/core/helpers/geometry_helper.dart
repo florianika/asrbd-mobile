@@ -121,6 +121,7 @@ class GeometryHelper {
     }
   }
 
+
   static bool doPolygonsIntersect(List<LatLng> poly1, List<LatLng> poly2) {
     if (poly1.length < 3 || poly2.length < 3) return false;
     if (_areSamePolygon(poly1, poly2)) return false;
