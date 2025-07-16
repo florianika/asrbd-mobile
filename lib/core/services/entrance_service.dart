@@ -139,18 +139,30 @@ class EntranceService {
     }
   }
 
-  Future<bool> updateEntranceFeature(Map<String, dynamic> attributes) async {
+  Future<bool> updateEntranceFeature(Map<String, dynamic> attributes, [List<LatLng>? points]) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response =
-          await entranceApi.updateEntranceFeature(esriToken, attributes);
-      if (response.statusCode == 200) {
-        return true;
+      // If points are provided, use them to update the geometry
+      if (points != null && points.isNotEmpty) {
+        final response =
+            await entranceApi.updateEntranceFeatureWithGeometry(esriToken, attributes, points);
+        if (response.statusCode == 200) {
+          return true;
+        } else {
+          return false;
+        }
       } else {
-        return false;
+        // Otherwise, just update the attributes
+        final response =
+            await entranceApi.updateEntranceFeature(esriToken, attributes);
+        if (response.statusCode == 200) {
+          return true;
+        } else {
+          return false;
+        }
       }
     } catch (e) {
       throw Exception('Update entrance feature: $e');

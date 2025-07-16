@@ -109,10 +109,11 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> updateEntranceFeature(Map<String, dynamic> attributes) async {
+  Future<void> updateEntranceFeature(
+      Map<String, dynamic> attributes, [List<LatLng>? points]) async {
     emit(EntranceLoading());
     try {
-      final success = await entranceUseCases.updateEntranceFeature(attributes);
+      final success = await entranceUseCases.updateEntranceFeature(attributes, points);
       emit(EntranceUpdateResponse(success, attributes['EntBldGlobalID']));
     } catch (e) {
       emit(EntranceError(e.toString()));

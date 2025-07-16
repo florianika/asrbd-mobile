@@ -61,11 +61,35 @@ class EntranceApi {
     };
 
     final Map<String, dynamic> feature = {
-      // 'geometry': {
-      //   'x': points[0].longitude,
-      //   'y': points[0].latitude,
-      //   'spatialReference': {'wkid': 4326},
-      // },
+      'attributes': attributes,
+    };
+
+    final payload = {
+      'f': 'pjson',
+      'features': jsonEncode([feature]),
+      'rollbackOnFailure': 'true',
+      'token': esriToken
+    };
+
+    _apiClient.clearHeaders();
+    _apiClient.setHeaders(contentType);
+
+    return _apiClient.post(ApiEndpoints.updateEsriFeauture(EntityType.entrance),
+        data: payload);
+  }
+  
+  Future<Response> updateEntranceFeatureWithGeometry(
+      String esriToken, Map<String, dynamic> attributes, List<LatLng> points) async {
+    Map<String, String> contentType = <String, String>{
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+
+    final Map<String, dynamic> feature = {
+      'geometry': {
+        'x': points[0].longitude,
+        'y': points[0].latitude,
+        'spatialReference': {'wkid': 4326},
+      },
       'attributes': attributes,
     };
 
