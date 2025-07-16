@@ -40,7 +40,8 @@ class OutputBuildingLogs extends OutputLogsState {
 
 class OutputLogsError extends OutputLogsState {
   final String message;
-  OutputLogsError(this.message);
+  final int timestamp;
+  OutputLogsError(this.message, this.timestamp);
 }
 
 class OutputLogsCubit extends Cubit<OutputLogsState> {
@@ -55,15 +56,12 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
   ) : super(OutputLogsInitial());
 
   Future<void> checkAutomatic(String buildingGlobalId) async {
-    // emit(OutputLogsLoading());
     try {
       await checkUseCases.checkAutomatic(buildingGlobalId);
       final validationResult =
           await outputLogsUseCases.getOutputLogs(buildingGlobalId);
       ProcessOutputLogResponse response = ProcessOutputLogResponse(
           processOutputLogDto: validationResult.processOutputLogDto);
-      // await storageRepository.saveString(
-      //     buildingGlobalId, response.toJson().toString());
       await storageRepository.saveString(
         key: buildingGlobalId,
         value: jsonEncode(
@@ -71,7 +69,8 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       );
       emit(OutputLogs(validationResult));
     } catch (e) {
-      emit(OutputLogsError(e.toString()));
+      emit(
+          OutputLogsError(e.toString(), DateTime.now().millisecondsSinceEpoch));
     }
   }
 
@@ -92,7 +91,8 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       );
       emit(OutputLogs(validationResult));
     } catch (e) {
-      emit(OutputLogsError(e.toString()));
+      emit(
+          OutputLogsError(e.toString(), DateTime.now().millisecondsSinceEpoch));
     }
   }
 
@@ -117,7 +117,8 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
         emit(OutputLogs(freshData));
       }
     } catch (e) {
-      emit(OutputLogsError(e.toString()));
+      emit(
+          OutputLogsError(e.toString(), DateTime.now().millisecondsSinceEpoch));
     }
   }
 }

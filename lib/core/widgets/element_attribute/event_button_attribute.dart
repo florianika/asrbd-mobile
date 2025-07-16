@@ -1,7 +1,6 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +43,7 @@ class EventButtonAttribute extends StatelessWidget {
         : {};
 
     final bldReview = attributes['BldReview'];
-    final bldQuality= attributes['BldQuality'];
+    final bldQuality = attributes['BldQuality'];
 
     Future<void> validateData() async {
       var loadingCubit = context.read<LoadingCubit>();
@@ -55,7 +54,8 @@ class EventButtonAttribute extends StatelessWidget {
 
       try {
         if (buildingCubit.currentBuildingGlobalId != null) {
-          await validateCubit.checkBuildings(buildingCubit.currentBuildingGlobalId!);
+          await validateCubit
+              .checkBuildings(buildingCubit.currentBuildingGlobalId!);
         }
       } finally {
         loadingCubit.hide();
@@ -159,20 +159,20 @@ class EventButtonAttribute extends StatelessWidget {
                   ),
                   onTap: () => openDwelling(),
                 ),
-                if ( bldQuality == 9)
-              SpeedDialChild(
-                child: const Icon(Icons.check_circle),
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                label: 'Validate Data',
-                labelBackgroundColor: Colors.white,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                  fontSize: 14,
+              if (bldQuality == 9)
+                SpeedDialChild(
+                  child: const Icon(Icons.check_circle),
+                  backgroundColor: Colors.orange,
+                  foregroundColor: Colors.white,
+                  label: 'Validate Data',
+                  labelBackgroundColor: Colors.white,
+                  labelStyle: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  onTap: () => validateData(),
                 ),
-                onTap: () => validateData(),
-              ),
               if (selectedShapeType == ShapeType.polygon && bldReview == 6)
                 SpeedDialChild(
                   child: const Icon(Icons.start),

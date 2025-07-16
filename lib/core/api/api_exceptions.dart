@@ -2,27 +2,35 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 
 class ApiExceptions implements Exception {
-  final String message;
-  ApiExceptions(this.message);
-
-  static String handleError(dynamic error) {
+  static Exception handleError(dynamic error) {
     if (error is DioException) {
-      switch (error.type) {
-        case DioExceptionType.connectionTimeout:
-          return 'Connection Timeout';
-        case DioExceptionType.receiveTimeout:
-          return 'Receive Timeout';
-        case DioExceptionType.badResponse:
-          return 'Server Error: ${error.response?.statusCode}';
-        case DioExceptionType.cancel:
-          return 'Request Cancelled';
-        case DioExceptionType.unknown:
-        default:
-          return 'Unexpected Error';
-      }
-    } else if (error is SocketException) {
-      return 'No Internet Connection';
+      final response = error.response;
+      final statusCode = response?.statusCode ?? 0;
+      final message = _extractMessage(response);
+
+      return Exception('API Error $statusCode: ${message ?? error.message}');
+    } else {
+      return Exception('Unexpected error: $error');
     }
-    return 'Unexpected Error';
+  }
+
+  static String? _extractMessage(Response? response) {
+    if (response == null) return null;
+
+    final data = response.data;
+
+    if (data == null) return null;
+
+    // Handle common types: Map, String, etc.
+    if (data is String) {
+      return data;
+    } else if (data is Map<String, dynamic>) {
+      // Customize this based on your API's error format
+      if (data.containsKey('message')) return data['message'];
+      if (data.containsKey('error')) return data['error'];
+      return data.toString();
+    } else {
+      return data.toString();
+    }
   }
 }

@@ -69,7 +69,26 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             bodyMedium: TextStyle(color: Colors.black),
                           ),
                         ),
-                        child: BlocBuilder<OutputLogsCubit, OutputLogsState>(
+                        child: BlocConsumer<OutputLogsCubit, OutputLogsState>(
+                          listener: (context, state) {
+                            if (state is OutputLogsError) {
+                              ScaffoldMessenger.of(context).showMaterialBanner(
+                                MaterialBanner(
+                                  content: Text(state.message),
+                                  backgroundColor: Colors.red.shade100,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        ScaffoldMessenger.of(context)
+                                            .hideCurrentMaterialBanner();
+                                      },
+                                      child: const Text('Dismiss'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          },
                           builder: (context, state) {
                             List<ValidationResult> validationResult = [];
 
@@ -88,10 +107,13 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                   .toList();
                             }
 
-                            if (state is OutputLogsError) {
-                              return Center(
-                                  child: Text('Error: ${state.message}'));
-                            }
+                            // if (state is OutputLogsError) {
+                            //   return MessageBox.error(
+                            //     title: 'Error output logs',
+                            //     message: state.message,
+                            //     onClose: () => print('Static message closed'),
+                            //   );
+                            // }
 
                             return DynamicElementAttribute(
                               key: _dynamicFormKey,
