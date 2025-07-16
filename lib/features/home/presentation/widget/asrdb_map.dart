@@ -169,9 +169,19 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      context
-          .read<BuildingCubit>()
-          .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
+      if (camera.zoom >= EsriConfig.buildingMinZoom) {
+        context
+            .read<BuildingCubit>()
+            .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
+      } else {
+        setState(() {
+          buildingsData = null;
+          entranceData = null;
+          _selectedBuildingGlobalId = null;
+        });
+        context.read<BuildingCubit>().clearBuildings();
+        context.read<AttributesCubit>().clearSelections();
+      }
     });
 
     zoom = camera.zoom;
