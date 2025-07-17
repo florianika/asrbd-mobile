@@ -142,4 +142,9 @@ class BuildingCubit extends Cubit<BuildingState> {
     _selectedBuildingGlobalId = globalId;
     emit(BuildingGlobalId(globalId));
   }
+  
+  void clearBuildings() {
+    _selectedBuildingGlobalId = null;
+    emit(Buildings({}));
+  }
 }
