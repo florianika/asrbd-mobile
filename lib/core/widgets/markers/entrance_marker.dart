@@ -36,28 +36,19 @@ class EntranceMarker extends StatefulWidget {
 class _EntranceMarkerState extends State<EntranceMarker> {
   final legendService = sl<LegendService>();
   final double markerSize = 20.0;
-
-  // Keep track of dragged entrances
   final Map<String, LatLng> _draggedEntrances = {};
-
   @override
   void didUpdateWidget(EntranceMarker oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    // If the entrance data has changed, update our dragged entrances map
     if (widget.entranceData != oldWidget.entranceData) {
       _updateDraggedEntrancesFromData();
     }
   }
-
-  // Update the dragged entrances map from the current entrance data
   void _updateDraggedEntrancesFromData() {
     if (widget.entranceData == null || widget.entranceData!.isEmpty) return;
 
     final features = widget.entranceData!['features'] as List<dynamic>?;
     if (features == null) return;
-
-    // Clear any dragged entrances that are no longer in the data
     final currentIds = <String>{};
 
     for (final feature in features) {
@@ -72,7 +63,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
       }
     }
 
-    // Remove any dragged entrances that are no longer in the data
     _draggedEntrances.removeWhere((key, value) => !currentIds.contains(key));
   }
 
@@ -83,32 +73,98 @@ class _EntranceMarkerState extends State<EntranceMarker> {
     MapController mapController,
     BuildContext context,
   ) {
-    // Get the map's current visible bounds
-    final bounds = mapController.camera.visibleBounds;
 
-    // Calculate the relative position of the drop within the visible map area
+    final bounds = mapController.camera.visibleBounds;
     final screenSize = MediaQuery.of(context).size;
     final relativeX = details.offset.dx / screenSize.width;
     final relativeY = details.offset.dy / screenSize.height;
-
-    // Convert the relative screen position to map coordinates
     final spanLat = bounds.north - bounds.south;
     final spanLng = bounds.east - bounds.west;
-
-    // Calculate the new position using the same logic as when adding a new entrance
     final newLat = bounds.north - (spanLat * relativeY);
     final newLng = bounds.west + (spanLng * relativeX);
 
     final newPosition = LatLng(newLat, newLng);
+    _showMoveConfirmationDialog(context, globalId, properties, newPosition);
+  }
 
-    // Store the dragged position
-    _draggedEntrances[globalId] = newPosition;
+  void _showMoveConfirmationDialog(
+    BuildContext context,
+    String globalId,
+    Map<String, dynamic> properties,
+    LatLng newPosition,
+  ) {
+    final entranceLabel = EntranceHelper.entranceLabel(
+      properties['EntBuildingNumber'],
+      properties['EntEntranceNumber'],
+    );
 
-    // Force a rebuild to update the marker position
-    setState(() {});
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Move Entrance'),
+          content: Text(
+            'Are you sure you want to move ${entranceLabel ?? 'this entrance'} to the new location?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Move cancelled'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _moveAndSaveEntrance(globalId, properties, newPosition, context);
+              },
+              child: const Text('Move'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-    // Open the entrance form with the updated position
-    _openEntranceForm(globalId, properties, newPosition, context);
+  void _moveAndSaveEntrance(
+    String globalId,
+    Map<String, dynamic> properties,
+    LatLng newPosition,
+    BuildContext context,
+  ) {
+    try {
+      _draggedEntrances[globalId] = newPosition;
+      setState(() {});
+      final updatedProperties = Map<String, dynamic>.from(properties);
+      updatedProperties['EntLatitude'] = newPosition.latitude;
+      updatedProperties['EntLongitude'] = newPosition.longitude;
+      updatedProperties['external_editor_date'] = DateTime.now().millisecondsSinceEpoch;
+      final entranceCubit = context.read<EntranceCubit>();
+      entranceCubit.updateEntranceFeature(updatedProperties, [newPosition]);
+      HapticFeedback.lightImpact();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Entrance moved and saved - you can move it again if needed'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      _draggedEntrances.remove(globalId);
+      setState(() {});
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to move entrance: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _openEntranceForm(
@@ -118,45 +174,23 @@ class _EntranceMarkerState extends State<EntranceMarker> {
     BuildContext context,
   ) {
     try {
-      // Create a copy of the properties to update
       final updatedProperties = Map<String, dynamic>.from(properties);
-
-      // Update the latitude and longitude properties in the form data
       updatedProperties['EntLatitude'] = newPosition.latitude;
       updatedProperties['EntLongitude'] = newPosition.longitude;
-
-      // Add editor information if needed
       updatedProperties['external_editor_date'] =
           DateTime.now().millisecondsSinceEpoch;
-
-      // Get the building ID from the properties
       final buildingGlobalId =
           properties[EntranceFields.entBldGlobalID]?.toString();
-
-      // Create a list with the single point for the new position
       final points = [newPosition];
 
-      // Update the geometry in the NewGeometryCubit
       final geometryCubit = context.read<NewGeometryCubit>();
       geometryCubit.setPoints(points);
       geometryCubit.setType(ShapeType.point);
-
-      // Show the entrance form by triggering the AttributesCubit
       final attributesCubit = context.read<AttributesCubit>();
-
-      // First, make sure the attributes panel is visible
       attributesCubit.showAttributes(true);
-
-      // Then, show the entrance attributes with the updated position
       attributesCubit.showEntranceAttributes(globalId, buildingGlobalId);
-
-      // Update the entrance position in the database when the form is opened
-      // This ensures the changes persist when the form is saved
-      // IMPORTANT: Pass both the updated properties AND the points to ensure the geometry is updated
       final entranceCubit = context.read<EntranceCubit>();
       entranceCubit.updateEntranceFeature(updatedProperties, points);
-
-      // Provide feedback that the entrance is ready to be edited
       HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -165,7 +199,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
         ),
       );
     } catch (e) {
-      // Show an error message if there's a problem opening the form
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update entrance position: ${e.toString()}'),
@@ -224,8 +257,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
               props['EntBuildingNumber'],
               props['EntEntranceNumber'],
             );
-
-            // Use the dragged position if available, otherwise use the original position
             final entrancePoint = _draggedEntrances[globalId] ??
                 GeometryHelper.parseCoordinates(feature['geometry']).first;
 
@@ -234,13 +265,11 @@ class _EntranceMarkerState extends State<EntranceMarker> {
               height: markerSize,
               point: entrancePoint,
               child: LongPressDraggable<Map<String, dynamic>>(
-                // Use LongPressDraggable instead of Draggable for more intuitive interaction
                 data: {
                   'globalId': globalId,
                   'properties': props,
                   'initialPosition': entrancePoint,
                 },
-                // Make the drag feedback larger and more visible
                 feedback: Container(
                   width: markerSize * 1.5,
                   height: markerSize * 1.5,
@@ -267,7 +296,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                     ),
                   ),
                 ),
-                // Show a clear placeholder when dragging
                 childWhenDragging: Container(
                   width: markerSize,
                   height: markerSize,
@@ -288,7 +316,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                     ),
                   ),
                 ),
-                // Provide haptic feedback when drag starts
                 onDragStarted: () {
                   HapticFeedback.mediumImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -298,7 +325,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                     ),
                   );
                 },
-                // Handle the drag end
                 onDragEnd: (details) => _handleDragEnd(
                   details,
                   globalId!,
@@ -306,7 +332,6 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                   widget.mapController,
                   context,
                 ),
-                // The actual marker that responds to taps
                 child: GestureDetector(
                   onTap: () => widget.onTap(props),
                   child: Stack(
