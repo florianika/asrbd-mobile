@@ -3,7 +3,6 @@ import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
-import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';

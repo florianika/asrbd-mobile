@@ -173,7 +173,8 @@ class EventButtonAttribute extends StatelessWidget {
                   ),
                   onTap: () => validateData(),
                 ),
-              if (selectedShapeType == ShapeType.polygon && bldReview == 6)
+              if (selectedShapeType == ShapeType.polygon &&
+                  (bldReview == 6 || (bldReview == 5)))
                 SpeedDialChild(
                   child: const Icon(Icons.start),
                   backgroundColor: Colors.orange,
