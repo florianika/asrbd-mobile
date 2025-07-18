@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
@@ -174,6 +175,7 @@ class _ViewMapState extends State<ViewMap> {
       }
 
       if (attributesCubit.shapeType == ShapeType.point) {
+        attributes['EntPointStatus'] = DefaultData.fieldData;
         if (isNew) {
           final storageResponsitory = sl<StorageRepository>();
           String? buildingGlobalId = await storageResponsitory.getString(
@@ -196,6 +198,7 @@ class _ViewMapState extends State<ViewMap> {
           await entranceCubit.updateEntranceFeature(attributes);
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
+        attributes['BldCentroidStatus'] = DefaultData.fieldData;
         if (geometryCubit.points.isNotEmpty) {
           final centroid = geodesy.findPolygonCentroid(geometryCubit.points);
           attributes['BldLatitude'] = centroid.latitude;
@@ -250,7 +253,7 @@ class _ViewMapState extends State<ViewMap> {
           await dwellingCubit.updateDwellingFeature(attributes);
         }
       }
-      
+
       geometryCubit.setDrawing(false);
       geometryCubit.clearPoints();
 
