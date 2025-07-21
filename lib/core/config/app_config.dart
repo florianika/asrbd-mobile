@@ -5,7 +5,7 @@ class AppConfig {
 
   // API configurations
   static const String apiBaseUrl = 'http://51.107.11.117:9090';
-  static const int apiTimeout = 30; // seconds
+  static const int apiTimeout = 60; // seconds
 
   // App theme configuration (optional)
   static const bool useDarkTheme = false;

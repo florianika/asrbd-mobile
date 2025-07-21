@@ -13,21 +13,15 @@ import 'package:flutter_map/flutter_map.dart';
 
 class EntranceMarker extends StatefulWidget {
   final Map<String, dynamic>? entranceData;
-  // final String? selectedGlobalId;
-  // final ShapeType? selectedShapeType;
   final String attributeLegend;
   final Function onTap;
   final MapController mapController;
-  // final List<dynamic> highilghGlobalIds;
 
   const EntranceMarker({
     super.key,
     this.entranceData,
-    // this.selectedGlobalId,
-    // this.selectedShapeType,
     required this.onTap,
     required this.mapController,
-    // required this.highilghGlobalIds,
     required this.attributeLegend,
   });
 
@@ -37,7 +31,7 @@ class EntranceMarker extends StatefulWidget {
 
 class _EntranceMarkerState extends State<EntranceMarker> {
   final legendService = sl<LegendService>();
-  final double markerSize = 20.0;
+  final double markerSize = 25.0;
 
   @override
   Widget build(BuildContext context) {
