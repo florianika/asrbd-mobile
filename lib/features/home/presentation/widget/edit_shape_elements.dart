@@ -25,6 +25,7 @@ class EditShapeElements extends StatelessWidget {
       final index = entry.key;
       final point = entry.value;
       final isFirstPoint = index == 0;
+      const opacity = 0.5;
 
       return Marker(
         width: 32,
@@ -41,8 +42,8 @@ class EditShapeElements extends StatelessWidget {
                 height: draggedMarkerSize,
                 decoration: BoxDecoration(
                   color: isFirstPoint
-                      ? const Color(0xFF2196F3)
-                      : const Color(0xFF4CAF50),
+                      ? const Color(0xFF2196F3).withOpacity(opacity)
+                      : const Color(0xFF4CAF50).withOpacity(opacity),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: Colors.white,
@@ -58,7 +59,7 @@ class EditShapeElements extends StatelessWidget {
                 ),
                 child: Icon(
                   isFirstPoint ? Icons.flag : Icons.circle,
-                  color: Colors.white,
+                  color: Colors.white.withOpacity(opacity),
                   size: isFirstPoint ? 20 : 16,
                 ),
               ),
@@ -68,8 +69,8 @@ class EditShapeElements extends StatelessWidget {
           childWhenDragging: Container(
             decoration: BoxDecoration(
               color: (isFirstPoint
-                      ? const Color(0xFF2196F3)
-                      : const Color(0xFF4CAF50))
+                      ? const Color(0xFF2196F3).withOpacity(opacity)
+                      : const Color(0xFF4CAF50).withOpacity(opacity))
                   .withOpacity(0.3),
               shape: BoxShape.circle,
               border: Border.all(
@@ -79,7 +80,7 @@ class EditShapeElements extends StatelessWidget {
             ),
             child: Icon(
               isFirstPoint ? Icons.flag : Icons.circle,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withOpacity(opacity),
               size: isFirstPoint ? 16 : 12,
             ),
           ),
@@ -88,8 +89,8 @@ class EditShapeElements extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: isFirstPoint
-                    ? const Color(0xFF2196F3)
-                    : const Color(0xFF4CAF50),
+                    ? const Color(0xFF2196F3).withOpacity(opacity)
+                    : const Color(0xFF4CAF50).withOpacity(opacity),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: Colors.white,
@@ -105,7 +106,7 @@ class EditShapeElements extends StatelessWidget {
               ),
               child: Icon(
                 isFirstPoint ? Icons.flag : Icons.circle,
-                color: Colors.white,
+                color: Colors.white.withOpacity(opacity),
                 size: isFirstPoint ? 16 : 12,
               ),
             ),
