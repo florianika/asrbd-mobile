@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
@@ -11,6 +12,7 @@ import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
@@ -128,33 +130,33 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<OutputLogsCubit>().outputLogsBuildings(
           StringHelper.removeCurlyBracesFromString(
               data['EntBldGlobalID'].toString()));
-           
-    if (entranceData != null) {
-      final features = entranceData?['features'] as List<dynamic>?;
-      if (features != null) {
-        final feature = features
-            .whereType<Map<String, dynamic>>()
-            .firstWhere(
-              (f) =>
-                  f['properties']?['GlobalID']?.toString() ==
-                  _selectedGlobalId,
-              orElse: () => <String, dynamic>{},
-            );
 
-        final coords = feature['geometry']?['coordinates'];
-        if (coords != null &&
-            coords is List &&
-            coords.length == 2 &&
-            coords[0] is num &&
-            coords[1] is num) {
-          final entrancePosition = LatLng(coords[1], coords[0]);
-          widget.mapController.move(entrancePosition, 19.0);
+      if (entranceData != null) {
+        final features = entranceData?['features'] as List<dynamic>?;
+        if (features != null) {
+          final feature = features.whereType<Map<String, dynamic>>().firstWhere(
+                (f) =>
+                    f['properties']?['GlobalID']?.toString() ==
+                    _selectedGlobalId,
+                orElse: () => <String, dynamic>{},
+              );
+
+          final coords = feature['geometry']?['coordinates'];
+          if (coords != null &&
+              coords is List &&
+              coords.length == 2 &&
+              coords[0] is num &&
+              coords[1] is num) {
+            final entrancePosition = LatLng(coords[1], coords[0]);
+            widget.mapController.move(entrancePosition, 19.0);
+          }
         }
       }
-    }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
       );
     }
   }
@@ -233,7 +235,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       final coordinates = GeometryHelper.getPolygonPoints(geometry!);
 
-      context.read<AttributesCubit>().setCurrentBuildingGlobalId(globalId.removeCurlyBraces());
+      context
+          .read<AttributesCubit>()
+          .setCurrentBuildingGlobalId(globalId.removeCurlyBraces());
       context.read<NewGeometryCubit>().setPoints(coordinates);
       context.read<NewGeometryCubit>().setType(ShapeType.polygon);
       context.read<NewGeometryCubit>().setDrawing(true);
@@ -298,14 +302,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
         if (widget.onEntranceVisibilityChange != null) {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }
-        
-         final features = buildings['features'] as List<dynamic>?;
-         final building = features?.firstWhere(
+
+        final features = buildings['features'] as List<dynamic>?;
+        final building = features?.firstWhere(
           (f) => f['properties']['GlobalID'].toString() == globalId,
           orElse: () => null,
-         );
+        );
 
-         if (building != null) {
+        if (building != null) {
           final geometry = building['geometry'];
           final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
 
@@ -316,10 +320,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
           }
         }
       }
-    } 
-    catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+    } catch (e) {
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
       );
     }
   }

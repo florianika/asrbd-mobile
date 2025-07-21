@@ -180,7 +180,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       if (elementFound == null) {
         continue;
       }
-      String sectionName = attribute.section ?? "General";
+      String sectionName = attribute.section;// ?? "General";
       if (sections.containsKey(sectionName)) {
         sections[sectionName]!.add({
           'attribute': attribute,

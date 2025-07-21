@@ -30,7 +30,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
   late AnimationController _legendAnimationController;
   late Animation<double> _buildingAnimation;
   late Animation<double> _entranceAnimation;
-  late Animation<double> _legendAnimation;
 
   @override
   void initState() {
@@ -56,10 +55,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     );
     _entranceAnimation = CurvedAnimation(
       parent: _entranceAnimationController,
-      curve: Curves.easeOut,
-    );
-    _legendAnimation = CurvedAnimation(
-      parent: _legendAnimationController,
       curve: Curves.easeOut,
     );
     

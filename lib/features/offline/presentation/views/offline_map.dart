@@ -10,6 +10,8 @@ import 'dart:math' as math;
 import 'dart:convert';
 
 class OfflineMap extends StatefulWidget {
+  const OfflineMap({super.key});
+
   @override
   State<OfflineMap> createState() => _OfflineMapState();
 }

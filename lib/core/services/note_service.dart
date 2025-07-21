@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/note/note_response.dart';

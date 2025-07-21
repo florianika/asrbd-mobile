@@ -109,7 +109,7 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (dwellingObjectID == null) {
-        emit(Attributes(schema, {}, ShapeType.noShape, null, null, null,
+        emit(Attributes(schema, const {}, ShapeType.noShape, null, null, null,
             viewDwelling: true));
         return;
       }

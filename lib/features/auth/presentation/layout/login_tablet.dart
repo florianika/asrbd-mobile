@@ -13,7 +13,7 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginTablet extends StatefulWidget {
-  LoginTablet({super.key});
+  const LoginTablet({super.key});
 
   @override
   State<LoginTablet> createState() => _LoginTabletState();

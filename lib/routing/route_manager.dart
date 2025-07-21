@@ -20,7 +20,7 @@ class RouteManager {
         return MaterialPageRoute(builder: (_) => const ViewMap());
 
       case downloadMapRoute:
-        return MaterialPageRoute(builder: (_) => OfflineMap());
+        return MaterialPageRoute(builder: (_) => const OfflineMap());
 
       case downloadedMapList:
         return MaterialPageRoute(builder: (_) => DownloadedMapsViewer());

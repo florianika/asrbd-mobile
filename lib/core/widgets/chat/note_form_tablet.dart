@@ -1,6 +1,5 @@
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -84,7 +83,7 @@ class _NotesWidgetState extends State<NotesWidget>
     }
     final rawId = context.read<AttributesCubit>();
     final buildingGlobalId = rawId.currentBuildingGlobalId!;
-    if (buildingGlobalId == null) {
+    if (buildingGlobalId == '') {
       _showSnackBar('No building selected!');
       return;
     }
@@ -160,8 +159,9 @@ class _NotesWidgetState extends State<NotesWidget>
                         child: CircularProgressIndicator(
                             color: colorScheme.primary));
                   } else if (state is NoteLoaded) {
-                    if (state.notes.isEmpty)
-                      return _buildEmptyState(colorScheme);
+                    if (state.notes.isEmpty) {
+                      return  _buildEmptyState(colorScheme);
+                    }
                     final now = DateTime.now();
                     final todayNotes = state.notes
                         .where((n) =>

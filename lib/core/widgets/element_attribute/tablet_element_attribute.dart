@@ -1,8 +1,10 @@
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -72,20 +74,10 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                         child: BlocConsumer<OutputLogsCubit, OutputLogsState>(
                           listener: (context, state) {
                             if (state is OutputLogsError) {
-                              ScaffoldMessenger.of(context).showMaterialBanner(
-                                MaterialBanner(
-                                  content: Text(state.message),
-                                  backgroundColor: Colors.red.shade100,
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context)
-                                            .hideCurrentMaterialBanner();
-                                      },
-                                      child: const Text('Dismiss'),
-                                    ),
-                                  ],
-                                ),
+                              NotifierService.showMessage(
+                                context,
+                                message: state.message,
+                                type: MessageType.error,
                               );
                             }
                           },
@@ -106,14 +98,6 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                               : EntityType.dwelling))
                                   .toList();
                             }
-
-                            // if (state is OutputLogsError) {
-                            //   return MessageBox.error(
-                            //     title: 'Error output logs',
-                            //     message: state.message,
-                            //     onClose: () => print('Static message closed'),
-                            //   );
-                            // }
 
                             return DynamicElementAttribute(
                               key: _dynamicFormKey,

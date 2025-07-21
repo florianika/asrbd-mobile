@@ -3,6 +3,7 @@ import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
@@ -10,6 +11,7 @@ import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
@@ -29,6 +31,7 @@ import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -166,10 +169,10 @@ class _ViewMapState extends State<ViewMap> {
       }
 
       if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  "Verifikoni koordinatat pasi rezultojne te jene jashte bashkise qe jeni autorizuar.")),
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.outsideMunicipality,
+          type: MessageType.warning,
         );
         return;
       }
@@ -216,8 +219,10 @@ class _ViewMapState extends State<ViewMap> {
                 geodesy.getPolygonIntersection(geometryCubit.points, polygon);
 
             if (intersectionPoints.isNotEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Pikprerje mf")),
+              NotifierService.showMessage(
+                context,
+                messageKey: Keys.overlapingBuildings,
+                type: MessageType.warning,
               );
               return;
             }
@@ -262,8 +267,10 @@ class _ViewMapState extends State<ViewMap> {
           mapController.camera.center, mapController.camera.zoom + 0.01);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+        NotifierService.showMessage(
+          context,
+          message: e.toString(),
+          type: MessageType.error,
         );
       }
     } finally {
@@ -293,11 +300,10 @@ class _ViewMapState extends State<ViewMap> {
           await buildingUseCases.getBuildingDetails(globalId);
       final attributes = buildingDetails['features'][0]['properties'];
       if (attributes['BldQuality'] == 9 && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content:
-                Text("You can't proceed without first validating the building"),
-          ),
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.finishReviewWarning,
+          type: MessageType.warning,
         );
         return;
       }
@@ -397,8 +403,10 @@ class _ViewMapState extends State<ViewMap> {
                 BlocListener<BuildingCubit, BuildingState>(
                   listener: (context, state) {
                     if (state is BuildingError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
+                      NotifierService.showMessage(
+                        context,
+                        message: state.message,
+                        type: MessageType.error,
                       );
                     } else if (state is BuildingAddResponse ||
                         state is BuildingUpdateResponse) {
@@ -414,8 +422,10 @@ class _ViewMapState extends State<ViewMap> {
                 BlocListener<EntranceCubit, EntranceState>(
                   listener: (context, state) {
                     if (state is EntranceError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
+                      NotifierService.showMessage(
+                        context,
+                        message: state.message,
+                        type: MessageType.error,
                       );
                     } else if (state is EntranceAddResponse ||
                         state is EntranceUpdateResponse) {
@@ -431,28 +441,30 @@ class _ViewMapState extends State<ViewMap> {
                 BlocListener<DwellingCubit, DwellingState>(
                   listener: (context, state) {
                     if (state is DwellingError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
+                      NotifierService.showMessage(
+                        context,
+                        message: state.message,
+                        type: MessageType.error,
                       );
                     } else if (state is DwellingUpdateResponse) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            state.isAdded
-                                ? "Dwelling updated successfully"
-                                : "Dwelling could not be updated",
-                          ),
-                        ),
+                      NotifierService.showMessage(
+                        context,
+                        messageKey: state.isAdded
+                            ? Keys.dwellingUpdated
+                            : Keys.dwellingCouldNotUpdated,
+                        type: state.isAdded
+                            ? MessageType.success
+                            : MessageType.warning,
                       );
                     } else if (state is DwellingAddResponse) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            state.isAdded
-                                ? "Dwelling added successfully"
-                                : "Dwelling could not be added",
-                          ),
-                        ),
+                      NotifierService.showMessage(
+                        context,
+                        messageKey: state.isAdded
+                            ? Keys.dwellingAdded
+                            : Keys.dwellingCouldNotAdd,
+                        type: state.isAdded
+                            ? MessageType.success
+                            : MessageType.warning,
                       );
                     }
                   },
@@ -462,8 +474,10 @@ class _ViewMapState extends State<ViewMap> {
                 BlocConsumer<AttributesCubit, AttributesState>(
                   listener: (context, state) {
                     if (state is AttributesError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
+                      NotifierService.showMessage(
+                        context,
+                        message: state.message,
+                        type: MessageType.error,
                       );
                     }
                   },
