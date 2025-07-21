@@ -20,6 +20,9 @@ class LocalizedEn {
     Keys.dwellingAdded:
         'The dwelling information was successfully added and saved.',
     Keys.dwellingCouldNotAdd:
-        'Dwelling could not be added. Check your input and try again.'
+        'Dwelling could not be added. Check your input and try again.',
+    Keys.basemapTerrain: 'Terrein',
+    Keys.basemapSatellite: 'Satellite',
+    Keys.download: 'Download',
   };
 }

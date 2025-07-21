@@ -13,4 +13,7 @@ class Keys {
   static const String dwellingCouldNotUpdated = 'dwellingCouldNotUpdated';
   static const String dwellingAdded = 'dwellingAdded';
   static const String dwellingCouldNotAdd = 'dwellingCouldNotAdd';
+  static const String basemapTerrain = 'basemaTerrain';
+  static const String basemapSatellite = 'basemapSatellite';
+  static const String download = 'download';
 }

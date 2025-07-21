@@ -1,4 +1,6 @@
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,10 +13,7 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: BlocBuilder<AttributesCubit, AttributesState>(
         builder: (context, state) {
-          if (state is Attributes) {
-            return Text('My App - ${state.buildingGlobalId ?? "None"}');
-          }
-          return const Text('My App');
+          return const Text('ASRDB');
         },
       ),
       backgroundColor: Colors.white,
@@ -40,7 +39,8 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(Icons.terrain, color: Colors.grey[600]),
                   const SizedBox(width: 12),
-                  const Text('Terrain'),
+                  Text(AppLocalizations.of(context)
+                      .translate(Keys.basemapTerrain)),
                 ],
               ),
             ),
@@ -50,7 +50,8 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(Icons.satellite, color: Colors.grey[600]),
                   const SizedBox(width: 12),
-                  const Text('Satellite'),
+                  Text(AppLocalizations.of(context)
+                      .translate(Keys.basemapSatellite)),
                 ],
               ),
             ),
@@ -70,7 +71,7 @@ class MapAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   Icon(Icons.download, color: Colors.grey[600]),
                   const SizedBox(width: 12),
-                  const Text('Download'),
+                  Text(AppLocalizations.of(context).translate(Keys.download)),
                 ],
               ),
             ),

@@ -16,6 +16,9 @@ class LocalizedAl {
     Keys.dwellingUpdated:
         'Të dhënat e njësisë së banimit u shtuan dhe u ruajtën me sukses.',
     Keys.dwellingCouldNotUpdated:
-        'Nuk u arrit të shtohet njësia e banimit. Ju lutemi, provoni përsëri'
+        'Nuk u arrit të shtohet njësia e banimit. Ju lutemi, provoni përsëri',
+    Keys.basemapTerrain: 'Terren',
+    Keys.basemapSatellite: 'Satelit',
+    Keys.download: 'Shkarko',
   };
 }
