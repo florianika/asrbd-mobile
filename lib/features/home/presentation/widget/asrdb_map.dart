@@ -164,57 +164,65 @@ class _AsrdbMapState extends State<AsrdbMap> {
   double? _previousZoom;
   void _onPositionChanged(
       MapCamera camera, bool hasGesture, int municipalityId) {
-    final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-    _previousZoom = camera.zoom;
+    try {
+      final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
+      _previousZoom = camera.zoom;
 
-    if (!hasGesture && !zoomChanged) return;
+      if (!hasGesture && !zoomChanged) return;
 
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      if (camera.zoom >= EsriConfig.buildingMinZoom) {
-        context
-            .read<BuildingCubit>()
-            .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
-      } else {
-        setState(() {
-          buildingsData = null;
-          entranceData = null;
-          _selectedBuildingGlobalId = null;
-        });
-        context.read<BuildingCubit>().clearBuildings();
-        context.read<AttributesCubit>().clearSelections();
-      }
-    });
-
-    zoom = camera.zoom;
-    visibleBounds = widget.mapController.camera.visibleBounds;
-    if (_selectedBuildingGlobalId != null && entranceData != null) {
-      final features = entranceData?['features'] as List<dynamic>?;
-
-      final entrancePoints = features
-          ?.whereType<Map<String, dynamic>>()
-          .where((f) =>
-              f['properties']?['EntBldGlobalID']?.toString() ==
-              _selectedBuildingGlobalId)
-          .map((f) {
-        final coords = f['geometry']['coordinates'];
-        return LatLng(coords[1], coords[0]);
-      }).toList();
-
-      if (entrancePoints != null && entrancePoints.isNotEmpty) {
-        final isOutside = GeometryHelper.anyPointOutsideBounds(
-          entrancePoints,
-          camera.visibleBounds,
-        );
-
-        if (_entranceOutsideVisibleArea != isOutside) {
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      _debounce = Timer(const Duration(milliseconds: 500), () {
+        if (camera.zoom >= EsriConfig.buildingMinZoom) {
+          context
+              .read<BuildingCubit>()
+              .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
+        } else {
           setState(() {
-            _entranceOutsideVisibleArea = isOutside;
+            buildingsData = null;
+            entranceData = null;
+            _selectedBuildingGlobalId = null;
           });
+          context.read<BuildingCubit>().clearBuildings();
+          context.read<AttributesCubit>().clearSelections();
+        }
+      });
 
-          widget.onEntranceVisibilityChange?.call(isOutside);
+      zoom = camera.zoom;
+      visibleBounds = widget.mapController.camera.visibleBounds;
+      if (_selectedBuildingGlobalId != null && entranceData != null) {
+        final features = entranceData?['features'] as List<dynamic>?;
+
+        final entrancePoints = features
+            ?.whereType<Map<String, dynamic>>()
+            .where((f) =>
+                f['properties']?['EntBldGlobalID']?.toString() ==
+                _selectedBuildingGlobalId)
+            .map((f) {
+          final coords = f['geometry']['coordinates'];
+          return LatLng(coords[1], coords[0]);
+        }).toList();
+
+        if (entrancePoints != null && entrancePoints.isNotEmpty) {
+          final isOutside = GeometryHelper.anyPointOutsideBounds(
+            entrancePoints,
+            camera.visibleBounds,
+          );
+
+          if (_entranceOutsideVisibleArea != isOutside) {
+            setState(() {
+              _entranceOutsideVisibleArea = isOutside;
+            });
+
+            widget.onEntranceVisibilityChange?.call(isOutside);
+          }
         }
       }
+    } on Exception catch (e) {
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
     }
   }
 
@@ -387,13 +395,23 @@ class _AsrdbMapState extends State<AsrdbMap> {
           ),
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
-            if (state is Buildings) {
+            if (state is BuildingError) {
+              NotifierService.showMessage(
+                context,
+                message: state.message,
+                type: MessageType.error,
+              );
+              return;
+            } else if (state is Buildings) {
               if (state.buildings.isNotEmpty) {
                 buildingsData = state.buildings;
                 context.read<EntranceCubit>().getEntrances(
-                    zoom,
-                    EsriConditionHelper.getPropertiesAsList(
-                        'GlobalID', state.buildings));
+                      zoom,
+                      EsriConditionHelper.getPropertiesAsList(
+                        'GlobalID',
+                        state.buildings,
+                      ),
+                    );
               }
             }
           },

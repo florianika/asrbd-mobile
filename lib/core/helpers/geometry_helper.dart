@@ -1,4 +1,6 @@
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geodesy/geodesy.dart' show Geodesy;
 import 'package:latlong2/latlong.dart';
 import 'dart:math';
 
@@ -121,7 +123,6 @@ class GeometryHelper {
     }
   }
 
-
   static bool doPolygonsIntersect(List<LatLng> poly1, List<LatLng> poly2) {
     if (poly1.length < 3 || poly2.length < 3) return false;
     if (_areSamePolygon(poly1, poly2)) return false;
@@ -153,6 +154,60 @@ class GeometryHelper {
       }
     }
     return true;
+  }
+
+  /// Projected vector math helper (treats LatLng as 2D points)
+  static LatLng _closestPointOnSegment(LatLng p, LatLng a, LatLng b) {
+    double x = p.longitude;
+    double y = p.latitude;
+
+    double x1 = a.longitude;
+    double y1 = a.latitude;
+    double x2 = b.longitude;
+    double y2 = b.latitude;
+
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+
+    if (dx == 0 && dy == 0) return a; // segment is a point
+
+    double t = ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy);
+    t = t.clamp(0.0, 1.0); // clamp to segment
+
+    return LatLng(y1 + t * dy, x1 + t * dx);
+  }
+
+  static void injectPointIntoPolygon(List<LatLng> polygon, LatLng newPoint) {
+    final geodesy = Geodesy();
+    num minDistance = double.infinity;
+    int insertIndex = 0;
+
+    for (int i = 0; i < polygon.length - 1; i++) {
+      LatLng a = polygon[i];
+      LatLng b = polygon[i + 1];
+
+      // Get closest point on the line from a to b
+      final closest = _closestPointOnSegment(newPoint, a, b);
+      final dist = geodesy.distanceBetweenTwoGeoPoints(newPoint, closest);
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        insertIndex = i + 1;
+      }
+    }
+
+    // Optional: check also the closing edge if polygon is closed
+    if (polygon.first != polygon.last) {
+      LatLng a = polygon.last;
+      LatLng b = polygon.first;
+      final closest = _closestPointOnSegment(newPoint, a, b);
+      final dist = geodesy.distanceBetweenTwoGeoPoints(newPoint, closest);
+      if (dist < minDistance) {
+        insertIndex = polygon.length; // insert at the end
+      }
+    }
+
+    polygon.insert(insertIndex, newPoint);
   }
 
   static bool _boundingBoxesOverlap(List<LatLng> a, List<LatLng> b) {

@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -41,7 +42,11 @@ class NewGeometryCubit extends Cubit<NewGeometryState> {
     _pushToUndo();
     _redoStack.clear();
 
-    _points.add(point);
+    if (_type == ShapeType.polygon) {
+      GeometryHelper.injectPointIntoPolygon(_points, point);
+    } else {
+      _points.add(point);
+    }
     _emitCurrentState();
   }
 
