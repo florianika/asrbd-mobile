@@ -1,4 +1,3 @@
-import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodesy/geodesy.dart' show Geodesy;
 import 'package:latlong2/latlong.dart';

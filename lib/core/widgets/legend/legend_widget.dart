@@ -1,4 +1,6 @@
 import 'package:asrdb/core/models/legend/legend.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 
 class CombinedLegendWidget extends StatefulWidget {
@@ -35,7 +37,7 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
   void initState() {
     super.initState();
     _currentBuildingAttribute = widget.initialBuildingAttribute;
-    
+
     _buildingAnimationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -48,7 +50,7 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    
+
     _buildingAnimation = CurvedAnimation(
       parent: _buildingAnimationController,
       curve: Curves.easeOut,
@@ -57,7 +59,7 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       parent: _entranceAnimationController,
       curve: Curves.easeOut,
     );
-    
+
     _buildingAnimationController.forward();
     _entranceAnimationController.reverse();
     _legendAnimationController.forward();
@@ -113,131 +115,138 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       alignment: Alignment.bottomRight,
       child: Container(
         margin: const EdgeInsets.all(16),
-        child: _isWholeLegendExpanded 
-          ? // Expanded Legend
+        child: _isWholeLegendExpanded
+            ? // Expanded Legend
             Container(
-              width: 280,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Color(0xFFE5E7EB),
-                          width: 1,
+                width: 280,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: const BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Color(0xFFE5E7EB),
+                            width: 1,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Legend',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: _toggleWholeLegend,
-                          borderRadius: BorderRadius.circular(4),
-                          child: const Padding(
-                            padding: EdgeInsets.all(4),
-                            child: Icon(
-                              Icons.close,
-                              color: Color(0xFF6B7280),
-                              size: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Content
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        // Buildings Section
-                        _buildSection(
-                          title: 'Buildings',
-                          isExpanded: _isBuildingSectionExpanded,
-                          onToggle: _toggleBuildingSection,
-                          animation: _buildingAnimation,
-                          dropdown: DropdownButton<String>(
-                            value: _currentBuildingAttribute,
-                            underline: const SizedBox(),
-                            isDense: true,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context).translate(Keys.legend),
                             style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Color(0xFF374151),
                             ),
-                            items: widget.buildingLegends.keys.map((attr) {
-                              return DropdownMenuItem(
-                                value: attr,
-                                child: Text(
-                                  attr[0].toUpperCase() + attr.substring(1),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              if (val != null) {
-                                setState(() {
-                                  widget.onChange(val);
-                                  _currentBuildingAttribute = val;
-                                });
-                              }
-                            },
                           ),
-                          content: buildingLegend.map((legend) => _buildLegendItem(legend, isBuilding: true)).toList(),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Entrances Section
-                        _buildSection(
-                          title: 'Entrances',
-                          isExpanded: _isEntranceSectionExpanded,
-                          onToggle: _toggleEntranceSection,
-                          animation: _entranceAnimation,
-                          content: widget.entranceLegends
-                              .map((legend) => _buildLegendItem(legend, isBuilding: false))
-                              .toList(),
-                        ),
-                      ],
+                          InkWell(
+                            onTap: _toggleWholeLegend,
+                            borderRadius: BorderRadius.circular(4),
+                            child: const Padding(
+                              padding: EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.close,
+                                color: Color(0xFF6B7280),
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          : // Collapsed Floating Button
+
+                    // Content
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          // Buildings Section
+                          _buildSection(
+                            title: AppLocalizations.of(context)
+                                .translate(Keys.legendBuildings),
+                            isExpanded: _isBuildingSectionExpanded,
+                            onToggle: _toggleBuildingSection,
+                            animation: _buildingAnimation,
+                            dropdown: DropdownButton<String>(
+                              value: _currentBuildingAttribute,
+                              underline: const SizedBox(),
+                              isDense: true,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Color(0xFF6B7280),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              items: widget.buildingLegends.keys.map((attr) {
+                                return DropdownMenuItem(
+                                  value: attr,
+                                  child: Text(
+                                    attr[0].toUpperCase() + attr.substring(1),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setState(() {
+                                    widget.onChange(val);
+                                    _currentBuildingAttribute = val;
+                                  });
+                                }
+                              },
+                            ),
+                            content: buildingLegend
+                                .map((legend) =>
+                                    _buildLegendItem(legend, isBuilding: true))
+                                .toList(),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Entrances Section
+                          _buildSection(
+                            title: AppLocalizations.of(context)
+                                .translate(Keys.legendEntrances),
+                            isExpanded: _isEntranceSectionExpanded,
+                            onToggle: _toggleEntranceSection,
+                            animation: _entranceAnimation,
+                            content: widget.entranceLegends
+                                .map((legend) =>
+                                    _buildLegendItem(legend, isBuilding: false))
+                                .toList(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : // Collapsed Floating Button
             FloatingActionButton(
-              onPressed: _toggleWholeLegend,
-              backgroundColor: Colors.white,
-              foregroundColor: const Color(0xFF374151),
-              elevation: 3,
-              child: const Icon(
-                Icons.info_outline,
-                size: 22,
+                onPressed: _toggleWholeLegend,
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF374151),
+                elevation: 3,
+                child: const Icon(
+                  Icons.info_outline,
+                  size: 22,
+                ),
               ),
-            ),
       ),
     );
   }
@@ -310,18 +319,18 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
           SizedBox(
             width: 16,
             height: 16,
-            child: isBuilding 
-              ? CustomPaint(
-                  painter: PolygonPainter(color: legend.color),
-                )
-              : Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: legend.color,
-                    shape: BoxShape.circle,
+            child: isBuilding
+                ? CustomPaint(
+                    painter: PolygonPainter(color: legend.color),
+                  )
+                : Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: legend.color,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -341,17 +350,17 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
 
 class PolygonPainter extends CustomPainter {
   final Color color;
-  
+
   PolygonPainter({required this.color});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    
+
     final path = Path();
-    
+
     // Create a shape similar to the building polygon in the image
     // It looks like an angular, house-like shape
     path.moveTo(size.width * 0.15, size.height * 0.3); // Left side start
@@ -360,10 +369,10 @@ class PolygonPainter extends CustomPainter {
     path.lineTo(size.width * 0.9, size.height * 0.85); // Bottom right
     path.lineTo(size.width * 0.1, size.height * 0.9); // Bottom left
     path.close();
-    
+
     canvas.drawPath(path, paint);
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

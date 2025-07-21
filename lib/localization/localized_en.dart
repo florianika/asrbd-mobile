@@ -2,6 +2,8 @@ import 'package:asrdb/localization/keys.dart';
 
 class LocalizedEn {
   static final Map<String, String> localizedStrings = {
+    Keys.save: 'Save',
+    Keys.close: 'Close',
     Keys.login: 'Login',
     Keys.enterMail: 'Enter email',
     Keys.mailPlaceholder: 'Email',
@@ -24,5 +26,22 @@ class LocalizedEn {
     Keys.basemapTerrain: 'Terrein',
     Keys.basemapSatellite: 'Satellite',
     Keys.download: 'Download',
+    Keys.startReviewingTitle: 'Start Reviewing',
+    Keys.startReviewingContent:
+        'Are you sure you want to start reviewing this building?',
+    Keys.finishReviewingTitle: 'Finish Reviewing',
+    Keys.finishReviewingContent:
+        'Are you sure you want to finish reviewing this building?',
+    Keys.manageDwellings: 'Manage Dwellings',
+    Keys.validateData: 'Validate Data',
+    Keys.startReviewing: 'Start Reviewing',
+    Keys.finishReviewing: 'Finish Reviewing',
+    Keys.legend: 'Legend',
+    Keys.legendBuildings: 'Buildings',
+    Keys.legendEntrances: 'Entrances',
+    Keys.confirmationTitle: 'Confirmation',
+    Keys.confirmationContent: 'Are you sure you want to proceed?',
+    Keys.confirmationCancel: 'Cancel',
+    Keys.confirmationConfirm: 'Confirm'
   };
 }

@@ -1,6 +1,8 @@
 // localization/strings.dart
 
 class Keys {
+  static const String save = 'save';
+  static const String close = 'close';
   static const String login = 'login';
   static const String enterMail = 'enterMail';
   static const String mailPlaceholder = "Email";
@@ -16,4 +18,19 @@ class Keys {
   static const String basemapTerrain = 'basemaTerrain';
   static const String basemapSatellite = 'basemapSatellite';
   static const String download = 'download';
+  static const String startReviewingTitle = 'startReviewingTitle';
+  static const String startReviewingContent = 'startReviewingContent';
+  static const String finishReviewingTitle = 'finishReviewingTitle';
+  static const String finishReviewingContent = 'finishReviewingContent';
+  static const String manageDwellings = 'manageDwellings';
+  static const String validateData = 'validateData';
+  static const String startReviewing = 'startReviewing';
+  static const String finishReviewing = 'finishReviewing';
+  static const String legend = 'legend';
+  static const String legendBuildings = 'legendBuildings';
+  static const String legendEntrances = 'legendEntrances';
+  static const String confirmationTitle = 'confirmationTitle';
+  static const String confirmationContent = 'confirmationContent';
+  static const String confirmationCancel = 'confirmationCancel';
+  static const String confirmationConfirm = 'confirmationConfirm';
 }

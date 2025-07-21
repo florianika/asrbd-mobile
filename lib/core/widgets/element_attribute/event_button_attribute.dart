@@ -3,6 +3,8 @@ import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -66,8 +68,9 @@ class EventButtonAttribute extends StatelessWidget {
       // if BldReview == 7 update it to 4 using esri
       final confirmed = await showConfirmationDialog(
         context: context,
-        title: 'Start Reviewing',
-        content: 'Are you sure you want to start reviewing this building?',
+        title: AppLocalizations.of(context).translate(Keys.startReviewingTitle),
+        content:
+            AppLocalizations.of(context).translate(Keys.startReviewingContent),
       );
 
       if (confirmed && startReviewingBuilding != null) {
@@ -83,8 +86,10 @@ class EventButtonAttribute extends StatelessWidget {
       final buildingCubit = context.read<AttributesCubit>();
       final confirmed = await showConfirmationDialog(
         context: context,
-        title: 'Finish Reviewing',
-        content: 'Are you sure you want to finish reviewing this building?',
+        title:
+            AppLocalizations.of(context).translate(Keys.finishReviewingTitle),
+        content:
+            AppLocalizations.of(context).translate(Keys.finishReviewingContent),
       );
 
       if (confirmed && finishReviewingBuilding != null) {
@@ -110,9 +115,9 @@ class EventButtonAttribute extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                child: const Text(
-                  'Close',
-                  style: TextStyle(color: Colors.black),
+                child: Text(
+                  AppLocalizations.of(context).translate(Keys.close),
+                  style: const TextStyle(color: Colors.black),
                 ),
               ),
             ),
@@ -130,7 +135,7 @@ class EventButtonAttribute extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              child: const Text('Save'),
+              child: Text(AppLocalizations.of(context).translate(Keys.save)),
             ),
           ),
           SpeedDial(
@@ -150,7 +155,8 @@ class EventButtonAttribute extends StatelessWidget {
                   child: const Icon(Icons.home_work),
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
-                  label: 'Manage Dwellings',
+                  label: AppLocalizations.of(context)
+                      .translate(Keys.manageDwellings),
                   labelBackgroundColor: Colors.white,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -164,7 +170,8 @@ class EventButtonAttribute extends StatelessWidget {
                   child: const Icon(Icons.check_circle),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
-                  label: 'Validate Data',
+                  label:
+                      AppLocalizations.of(context).translate(Keys.validateData),
                   labelBackgroundColor: Colors.white,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -179,7 +186,8 @@ class EventButtonAttribute extends StatelessWidget {
                   child: const Icon(Icons.start),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
-                  label: 'Start Reviewing',
+                  label: AppLocalizations.of(context)
+                      .translate(Keys.startReviewing),
                   labelBackgroundColor: Colors.white,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -193,7 +201,8 @@ class EventButtonAttribute extends StatelessWidget {
                   child: const Icon(Icons.stop),
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
-                  label: 'Finish Review',
+                  label: AppLocalizations.of(context)
+                      .translate(Keys.finishReviewing),
                   labelBackgroundColor: Colors.white,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -201,21 +210,6 @@ class EventButtonAttribute extends StatelessWidget {
                     fontSize: 14,
                   ),
                   onTap: () => finishReviewing(),
-                ),
-              if (selectedShapeType == ShapeType.point ||
-                  selectedShapeType == ShapeType.polygon)
-                SpeedDialChild(
-                  child: const Icon(Icons.edit),
-                  backgroundColor: Colors.purple,
-                  foregroundColor: Colors.white,
-                  label: 'Edit Position',
-                  labelBackgroundColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  onTap: () => {},
                 ),
             ],
           ),

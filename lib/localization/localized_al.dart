@@ -2,6 +2,8 @@ import 'package:asrdb/localization/keys.dart';
 
 class LocalizedAl {
   static final Map<String, String> localizedStrings = {
+    Keys.save: 'Ruaj',
+    Keys.close: 'Mbyll',
     Keys.login: 'Hyr',
     Keys.enterMail: 'Vendosni email',
     Keys.mailPlaceholder: 'Email',
@@ -20,5 +22,22 @@ class LocalizedAl {
     Keys.basemapTerrain: 'Terren',
     Keys.basemapSatellite: 'Satelit',
     Keys.download: 'Shkarko',
+    Keys.startReviewingTitle: 'Fillo Rishikimin',
+    Keys.startReviewingContent:
+        'Jeni i sigurt që doni të filloni rishikimin e kësaj ndërtese?',
+    Keys.finishReviewingTitle: 'Perfundo Rishikimin',
+    Keys.finishReviewingContent:
+        'Jeni i sigurt që doni të përfundoni rishikimin e kësaj ndërtese?',
+    Keys.manageDwellings: 'Menaxho Banesat',
+    Keys.validateData: 'Valido të Dhënat',
+    Keys.startReviewing: 'Fillo Rishikimin',
+    Keys.finishReviewing: 'Përfundo Rishikimin',
+    Keys.legend: 'Legjenda',
+    Keys.legendBuildings: 'Ndertesat',
+    Keys.legendEntrances: 'Hyrjet',
+    Keys.confirmationTitle: 'Konfirmim',
+    Keys.confirmationContent: 'Jeni i sigurt që doni të vazhdoni?',
+    Keys.confirmationCancel: 'Anulo',
+    Keys.confirmationConfirm: 'Konfirmo',
   };
 }
