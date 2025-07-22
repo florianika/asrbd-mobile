@@ -1,3 +1,5 @@
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/models/general_fields.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -95,8 +97,9 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final data = await buildingUseCases.getBuildingDetails(buildingGlobalID);
-      final features = data['features'] ?? [];
-      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      final features = data[GeneralFields.features] ?? [];
+      final props =
+          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
       emit(Attributes(
           schema, props, ShapeType.polygon, buildingGlobalID, null, null));
     } catch (e) {
@@ -115,8 +118,9 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final data = await dwellingUseCases.getDwellingDetails(dwellingObjectID);
-      final features = data['features'] ?? [];
-      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      final features = data[GeneralFields.features] ?? [];
+      final props =
+          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
       emit(Attributes(
         schema,
         props,
@@ -137,19 +141,25 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
       if (entranceGlobalID == null) {
-        emit(Attributes(schema, {'EntBldGlobalID': buildingGlobalID},
-            ShapeType.point, buildingGlobalID, entranceGlobalID, null));
+        emit(Attributes(
+            schema,
+            {EntranceFields.entBldGlobalID: buildingGlobalID},
+            ShapeType.point,
+            buildingGlobalID,
+            entranceGlobalID,
+            null));
         return;
       }
 
       final data = await entranceUseCases.getEntranceDetails(entranceGlobalID);
-      final features = data['features'] ?? [];
-      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      final features = data[GeneralFields.features] ?? [];
+      final props =
+          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
       emit(Attributes(
         schema,
         props,
         ShapeType.point,
-        props['EntBldGlobalID'] ?? buildingGlobalID,
+        props[EntranceFields.entBldGlobalID] ?? buildingGlobalID,
         entranceGlobalID,
         null,
       ));
@@ -168,8 +178,9 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final data = await buildingUseCases.getBuildingDetails(buildingGlobalID);
-      final features = data['features'] ?? [];
-      final props = features.isNotEmpty ? features[0]['properties'] : {};
+      final features = data[GeneralFields.features] ?? [];
+      final props =
+          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
       emit(Attributes(
           schema, props, ShapeType.polygon, buildingGlobalID, null, null));
     } catch (e) {
@@ -188,7 +199,7 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   ShapeType get shapeType =>
       state is Attributes ? (state as Attributes).shapeType : ShapeType.point;
-      
+
   void clearSelections() {
     emit(AttributesVisibility(false));
   }

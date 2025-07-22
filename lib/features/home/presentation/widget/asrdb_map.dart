@@ -9,6 +9,7 @@ import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
@@ -129,7 +130,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
           .getEntranceDetails(_selectedGlobalId!, buildingGlobalId);
       context.read<OutputLogsCubit>().outputLogsBuildings(
           StringHelper.removeCurlyBracesFromString(
-              data['EntBldGlobalID'].toString()));
+              data[EntranceFields.entBldGlobalID].toString()));
     } catch (e) {
       NotifierService.showMessage(
         context,
@@ -168,15 +169,17 @@ class _AsrdbMapState extends State<AsrdbMap> {
       zoom = camera.zoom;
       visibleBounds = widget.mapController.camera.visibleBounds;
       if (_selectedBuildingGlobalId != null && entranceData != null) {
-        final features = entranceData?['features'] as List<dynamic>?;
+        final features =
+            entranceData?[GeneralFields.features] as List<dynamic>?;
 
         final entrancePoints = features
             ?.whereType<Map<String, dynamic>>()
             .where((f) =>
-                f['properties']?['EntBldGlobalID']?.toString() ==
+                f[GeneralFields.properties]?[EntranceFields.entBldGlobalID]
+                    ?.toString() ==
                 _selectedBuildingGlobalId)
             .map((f) {
-          final coords = f['geometry']['coordinates'];
+          final coords = f[GeneralFields.geometry][GeneralFields.coordinates];
           return LatLng(coords[1], coords[0]);
         }).toList();
 
@@ -259,20 +262,24 @@ class _AsrdbMapState extends State<AsrdbMap> {
         List<LatLng> entrancePoints = [];
 
         if (entranceData != null) {
-          final entranceFeatures = entranceData?['features'] as List<dynamic>?;
+          final entranceFeatures =
+              entranceData?[GeneralFields.features] as List<dynamic>?;
 
           if (entranceFeatures != null) {
             for (final feature
                 in entranceFeatures.whereType<Map<String, dynamic>>()) {
-              final props = feature['properties'] as Map<String, dynamic>?;
-              final geom = feature['geometry'] as Map<String, dynamic>?;
+              final props =
+                  feature[GeneralFields.properties] as Map<String, dynamic>?;
+              final geom =
+                  feature[GeneralFields.geometry] as Map<String, dynamic>?;
               if (props != null &&
-                  props['EntBldGlobalID']?.toString() == globalId &&
+                  props[EntranceFields.entBldGlobalID]?.toString() ==
+                      globalId &&
                   geom != null &&
-                  geom['type'] == 'Point') {
-                final coords = geom['coordinates'];
+                  geom[GeneralFields.type] == 'Point') {
+                final coords = geom[GeneralFields.coordinates];
                 entrancePoints.add(LatLng(coords[1], coords[0]));
-                buildingEntrances.add(props['GlobalID']);
+                buildingEntrances.add(props[GeneralFields.globalID]);
               }
             }
           }
@@ -289,14 +296,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }
 
-        final features = buildings['features'] as List<dynamic>?;
+        final features = buildings[GeneralFields.features] as List<dynamic>?;
         final building = features?.firstWhere(
-          (f) => f['properties']['GlobalID'].toString() == globalId,
+          (f) => f[GeneralFields.properties][GeneralFields.globalID].toString() == globalId,
           orElse: () => null,
         );
 
         if (building != null) {
-          final geometry = building['geometry'];
+          final geometry = building[GeneralFields.geometry];
           final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
 
           if (polygonPoints.isNotEmpty) {
@@ -397,7 +404,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 context.read<EntranceCubit>().getEntrances(
                       zoom,
                       EsriConditionHelper.getPropertiesAsList(
-                        'GlobalID',
+                        GeneralFields.globalID,
                         state.buildings,
                       ),
                     );
@@ -418,12 +425,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 entranceData = entrances;
               case Entrance(:final entrance):
                 if (entrance.isNotEmpty) {
-                  List<dynamic> features = entrance['features'];
+                  List<dynamic> features = entrance[GeneralFields.features];
                   if (features.isNotEmpty &&
                       features[0] is Map<String, dynamic>) {
                     Map<String, dynamic> firstFeature = features[0];
                     Map<String, dynamic> properties =
-                        firstFeature['properties'];
+                        firstFeature[GeneralFields.properties];
                     _initialData = properties;
                   }
                 }

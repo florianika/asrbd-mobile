@@ -7,7 +7,9 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
+import 'package:asrdb/core/models/build_fields.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
+import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
@@ -100,16 +102,18 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, dynamic> _removeFeatureByAttribute(
       String attributeKey, dynamic attributeValue, Map<String, dynamic> data) {
     if (attributeValue == null) return data;
-    if (data['features'] == null || data['features'] is! List) {
+    if (data[GeneralFields.features] == null ||
+        data[GeneralFields.features] is! List) {
       return data;
     }
 
     // Make a deep copy to avoid mutating the original map (optional but safer)
     final Map<String, dynamic> updatedData = Map<String, dynamic>.from(data);
-    updatedData['features'] = List<dynamic>.from(updatedData['features']);
+    updatedData[GeneralFields.features] =
+        List<dynamic>.from(updatedData[GeneralFields.features]);
 
-    updatedData['features'].removeWhere((feature) {
-      final properties = feature['properties'];
+    updatedData[GeneralFields.features].removeWhere((feature) {
+      final properties = feature[GeneralFields.properties];
       return properties != null && properties[attributeKey] == attributeValue;
     });
 
@@ -119,13 +123,13 @@ class _ViewMapState extends State<ViewMap> {
   List<List<LatLng>> _extractPolygons(Map<String, dynamic> geoJson) {
     final List<List<LatLng>> polygons = [];
 
-    final features = geoJson['features'];
+    final features = geoJson[GeneralFields.features];
     if (features is! List) return polygons;
 
     for (final feature in features) {
-      final geometry = feature['geometry'];
-      if (geometry != null && geometry['type'] == 'Polygon') {
-        final coordinates = geometry['coordinates'];
+      final geometry = feature[GeneralFields.geometry];
+      if (geometry != null && geometry[GeneralFields.type] == 'Polygon') {
+        final coordinates = geometry[GeneralFields.coordinates];
 
         if (coordinates is List && coordinates.isNotEmpty) {
           final outerRing = coordinates[0]; // Only outer ring
@@ -156,7 +160,7 @@ class _ViewMapState extends State<ViewMap> {
     loadingCubit.show();
     final geodesy = Geodesy();
 
-    final isNew = attributes['GlobalID'] == null;
+    final isNew = attributes[EntranceFields.globalID] == null;
     bool isOutsideMunicipality = false;
 
     try {
@@ -165,7 +169,8 @@ class _ViewMapState extends State<ViewMap> {
       if (state is Municipality && geometryCubit.points.isNotEmpty) {
         final municipality = state.municipality;
         isOutsideMunicipality = PolygonHitDetector.hasPointOutsideMultiPolygon(
-            municipality!['features'][0]['geometry'], geometryCubit.points);
+            municipality![GeneralFields.features][0][GeneralFields.geometry],
+            geometryCubit.points);
       }
 
       if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
@@ -178,7 +183,7 @@ class _ViewMapState extends State<ViewMap> {
       }
 
       if (attributesCubit.shapeType == ShapeType.point) {
-        attributes['EntPointStatus'] = DefaultData.fieldData;
+        attributes[EntranceFields.entPointStatus] = DefaultData.fieldData;
         if (isNew) {
           final storageResponsitory = sl<StorageRepository>();
           String? buildingGlobalId = await storageResponsitory.getString(
@@ -187,30 +192,34 @@ class _ViewMapState extends State<ViewMap> {
           );
 
           attributes[EntranceFields.entBldGlobalID] = buildingGlobalId;
-          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_creator_date'] =
+          attributes[GeneralFields.externalCreator] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalCreatorDate] =
               DateTime.now().millisecondsSinceEpoch;
-          attributes['EntLatitude'] = geometryCubit.points.first.latitude;
-          attributes['EntLongitude'] = geometryCubit.points.first.longitude;
+          attributes[EntranceFields.entLatitude] =
+              geometryCubit.points.first.latitude;
+          attributes[EntranceFields.entLongitude] =
+              geometryCubit.points.first.longitude;
           await entranceCubit.addEntranceFeature(
               attributes, geometryCubit.points);
         } else {
-          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_editor_date'] =
+          attributes[GeneralFields.externalEditor] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalEditorDate] =
               DateTime.now().millisecondsSinceEpoch;
           await entranceCubit.updateEntranceFeature(
               attributes, geometryCubit.points.first);
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
-        attributes['BldCentroidStatus'] = DefaultData.fieldData;
+        attributes[BuildFields.bldCentroidStatus] = DefaultData.fieldData;
         if (geometryCubit.points.isNotEmpty) {
           final centroid = geodesy.findPolygonCentroid(geometryCubit.points);
-          attributes['BldLatitude'] = centroid.latitude;
-          attributes['BldLongitude'] = centroid.longitude;
+          attributes[BuildFields.bldLatitude] = centroid.latitude;
+          attributes[BuildFields.bldLongitude] = centroid.longitude;
 
           var buildingsList = (buildingCubit.state as Buildings).buildings;
-          var buildings = _removeFeatureByAttribute(
-              'GlobalID', attributes['GlobalID'], buildingsList);
+          var buildings = _removeFeatureByAttribute(GeneralFields.globalID,
+              attributes[GeneralFields.globalID], buildingsList);
 
           var polygons = _extractPolygons(buildings);
 
@@ -231,30 +240,36 @@ class _ViewMapState extends State<ViewMap> {
         }
 
         if (isNew) {
-          attributes['BldMunicipality'] = userService.userInfo?.municipality;
-          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_creator_date'] =
+          attributes[BuildFields.bldMunicipality] =
+              userService.userInfo?.municipality;
+          attributes[GeneralFields.externalCreator] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalCreatorDate] =
               DateTime.now().millisecondsSinceEpoch;
 
           await buildingCubit.addBuildingFeature(
               attributes, geometryCubit.points);
         } else {
-          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_editor_date'] =
+          attributes[GeneralFields.externalCreator] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalCreatorDate] =
               DateTime.now().millisecondsSinceEpoch;
           await buildingCubit.updateBuildingFeature(
               attributes, geometryCubit.points);
         }
       } else if (attributesCubit.shapeType == ShapeType.noShape) {
         if (isNew) {
-          attributes['DwlEntGlobalID'] = entranceCubit.selectedEntranceGlobalId;
-          attributes['external_creator'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_creator_date'] =
+          attributes[EntranceFields.dwlEntGlobalID] =
+              entranceCubit.selectedEntranceGlobalId;
+          attributes[GeneralFields.externalCreator] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalCreatorDate] =
               DateTime.now().millisecondsSinceEpoch;
           await dwellingCubit.addDwellingFeature(attributes);
         } else {
-          attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
-          attributes['external_editor_date'] =
+          attributes[GeneralFields.externalEditor] =
+              '{${userService.userInfo?.nameId}}';
+          attributes[GeneralFields.externalEditorDate] =
               DateTime.now().millisecondsSinceEpoch;
           await dwellingCubit.updateDwellingFeature(attributes);
         }
@@ -299,8 +314,9 @@ class _ViewMapState extends State<ViewMap> {
       loadingCubit.show();
       final buildingDetails =
           await buildingUseCases.getBuildingDetails(globalId);
-      final attributes = buildingDetails['features'][0]['properties'];
-      if (attributes['BldQuality'] == 9 && mounted) {
+      final attributes =
+          buildingDetails[GeneralFields.features][0][GeneralFields.properties];
+      if (attributes[BuildFields.bldQuality] == 9 && mounted) {
         NotifierService.showMessage(
           context,
           messageKey: Keys.finishReviewWarning,
@@ -315,10 +331,10 @@ class _ViewMapState extends State<ViewMap> {
 
         final result = await sl<NoteService>().getNotes(buildingGlobalId);
         final noteCount = result.notes.length;
-        if (attributes['BldQuality'] == 1 && noteCount == 0) {
-          attributes['BldReview'] = 2;
+        if (attributes[BuildFields.bldQuality] == 1 && noteCount == 0) {
+          attributes[BuildFields.bldReview] = 2;
         } else {
-          attributes['BldReview'] = 3;
+          attributes[BuildFields.bldReview] = 3;
         }
 
         await buildingCubit.updateBuildingFeature(attributes, null);

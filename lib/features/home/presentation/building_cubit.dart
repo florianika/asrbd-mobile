@@ -1,4 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -118,7 +119,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(BuildingLoading());
     try {
       await buildingUseCases.updateBuildingFeature(attributes, points);
-      emit(BuildingUpdateResponse(attributes['GlobalID']));
+      emit(BuildingUpdateResponse(attributes[GeneralFields.globalID]));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }

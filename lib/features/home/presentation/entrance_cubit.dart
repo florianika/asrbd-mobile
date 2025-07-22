@@ -1,4 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -104,7 +105,8 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       final success =
           await entranceUseCases.addEntranceFeature(attributes, points);
-      emit(EntranceAddResponse(success, attributes['EntBldGlobalID']));
+      emit(EntranceAddResponse(
+          success, attributes[EntranceFields.entBldGlobalID]));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
@@ -116,7 +118,8 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       final success =
           await entranceUseCases.updateEntranceFeature(attributes, point);
-      emit(EntranceUpdateResponse(success, attributes['EntBldGlobalID']));
+      emit(EntranceUpdateResponse(
+          success, attributes[EntranceFields.entBldGlobalID]));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
