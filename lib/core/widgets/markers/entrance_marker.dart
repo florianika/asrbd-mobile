@@ -15,12 +15,14 @@ class EntranceMarker extends StatefulWidget {
   final Map<String, dynamic>? entranceData;
   final String attributeLegend;
   final Function onTap;
+  final Function onLongPress;
   final MapController mapController;
 
   const EntranceMarker({
     super.key,
     this.entranceData,
     required this.onTap,
+    required this.onLongPress,
     required this.mapController,
     required this.attributeLegend,
   });
@@ -60,6 +62,8 @@ class _EntranceMarkerState extends State<EntranceMarker> {
         return MarkerLayer(
           markers: features.map((feature) {
             final props = Map<String, dynamic>.from(feature['properties']);
+            final position =
+                GeometryHelper.parseCoordinates(feature['geometry']).first;
             final globalId = props['GlobalID']?.toString().removeCurlyBraces();
             final buildingGlobalId = props[EntranceFields.entBldGlobalID]
                 ?.toString()
@@ -86,9 +90,10 @@ class _EntranceMarkerState extends State<EntranceMarker> {
             return Marker(
               width: markerSize,
               height: markerSize,
-              point: GeometryHelper.parseCoordinates(feature['geometry']).first,
+              point: position,
               child: GestureDetector(
                 onTap: () => widget.onTap(props),
+                onLongPress: () => widget.onLongPress(position, globalId),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [

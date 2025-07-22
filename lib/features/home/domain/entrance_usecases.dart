@@ -31,8 +31,8 @@ class EntranceUseCases {
   }
 
   Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes) async {
-    return await _entranceRepository.updateEntranceFeature(attributes);
+      Map<String, dynamic> attributes, LatLng point) async {
+    return await _entranceRepository.updateEntranceFeature(attributes, point);
   }
 
   Future<bool> deleteEntranceFeature(String objectId) async {

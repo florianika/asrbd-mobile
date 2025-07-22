@@ -315,6 +315,17 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
+  void _onLongTapEntrance(LatLng coordinates, String entranceGlobalId) {
+    final buildingGlobalId =
+        context.read<AttributesCubit>().currentBuildingGlobalId;
+    context.read<AttributesCubit>().showEntranceAttributes(
+        entranceGlobalId.removeCurlyBraces(), buildingGlobalId);
+
+    context.read<NewGeometryCubit>().setPoints([coordinates]);
+    context.read<NewGeometryCubit>().setType(ShapeType.point);
+    context.read<NewGeometryCubit>().setDrawing(true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
@@ -422,6 +433,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
             return EntranceMarker(
               entranceData: entranceData,
               onTap: _handleEntranceTap,
+              onLongPress: _onLongTapEntrance,
               attributeLegend: widget.attributeLegend,
               mapController: widget.mapController,
             );

@@ -198,7 +198,8 @@ class _ViewMapState extends State<ViewMap> {
           attributes['external_editor'] = '{${userService.userInfo?.nameId}}';
           attributes['external_editor_date'] =
               DateTime.now().millisecondsSinceEpoch;
-          await entranceCubit.updateEntranceFeature(attributes);
+          await entranceCubit.updateEntranceFeature(
+              attributes, geometryCubit.points.first);
         }
       } else if (attributesCubit.shapeType == ShapeType.polygon) {
         attributes['BldCentroidStatus'] = DefaultData.fieldData;

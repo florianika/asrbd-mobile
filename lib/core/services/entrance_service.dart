@@ -139,14 +139,15 @@ class EntranceService {
     }
   }
 
-  Future<bool> updateEntranceFeature(Map<String, dynamic> attributes) async {
+  Future<bool> updateEntranceFeature(
+      Map<String, dynamic> attributes, LatLng point) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
-          await entranceApi.updateEntranceFeature(esriToken, attributes);
+          await entranceApi.updateEntranceFeature(esriToken, attributes, point);
       if (response.statusCode == 200) {
         return true;
       } else {
