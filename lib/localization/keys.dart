@@ -33,4 +33,5 @@ class Keys {
   static const String confirmationContent = 'confirmationContent';
   static const String confirmationCancel = 'confirmationCancel';
   static const String confirmationConfirm = 'confirmationConfirm';
+  static const String successGeneral = 'successGeneral';
 }

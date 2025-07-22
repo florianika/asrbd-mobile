@@ -140,7 +140,7 @@ class EntranceService {
   }
 
   Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng point) async {
+      Map<String, dynamic> attributes, LatLng? point) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);

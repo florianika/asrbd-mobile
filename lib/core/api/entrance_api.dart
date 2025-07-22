@@ -55,19 +55,21 @@ class EntranceApi {
   }
 
   Future<Response> updateEntranceFeature(
-      String esriToken, Map<String, dynamic> attributes, LatLng point) async {
+      String esriToken, Map<String, dynamic> attributes, LatLng? point) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    final Map<String, dynamic> feature = {
-      'geometry': {
-        'x': point.longitude,
-        'y': point.latitude,
-        'spatialReference': {'wkid': 4326},
-      },
-      'attributes': attributes,
-    };
+    final Map<String, dynamic> feature = point != null
+        ? {
+            'geometry': {
+              'x': point.longitude,
+              'y': point.latitude,
+              'spatialReference': {'wkid': 4326},
+            },
+            'attributes': attributes,
+          }
+        : {'attributes': attributes};
 
     final payload = {
       'f': 'pjson',

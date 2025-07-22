@@ -50,7 +50,6 @@ class AsrdbMap extends StatefulWidget {
 }
 
 class _AsrdbMapState extends State<AsrdbMap> {
-  // MapController mapController = MapController();
   final GlobalKey mapKey = GlobalKey();
 
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);

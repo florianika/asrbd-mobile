@@ -42,6 +42,7 @@ class LocalizedEn {
     Keys.confirmationTitle: 'Confirmation',
     Keys.confirmationContent: 'Are you sure you want to proceed?',
     Keys.confirmationCancel: 'Cancel',
-    Keys.confirmationConfirm: 'Confirm'
+    Keys.confirmationConfirm: 'Confirm',
+    Keys.successGeneral: "All changes were applied successfully."
   };
 }

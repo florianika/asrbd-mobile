@@ -39,5 +39,6 @@ class LocalizedAl {
     Keys.confirmationContent: 'Jeni i sigurt që doni të vazhdoni?',
     Keys.confirmationCancel: 'Anulo',
     Keys.confirmationConfirm: 'Konfirmo',
+    Keys.successGeneral: "Të gjitha ndryshimet u aplikuan me sukses."
   };
 }

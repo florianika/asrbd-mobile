@@ -178,14 +178,21 @@ class GeometryHelper {
 
   static void injectPointIntoPolygon(List<LatLng> polygon, LatLng newPoint) {
     final geodesy = Geodesy();
+
+    // Handle edge case: no data at all
+    if (polygon.isEmpty) {
+      polygon.add(newPoint);
+      return;
+    }
+
     num minDistance = double.infinity;
     int insertIndex = 0;
 
+    // Loop through all edges except the optional closing edge
     for (int i = 0; i < polygon.length - 1; i++) {
       LatLng a = polygon[i];
       LatLng b = polygon[i + 1];
 
-      // Get closest point on the line from a to b
       final closest = _closestPointOnSegment(newPoint, a, b);
       final dist = geodesy.distanceBetweenTwoGeoPoints(newPoint, closest);
 
@@ -195,17 +202,21 @@ class GeometryHelper {
       }
     }
 
-    // Optional: check also the closing edge if polygon is closed
-    if (polygon.first != polygon.last) {
+    // Check the closing edge only if the polygon is explicitly closed
+    bool isClosed = polygon.length > 2 && polygon.first == polygon.last;
+    if (isClosed) {
       LatLng a = polygon.last;
       LatLng b = polygon.first;
+
       final closest = _closestPointOnSegment(newPoint, a, b);
       final dist = geodesy.distanceBetweenTwoGeoPoints(newPoint, closest);
+
       if (dist < minDistance) {
-        insertIndex = polygon.length; // insert at the end
+        insertIndex = polygon.length;
       }
     }
 
+    // Insert the new point at the best index
     polygon.insert(insertIndex, newPoint);
   }
 

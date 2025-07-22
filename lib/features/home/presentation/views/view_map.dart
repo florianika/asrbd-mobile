@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:asrdb/core/constants/default_data.dart';
-import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
@@ -14,7 +12,6 @@ import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
-import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
@@ -22,8 +19,9 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
-import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
+import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -39,7 +37,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:geodesy/geodesy.dart' show Geodesy;
 
 class ViewMap extends StatefulWidget {
   const ViewMap({super.key});
@@ -99,81 +96,18 @@ class _ViewMapState extends State<ViewMap> {
         legendService.getLegendForStyle(LegendType.entrance, 'quality');
   }
 
-  Map<String, dynamic> _removeFeatureByAttribute(
-      String attributeKey, dynamic attributeValue, Map<String, dynamic> data) {
-    if (attributeValue == null) return data;
-    if (data[GeneralFields.features] == null ||
-        data[GeneralFields.features] is! List) {
-      return data;
-    }
-
-    // Make a deep copy to avoid mutating the original map (optional but safer)
-    final Map<String, dynamic> updatedData = Map<String, dynamic>.from(data);
-    updatedData[GeneralFields.features] =
-        List<dynamic>.from(updatedData[GeneralFields.features]);
-
-    updatedData[GeneralFields.features].removeWhere((feature) {
-      final properties = feature[GeneralFields.properties];
-      return properties != null && properties[attributeKey] == attributeValue;
-    });
-
-    return updatedData;
-  }
-
-  List<List<LatLng>> _extractPolygons(Map<String, dynamic> geoJson) {
-    final List<List<LatLng>> polygons = [];
-
-    final features = geoJson[GeneralFields.features];
-    if (features is! List) return polygons;
-
-    for (final feature in features) {
-      final geometry = feature[GeneralFields.geometry];
-      if (geometry != null && geometry[GeneralFields.type] == 'Polygon') {
-        final coordinates = geometry[GeneralFields.coordinates];
-
-        if (coordinates is List && coordinates.isNotEmpty) {
-          final outerRing = coordinates[0]; // Only outer ring
-          if (outerRing is List) {
-            final polygon = outerRing
-                .where((point) => point is List && point.length >= 2)
-                .map<LatLng>((point) => LatLng(point[1], point[0])) // lat, lon
-                .toList();
-
-            polygons.add(polygon);
-          }
-        }
-      }
-    }
-
-    return polygons;
-  }
-
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
     final geometryCubit = context.read<NewGeometryCubit>();
     final attributesCubit = context.read<AttributesCubit>();
-    final buildingCubit = context.read<BuildingCubit>();
-    final dwellingCubit = context.read<DwellingCubit>();
-    final entranceCubit = context.read<EntranceCubit>();
-    final userService = sl<UserService>();
 
     loadingCubit.show();
-    final geodesy = Geodesy();
-
-    final isNew = attributes[EntranceFields.globalID] == null;
-    bool isOutsideMunicipality = false;
 
     try {
-      final state = context.read<MunicipalityCubit>().state;
+      final isNew = attributes[EntranceFields.globalID] == null;
 
-      if (state is Municipality && geometryCubit.points.isNotEmpty) {
-        final municipality = state.municipality;
-        isOutsideMunicipality = PolygonHitDetector.hasPointOutsideMultiPolygon(
-            municipality![GeneralFields.features][0][GeneralFields.geometry],
-            geometryCubit.points);
-      }
-
-      if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
+      // Check if geometry is outside municipality
+      if (!await _validateMunicipalityBounds(geometryCubit) && mounted) {
         NotifierService.showMessage(
           context,
           messageKey: Keys.outsideMunicipality,
@@ -182,115 +116,110 @@ class _ViewMapState extends State<ViewMap> {
         return;
       }
 
-      if (attributesCubit.shapeType == ShapeType.point) {
-        attributes[EntranceFields.entPointStatus] = DefaultData.fieldData;
-        if (isNew) {
-          final storageResponsitory = sl<StorageRepository>();
-          String? buildingGlobalId = await storageResponsitory.getString(
-            boxName: HiveBoxes.selectedBuilding,
-            key: 'currentBuildingGlobalId',
-          );
+      // Process based on shape type
+      await _saveEntity(
+        attributes,
+        geometryCubit,
+        attributesCubit,
+        isNew,
+      );
 
-          attributes[EntranceFields.entBldGlobalID] = buildingGlobalId;
-          attributes[GeneralFields.externalCreator] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalCreatorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-          attributes[EntranceFields.entLatitude] =
-              geometryCubit.points.first.latitude;
-          attributes[EntranceFields.entLongitude] =
-              geometryCubit.points.first.longitude;
-          await entranceCubit.addEntranceFeature(
-              attributes, geometryCubit.points);
-        } else {
-          attributes[GeneralFields.externalEditor] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalEditorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-          await entranceCubit.updateEntranceFeature(
-              attributes, geometryCubit.points.first);
-        }
-      } else if (attributesCubit.shapeType == ShapeType.polygon) {
-        attributes[BuildFields.bldCentroidStatus] = DefaultData.fieldData;
-        if (geometryCubit.points.isNotEmpty) {
-          final centroid = geodesy.findPolygonCentroid(geometryCubit.points);
-          attributes[BuildFields.bldLatitude] = centroid.latitude;
-          attributes[BuildFields.bldLongitude] = centroid.longitude;
+      // Clean up after successful save
+      _cleanupAfterSave(geometryCubit);
 
-          var buildingsList = (buildingCubit.state as Buildings).buildings;
-          var buildings = _removeFeatureByAttribute(GeneralFields.globalID,
-              attributes[GeneralFields.globalID], buildingsList);
-
-          var polygons = _extractPolygons(buildings);
-
-          for (int i = 0; i < polygons.length; i++) {
-            final polygon = polygons[i];
-            var intersectionPoints =
-                geodesy.getPolygonIntersection(geometryCubit.points, polygon);
-
-            if (intersectionPoints.isNotEmpty) {
-              NotifierService.showMessage(
-                context,
-                messageKey: Keys.overlapingBuildings,
-                type: MessageType.warning,
-              );
-              return;
-            }
-          }
-        }
-
-        if (isNew) {
-          attributes[BuildFields.bldMunicipality] =
-              userService.userInfo?.municipality;
-          attributes[GeneralFields.externalCreator] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalCreatorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-
-          await buildingCubit.addBuildingFeature(
-              attributes, geometryCubit.points);
-        } else {
-          attributes[GeneralFields.externalCreator] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalCreatorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-          await buildingCubit.updateBuildingFeature(
-              attributes, geometryCubit.points);
-        }
-      } else if (attributesCubit.shapeType == ShapeType.noShape) {
-        if (isNew) {
-          attributes[EntranceFields.dwlEntGlobalID] =
-              entranceCubit.selectedEntranceGlobalId;
-          attributes[GeneralFields.externalCreator] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalCreatorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-          await dwellingCubit.addDwellingFeature(attributes);
-        } else {
-          attributes[GeneralFields.externalEditor] =
-              '{${userService.userInfo?.nameId}}';
-          attributes[GeneralFields.externalEditorDate] =
-              DateTime.now().millisecondsSinceEpoch;
-          await dwellingCubit.updateDwellingFeature(attributes);
-        }
-      }
-
-      geometryCubit.setDrawing(false);
-      geometryCubit.clearPoints();
-
-      //trick to trigger fetch of data again
-      mapController.move(
-          mapController.camera.center, mapController.camera.zoom + 0.01);
-    } catch (e) {
       if (mounted) {
         NotifierService.showMessage(
           context,
-          message: e.toString(),
-          type: MessageType.error,
+          messageKey: Keys.successGeneral,
+          type: MessageType.success,
         );
       }
+    } catch (e) {
+      _handleSaveError(e);
     } finally {
       loadingCubit.hide();
+    }
+  }
+
+  Future<bool> _validateMunicipalityBounds(
+      NewGeometryCubit geometryCubit) async {
+    bool isOutsideMunicipality = false;
+
+    final state = context.read<MunicipalityCubit>().state;
+
+    if (state is Municipality && geometryCubit.points.isNotEmpty) {
+      final municipality = state.municipality;
+      isOutsideMunicipality = PolygonHitDetector.hasPointOutsideMultiPolygon(
+          municipality![GeneralFields.features][0][GeneralFields.geometry],
+          geometryCubit.points);
+    }
+
+    if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
+      NotifierService.showMessage(
+        context,
+        messageKey: Keys.outsideMunicipality,
+        type: MessageType.warning,
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<void> _saveEntity(
+    Map<String, dynamic> attributes,
+    NewGeometryCubit geometryCubit,
+    AttributesCubit attributesCubit,
+    bool isNew,
+  ) async {
+    switch (attributesCubit.shapeType) {
+      case ShapeType.point:
+        final entranceUseCase = sl<EntranceUseCases>();
+        final entranceCubit = context.read<EntranceCubit>();
+        await entranceUseCase.saveEntrance(
+            attributes, geometryCubit, entranceCubit, isNew);
+        break;
+
+      case ShapeType.polygon:
+        final buildingUseCase = sl<BuildingUseCases>();
+        final buildingCubit = context.read<BuildingCubit>();
+        String? response = await buildingUseCase.saveBuilding(
+            attributes, geometryCubit, buildingCubit, isNew);
+
+        if (response != null && mounted) {
+          NotifierService.showMessage(
+            context,
+            message: response.toString(),
+            type: MessageType.error,
+          );
+        }
+        break;
+      case ShapeType.noShape:
+        final dwellingUseCase = sl<DwellingUseCases>();
+        final dwellingCubit = context.read<DwellingCubit>();
+        final entranceCubit = context.read<EntranceCubit>();
+        await dwellingUseCase.saveDwelling(
+            attributes, dwellingCubit, entranceCubit, isNew);
+        break;
+    }
+  }
+
+  void _cleanupAfterSave(NewGeometryCubit geometryCubit) {
+    geometryCubit.setDrawing(false);
+    geometryCubit.clearPoints();
+
+    // Trick to trigger fetch of data again
+    mapController.move(
+        mapController.camera.center, mapController.camera.zoom + 0.01);
+  }
+
+  void _handleSaveError(dynamic error) {
+    if (mounted) {
+      NotifierService.showMessage(
+        context,
+        message: error.toString(),
+        type: MessageType.error,
+      );
     }
   }
 

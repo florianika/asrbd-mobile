@@ -44,6 +44,7 @@ class NewGeometryCubit extends Cubit<NewGeometryState> {
 
     if (_type == ShapeType.polygon) {
       GeometryHelper.injectPointIntoPolygon(_points, point);
+      // _points.add(point);
     } else {
       _points.add(point);
     }

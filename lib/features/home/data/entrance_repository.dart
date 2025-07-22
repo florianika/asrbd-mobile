@@ -26,7 +26,7 @@ class EntranceRepository {
   }
 
   Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng point) async {
+      Map<String, dynamic> attributes, LatLng? point) async {
     return await entranceService.updateEntranceFeature(attributes, point);
   }
 
