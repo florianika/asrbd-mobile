@@ -825,7 +825,7 @@ class _DwellingFormState extends State<DwellingForm> {
                   entranceOutsideVisibleArea: false,
                   initialData: row,
                   onClose: () => Navigator.pop(context),
-                  save: (_) {},
+                  save: (_) async {},
                   readOnly: true,
                   startReviewing: () => {},
                   finishReviewing: () => {},

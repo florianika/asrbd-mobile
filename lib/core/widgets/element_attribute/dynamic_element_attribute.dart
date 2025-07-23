@@ -20,7 +20,7 @@ class DynamicElementAttribute extends StatefulWidget {
   final bool entranceOutsideVisibleArea;
   final String? entranceGlobalId;
   final Map<String, dynamic>? initialData;
-  final void Function(Map<String, dynamic>)? onSave;
+  final Future<void> Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
   // final void Function(String?)? onDwelling;
   final bool readOnly;
@@ -116,7 +116,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     super.dispose();
   }
 
-  void handleSave() {
+  Future<void> handleSave() async {
     bool passedValidation = true;
     validationErrors.clear();
 
@@ -144,7 +144,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     setState(() {});
 
     if (passedValidation && widget.onSave != null) {
-      widget.onSave!(formValues);
+      await widget.onSave!(formValues);
     }
   }
 
@@ -180,7 +180,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       if (elementFound == null) {
         continue;
       }
-      String sectionName = attribute.section;// ?? "General";
+      String sectionName = attribute.section; // ?? "General";
       if (sections.containsKey(sectionName)) {
         sections[sectionName]!.add({
           'attribute': attribute,

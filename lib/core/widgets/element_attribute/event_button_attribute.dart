@@ -1,4 +1,8 @@
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/enums/validation_level.dart';
+import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
@@ -10,7 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class EventButtonAttribute extends StatelessWidget {
-  final Function onSave;
+  final Future<void> Function(Map<String, dynamic>) onSave;
   final Function? onClose;
   final ShapeType selectedShapeType;
   final Function openDwelling;
@@ -49,18 +53,46 @@ class EventButtonAttribute extends StatelessWidget {
 
     Future<void> validateData() async {
       var loadingCubit = context.read<LoadingCubit>();
+      final attributesCubit = context.read<AttributesCubit>();
+      final validateCubit = context.read<OutputLogsCubit>();
+      final shapeType = selectedShapeType;
+      final buildingGlobalId = attributesCubit.currentBuildingGlobalId;
+      final entranceGlobalId = attributesCubit.currentEntranceGlobalId;
+      final dwellingObjectId = attributesCubit.currentDwellingObjectId;
+      final currentContext = context;
 
       loadingCubit.show();
-      final buildingCubit = context.read<AttributesCubit>();
-      final validateCubit = context.read<OutputLogsCubit>();
+      bool validationSuccessful = false;
 
       try {
-        if (buildingCubit.currentBuildingGlobalId != null) {
-          await validateCubit
-              .checkBuildings(buildingCubit.currentBuildingGlobalId!);
+        if (buildingGlobalId != null) {
+          await validateCubit.checkBuildings(buildingGlobalId);
+          if (validateCubit.state is OutputLogs) {
+            final outputLogs = validateCubit.state as OutputLogs;
+            final validationResults =
+                outputLogs.validationResult.toValidationResults();
+            validationSuccessful = validationResults.isEmpty ||
+                !validationResults
+                    .any((result) => result.level == ValidationLevel.error);
+          }
         }
       } finally {
         loadingCubit.hide();
+        if (buildingGlobalId != null && shapeType == ShapeType.polygon) {
+          await attributesCubit.showBuildingAttributes(buildingGlobalId);
+        } else if (entranceGlobalId != null && shapeType == ShapeType.point) {
+          await attributesCubit.showEntranceAttributes(
+              entranceGlobalId, buildingGlobalId);
+        } else if (dwellingObjectId != null && shapeType == ShapeType.noShape) {
+          await attributesCubit.showDwellingAttributes(dwellingObjectId);
+        }
+        if (validationSuccessful) {
+          NotifierService.showMessage(
+            currentContext,
+            messageKey: Keys.successGeneral,
+            type: MessageType.success,
+          );
+        }
       }
     }
 
@@ -125,7 +157,34 @@ class EventButtonAttribute extends StatelessWidget {
             width: buttonWidth,
             height: buttonHeight,
             child: ElevatedButton(
-              onPressed: () => onSave(),
+              onPressed: () async {
+                final Map<String, dynamic> formValues = {};
+                final attributesCubit = context.read<AttributesCubit>();
+                final currentState = attributesCubit.state is Attributes
+                    ? attributesCubit.state as Attributes
+                    : null;
+                final shapeType = selectedShapeType;
+                final buildingGlobalId = currentState?.buildingGlobalId;
+                final entranceGlobalId = currentState?.entranceGlobalId;
+                final dwellingObjectId = currentState?.dwellingObjectId;
+
+          
+                await onSave(formValues);
+
+                if (buildingGlobalId != null &&
+                    shapeType == ShapeType.polygon) {
+                  await attributesCubit
+                      .showBuildingAttributes(buildingGlobalId);
+                } else if (entranceGlobalId != null &&
+                    shapeType == ShapeType.point) {
+                  await attributesCubit.showEntranceAttributes(
+                      entranceGlobalId, buildingGlobalId);
+                } else if (dwellingObjectId != null &&
+                    shapeType == ShapeType.noShape) {
+                  await attributesCubit
+                      .showDwellingAttributes(dwellingObjectId);
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,

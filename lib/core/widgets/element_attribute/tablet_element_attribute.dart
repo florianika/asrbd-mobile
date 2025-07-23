@@ -18,7 +18,7 @@ class TabletElementAttribute extends StatefulWidget {
   final bool entranceOutsideVisibleArea;
   final VoidCallback onClose;
   final Map<String, dynamic> initialData;
-  final Function save;
+  final Future<void> Function(Map<String, dynamic>) save;
   final bool readOnly;
   final Function startReviewing;
   final Function finishReviewing;
@@ -106,7 +106,8 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                               entranceOutsideVisibleArea:
                                   widget.entranceOutsideVisibleArea,
                               initialData: widget.initialData,
-                              onSave: (formValues) => widget.save(formValues),
+                              onSave: (formValues) async =>
+                                  await widget.save(formValues),
                               validationResults: validationResult,
                               onClose: widget.onClose,
                               showButtons: false,
@@ -131,7 +132,11 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 ),
               ),
               child: EventButtonAttribute(
-                onSave: () => _dynamicFormKey.currentState?.handleSave(),
+                onSave: (formValues) async {
+                  if (_dynamicFormKey.currentState != null) {
+                    await _dynamicFormKey.currentState!.handleSave();
+                  }
+                },
                 onClose: () => widget.onClose(),
                 globalId: widget.initialData['GlobalID'],
                 startReviewingBuilding: widget.startReviewing,
