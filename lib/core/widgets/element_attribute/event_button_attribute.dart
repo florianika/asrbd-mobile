@@ -93,6 +93,13 @@ class EventButtonAttribute extends StatelessWidget {
             type: MessageType.success,
           );
         }
+         if (!validationSuccessful) {
+          NotifierService.showMessage(
+            currentContext,
+            messageKey: Keys.finishValidateWarning,
+            type: MessageType.warning,
+          );
+        }
       }
     }
 

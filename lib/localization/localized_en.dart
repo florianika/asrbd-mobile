@@ -43,6 +43,9 @@ class LocalizedEn {
     Keys.confirmationContent: 'Are you sure you want to proceed?',
     Keys.confirmationCancel: 'Cancel',
     Keys.confirmationConfirm: 'Confirm',
-    Keys.successGeneral: "All changes were applied successfully."
+    Keys.successGeneral: "All changes were applied successfully.",
+     Keys.finishValidateWarning: "Please verify the structural components of the building."
   };
 }
+
+
