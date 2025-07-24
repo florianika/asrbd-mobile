@@ -14,7 +14,7 @@ class ViewAttribute extends StatefulWidget {
   final VoidCallback onClose;
   final bool isLoading;
   final Map<String, dynamic> initialData;
-  final Function save;
+  final Future<void> Function(Map<String, dynamic>) save;
   final Function startReviewing;
   final Function finishReviewing;
 
@@ -37,7 +37,7 @@ class ViewAttribute extends StatefulWidget {
 
 class _ViewAttributeState extends State<ViewAttribute> {
   bool _isMobileSheetVisible = false;
-  bool? _isMobile; 
+  bool? _isMobile;
   String? _lastGlobalId;
 
   @override
