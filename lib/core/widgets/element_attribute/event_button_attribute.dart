@@ -167,10 +167,8 @@ class EventButtonAttribute extends StatelessWidget {
                 final buildingGlobalId = currentState?.buildingGlobalId;
                 final entranceGlobalId = currentState?.entranceGlobalId;
                 final dwellingObjectId = currentState?.dwellingObjectId;
-
-          
                 await onSave(formValues);
-
+                await validateData();
                 if (buildingGlobalId != null &&
                     shapeType == ShapeType.polygon) {
                   await attributesCubit
@@ -183,7 +181,7 @@ class EventButtonAttribute extends StatelessWidget {
                     shapeType == ShapeType.noShape) {
                   await attributesCubit
                       .showDwellingAttributes(dwellingObjectId);
-                }
+                }        
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
