@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
@@ -245,7 +246,8 @@ class _ViewMapState extends State<ViewMap> {
           await buildingUseCases.getBuildingDetails(globalId);
       final attributes =
           buildingDetails[GeneralFields.features][0][GeneralFields.properties];
-      if (attributes[BuildFields.bldQuality] == 9 && mounted) {
+      if (attributes[BuildFields.bldQuality] == DefaultData.untestedData &&
+          mounted) {
         NotifierService.showMessage(
           context,
           messageKey: Keys.finishReviewWarning,
@@ -260,10 +262,12 @@ class _ViewMapState extends State<ViewMap> {
 
         final result = await sl<NoteService>().getNotes(buildingGlobalId);
         final noteCount = result.notes.length;
-        if (attributes[BuildFields.bldQuality] == 1 && noteCount == 0) {
-          attributes[BuildFields.bldReview] = 2;
+        if (attributes[BuildFields.bldQuality] ==
+                DefaultData.dataWithoutErrors &&
+            noteCount == 0) {
+          attributes[BuildFields.bldReview] = DefaultData.reviewApproved;
         } else {
-          attributes[BuildFields.bldReview] = 3;
+          attributes[BuildFields.bldReview] = DefaultData.reviewExecuted;
         }
 
         await buildingCubit.updateBuildingFeature(attributes, null);
