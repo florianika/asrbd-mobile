@@ -1,6 +1,9 @@
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
+import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
@@ -37,29 +40,27 @@ class EventButtonAttribute extends StatelessWidget {
     this.finishReviewingBuilding,
   });
 
-  void handleValidation() {}
-
   @override
   Widget build(BuildContext context) {
     const double buttonWidth = 90;
     const double buttonHeight = 40;
+
     final attributesCubit = context.read<AttributesCubit>();
     final attributes = attributesCubit.state is Attributes
         ? (attributesCubit.state as Attributes).initialData
         : {};
-
     final bldReview = attributes['BldReview'];
     final bldQuality = attributes['BldQuality'];
 
     Future<void> validateData() async {
-      var loadingCubit = context.read<LoadingCubit>();
-      final attributesCubit = context.read<AttributesCubit>();
+      final loadingCubit = context.read<LoadingCubit>();
       final validateCubit = context.read<OutputLogsCubit>();
       final shapeType = selectedShapeType;
+      final currentContext = context;
+
       final buildingGlobalId = attributesCubit.currentBuildingGlobalId;
       final entranceGlobalId = attributesCubit.currentEntranceGlobalId;
       final dwellingObjectId = attributesCubit.currentDwellingObjectId;
-      final currentContext = context;
 
       loadingCubit.show();
       bool validationSuccessful = false;
@@ -71,40 +72,38 @@ class EventButtonAttribute extends StatelessWidget {
             final outputLogs = validateCubit.state as OutputLogs;
             final validationResults =
                 outputLogs.validationResult.toValidationResults();
+
             validationSuccessful = validationResults.isEmpty ||
-                !validationResults
-                    .any((result) => result.level == ValidationLevel.error);
+                !validationResults.any(
+                    (result) => result.level == ValidationLevel.error);
           }
         }
       } finally {
         loadingCubit.hide();
+
         if (buildingGlobalId != null && shapeType == ShapeType.polygon) {
           await attributesCubit.showBuildingAttributes(buildingGlobalId);
         } else if (entranceGlobalId != null && shapeType == ShapeType.point) {
           await attributesCubit.showEntranceAttributes(
               entranceGlobalId, buildingGlobalId);
-        } else if (dwellingObjectId != null && shapeType == ShapeType.noShape) {
+        } else if (dwellingObjectId != null &&
+            shapeType == ShapeType.noShape) {
           await attributesCubit.showDwellingAttributes(dwellingObjectId);
         }
-        if (validationSuccessful) {
-          NotifierService.showMessage(
-            currentContext,
-            messageKey: Keys.successGeneral,
-            type: MessageType.success,
-          );
-        }
-         if (!validationSuccessful) {
-          NotifierService.showMessage(
-            currentContext,
-            messageKey: Keys.finishValidateWarning,
-            type: MessageType.warning,
-          );
-        }
+
+        NotifierService.showMessage(
+          currentContext,
+          messageKey: validationSuccessful
+              ? Keys.successGeneral
+              : Keys.finishValidateWarning,
+          type: validationSuccessful
+              ? MessageType.success
+              : MessageType.warning,
+        );
       }
     }
 
     Future<void> startReviewing() async {
-      // if BldReview == 7 update it to 4 using esri
       final confirmed = await showConfirmationDialog(
         context: context,
         title: AppLocalizations.of(context).translate(Keys.startReviewingTitle),
@@ -118,21 +117,15 @@ class EventButtonAttribute extends StatelessWidget {
     }
 
     Future<void> finishReviewing() async {
-      // if BldQuality == 9 show message 'You cant proceed without first validating the building
-      // else {
-      // show a modal to add a comment and if bldQuality = 1 and no comments added set BldReview = 2 else BldReview = 3
-      //}
-      final buildingCubit = context.read<AttributesCubit>();
       final confirmed = await showConfirmationDialog(
         context: context,
-        title:
-            AppLocalizations.of(context).translate(Keys.finishReviewingTitle),
+        title: AppLocalizations.of(context).translate(Keys.finishReviewingTitle),
         content:
             AppLocalizations.of(context).translate(Keys.finishReviewingContent),
       );
 
       if (confirmed && finishReviewingBuilding != null) {
-        finishReviewingBuilding!(buildingCubit.currentBuildingGlobalId);
+        finishReviewingBuilding!(attributesCubit.currentBuildingGlobalId);
       }
     }
 
@@ -151,8 +144,7 @@ class EventButtonAttribute extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 child: Text(
                   AppLocalizations.of(context).translate(Keys.close),
@@ -165,30 +157,8 @@ class EventButtonAttribute extends StatelessWidget {
             height: buttonHeight,
             child: ElevatedButton(
               onPressed: () async {
-                final Map<String, dynamic> formValues = {};
-                final attributesCubit = context.read<AttributesCubit>();
-                final currentState = attributesCubit.state is Attributes
-                    ? attributesCubit.state as Attributes
-                    : null;
-                final shapeType = selectedShapeType;
-                final buildingGlobalId = currentState?.buildingGlobalId;
-                final entranceGlobalId = currentState?.entranceGlobalId;
-                final dwellingObjectId = currentState?.dwellingObjectId;
-                await onSave(formValues);
+                await onSave({});
                 await validateData();
-                if (buildingGlobalId != null &&
-                    shapeType == ShapeType.polygon) {
-                  await attributesCubit
-                      .showBuildingAttributes(buildingGlobalId);
-                } else if (entranceGlobalId != null &&
-                    shapeType == ShapeType.point) {
-                  await attributesCubit.showEntranceAttributes(
-                      entranceGlobalId, buildingGlobalId);
-                } else if (dwellingObjectId != null &&
-                    shapeType == ShapeType.noShape) {
-                  await attributesCubit
-                      .showDwellingAttributes(dwellingObjectId);
-                }        
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
@@ -196,86 +166,91 @@ class EventButtonAttribute extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               child: Text(AppLocalizations.of(context).translate(Keys.save)),
             ),
           ),
-          SpeedDial(
-            animatedIcon: AnimatedIcons.menu_close,
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            elevation: 8.0,
-            buttonSize: const Size(buttonWidth, buttonHeight),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            overlayColor: Colors.grey,
-            overlayOpacity: 0.2,
-            children: [
-              if (selectedShapeType == ShapeType.point)
-                SpeedDialChild(
-                  child: const Icon(Icons.home_work),
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  label: AppLocalizations.of(context)
-                      .translate(Keys.manageDwellings),
-                  labelBackgroundColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  onTap: () => openDwelling(),
+          BlocBuilder<FieldWorkCubit, FieldWorkStatus>(
+            builder: (context, fieldWorkStatus) {
+              return SpeedDial(
+                animatedIcon: AnimatedIcons.menu_close,
+                backgroundColor: Colors.black,
+                foregroundColor: Colors.white,
+                elevation: 8.0,
+                buttonSize: const Size(buttonWidth, buttonHeight),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              if (bldQuality == 9)
-                SpeedDialChild(
-                  child: const Icon(Icons.check_circle),
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  label:
-                      AppLocalizations.of(context).translate(Keys.validateData),
-                  labelBackgroundColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  onTap: () => validateData(),
-                ),
-              if (selectedShapeType == ShapeType.polygon &&
-                  (bldReview == 6 || (bldReview == 5)))
-                SpeedDialChild(
-                  child: const Icon(Icons.start),
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  label: AppLocalizations.of(context)
-                      .translate(Keys.startReviewing),
-                  labelBackgroundColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  onTap: () => startReviewing(),
-                ),
-              if (selectedShapeType == ShapeType.polygon && bldReview == 4)
-                SpeedDialChild(
-                  child: const Icon(Icons.stop),
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
-                  label: AppLocalizations.of(context)
-                      .translate(Keys.finishReviewing),
-                  labelBackgroundColor: Colors.white,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  onTap: () => finishReviewing(),
-                ),
-            ],
+                overlayColor: Colors.grey,
+                overlayOpacity: 0.2,
+                children: [
+                  if (selectedShapeType == ShapeType.point)
+                    SpeedDialChild(
+                      child: const Icon(Icons.home_work),
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      label: AppLocalizations.of(context)
+                          .translate(Keys.manageDwellings),
+                      labelBackgroundColor: Colors.white,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                      onTap: () => openDwelling(),
+                    ),
+                  if (bldQuality == 9)
+                    SpeedDialChild(
+                      child: const Icon(Icons.check_circle),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      label: AppLocalizations.of(context)
+                          .translate(Keys.validateData),
+                      labelBackgroundColor: Colors.white,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                      onTap: () => validateData(),
+                    ),
+                  if (selectedShapeType == ShapeType.polygon &&
+                      (bldReview == DefaultData.reviewRequired ||
+                          bldReview == DefaultData.reviewReopened) &&
+                      fieldWorkStatus.isFieldworkTime)
+                    SpeedDialChild(
+                      child: const Icon(Icons.start),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      label: AppLocalizations.of(context)
+                          .translate(Keys.startReviewing),
+                      labelBackgroundColor: Colors.white,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                      onTap: () => startReviewing(),
+                    ),
+                  if (selectedShapeType == ShapeType.polygon && bldReview == 4)
+                    SpeedDialChild(
+                      child: const Icon(Icons.stop),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      label: AppLocalizations.of(context)
+                          .translate(Keys.finishReviewing),
+                      labelBackgroundColor: Colors.white,
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                      onTap: () => finishReviewing(),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),

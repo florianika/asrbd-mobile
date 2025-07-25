@@ -6,4 +6,5 @@ class StorageKeys {
   static const String userProfile = 'user_profile';
   static const String themeMode = 'theme_mode';
   static const String language = 'language';
+  static const String fieldWorkStatus = 'fieldWorkStatus';
 }

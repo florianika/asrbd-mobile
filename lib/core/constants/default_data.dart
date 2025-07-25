@@ -13,4 +13,10 @@ class DefaultData {
 
   //BldQuality, "name": "1 | Të dhëna pa gabime",
   static const int dataWithoutErrors = 1;
+  
+  //BldReview, "name": "6 | Kërkohet rishikim"
+  static const int reviewRequired = 6;
+
+  //BldReview, "name": "5 | Rishikimi i rihapur"
+  static const int reviewReopened = 5;
 }

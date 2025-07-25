@@ -2,6 +2,8 @@ import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
+import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
@@ -124,6 +126,9 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<TileCubit>()),
         BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
+        BlocProvider(
+            create: (context) =>
+                FieldWorkCubit(wsUri: Uri.parse(AppConfig.fieldWorkWebSocket))),
       ],
       child: BlocBuilder<LangCubit, String>(
         builder: (context, langCode) {
