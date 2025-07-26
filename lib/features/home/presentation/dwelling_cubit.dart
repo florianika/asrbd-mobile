@@ -79,21 +79,22 @@ class DwellingCubit extends Cubit<DwellingState> {
 
   Future<void> addDwellingFeature(
     Map<String, dynamic> attributes,
+    String buildingGlobalId,
   ) async {
     emit(DwellingLoading());
     try {
       emit(DwellingAddResponse(
-          await dwellingUseCases.addDwellingFeature(attributes)));
+          await dwellingUseCases.addDwellingFeature(attributes, buildingGlobalId)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
   }
 
-  Future<void> updateDwellingFeature(Map<String, dynamic> attributes) async {
+  Future<void> updateDwellingFeature(Map<String, dynamic> attributes, String buildingGlobalId) async {
     emit(DwellingLoading());
     try {
       emit(DwellingUpdateResponse(
-          await dwellingUseCases.updateDwellingFeature(attributes)));
+          await dwellingUseCases.updateDwellingFeature(attributes, buildingGlobalId)));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }

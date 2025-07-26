@@ -53,54 +53,54 @@ class EventButtonAttribute extends StatelessWidget {
     final bldQuality = attributes['BldQuality'];
 
     Future<void> validateData() async {
-      final loadingCubit = context.read<LoadingCubit>();
-      final validateCubit = context.read<OutputLogsCubit>();
-      final shapeType = selectedShapeType;
-      final currentContext = context;
+      // final loadingCubit = context.read<LoadingCubit>();
+      // final validateCubit = context.read<OutputLogsCubit>();
+      // final shapeType = selectedShapeType;
+      // final currentContext = context;
 
-      final buildingGlobalId = attributesCubit.currentBuildingGlobalId;
-      final entranceGlobalId = attributesCubit.currentEntranceGlobalId;
-      final dwellingObjectId = attributesCubit.currentDwellingObjectId;
+      // final buildingGlobalId = attributesCubit.currentBuildingGlobalId;
+      // final entranceGlobalId = attributesCubit.currentEntranceGlobalId;
+      // final dwellingObjectId = attributesCubit.currentDwellingObjectId;
 
-      loadingCubit.show();
-      bool validationSuccessful = false;
+      // loadingCubit.show();
+      // bool validationSuccessful = false;
 
-      try {
-        if (buildingGlobalId != null) {
-          await validateCubit.checkBuildings(buildingGlobalId);
-          if (validateCubit.state is OutputLogs) {
-            final outputLogs = validateCubit.state as OutputLogs;
-            final validationResults =
-                outputLogs.validationResult.toValidationResults();
+      // try {
+      //   if (buildingGlobalId != null) {
+      //     await validateCubit.checkBuildings(buildingGlobalId);
+      //     if (validateCubit.state is OutputLogs) {
+      //       final outputLogs = validateCubit.state as OutputLogs;
+      //       final validationResults =
+      //           outputLogs.validationResult.toValidationResults();
 
-            validationSuccessful = validationResults.isEmpty ||
-                !validationResults.any(
-                    (result) => result.level == ValidationLevel.error);
-          }
-        }
-      } finally {
-        loadingCubit.hide();
+      //       // validationSuccessful = validationResults.isEmpty ||
+      //       //     !validationResults.any(
+      //       //         (result) => result.level == ValidationLevel.error);
+      //     }
+      //   }
+      // } finally {
+      //   loadingCubit.hide();
 
-        if (buildingGlobalId != null && shapeType == ShapeType.polygon) {
-          await attributesCubit.showBuildingAttributes(buildingGlobalId);
-        } else if (entranceGlobalId != null && shapeType == ShapeType.point) {
-          await attributesCubit.showEntranceAttributes(
-              entranceGlobalId, buildingGlobalId);
-        } else if (dwellingObjectId != null &&
-            shapeType == ShapeType.noShape) {
-          await attributesCubit.showDwellingAttributes(dwellingObjectId);
-        }
+        // if (buildingGlobalId != null && shapeType == ShapeType.polygon) {
+        //   await attributesCubit.showBuildingAttributes(buildingGlobalId);
+        // } else if (entranceGlobalId != null && shapeType == ShapeType.point) {
+        //   await attributesCubit.showEntranceAttributes(
+        //       entranceGlobalId, buildingGlobalId);
+        // } else if (dwellingObjectId != null &&
+        //     shapeType == ShapeType.noShape) {
+        //   await attributesCubit.showDwellingAttributes(dwellingObjectId);
+        // }
 
-        NotifierService.showMessage(
-          currentContext,
-          messageKey: validationSuccessful
-              ? Keys.successGeneral
-              : Keys.finishValidateWarning,
-          type: validationSuccessful
-              ? MessageType.success
-              : MessageType.warning,
-        );
-      }
+        // NotifierService.showMessage(
+        //   currentContext,
+        //   messageKey: validationSuccessful
+        //       ? Keys.successGeneral
+        //       : Keys.finishValidateWarning,
+        //   type: validationSuccessful
+        //       ? MessageType.success
+        //       : MessageType.warning,
+        // );
+      // }
     }
 
     Future<void> startReviewing() async {
@@ -158,7 +158,7 @@ class EventButtonAttribute extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () async {
                 await onSave({});
-                await validateData();
+                // await validateData();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,

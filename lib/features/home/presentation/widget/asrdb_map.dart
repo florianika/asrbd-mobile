@@ -120,6 +120,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       highlightMarkersGlobalId = [];
 
+        final storageResponsitory = sl<StorageRepository>();
+        storageResponsitory.saveString(
+            boxName: HiveBoxes.selectedBuilding,
+            key: 'currentBuildingGlobalId',
+            value: data[EntranceFields.entBldGlobalID]);
+
+
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
       context.read<DwellingCubit>().closeDwellings();

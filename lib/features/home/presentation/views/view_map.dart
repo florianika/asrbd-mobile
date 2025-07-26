@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:asrdb/core/constants/default_data.dart';
+import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
@@ -20,6 +21,7 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
@@ -30,6 +32,7 @@ import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -177,8 +180,15 @@ class _ViewMapState extends State<ViewMap> {
       case ShapeType.point:
         final entranceUseCase = sl<EntranceUseCases>();
         final entranceCubit = context.read<EntranceCubit>();
+        final outputLogsCubit = context.read<OutputLogsCubit>();
+
         await entranceUseCase.saveEntrance(
-            attributes, geometryCubit, entranceCubit, isNew);
+          attributes,
+          geometryCubit,
+          outputLogsCubit,
+          entranceCubit,
+          isNew,
+        );
         break;
 
       case ShapeType.polygon:
@@ -199,8 +209,18 @@ class _ViewMapState extends State<ViewMap> {
         final dwellingUseCase = sl<DwellingUseCases>();
         final dwellingCubit = context.read<DwellingCubit>();
         final entranceCubit = context.read<EntranceCubit>();
-        await dwellingUseCase.saveDwelling(
-            attributes, dwellingCubit, entranceCubit, isNew);
+        final outputLogsCubit = context.read<OutputLogsCubit>();
+
+        final storageResponsitory = sl<StorageRepository>();
+        String? buildingGlobalId = await storageResponsitory.getString(
+          boxName: HiveBoxes.selectedBuilding,
+          key: 'currentBuildingGlobalId',
+        );
+
+        // _selectedBuildingGlobalId = globalId;
+
+        await dwellingUseCase.saveDwelling(attributes, dwellingCubit,
+            entranceCubit, outputLogsCubit, buildingGlobalId!, isNew);
         break;
     }
   }

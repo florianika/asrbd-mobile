@@ -1,6 +1,7 @@
 import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/services/entrance_service.dart';
 import 'package:asrdb/features/home/data/entrance_repository.dart';
+import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -27,6 +28,7 @@ void initEntranceModule(GetIt slEntrance) {
   // Register Cubit (State Management)
   slEntrance.registerFactory<EntranceCubit>(() => EntranceCubit(
         slEntrance<EntranceUseCases>(),
+        slEntrance<CheckUseCases>(),
         slEntrance<AttributesCubit>(),
         slEntrance<DwellingCubit>(),
       ));

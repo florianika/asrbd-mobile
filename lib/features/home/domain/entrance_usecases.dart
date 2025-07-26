@@ -9,6 +9,7 @@ import 'package:asrdb/features/home/data/entrance_repository.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -51,6 +52,7 @@ class EntranceUseCases {
   Future<void> saveEntrance(
     Map<String, dynamic> attributes,
     NewGeometryCubit geometryCubit,
+    OutputLogsCubit outputLogsCubit,
     EntranceCubit entranceCubit,
     bool isNew,
   ) async {
@@ -59,10 +61,10 @@ class EntranceUseCases {
 
     if (isNew) {
       await _createNewEntrance(
-          attributes, geometryCubit, entranceCubit, userService);
+          attributes, geometryCubit, entranceCubit, outputLogsCubit, userService);
     } else {
       await _updateExistingEntrance(
-          attributes, geometryCubit, entranceCubit, userService);
+          attributes, geometryCubit, entranceCubit, outputLogsCubit, userService);
     }
   }
 
@@ -70,6 +72,7 @@ class EntranceUseCases {
     Map<String, dynamic> attributes,
     NewGeometryCubit geometryCubit,
     EntranceCubit entranceCubit,
+    OutputLogsCubit outputLogsCubit,
     UserService userService,
   ) async {
     final storageRepository = sl<StorageRepository>();
@@ -89,12 +92,18 @@ class EntranceUseCases {
         geometryCubit.points.first.longitude;
 
     await entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
+     await outputLogsCubit.checkAutomatic(
+          attributes[EntranceFields.entBldGlobalID]
+              .toString()
+              .replaceAll('{', '')
+              .replaceAll('}', ''));
   }
 
   Future<void> _updateExistingEntrance(
     Map<String, dynamic> attributes,
     NewGeometryCubit geometryCubit,
     EntranceCubit entranceCubit,
+    OutputLogsCubit outputLogsCubit,
     UserService userService,
   ) async {
     attributes[GeneralFields.externalEditor] =
@@ -106,5 +115,11 @@ class EntranceUseCases {
       attributes,
       geometryCubit.points.isNotEmpty ? geometryCubit.points.first : null,
     );
+
+     await outputLogsCubit.checkAutomatic(
+          attributes[EntranceFields.entBldGlobalID]
+              .toString()
+              .replaceAll('{', '')
+              .replaceAll('}', ''));
   }
 }

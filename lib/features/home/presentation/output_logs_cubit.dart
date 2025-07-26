@@ -65,7 +65,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       await storageRepository.saveString(
         key: buildingGlobalId,
         value: jsonEncode(
-            response.toJson()), // ✅ Correct: converts Map to proper JSON string
+            response.toJson()), 
       );
       emit(OutputLogs(validationResult));
     } catch (e) {
@@ -82,12 +82,11 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
           await outputLogsUseCases.getOutputLogs(buildingGlobalId);
       ProcessOutputLogResponse response = ProcessOutputLogResponse(
           processOutputLogDto: validationResult.processOutputLogDto);
-      // await storageRepository.saveString(
-      //     buildingGlobalId, response.toJson().toString());
+     
       await storageRepository.saveString(
         key: buildingGlobalId,
         value: jsonEncode(
-            response.toJson()), // ✅ Correct: converts Map to proper JSON string
+            response.toJson()), 
       );
       emit(OutputLogs(validationResult));
     } catch (e) {

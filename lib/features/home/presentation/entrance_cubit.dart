@@ -2,6 +2,7 @@ import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -60,6 +61,7 @@ class EntranceError extends EntranceState {
 
 class EntranceCubit extends Cubit<EntranceState> {
   final EntranceUseCases entranceUseCases;
+  final CheckUseCases checkUseCases;
   final AttributesCubit attributesCubit;
   final DwellingCubit dwellingCubit;
 
@@ -67,6 +69,7 @@ class EntranceCubit extends Cubit<EntranceState> {
 
   EntranceCubit(
     this.entranceUseCases,
+    this.checkUseCases,
     this.attributesCubit,
     this.dwellingCubit,
   ) : super(EntranceInitial());
@@ -109,6 +112,11 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       final success =
           await entranceUseCases.addEntranceFeature(attributes, points);
+      await checkUseCases.checkAutomatic(
+          attributes[EntranceFields.entBldGlobalID]
+              .toString()
+              .replaceAll('{', '')
+              .replaceAll('}', ''));
       emit(EntranceAddResponse(
           success, attributes[EntranceFields.entBldGlobalID]));
     } catch (e) {
@@ -122,6 +130,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       final success =
           await entranceUseCases.updateEntranceFeature(attributes, point);
+          
       emit(EntranceUpdateResponse(
           success, attributes[EntranceFields.entBldGlobalID]));
     } catch (e) {
