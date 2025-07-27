@@ -79,6 +79,18 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                 message: state.message,
                                 type: MessageType.error,
                               );
+                            } else if (state is OutputLogs &&
+                                state.hasErrorOrWarning != null) {
+                              final hasIssues = state.hasErrorOrWarning!;
+                              NotifierService.showMessage(
+                                context,
+                                message: hasIssues
+                                    ? 'Errors or warnings found.'
+                                    : 'No errors or warnings found.',
+                                type: hasIssues
+                                    ? MessageType.warning
+                                    : MessageType.success,
+                              );
                             }
                           },
                           builder: (context, state) {

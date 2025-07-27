@@ -53,54 +53,21 @@ class EventButtonAttribute extends StatelessWidget {
     final bldQuality = attributes['BldQuality'];
 
     Future<void> validateData() async {
-      // final loadingCubit = context.read<LoadingCubit>();
-      // final validateCubit = context.read<OutputLogsCubit>();
-      // final shapeType = selectedShapeType;
-      // final currentContext = context;
+      var loadingCubit = context.read<LoadingCubit>();
 
-      // final buildingGlobalId = attributesCubit.currentBuildingGlobalId;
-      // final entranceGlobalId = attributesCubit.currentEntranceGlobalId;
-      // final dwellingObjectId = attributesCubit.currentDwellingObjectId;
+      loadingCubit.show();
+      final buildingCubit = context.read<AttributesCubit>();
+      final validateCubit = context.read<OutputLogsCubit>();
 
-      // loadingCubit.show();
-      // bool validationSuccessful = false;
-
-      // try {
-      //   if (buildingGlobalId != null) {
-      //     await validateCubit.checkBuildings(buildingGlobalId);
-      //     if (validateCubit.state is OutputLogs) {
-      //       final outputLogs = validateCubit.state as OutputLogs;
-      //       final validationResults =
-      //           outputLogs.validationResult.toValidationResults();
-
-      //       // validationSuccessful = validationResults.isEmpty ||
-      //       //     !validationResults.any(
-      //       //         (result) => result.level == ValidationLevel.error);
-      //     }
-      //   }
-      // } finally {
-      //   loadingCubit.hide();
-
-        // if (buildingGlobalId != null && shapeType == ShapeType.polygon) {
-        //   await attributesCubit.showBuildingAttributes(buildingGlobalId);
-        // } else if (entranceGlobalId != null && shapeType == ShapeType.point) {
-        //   await attributesCubit.showEntranceAttributes(
-        //       entranceGlobalId, buildingGlobalId);
-        // } else if (dwellingObjectId != null &&
-        //     shapeType == ShapeType.noShape) {
-        //   await attributesCubit.showDwellingAttributes(dwellingObjectId);
-        // }
-
-        // NotifierService.showMessage(
-        //   currentContext,
-        //   messageKey: validationSuccessful
-        //       ? Keys.successGeneral
-        //       : Keys.finishValidateWarning,
-        //   type: validationSuccessful
-        //       ? MessageType.success
-        //       : MessageType.warning,
-        // );
-      // }
+      try {
+        if (buildingCubit.currentBuildingGlobalId != null) {
+          await validateCubit
+              .checkBuildings(buildingCubit.currentBuildingGlobalId!);
+        }
+      } finally {
+        loadingCubit.hide();
+      
+      }
     }
 
     Future<void> startReviewing() async {
@@ -119,7 +86,8 @@ class EventButtonAttribute extends StatelessWidget {
     Future<void> finishReviewing() async {
       final confirmed = await showConfirmationDialog(
         context: context,
-        title: AppLocalizations.of(context).translate(Keys.finishReviewingTitle),
+        title:
+            AppLocalizations.of(context).translate(Keys.finishReviewingTitle),
         content:
             AppLocalizations.of(context).translate(Keys.finishReviewingContent),
       );
@@ -144,7 +112,8 @@ class EventButtonAttribute extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
                 child: Text(
                   AppLocalizations.of(context).translate(Keys.close),
@@ -166,7 +135,8 @@ class EventButtonAttribute extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               child: Text(AppLocalizations.of(context).translate(Keys.save)),
             ),
