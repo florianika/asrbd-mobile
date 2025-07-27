@@ -35,4 +35,5 @@ class Keys {
   static const String confirmationCancel = 'confirmationCancel';
   static const String confirmationConfirm = 'confirmationConfirm';
   static const String successGeneral = 'successGeneral';
+  static const String invalidShape = 'invalidShape';
 }

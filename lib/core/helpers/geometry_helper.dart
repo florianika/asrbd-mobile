@@ -281,4 +281,68 @@ class GeometryHelper {
 
     return LatLng(centroidLat, centroidLng);
   }
+
+  static bool isPointOrValidPolygon(List<LatLng> coords) {
+    if (coords.isEmpty) return false;
+
+    // Case 1: Single point
+    if (coords.length == 1) return true;
+
+    // Case 2: Polygon (≥3 points, valid shape)
+    if (coords.length >= 3) {
+      final totalPoints = coords.length;
+
+      // Check all segment pairs (including wraparound)
+      for (int i = 0; i < totalPoints; i++) {
+        LatLng a1 = coords[i];
+        LatLng a2 = coords[(i + 1) % totalPoints];
+
+        for (int j = i + 1; j < totalPoints; j++) {
+          // Skip adjacent or identical segments
+          if ((i - j).abs() <= 1 || (i == 0 && j == totalPoints - 1)) continue;
+
+          LatLng b1 = coords[j];
+          LatLng b2 = coords[(j + 1) % totalPoints];
+
+          if (_segmentsIntersect(a1, a2, b1, b2)) {
+            return false; // Invalid polygon: intersection found
+          }
+        }
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  static bool _segmentsIntersect(LatLng p1, LatLng p2, LatLng q1, LatLng q2) {
+    int orientation(LatLng a, LatLng b, LatLng c) {
+      double val = (b.longitude - a.longitude) * (c.latitude - b.latitude) -
+          (b.latitude - a.latitude) * (c.longitude - b.longitude);
+      if (val == 0) return 0;
+      return val > 0 ? 1 : 2;
+    }
+
+    bool onSegment(LatLng a, LatLng b, LatLng c) {
+      return min(a.latitude, c.latitude) <= b.latitude &&
+          max(a.latitude, c.latitude) >= b.latitude &&
+          min(a.longitude, c.longitude) <= b.longitude &&
+          max(a.longitude, c.longitude) >= b.longitude;
+    }
+
+    int o1 = orientation(p1, p2, q1);
+    int o2 = orientation(p1, p2, q2);
+    int o3 = orientation(q1, q2, p1);
+    int o4 = orientation(q1, q2, p2);
+
+    if (o1 != o2 && o3 != o4) return true;
+
+    if (o1 == 0 && onSegment(p1, q1, p2)) return true;
+    if (o2 == 0 && onSegment(p1, q2, p2)) return true;
+    if (o3 == 0 && onSegment(q1, p1, q2)) return true;
+    if (o4 == 0 && onSegment(q1, p2, q2)) return true;
+
+    return false;
+  }
 }

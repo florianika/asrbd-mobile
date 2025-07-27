@@ -5,6 +5,7 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/build_fields.dart';
@@ -109,6 +110,17 @@ class _ViewMapState extends State<ViewMap> {
 
     try {
       final isNew = attributes[EntranceFields.globalID] == null;
+
+      bool isValidShape = GeometryHelper.isPointOrValidPolygon(geometryCubit.points);
+
+      if (!isValidShape) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.invalidShape,
+          type: MessageType.error,
+        );
+        return;
+      }
 
       // Check if geometry is outside municipality
       if (!await _validateMunicipalityBounds(geometryCubit) && mounted) {

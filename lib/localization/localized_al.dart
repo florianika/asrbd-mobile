@@ -40,6 +40,7 @@ class LocalizedAl {
     Keys.confirmationCancel: 'Anulo',
     Keys.confirmationConfirm: 'Konfirmo',
     Keys.successGeneral: "Të gjitha ndryshimet u aplikuan me sukses.",
-    Keys.finishValidateWarning: "Ju lutem, verifikoni elementët përbërës të ndërtesës."
+    Keys.finishValidateWarning: "Ju lutem, verifikoni elementët përbërës të ndërtesës.",
+    Keys.invalidShape: "Forma e hedhur nuk është e vlefshme. Ju lutemi, provoni përsëri.",
   };
 }

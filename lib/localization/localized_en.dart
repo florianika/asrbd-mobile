@@ -1,4 +1,5 @@
 import 'package:asrdb/localization/keys.dart';
+import 'package:flutter/material.dart';
 
 class LocalizedEn {
   static final Map<String, String> localizedStrings = {
@@ -44,8 +45,8 @@ class LocalizedEn {
     Keys.confirmationCancel: 'Cancel',
     Keys.confirmationConfirm: 'Confirm',
     Keys.successGeneral: "All changes were applied successfully.",
-     Keys.finishValidateWarning: "Please verify the structural components of the building."
+    Keys.finishValidateWarning:
+        "Please verify the structural components of the building.",
+    Keys.invalidShape: "The drawn shape is not valid. Please try again.",
   };
 }
-
-
