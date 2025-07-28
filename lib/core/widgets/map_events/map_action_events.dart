@@ -35,7 +35,9 @@ class _MapActionEventsState extends State<MapActionEvents> {
         builder: (context, state) {
           return Stack(
             children: [
-              if (_isDrawingMarker)
+              if (_isDrawingMarker &&
+                  !((state as NewGeometry).isMovingPoint &&
+                      (state).type == ShapeType.point))
                 IgnorePointer(
                   child: Center(
                     child: Container(
@@ -86,6 +88,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       heroTag: 'done',
                       onPressed: () => {
                         context.read<NewGeometryCubit>().setDrawing(false),
+                        context.read<NewGeometryCubit>().setMovingPoint(false),
                         if (state.type == ShapeType.point)
                           {
                             _placeMarker(),
@@ -103,6 +106,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       },
                       isEnabled: (((state).points.length > 2 &&
                               (state).type != ShapeType.point) ||
+                          (state).type == ShapeType.point),
+                      isVisible: !((state).isMovingPoint &&
                           (state).type == ShapeType.point),
                     ),
                     if (state.type == ShapeType.polygon) ...[
@@ -124,6 +129,9 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               context
                                   .read<NewGeometryCubit>()
                                   .setDrawing(false),
+                              context
+                                  .read<NewGeometryCubit>()
+                                  .setMovingPoint(false),
                             }),
                   ],
                 ),

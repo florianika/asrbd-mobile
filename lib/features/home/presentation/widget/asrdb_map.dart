@@ -337,6 +337,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     context.read<NewGeometryCubit>().setPoints([coordinates]);
     context.read<NewGeometryCubit>().setType(ShapeType.point);
     context.read<NewGeometryCubit>().setDrawing(true);
+    context.read<NewGeometryCubit>().setMovingPoint(true);
   }
 
   @override

@@ -10,26 +10,33 @@ class NewGeometry extends NewGeometryState {
   final List<LatLng> points;
   final ShapeType type;
   final bool isDrawing;
-  NewGeometry(this.points, this.type, this.isDrawing);
+  final bool isMovingPoint;
+  NewGeometry(this.points, this.type, this.isDrawing, this.isMovingPoint);
 }
 
 /// Cubit
 class NewGeometryCubit extends Cubit<NewGeometryState> {
-  NewGeometryCubit() : super(NewGeometry([], ShapeType.point, false));
+  NewGeometryCubit() : super(NewGeometry([], ShapeType.point, false, false));
 
   List<LatLng> _points = [];
   ShapeType _type = ShapeType.point;
   bool _isDrawing = false;
+  bool _isMovingPoint = false;
 
   final List<List<LatLng>> _undoStack = [];
   final List<List<LatLng>> _redoStack = [];
 
   void _emitCurrentState() {
-    emit(NewGeometry(List.from(_points), _type, _isDrawing));
+    emit(NewGeometry(List.from(_points), _type, _isDrawing, _isMovingPoint));
   }
 
   void setDrawing(bool isDrawing) {
     _isDrawing = isDrawing;
+    _emitCurrentState();
+  }
+
+  void setMovingPoint(bool isMovingPoint) {
+    _isMovingPoint = isMovingPoint;
     _emitCurrentState();
   }
 
@@ -119,6 +126,7 @@ class NewGeometryCubit extends Cubit<NewGeometryState> {
   List<LatLng> get points => List.unmodifiable(_points);
   ShapeType get type => _type;
   bool get isDrawing => _isDrawing;
+  bool get isMovingPoint => _isMovingPoint;
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
 }

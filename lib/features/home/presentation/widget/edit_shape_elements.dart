@@ -33,8 +33,13 @@ class EditShapeElements extends StatelessWidget {
         point: point,
         child: Draggable<int>(
           data: index,
+          onDragStarted: () {
+            context.read<NewGeometryCubit>().setMovingPoint(true);
+          },
+          onDragEnd: (details) {     
+          },
           feedback: Transform.translate(
-            offset: const Offset(0, -60), // Move 60px above finger
+            offset: const Offset(0, -60),
             child: Material(
               color: Colors.transparent,
               child: Container(
@@ -144,6 +149,7 @@ class EditShapeElements extends StatelessWidget {
                       .read<NewGeometryCubit>()
                       .updatePointPosition(details.data, latLng);
                 }
+                // Keep button hidden after drop completes
               },
               builder: (context, candidateData, rejectedData) {
                 return Stack(
