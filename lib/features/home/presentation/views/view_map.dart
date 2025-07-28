@@ -239,6 +239,7 @@ class _ViewMapState extends State<ViewMap> {
 
   void _cleanupAfterSave(NewGeometryCubit geometryCubit) {
     geometryCubit.setDrawing(false);
+    geometryCubit.setMovingPoint(false);
     geometryCubit.clearPoints();
 
     // Trick to trigger fetch of data again

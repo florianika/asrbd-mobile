@@ -86,6 +86,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       heroTag: 'done',
                       onPressed: () => {
                         context.read<NewGeometryCubit>().setDrawing(false),
+                        context.read<NewGeometryCubit>().setMovingPoint(false),
                         if (state.type == ShapeType.point)
                           {
                             _placeMarker(),
@@ -104,6 +105,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       isEnabled: (((state).points.length > 2 &&
                               (state).type != ShapeType.point) ||
                           (state).type == ShapeType.point),
+                      isVisible: !(state).isMovingPoint && !(state).isDrawing,
                     ),
                     if (state.type == ShapeType.polygon) ...[
                       const SizedBox(height: 20),
@@ -124,6 +126,9 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               context
                                   .read<NewGeometryCubit>()
                                   .setDrawing(false),
+                              context
+                                  .read<NewGeometryCubit>()
+                                  .setMovingPoint(false),
                             }),
                   ],
                 ),
