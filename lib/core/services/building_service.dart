@@ -178,4 +178,18 @@ class BuildingService {
       throw Exception('Get building intersection: $e');
     }
   }
+
+  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+    try {
+      final buildingsData = await getBuildings(bounds, 0, municipalityId);
+
+      if (buildingsData.containsKey('features') &&
+          buildingsData['features'] is List) {
+        return (buildingsData['features'] as List).length;
+      }
+      return 0;
+    } catch (e) {
+      throw Exception('Get building count failed: $e');
+    }
+  }
 }

@@ -45,6 +45,11 @@ class BuildingUpdateResponse extends BuildingState {
   BuildingUpdateResponse(this.globalId);
 }
 
+class BuildingCount extends BuildingState {
+  final int count;
+  BuildingCount(this.count);
+}
+
 // Cubit
 class BuildingCubit extends Cubit<BuildingState> {
   final BuildingUseCases buildingUseCases;
@@ -143,7 +148,18 @@ class BuildingCubit extends Cubit<BuildingState> {
     _selectedBuildingGlobalId = globalId;
     emit(BuildingGlobalId(globalId));
   }
-  
+
+  Future<void> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+    emit(BuildingLoading());
+    try {
+      final count =
+          await buildingUseCases.getBuildingsCount(bounds, municipalityId);
+      emit(BuildingCount(count));
+    } catch (e) {
+      emit(BuildingError(e.toString()));
+    }
+  }
+
   void clearBuildings() {
     _selectedBuildingGlobalId = null;
     emit(Buildings({}));
