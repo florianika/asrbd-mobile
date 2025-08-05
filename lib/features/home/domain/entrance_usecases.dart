@@ -5,7 +5,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
-import 'package:asrdb/features/home/data/entrance_repository.dart';
+import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -60,11 +60,11 @@ class EntranceUseCases {
     attributes[EntranceFields.entPointStatus] = DefaultData.fieldData;
 
     if (isNew) {
-      await _createNewEntrance(
-          attributes, geometryCubit, entranceCubit, outputLogsCubit, userService);
+      await _createNewEntrance(attributes, geometryCubit, entranceCubit,
+          outputLogsCubit, userService);
     } else {
-      await _updateExistingEntrance(
-          attributes, geometryCubit, entranceCubit, outputLogsCubit, userService);
+      await _updateExistingEntrance(attributes, geometryCubit, entranceCubit,
+          outputLogsCubit, userService);
     }
   }
 
@@ -92,11 +92,11 @@ class EntranceUseCases {
         geometryCubit.points.first.longitude;
 
     await entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
-     await outputLogsCubit.checkAutomatic(
-          attributes[EntranceFields.entBldGlobalID]
-              .toString()
-              .replaceAll('{', '')
-              .replaceAll('}', ''));
+    await outputLogsCubit.checkAutomatic(
+        attributes[EntranceFields.entBldGlobalID]
+            .toString()
+            .replaceAll('{', '')
+            .replaceAll('}', ''));
   }
 
   Future<void> _updateExistingEntrance(
@@ -116,10 +116,10 @@ class EntranceUseCases {
       geometryCubit.points.isNotEmpty ? geometryCubit.points.first : null,
     );
 
-     await outputLogsCubit.checkAutomatic(
-          attributes[EntranceFields.entBldGlobalID]
-              .toString()
-              .replaceAll('{', '')
-              .replaceAll('}', ''));
+    await outputLogsCubit.checkAutomatic(
+        attributes[EntranceFields.entBldGlobalID]
+            .toString()
+            .replaceAll('{', '')
+            .replaceAll('}', ''));
   }
 }

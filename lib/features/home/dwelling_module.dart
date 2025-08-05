@@ -1,6 +1,7 @@
 import 'package:asrdb/core/api/dwelling_api.dart';
+import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
-import 'package:asrdb/features/home/data/dwelling_repository.dart';
+import 'package:asrdb/data/repositories/dwelling_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -17,12 +18,12 @@ void initDwellingModule(GetIt slDwelling) {
       () => DwellingService(slDwelling<DwellingApi>()));
 
   // Register repository
-  slDwelling.registerLazySingleton<DwellingRepository>(
-      () => DwellingRepository(slDwelling<DwellingService>()));
+  slDwelling.registerLazySingleton<DwellingRepository>(() => DwellingRepository(
+      slDwelling<DatabaseService>(), slDwelling<DwellingService>()));
 
   // Register use cases
-  slDwelling.registerLazySingleton<DwellingUseCases>(
-      () => DwellingUseCases(slDwelling<DwellingRepository>(), slDwelling<CheckUseCases>()));
+  slDwelling.registerLazySingleton<DwellingUseCases>(() => DwellingUseCases(
+      slDwelling<DwellingRepository>(), slDwelling<CheckUseCases>()));
 
   // Register Cubit (State Management)
   slDwelling.registerFactory<DwellingCubit>(() => DwellingCubit(

@@ -178,4 +178,31 @@ class BuildingService {
       throw Exception('Get building intersection: $e');
     }
   }
+
+  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+    try {
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
+      final bbox =
+          '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
+      if (esriToken == null) throw Exception('Login failed: missing token');
+
+      final response =
+          await buildingApi.getBuildingsCount(esriToken, bbox, municipalityId);
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null && data['count'] != null) {
+          return data['count'] as int;
+        } else {
+          throw Exception('Count not found in response');
+        }
+      } else {
+        throw Exception(
+            'Failed to get buildings. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Get buildings failed: $e');
+    }
+  }
 }

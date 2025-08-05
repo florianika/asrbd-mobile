@@ -4,6 +4,7 @@ import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
+import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
@@ -64,6 +65,8 @@ void main() async {
   await legendService.loadLegendConfigs();
   await Hive.initFlutter();
   await StreetDatabase.database;
+
+  sl.registerSingleton<DatabaseService>(DatabaseService());
 
   sl.registerSingleton<LegendService>(legendService);
   sl.registerSingleton<StreetService>(streetService);

@@ -4,7 +4,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/build_fields.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
-import 'package:asrdb/features/home/data/building_repository.dart';
+import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -12,7 +12,6 @@ import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodesy/geodesy.dart';
-import 'package:latlong2/latlong.dart';
 
 class BuildingUseCases {
   final BuildingRepository _buildingRepository;

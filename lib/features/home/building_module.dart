@@ -1,6 +1,7 @@
 import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/services/building_service.dart';
-import 'package:asrdb/features/home/data/building_repository.dart';
+import 'package:asrdb/core/services/database_service.dart';
+import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -19,8 +20,8 @@ void initBuildingModule(GetIt slBuilding) {
       () => BuildingService(slBuilding<BuildingApi>()));
 
   // Register repository
-  slBuilding.registerLazySingleton<BuildingRepository>(
-      () => BuildingRepository(slBuilding<BuildingService>()));
+  slBuilding.registerLazySingleton<BuildingRepository>(() => BuildingRepository(
+      slBuilding<DatabaseService>(), slBuilding<BuildingService>()));
 
   // Register use cases
   slBuilding.registerLazySingleton<BuildingUseCases>(() => BuildingUseCases(

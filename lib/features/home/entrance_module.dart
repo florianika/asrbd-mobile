@@ -1,6 +1,7 @@
 import 'package:asrdb/core/api/entrance_api.dart';
+import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/entrance_service.dart';
-import 'package:asrdb/features/home/data/entrance_repository.dart';
+import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -18,8 +19,8 @@ void initEntranceModule(GetIt slEntrance) {
       () => EntranceService(slEntrance<EntranceApi>()));
 
   // Register repository
-  slEntrance.registerLazySingleton<EntranceRepository>(
-      () => EntranceRepository(slEntrance<EntranceService>()));
+  slEntrance.registerLazySingleton<EntranceRepository>(() => EntranceRepository(
+      slEntrance<DatabaseService>(), slEntrance<EntranceService>()));
 
   // Register use cases
   slEntrance.registerLazySingleton<EntranceUseCases>(
