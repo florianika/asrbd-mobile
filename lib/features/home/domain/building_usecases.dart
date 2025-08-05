@@ -38,17 +38,17 @@ class BuildingUseCases {
     return await _buildingRepository.getBuildingDetails(globalId);
   }
 
-  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
-    return await _buildingRepository.getBuildingsCount(bounds, municipalityId);
-  }
+  // Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+  //   return await _buildingRepository.getBuildingsCount(bounds, municipalityId);
+  // }
 
   Future<List<FieldSchema>> getBuildingAttibutes() async {
     return await _buildingRepository.getBuildingAttributes();
   }
 
-  Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
-    return await _buildingRepository.getBuildingIntersections(geometry);
-  }
+  // Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
+  //   return await _buildingRepository.getBuildingIntersections(geometry);
+  // }
 
   Future<String> addBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng> points) async {
