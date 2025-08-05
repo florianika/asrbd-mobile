@@ -3,12 +3,204 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
+class $DownloadsTable extends Downloads
+    with TableInfo<$DownloadsTable, Download> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DownloadsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _createdDateMeta =
+      const VerificationMeta('createdDate');
+  @override
+  late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
+      'created_date', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [id, createdDate];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'downloads';
+  @override
+  VerificationContext validateIntegrity(Insertable<Download> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('created_date')) {
+      context.handle(
+          _createdDateMeta,
+          createdDate.isAcceptableOrUnknown(
+              data['created_date']!, _createdDateMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Download map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Download(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      createdDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date'])!,
+    );
+  }
+
+  @override
+  $DownloadsTable createAlias(String alias) {
+    return $DownloadsTable(attachedDatabase, alias);
+  }
+}
+
+class Download extends DataClass implements Insertable<Download> {
+  final int id;
+  final DateTime createdDate;
+  const Download({required this.id, required this.createdDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['created_date'] = Variable<DateTime>(createdDate);
+    return map;
+  }
+
+  DownloadsCompanion toCompanion(bool nullToAbsent) {
+    return DownloadsCompanion(
+      id: Value(id),
+      createdDate: Value(createdDate),
+    );
+  }
+
+  factory Download.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Download(
+      id: serializer.fromJson<int>(json['id']),
+      createdDate: serializer.fromJson<DateTime>(json['createdDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'createdDate': serializer.toJson<DateTime>(createdDate),
+    };
+  }
+
+  Download copyWith({int? id, DateTime? createdDate}) => Download(
+        id: id ?? this.id,
+        createdDate: createdDate ?? this.createdDate,
+      );
+  Download copyWithCompanion(DownloadsCompanion data) {
+    return Download(
+      id: data.id.present ? data.id.value : this.id,
+      createdDate:
+          data.createdDate.present ? data.createdDate.value : this.createdDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Download(')
+          ..write('id: $id, ')
+          ..write('createdDate: $createdDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Download &&
+          other.id == this.id &&
+          other.createdDate == this.createdDate);
+}
+
+class DownloadsCompanion extends UpdateCompanion<Download> {
+  final Value<int> id;
+  final Value<DateTime> createdDate;
+  const DownloadsCompanion({
+    this.id = const Value.absent(),
+    this.createdDate = const Value.absent(),
+  });
+  DownloadsCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdDate = const Value.absent(),
+  });
+  static Insertable<Download> custom({
+    Expression<int>? id,
+    Expression<DateTime>? createdDate,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdDate != null) 'created_date': createdDate,
+    });
+  }
+
+  DownloadsCompanion copyWith({Value<int>? id, Value<DateTime>? createdDate}) {
+    return DownloadsCompanion(
+      id: id ?? this.id,
+      createdDate: createdDate ?? this.createdDate,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (createdDate.present) {
+      map['created_date'] = Variable<DateTime>(createdDate.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DownloadsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdDate: $createdDate')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BuildingsTable extends Buildings
     with TableInfo<$BuildingsTable, Building> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $BuildingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'download_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -231,6 +423,7 @@ class $BuildingsTable extends Buildings
       defaultValue: const Constant(99));
   @override
   List<GeneratedColumn> get $columns => [
+        downloadId,
         id,
         globalId,
         bldQuality,
@@ -272,6 +465,14 @@ class $BuildingsTable extends Buildings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('download_id')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['download_id']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
@@ -450,6 +651,8 @@ class $BuildingsTable extends Buildings
   Building map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Building(
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       globalId: attachedDatabase.typeMapping
@@ -520,6 +723,7 @@ class $BuildingsTable extends Buildings
 }
 
 class Building extends DataClass implements Insertable<Building> {
+  final int downloadId;
   final int id;
   final String globalId;
   final int bldQuality;
@@ -551,7 +755,8 @@ class Building extends DataClass implements Insertable<Building> {
   final int bldReview;
   final int? bldWaterSupply;
   const Building(
-      {required this.id,
+      {required this.downloadId,
+      required this.id,
       required this.globalId,
       required this.bldQuality,
       required this.bldMunicipality,
@@ -584,6 +789,7 @@ class Building extends DataClass implements Insertable<Building> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['download_id'] = Variable<int>(downloadId);
     map['id'] = Variable<int>(id);
     map['global_id'] = Variable<String>(globalId);
     map['bld_quality'] = Variable<int>(bldQuality);
@@ -661,6 +867,7 @@ class Building extends DataClass implements Insertable<Building> {
 
   BuildingsCompanion toCompanion(bool nullToAbsent) {
     return BuildingsCompanion(
+      downloadId: Value(downloadId),
       id: Value(id),
       globalId: Value(globalId),
       bldQuality: Value(bldQuality),
@@ -740,6 +947,7 @@ class Building extends DataClass implements Insertable<Building> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Building(
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       id: serializer.fromJson<int>(json['id']),
       globalId: serializer.fromJson<String>(json['globalId']),
       bldQuality: serializer.fromJson<int>(json['bldQuality']),
@@ -777,6 +985,7 @@ class Building extends DataClass implements Insertable<Building> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'downloadId': serializer.toJson<int>(downloadId),
       'id': serializer.toJson<int>(id),
       'globalId': serializer.toJson<String>(globalId),
       'bldQuality': serializer.toJson<int>(bldQuality),
@@ -811,7 +1020,8 @@ class Building extends DataClass implements Insertable<Building> {
   }
 
   Building copyWith(
-          {int? id,
+          {int? downloadId,
+          int? id,
           String? globalId,
           int? bldQuality,
           int? bldMunicipality,
@@ -842,6 +1052,7 @@ class Building extends DataClass implements Insertable<Building> {
           int? bldReview,
           Value<int?> bldWaterSupply = const Value.absent()}) =>
       Building(
+        downloadId: downloadId ?? this.downloadId,
         id: id ?? this.id,
         globalId: globalId ?? this.globalId,
         bldQuality: bldQuality ?? this.bldQuality,
@@ -893,6 +1104,8 @@ class Building extends DataClass implements Insertable<Building> {
       );
   Building copyWithCompanion(BuildingsCompanion data) {
     return Building(
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
       id: data.id.present ? data.id.value : this.id,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
       bldQuality:
@@ -965,6 +1178,7 @@ class Building extends DataClass implements Insertable<Building> {
   @override
   String toString() {
     return (StringBuffer('Building(')
+          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
           ..write('bldQuality: $bldQuality, ')
@@ -1001,6 +1215,7 @@ class Building extends DataClass implements Insertable<Building> {
 
   @override
   int get hashCode => Object.hashAll([
+        downloadId,
         id,
         globalId,
         bldQuality,
@@ -1036,6 +1251,7 @@ class Building extends DataClass implements Insertable<Building> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Building &&
+          other.downloadId == this.downloadId &&
           other.id == this.id &&
           other.globalId == this.globalId &&
           other.bldQuality == this.bldQuality &&
@@ -1069,6 +1285,7 @@ class Building extends DataClass implements Insertable<Building> {
 }
 
 class BuildingsCompanion extends UpdateCompanion<Building> {
+  final Value<int> downloadId;
   final Value<int> id;
   final Value<String> globalId;
   final Value<int> bldQuality;
@@ -1100,6 +1317,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int> bldReview;
   final Value<int?> bldWaterSupply;
   const BuildingsCompanion({
+    this.downloadId = const Value.absent(),
     this.id = const Value.absent(),
     this.globalId = const Value.absent(),
     this.bldQuality = const Value.absent(),
@@ -1132,6 +1350,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldWaterSupply = const Value.absent(),
   });
   BuildingsCompanion.insert({
+    required int downloadId,
     this.id = const Value.absent(),
     required String globalId,
     this.bldQuality = const Value.absent(),
@@ -1162,11 +1381,13 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldAddressId = const Value.absent(),
     this.bldReview = const Value.absent(),
     this.bldWaterSupply = const Value.absent(),
-  })  : globalId = Value(globalId),
+  })  : downloadId = Value(downloadId),
+        globalId = Value(globalId),
         bldMunicipality = Value(bldMunicipality),
         bldLatitude = Value(bldLatitude),
         bldLongitude = Value(bldLongitude);
   static Insertable<Building> custom({
+    Expression<int>? downloadId,
     Expression<int>? id,
     Expression<String>? globalId,
     Expression<int>? bldQuality,
@@ -1199,6 +1420,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<int>? bldWaterSupply,
   }) {
     return RawValuesInsertable({
+      if (downloadId != null) 'download_id': downloadId,
       if (id != null) 'id': id,
       if (globalId != null) 'global_id': globalId,
       if (bldQuality != null) 'bld_quality': bldQuality,
@@ -1234,7 +1456,8 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   }
 
   BuildingsCompanion copyWith(
-      {Value<int>? id,
+      {Value<int>? downloadId,
+      Value<int>? id,
       Value<String>? globalId,
       Value<int>? bldQuality,
       Value<int>? bldMunicipality,
@@ -1265,6 +1488,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<int>? bldReview,
       Value<int?>? bldWaterSupply}) {
     return BuildingsCompanion(
+      downloadId: downloadId ?? this.downloadId,
       id: id ?? this.id,
       globalId: globalId ?? this.globalId,
       bldQuality: bldQuality ?? this.bldQuality,
@@ -1301,6 +1525,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (downloadId.present) {
+      map['download_id'] = Variable<int>(downloadId.value);
+    }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
@@ -1397,6 +1624,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   @override
   String toString() {
     return (StringBuffer('BuildingsCompanion(')
+          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
           ..write('bldQuality: $bldQuality, ')
@@ -1438,6 +1666,15 @@ class $EntrancesTable extends Entrances
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EntrancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'download_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _entBldGlobalIdMeta =
       const VerificationMeta('entBldGlobalId');
   @override
@@ -1557,6 +1794,7 @@ class $EntrancesTable extends Entrances
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
+        downloadId,
         entBldGlobalId,
         id,
         globalId,
@@ -1583,6 +1821,14 @@ class $EntrancesTable extends Entrances
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('download_id')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['download_id']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
     if (data.containsKey('ent_bld_global_id')) {
       context.handle(
           _entBldGlobalIdMeta,
@@ -1683,6 +1929,8 @@ class $EntrancesTable extends Entrances
   Entrance map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Entrance(
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       entBldGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}ent_bld_global_id'])!,
       id: attachedDatabase.typeMapping
@@ -1723,6 +1971,7 @@ class $EntrancesTable extends Entrances
 }
 
 class Entrance extends DataClass implements Insertable<Entrance> {
+  final int downloadId;
   final String entBldGlobalId;
   final int id;
   final String globalId;
@@ -1739,7 +1988,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   final int? entDwellingRecs;
   final int? entDwellingExpec;
   const Entrance(
-      {required this.entBldGlobalId,
+      {required this.downloadId,
+      required this.entBldGlobalId,
       required this.id,
       required this.globalId,
       this.entAddressId,
@@ -1757,6 +2007,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['download_id'] = Variable<int>(downloadId);
     map['ent_bld_global_id'] = Variable<String>(entBldGlobalId);
     map['id'] = Variable<int>(id);
     map['global_id'] = Variable<String>(globalId);
@@ -1793,6 +2044,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 
   EntrancesCompanion toCompanion(bool nullToAbsent) {
     return EntrancesCompanion(
+      downloadId: Value(downloadId),
       entBldGlobalId: Value(entBldGlobalId),
       id: Value(id),
       globalId: Value(globalId),
@@ -1831,6 +2083,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Entrance(
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       entBldGlobalId: serializer.fromJson<String>(json['entBldGlobalId']),
       id: serializer.fromJson<int>(json['id']),
       globalId: serializer.fromJson<String>(json['globalId']),
@@ -1854,6 +2107,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'downloadId': serializer.toJson<int>(downloadId),
       'entBldGlobalId': serializer.toJson<String>(entBldGlobalId),
       'id': serializer.toJson<int>(id),
       'globalId': serializer.toJson<String>(globalId),
@@ -1873,7 +2127,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   }
 
   Entrance copyWith(
-          {String? entBldGlobalId,
+          {int? downloadId,
+          String? entBldGlobalId,
           int? id,
           String? globalId,
           Value<String?> entAddressId = const Value.absent(),
@@ -1889,6 +2144,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           Value<int?> entDwellingRecs = const Value.absent(),
           Value<int?> entDwellingExpec = const Value.absent()}) =>
       Entrance(
+        downloadId: downloadId ?? this.downloadId,
         entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
         id: id ?? this.id,
         globalId: globalId ?? this.globalId,
@@ -1917,6 +2173,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       );
   Entrance copyWithCompanion(EntrancesCompanion data) {
     return Entrance(
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
       entBldGlobalId: data.entBldGlobalId.present
           ? data.entBldGlobalId.value
           : this.entBldGlobalId,
@@ -1959,6 +2217,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   @override
   String toString() {
     return (StringBuffer('Entrance(')
+          ..write('downloadId: $downloadId, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
@@ -1980,6 +2239,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 
   @override
   int get hashCode => Object.hash(
+      downloadId,
       entBldGlobalId,
       id,
       globalId,
@@ -1999,6 +2259,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Entrance &&
+          other.downloadId == this.downloadId &&
           other.entBldGlobalId == this.entBldGlobalId &&
           other.id == this.id &&
           other.globalId == this.globalId &&
@@ -2017,6 +2278,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 }
 
 class EntrancesCompanion extends UpdateCompanion<Entrance> {
+  final Value<int> downloadId;
   final Value<String> entBldGlobalId;
   final Value<int> id;
   final Value<String> globalId;
@@ -2033,6 +2295,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   final Value<int?> entDwellingRecs;
   final Value<int?> entDwellingExpec;
   const EntrancesCompanion({
+    this.downloadId = const Value.absent(),
     this.entBldGlobalId = const Value.absent(),
     this.id = const Value.absent(),
     this.globalId = const Value.absent(),
@@ -2050,6 +2313,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entDwellingExpec = const Value.absent(),
   });
   EntrancesCompanion.insert({
+    required int downloadId,
     required String entBldGlobalId,
     this.id = const Value.absent(),
     required String globalId,
@@ -2065,11 +2329,13 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entZipCode = const Value.absent(),
     this.entDwellingRecs = const Value.absent(),
     this.entDwellingExpec = const Value.absent(),
-  })  : entBldGlobalId = Value(entBldGlobalId),
+  })  : downloadId = Value(downloadId),
+        entBldGlobalId = Value(entBldGlobalId),
         globalId = Value(globalId),
         entLatitude = Value(entLatitude),
         entLongitude = Value(entLongitude);
   static Insertable<Entrance> custom({
+    Expression<int>? downloadId,
     Expression<String>? entBldGlobalId,
     Expression<int>? id,
     Expression<String>? globalId,
@@ -2087,6 +2353,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     Expression<int>? entDwellingExpec,
   }) {
     return RawValuesInsertable({
+      if (downloadId != null) 'download_id': downloadId,
       if (entBldGlobalId != null) 'ent_bld_global_id': entBldGlobalId,
       if (id != null) 'id': id,
       if (globalId != null) 'global_id': globalId,
@@ -2106,7 +2373,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   }
 
   EntrancesCompanion copyWith(
-      {Value<String>? entBldGlobalId,
+      {Value<int>? downloadId,
+      Value<String>? entBldGlobalId,
       Value<int>? id,
       Value<String>? globalId,
       Value<String?>? entAddressId,
@@ -2122,6 +2390,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       Value<int?>? entDwellingRecs,
       Value<int?>? entDwellingExpec}) {
     return EntrancesCompanion(
+      downloadId: downloadId ?? this.downloadId,
       entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
       id: id ?? this.id,
       globalId: globalId ?? this.globalId,
@@ -2143,6 +2412,9 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (downloadId.present) {
+      map['download_id'] = Variable<int>(downloadId.value);
+    }
     if (entBldGlobalId.present) {
       map['ent_bld_global_id'] = Variable<String>(entBldGlobalId.value);
     }
@@ -2194,6 +2466,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   @override
   String toString() {
     return (StringBuffer('EntrancesCompanion(')
+          ..write('downloadId: $downloadId, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
@@ -2220,6 +2493,15 @@ class $DwellingsTable extends Dwellings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $DwellingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'download_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _dwlEntGlobalIdMeta =
       const VerificationMeta('dwlEntGlobalId');
   @override
@@ -2381,6 +2663,7 @@ class $DwellingsTable extends Dwellings
       defaultValue: const Constant(9));
   @override
   List<GeneratedColumn> get $columns => [
+        downloadId,
         dwlEntGlobalId,
         id,
         globalId,
@@ -2412,6 +2695,14 @@ class $DwellingsTable extends Dwellings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('download_id')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['download_id']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
     if (data.containsKey('dwl_ent_global_id')) {
       context.handle(
           _dwlEntGlobalIdMeta,
@@ -2530,6 +2821,8 @@ class $DwellingsTable extends Dwellings
   Dwelling map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Dwelling(
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       dwlEntGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}dwl_ent_global_id'])!,
       id: attachedDatabase.typeMapping
@@ -2580,6 +2873,7 @@ class $DwellingsTable extends Dwellings
 }
 
 class Dwelling extends DataClass implements Insertable<Dwelling> {
+  final int downloadId;
   final String dwlEntGlobalId;
   final int id;
   final String globalId;
@@ -2601,7 +2895,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int? dwlAirConditioner;
   final int? dwlSolarPanel;
   const Dwelling(
-      {required this.dwlEntGlobalId,
+      {required this.downloadId,
+      required this.dwlEntGlobalId,
       required this.id,
       required this.globalId,
       this.dwlAddressId,
@@ -2624,6 +2919,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['download_id'] = Variable<int>(downloadId);
     map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId);
     map['id'] = Variable<int>(id);
     map['global_id'] = Variable<String>(globalId);
@@ -2679,6 +2975,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
 
   DwellingsCompanion toCompanion(bool nullToAbsent) {
     return DwellingsCompanion(
+      downloadId: Value(downloadId),
       dwlEntGlobalId: Value(dwlEntGlobalId),
       id: Value(id),
       globalId: Value(globalId),
@@ -2736,6 +3033,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Dwelling(
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
       id: serializer.fromJson<int>(json['id']),
       globalId: serializer.fromJson<String>(json['globalId']),
@@ -2763,6 +3061,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'downloadId': serializer.toJson<int>(downloadId),
       'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
       'id': serializer.toJson<int>(id),
       'globalId': serializer.toJson<String>(globalId),
@@ -2787,7 +3086,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   }
 
   Dwelling copyWith(
-          {String? dwlEntGlobalId,
+          {int? downloadId,
+          String? dwlEntGlobalId,
           int? id,
           String? globalId,
           Value<String?> dwlAddressId = const Value.absent(),
@@ -2808,6 +3108,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           Value<int?> dwlAirConditioner = const Value.absent(),
           Value<int?> dwlSolarPanel = const Value.absent()}) =>
       Dwelling(
+        downloadId: downloadId ?? this.downloadId,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
         id: id ?? this.id,
         globalId: globalId ?? this.globalId,
@@ -2846,6 +3147,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       );
   Dwelling copyWithCompanion(DwellingsCompanion data) {
     return Dwelling(
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
       dwlEntGlobalId: data.dwlEntGlobalId.present
           ? data.dwlEntGlobalId.value
           : this.dwlEntGlobalId,
@@ -2896,6 +3199,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   @override
   String toString() {
     return (StringBuffer('Dwelling(')
+          ..write('downloadId: $downloadId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
@@ -2921,31 +3225,34 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      dwlEntGlobalId,
-      id,
-      globalId,
-      dwlAddressId,
-      dwlQuality,
-      dwlFloor,
-      dwlApartNumber,
-      dwlStatus,
-      dwlYearConstruction,
-      dwlYearElimination,
-      dwlType,
-      dwlOwnership,
-      dwlOccupancy,
-      dwlSurface,
-      dwlToilet,
-      dwlBath,
-      dwlHeatingFacility,
-      dwlHeatingEnergy,
-      dwlAirConditioner,
-      dwlSolarPanel);
+  int get hashCode => Object.hashAll([
+        downloadId,
+        dwlEntGlobalId,
+        id,
+        globalId,
+        dwlAddressId,
+        dwlQuality,
+        dwlFloor,
+        dwlApartNumber,
+        dwlStatus,
+        dwlYearConstruction,
+        dwlYearElimination,
+        dwlType,
+        dwlOwnership,
+        dwlOccupancy,
+        dwlSurface,
+        dwlToilet,
+        dwlBath,
+        dwlHeatingFacility,
+        dwlHeatingEnergy,
+        dwlAirConditioner,
+        dwlSolarPanel
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Dwelling &&
+          other.downloadId == this.downloadId &&
           other.dwlEntGlobalId == this.dwlEntGlobalId &&
           other.id == this.id &&
           other.globalId == this.globalId &&
@@ -2969,6 +3276,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
 }
 
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
+  final Value<int> downloadId;
   final Value<String> dwlEntGlobalId;
   final Value<int> id;
   final Value<String> globalId;
@@ -2990,6 +3298,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int?> dwlAirConditioner;
   final Value<int?> dwlSolarPanel;
   const DwellingsCompanion({
+    this.downloadId = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
     this.id = const Value.absent(),
     this.globalId = const Value.absent(),
@@ -3012,6 +3321,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlSolarPanel = const Value.absent(),
   });
   DwellingsCompanion.insert({
+    required int downloadId,
     required String dwlEntGlobalId,
     this.id = const Value.absent(),
     required String globalId,
@@ -3032,9 +3342,11 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlHeatingEnergy = const Value.absent(),
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
-  })  : dwlEntGlobalId = Value(dwlEntGlobalId),
+  })  : downloadId = Value(downloadId),
+        dwlEntGlobalId = Value(dwlEntGlobalId),
         globalId = Value(globalId);
   static Insertable<Dwelling> custom({
+    Expression<int>? downloadId,
     Expression<String>? dwlEntGlobalId,
     Expression<int>? id,
     Expression<String>? globalId,
@@ -3057,6 +3369,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     Expression<int>? dwlSolarPanel,
   }) {
     return RawValuesInsertable({
+      if (downloadId != null) 'download_id': downloadId,
       if (dwlEntGlobalId != null) 'dwl_ent_global_id': dwlEntGlobalId,
       if (id != null) 'id': id,
       if (globalId != null) 'global_id': globalId,
@@ -3084,7 +3397,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   }
 
   DwellingsCompanion copyWith(
-      {Value<String>? dwlEntGlobalId,
+      {Value<int>? downloadId,
+      Value<String>? dwlEntGlobalId,
       Value<int>? id,
       Value<String>? globalId,
       Value<String?>? dwlAddressId,
@@ -3105,6 +3419,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int?>? dwlAirConditioner,
       Value<int?>? dwlSolarPanel}) {
     return DwellingsCompanion(
+      downloadId: downloadId ?? this.downloadId,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
       id: id ?? this.id,
       globalId: globalId ?? this.globalId,
@@ -3131,6 +3446,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (downloadId.present) {
+      map['download_id'] = Variable<int>(downloadId.value);
+    }
     if (dwlEntGlobalId.present) {
       map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId.value);
     }
@@ -3197,6 +3515,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   @override
   String toString() {
     return (StringBuffer('DwellingsCompanion(')
+          ..write('downloadId: $downloadId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('id: $id, ')
           ..write('globalId: $globalId, ')
@@ -3225,6 +3544,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $DownloadsTable downloads = $DownloadsTable(this);
   late final $BuildingsTable buildings = $BuildingsTable(this);
   late final $EntrancesTable entrances = $EntrancesTable(this);
   late final $DwellingsTable dwellings = $DwellingsTable(this);
@@ -3236,10 +3556,362 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [buildings, entrances, dwellings];
+      [downloads, buildings, entrances, dwellings];
 }
 
+typedef $$DownloadsTableCreateCompanionBuilder = DownloadsCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdDate,
+});
+typedef $$DownloadsTableUpdateCompanionBuilder = DownloadsCompanion Function({
+  Value<int> id,
+  Value<DateTime> createdDate,
+});
+
+final class $$DownloadsTableReferences
+    extends BaseReferences<_$AppDatabase, $DownloadsTable, Download> {
+  $$DownloadsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$BuildingsTable, List<Building>>
+      _buildingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.buildings,
+          aliasName:
+              $_aliasNameGenerator(db.downloads.id, db.buildings.downloadId));
+
+  $$BuildingsTableProcessedTableManager get buildingsRefs {
+    final manager = $$BuildingsTableTableManager($_db, $_db.buildings)
+        .filter((f) => f.downloadId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_buildingsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$EntrancesTable, List<Entrance>>
+      _entrancesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.entrances,
+          aliasName:
+              $_aliasNameGenerator(db.downloads.id, db.entrances.downloadId));
+
+  $$EntrancesTableProcessedTableManager get entrancesRefs {
+    final manager = $$EntrancesTableTableManager($_db, $_db.entrances)
+        .filter((f) => f.downloadId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_entrancesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$DwellingsTable, List<Dwelling>>
+      _dwellingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.dwellings,
+          aliasName:
+              $_aliasNameGenerator(db.downloads.id, db.dwellings.downloadId));
+
+  $$DwellingsTableProcessedTableManager get dwellingsRefs {
+    final manager = $$DwellingsTableTableManager($_db, $_db.dwellings)
+        .filter((f) => f.downloadId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_dwellingsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$DownloadsTableFilterComposer
+    extends Composer<_$AppDatabase, $DownloadsTable> {
+  $$DownloadsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> buildingsRefs(
+      Expression<bool> Function($$BuildingsTableFilterComposer f) f) {
+    final $$BuildingsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.buildings,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BuildingsTableFilterComposer(
+              $db: $db,
+              $table: $db.buildings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> entrancesRefs(
+      Expression<bool> Function($$EntrancesTableFilterComposer f) f) {
+    final $$EntrancesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableFilterComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> dwellingsRefs(
+      Expression<bool> Function($$DwellingsTableFilterComposer f) f) {
+    final $$DwellingsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dwellings,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DwellingsTableFilterComposer(
+              $db: $db,
+              $table: $db.dwellings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$DownloadsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DownloadsTable> {
+  $$DownloadsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DownloadsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DownloadsTable> {
+  $$DownloadsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => column);
+
+  Expression<T> buildingsRefs<T extends Object>(
+      Expression<T> Function($$BuildingsTableAnnotationComposer a) f) {
+    final $$BuildingsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.buildings,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BuildingsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.buildings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> entrancesRefs<T extends Object>(
+      Expression<T> Function($$EntrancesTableAnnotationComposer a) f) {
+    final $$EntrancesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> dwellingsRefs<T extends Object>(
+      Expression<T> Function($$DwellingsTableAnnotationComposer a) f) {
+    final $$DwellingsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.dwellings,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DwellingsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.dwellings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$DownloadsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DownloadsTable,
+    Download,
+    $$DownloadsTableFilterComposer,
+    $$DownloadsTableOrderingComposer,
+    $$DownloadsTableAnnotationComposer,
+    $$DownloadsTableCreateCompanionBuilder,
+    $$DownloadsTableUpdateCompanionBuilder,
+    (Download, $$DownloadsTableReferences),
+    Download,
+    PrefetchHooks Function(
+        {bool buildingsRefs, bool entrancesRefs, bool dwellingsRefs})> {
+  $$DownloadsTableTableManager(_$AppDatabase db, $DownloadsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DownloadsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DownloadsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DownloadsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdDate = const Value.absent(),
+          }) =>
+              DownloadsCompanion(
+            id: id,
+            createdDate: createdDate,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> createdDate = const Value.absent(),
+          }) =>
+              DownloadsCompanion.insert(
+            id: id,
+            createdDate: createdDate,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$DownloadsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {buildingsRefs = false,
+              entrancesRefs = false,
+              dwellingsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (buildingsRefs) db.buildings,
+                if (entrancesRefs) db.entrances,
+                if (dwellingsRefs) db.dwellings
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (buildingsRefs)
+                    await $_getPrefetchedData<Download, $DownloadsTable,
+                            Building>(
+                        currentTable: table,
+                        referencedTable:
+                            $$DownloadsTableReferences._buildingsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$DownloadsTableReferences(db, table, p0)
+                                .buildingsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.downloadId == item.id),
+                        typedResults: items),
+                  if (entrancesRefs)
+                    await $_getPrefetchedData<Download, $DownloadsTable,
+                            Entrance>(
+                        currentTable: table,
+                        referencedTable:
+                            $$DownloadsTableReferences._entrancesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$DownloadsTableReferences(db, table, p0)
+                                .entrancesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.downloadId == item.id),
+                        typedResults: items),
+                  if (dwellingsRefs)
+                    await $_getPrefetchedData<Download, $DownloadsTable,
+                            Dwelling>(
+                        currentTable: table,
+                        referencedTable:
+                            $$DownloadsTableReferences._dwellingsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$DownloadsTableReferences(db, table, p0)
+                                .dwellingsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.downloadId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$DownloadsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DownloadsTable,
+    Download,
+    $$DownloadsTableFilterComposer,
+    $$DownloadsTableOrderingComposer,
+    $$DownloadsTableAnnotationComposer,
+    $$DownloadsTableCreateCompanionBuilder,
+    $$DownloadsTableUpdateCompanionBuilder,
+    (Download, $$DownloadsTableReferences),
+    Download,
+    PrefetchHooks Function(
+        {bool buildingsRefs, bool entrancesRefs, bool dwellingsRefs})>;
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
+  required int downloadId,
   Value<int> id,
   required String globalId,
   Value<int> bldQuality,
@@ -3272,6 +3944,7 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldWaterSupply,
 });
 typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
+  Value<int> downloadId,
   Value<int> id,
   Value<String> globalId,
   Value<int> bldQuality,
@@ -3307,6 +3980,21 @@ typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
 final class $$BuildingsTableReferences
     extends BaseReferences<_$AppDatabase, $BuildingsTable, Building> {
   $$BuildingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $DownloadsTable _downloadIdTable(_$AppDatabase db) =>
+      db.downloads.createAlias(
+          $_aliasNameGenerator(db.buildings.downloadId, db.downloads.id));
+
+  $$DownloadsTableProcessedTableManager get downloadId {
+    final $_column = $_itemColumn<int>('download_id')!;
+
+    final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_downloadIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$EntrancesTable, List<Entrance>>
       _entrancesRefsTable(_$AppDatabase db) =>
@@ -3434,6 +4122,26 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply,
       builder: (column) => ColumnFilters(column));
+
+  $$DownloadsTableFilterComposer get downloadId {
+    final $$DownloadsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableFilterComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> entrancesRefs(
       Expression<bool> Function($$EntrancesTableFilterComposer f) f) {
@@ -3570,6 +4278,26 @@ class $$BuildingsTableOrderingComposer
   ColumnOrderings<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply,
       builder: (column) => ColumnOrderings(column));
+
+  $$DownloadsTableOrderingComposer get downloadId {
+    final $$DownloadsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableOrderingComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$BuildingsTableAnnotationComposer
@@ -3671,6 +4399,26 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply, builder: (column) => column);
 
+  $$DownloadsTableAnnotationComposer get downloadId {
+    final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   Expression<T> entrancesRefs<T extends Object>(
       Expression<T> Function($$EntrancesTableAnnotationComposer a) f) {
     final $$EntrancesTableAnnotationComposer composer = $composerBuilder(
@@ -3704,7 +4452,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
     $$BuildingsTableUpdateCompanionBuilder,
     (Building, $$BuildingsTableReferences),
     Building,
-    PrefetchHooks Function({bool entrancesRefs})> {
+    PrefetchHooks Function({bool downloadId, bool entrancesRefs})> {
   $$BuildingsTableTableManager(_$AppDatabase db, $BuildingsTable table)
       : super(TableManagerState(
           db: db,
@@ -3716,6 +4464,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$BuildingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int> downloadId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<String> globalId = const Value.absent(),
             Value<int> bldQuality = const Value.absent(),
@@ -3748,6 +4497,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldWaterSupply = const Value.absent(),
           }) =>
               BuildingsCompanion(
+            downloadId: downloadId,
             id: id,
             globalId: globalId,
             bldQuality: bldQuality,
@@ -3780,6 +4530,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldWaterSupply: bldWaterSupply,
           ),
           createCompanionCallback: ({
+            required int downloadId,
             Value<int> id = const Value.absent(),
             required String globalId,
             Value<int> bldQuality = const Value.absent(),
@@ -3812,6 +4563,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldWaterSupply = const Value.absent(),
           }) =>
               BuildingsCompanion.insert(
+            downloadId: downloadId,
             id: id,
             globalId: globalId,
             bldQuality: bldQuality,
@@ -3849,11 +4601,36 @@ class $$BuildingsTableTableManager extends RootTableManager<
                     $$BuildingsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({entrancesRefs = false}) {
+          prefetchHooksCallback: ({downloadId = false, entrancesRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (entrancesRefs) db.entrances],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (downloadId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.downloadId,
+                    referencedTable:
+                        $$BuildingsTableReferences._downloadIdTable(db),
+                    referencedColumn:
+                        $$BuildingsTableReferences._downloadIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (entrancesRefs)
@@ -3887,8 +4664,9 @@ typedef $$BuildingsTableProcessedTableManager = ProcessedTableManager<
     $$BuildingsTableUpdateCompanionBuilder,
     (Building, $$BuildingsTableReferences),
     Building,
-    PrefetchHooks Function({bool entrancesRefs})>;
+    PrefetchHooks Function({bool downloadId, bool entrancesRefs})>;
 typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
+  required int downloadId,
   required String entBldGlobalId,
   Value<int> id,
   required String globalId,
@@ -3906,6 +4684,7 @@ typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
   Value<int?> entDwellingExpec,
 });
 typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
+  Value<int> downloadId,
   Value<String> entBldGlobalId,
   Value<int> id,
   Value<String> globalId,
@@ -3926,6 +4705,21 @@ typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
 final class $$EntrancesTableReferences
     extends BaseReferences<_$AppDatabase, $EntrancesTable, Entrance> {
   $$EntrancesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $DownloadsTable _downloadIdTable(_$AppDatabase db) =>
+      db.downloads.createAlias(
+          $_aliasNameGenerator(db.entrances.downloadId, db.downloads.id));
+
+  $$DownloadsTableProcessedTableManager get downloadId {
+    final $_column = $_itemColumn<int>('download_id')!;
+
+    final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_downloadIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static $BuildingsTable _entBldGlobalIdTable(_$AppDatabase db) =>
       db.buildings.createAlias($_aliasNameGenerator(
@@ -4015,6 +4809,26 @@ class $$EntrancesTableFilterComposer
   ColumnFilters<int> get entDwellingExpec => $composableBuilder(
       column: $table.entDwellingExpec,
       builder: (column) => ColumnFilters(column));
+
+  $$DownloadsTableFilterComposer get downloadId {
+    final $$DownloadsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableFilterComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   $$BuildingsTableFilterComposer get entBldGlobalId {
     final $$BuildingsTableFilterComposer composer = $composerBuilder(
@@ -4117,6 +4931,26 @@ class $$EntrancesTableOrderingComposer
       column: $table.entDwellingExpec,
       builder: (column) => ColumnOrderings(column));
 
+  $$DownloadsTableOrderingComposer get downloadId {
+    final $$DownloadsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableOrderingComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$BuildingsTableOrderingComposer get entBldGlobalId {
     final $$BuildingsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4189,6 +5023,26 @@ class $$EntrancesTableAnnotationComposer
   GeneratedColumn<int> get entDwellingExpec => $composableBuilder(
       column: $table.entDwellingExpec, builder: (column) => column);
 
+  $$DownloadsTableAnnotationComposer get downloadId {
+    final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$BuildingsTableAnnotationComposer get entBldGlobalId {
     final $$BuildingsTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -4242,7 +5096,8 @@ class $$EntrancesTableTableManager extends RootTableManager<
     $$EntrancesTableUpdateCompanionBuilder,
     (Entrance, $$EntrancesTableReferences),
     Entrance,
-    PrefetchHooks Function({bool entBldGlobalId, bool dwellingsRefs})> {
+    PrefetchHooks Function(
+        {bool downloadId, bool entBldGlobalId, bool dwellingsRefs})> {
   $$EntrancesTableTableManager(_$AppDatabase db, $EntrancesTable table)
       : super(TableManagerState(
           db: db,
@@ -4254,6 +5109,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$EntrancesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int> downloadId = const Value.absent(),
             Value<String> entBldGlobalId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<String> globalId = const Value.absent(),
@@ -4271,6 +5127,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entDwellingExpec = const Value.absent(),
           }) =>
               EntrancesCompanion(
+            downloadId: downloadId,
             entBldGlobalId: entBldGlobalId,
             id: id,
             globalId: globalId,
@@ -4288,6 +5145,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             entDwellingExpec: entDwellingExpec,
           ),
           createCompanionCallback: ({
+            required int downloadId,
             required String entBldGlobalId,
             Value<int> id = const Value.absent(),
             required String globalId,
@@ -4305,6 +5163,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entDwellingExpec = const Value.absent(),
           }) =>
               EntrancesCompanion.insert(
+            downloadId: downloadId,
             entBldGlobalId: entBldGlobalId,
             id: id,
             globalId: globalId,
@@ -4328,7 +5187,9 @@ class $$EntrancesTableTableManager extends RootTableManager<
                   ))
               .toList(),
           prefetchHooksCallback: (
-              {entBldGlobalId = false, dwellingsRefs = false}) {
+              {downloadId = false,
+              entBldGlobalId = false,
+              dwellingsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (dwellingsRefs) db.dwellings],
@@ -4345,6 +5206,16 @@ class $$EntrancesTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
+                if (downloadId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.downloadId,
+                    referencedTable:
+                        $$EntrancesTableReferences._downloadIdTable(db),
+                    referencedColumn:
+                        $$EntrancesTableReferences._downloadIdTable(db).id,
+                  ) as T;
+                }
                 if (entBldGlobalId) {
                   state = state.withJoin(
                     currentTable: table,
@@ -4392,8 +5263,10 @@ typedef $$EntrancesTableProcessedTableManager = ProcessedTableManager<
     $$EntrancesTableUpdateCompanionBuilder,
     (Entrance, $$EntrancesTableReferences),
     Entrance,
-    PrefetchHooks Function({bool entBldGlobalId, bool dwellingsRefs})>;
+    PrefetchHooks Function(
+        {bool downloadId, bool entBldGlobalId, bool dwellingsRefs})>;
 typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
+  required int downloadId,
   required String dwlEntGlobalId,
   Value<int> id,
   required String globalId,
@@ -4416,6 +5289,7 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlSolarPanel,
 });
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
+  Value<int> downloadId,
   Value<String> dwlEntGlobalId,
   Value<int> id,
   Value<String> globalId,
@@ -4441,6 +5315,21 @@ typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
 final class $$DwellingsTableReferences
     extends BaseReferences<_$AppDatabase, $DwellingsTable, Dwelling> {
   $$DwellingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $DownloadsTable _downloadIdTable(_$AppDatabase db) =>
+      db.downloads.createAlias(
+          $_aliasNameGenerator(db.dwellings.downloadId, db.downloads.id));
+
+  $$DownloadsTableProcessedTableManager get downloadId {
+    final $_column = $_itemColumn<int>('download_id')!;
+
+    final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_downloadIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static $EntrancesTable _dwlEntGlobalIdTable(_$AppDatabase db) =>
       db.entrances.createAlias($_aliasNameGenerator(
@@ -4529,6 +5418,26 @@ class $$DwellingsTableFilterComposer
 
   ColumnFilters<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => ColumnFilters(column));
+
+  $$DownloadsTableFilterComposer get downloadId {
+    final $$DownloadsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableFilterComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   $$EntrancesTableFilterComposer get dwlEntGlobalId {
     final $$EntrancesTableFilterComposer composer = $composerBuilder(
@@ -4627,6 +5536,26 @@ class $$DwellingsTableOrderingComposer
       column: $table.dwlSolarPanel,
       builder: (column) => ColumnOrderings(column));
 
+  $$DownloadsTableOrderingComposer get downloadId {
+    final $$DownloadsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableOrderingComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$EntrancesTableOrderingComposer get dwlEntGlobalId {
     final $$EntrancesTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -4714,6 +5643,26 @@ class $$DwellingsTableAnnotationComposer
   GeneratedColumn<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => column);
 
+  $$DownloadsTableAnnotationComposer get downloadId {
+    final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$EntrancesTableAnnotationComposer get dwlEntGlobalId {
     final $$EntrancesTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -4746,7 +5695,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
     $$DwellingsTableUpdateCompanionBuilder,
     (Dwelling, $$DwellingsTableReferences),
     Dwelling,
-    PrefetchHooks Function({bool dwlEntGlobalId})> {
+    PrefetchHooks Function({bool downloadId, bool dwlEntGlobalId})> {
   $$DwellingsTableTableManager(_$AppDatabase db, $DwellingsTable table)
       : super(TableManagerState(
           db: db,
@@ -4758,6 +5707,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$DwellingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
+            Value<int> downloadId = const Value.absent(),
             Value<String> dwlEntGlobalId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<String> globalId = const Value.absent(),
@@ -4780,6 +5730,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlSolarPanel = const Value.absent(),
           }) =>
               DwellingsCompanion(
+            downloadId: downloadId,
             dwlEntGlobalId: dwlEntGlobalId,
             id: id,
             globalId: globalId,
@@ -4802,6 +5753,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlSolarPanel: dwlSolarPanel,
           ),
           createCompanionCallback: ({
+            required int downloadId,
             required String dwlEntGlobalId,
             Value<int> id = const Value.absent(),
             required String globalId,
@@ -4824,6 +5776,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlSolarPanel = const Value.absent(),
           }) =>
               DwellingsCompanion.insert(
+            downloadId: downloadId,
             dwlEntGlobalId: dwlEntGlobalId,
             id: id,
             globalId: globalId,
@@ -4851,7 +5804,8 @@ class $$DwellingsTableTableManager extends RootTableManager<
                     $$DwellingsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({dwlEntGlobalId = false}) {
+          prefetchHooksCallback: (
+              {downloadId = false, dwlEntGlobalId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -4868,6 +5822,16 @@ class $$DwellingsTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
+                if (downloadId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.downloadId,
+                    referencedTable:
+                        $$DwellingsTableReferences._downloadIdTable(db),
+                    referencedColumn:
+                        $$DwellingsTableReferences._downloadIdTable(db).id,
+                  ) as T;
+                }
                 if (dwlEntGlobalId) {
                   state = state.withJoin(
                     currentTable: table,
@@ -4901,11 +5865,13 @@ typedef $$DwellingsTableProcessedTableManager = ProcessedTableManager<
     $$DwellingsTableUpdateCompanionBuilder,
     (Dwelling, $$DwellingsTableReferences),
     Dwelling,
-    PrefetchHooks Function({bool dwlEntGlobalId})>;
+    PrefetchHooks Function({bool downloadId, bool dwlEntGlobalId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
+  $$DownloadsTableTableManager get downloads =>
+      $$DownloadsTableTableManager(_db, _db.downloads);
   $$BuildingsTableTableManager get buildings =>
       $$BuildingsTableTableManager(_db, _db.buildings);
   $$EntrancesTableTableManager get entrances =>

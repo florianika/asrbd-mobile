@@ -4,8 +4,6 @@ import '../tables/buildings.dart';
 
 part 'building_dao.g.dart';
 
-// ...existing imports and code...
-
 @DriftAccessor(tables: [Buildings])
 class BuildingDao extends DatabaseAccessor<AppDatabase> with _$BuildingDaoMixin {
   BuildingDao(AppDatabase db) : super(db);

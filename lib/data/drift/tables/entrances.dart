@@ -1,8 +1,10 @@
 import 'package:asrdb/data/drift/tables/buildings.dart';
+import 'package:asrdb/data/drift/tables/downloads.dart';
 import 'package:drift/drift.dart';
 
 class Entrances extends Table {
   IntColumn get id => integer().autoIncrement()();
+  late final downloadId = integer().references(Downloads, #id)();
   TextColumn get globalId => text().withLength(min: 1, max: 38)();
 
   late final entBldGlobalId =

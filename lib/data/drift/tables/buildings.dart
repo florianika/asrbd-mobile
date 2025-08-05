@@ -1,7 +1,9 @@
+import 'package:asrdb/data/drift/tables/downloads.dart';
 import 'package:drift/drift.dart';
 
 class Buildings extends Table {
   IntColumn get id => integer().autoIncrement()();
+  late final downloadId = integer().references(Downloads, #id)();
   TextColumn get globalId => text().withLength(min: 1, max: 38)();
   IntColumn get bldQuality => integer().withDefault(const Constant(9))();
   IntColumn get bldMunicipality => integer()();
