@@ -179,17 +179,32 @@ class BuildingService {
     }
   }
 
-  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
-    try {
-      final buildingsData = await getBuildings(bounds, 0, municipalityId);
+ Future<int> getBuildingsCount(
+    LatLngBounds bounds, int municipalityId) async {
+  try {
+    String? esriToken =
+        await _storage.getString(key: StorageKeys.esriAccessToken);
+    final bbox =
+        '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
+    if (esriToken == null) throw Exception('Login failed: missing token');
 
-      if (buildingsData.containsKey('features') &&
-          buildingsData['features'] is List) {
-        return (buildingsData['features'] as List).length;
+    final response =
+        await buildingApi.getBuildingsCount(esriToken, bbox, municipalityId);
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      if (data != null && data['count'] != null) {
+        return data['count'] as int;
+      } else {
+        throw Exception('Count not found in response');
       }
-      return 0;
-    } catch (e) {
-      throw Exception('Get building count failed: $e');
+    } else {
+      throw Exception('Failed to get buildings. Status: ${response.statusCode}');
     }
+  } catch (e) {
+    throw Exception('Get buildings failed: $e');
   }
+}
+
+
 }
