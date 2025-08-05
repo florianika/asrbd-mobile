@@ -135,7 +135,25 @@ class ApiEndpoints {
       },
     ).toString();
   }
+   
+  static String getEsriBuildingsCount(String geometry, int municipalityId) {
+  return Uri(
+    scheme: esriBaseUri.scheme,
+    host: esriBaseUri.host,
+    path: '${esriBaseUri.path}/1/query',
+    queryParameters: {
+      'where': 'BldMunicipality = $municipalityId',
+      'geometry': geometry,
+      'geometryType': 'esriGeometryEnvelope',
+      'inSR': '4326',
+      'spatialRel': 'esriSpatialRelIntersects',
+      'returnCountOnly': 'true',
+      'f': 'json',
+    },
+  ).toString();
+}
 
+   
   static String getEsriBuildingInteresections(Map<String, dynamic> geometry) {
     return Uri(
       scheme: esriBaseUri.scheme,

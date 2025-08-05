@@ -15,6 +15,12 @@ class BuildingApi {
         '${ApiEndpoints.getEsriBulding(geometry, municipalityId)}&token=$esriToken');
   }
 
+  Future<Response> getBuildingsCount(
+      String esriToken, String geometry, int municipalityId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriBuildingsCount(geometry, municipalityId)}&token=$esriToken');
+  }
+
   Future<Response> getBuildingIntersection(
       String esriToken, Map<String, dynamic> geometry) async {
     return await _apiClient.get(
