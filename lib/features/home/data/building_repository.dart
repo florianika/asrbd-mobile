@@ -13,6 +13,10 @@ class BuildingRepository {
     return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 
+  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+    return await buildingService.getBuildingsCount(bounds, municipalityId);
+  }
+
   Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
     return await buildingService.getBuildingDetails(globalId);
   }
@@ -29,5 +33,9 @@ class BuildingRepository {
   Future<bool> updateBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng>? points) async {
     return await buildingService.updateBuildingFeature(attributes, points);
+  }
+
+  Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
+    return await buildingService.getBuildingIntersections(geometry);
   }
 }
