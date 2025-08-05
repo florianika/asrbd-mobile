@@ -5,11 +5,13 @@ import 'package:drift/drift.dart';
 part 'entrances_dao.g.dart';
 
 @DriftAccessor(tables: [Entrances])
-class EntrancesDao extends DatabaseAccessor<AppDatabase> with _$EntrancesDaoMixin {
+class EntrancesDao extends DatabaseAccessor<AppDatabase>
+    with _$EntrancesDaoMixin {
   EntrancesDao(AppDatabase db) : super(db);
 
   // Get entrances by list of building GlobalIDs
-  Future<List<Entrance>> getEntrancesByBuildingId(List<String> buildingGlobalIds) {
+  Future<List<Entrance>> getEntrancesByBuildingId(
+      List<String> buildingGlobalIds) {
     return (select(entrances)
           ..where((tbl) => tbl.entBldGlobalId.isIn(buildingGlobalIds)))
         .get();
@@ -29,7 +31,8 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase> with _$EntrancesDaoMixi
 
   // Delete an entrance by GlobalID
   Future<void> deleteEntrance(String globalId) async {
-    await (delete(entrances)..where((tbl) => tbl.globalId.equals(globalId))).go();
+    await (delete(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+        .go();
   }
 
   // Delete all entrances
@@ -42,7 +45,8 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase> with _$EntrancesDaoMixi
     required String globalId,
     required String newEntBldGlobalID,
   }) async {
-    await (update(entrances)..where((tbl) => tbl.globalId.equals(globalId))).write(
+    await (update(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+        .write(
       EntrancesCompanion(
         entBldGlobalId: Value(newEntBldGlobalID),
       ),
@@ -51,10 +55,10 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase> with _$EntrancesDaoMixi
 
   // Update GlobalID by ObjectID
   Future<void> updateEntranceGlobalID({
-    required int objectId,
+    required int id,
     required String newGlobalId,
   }) async {
-    await (update(entrances)..where((tbl) => tbl.objectId.equals(objectId))).write(
+    await (update(entrances)..where((tbl) => tbl.id.equals(id))).write(
       EntrancesCompanion(
         globalId: Value(newGlobalId),
       ),

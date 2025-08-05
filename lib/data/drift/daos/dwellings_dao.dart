@@ -54,12 +54,11 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Update GlobalID by ObjectID
-  Future<void> updateDwellingGlobalID({
-    required int objectId,
+  Future<void> updateDwellingById({
+    required int id,
     required String newGlobalId,
   }) async {
-    await (update(dwellings)..where((tbl) => tbl.objectId.equals(objectId)))
-        .write(
+    await (update(dwellings)..where((tbl) => tbl.id.equals(id))).write(
       DwellingsCompanion(
         globalId: Value(newGlobalId),
       ),

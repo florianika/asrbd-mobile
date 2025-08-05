@@ -9,28 +9,15 @@ class $BuildingsTable extends Buildings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $BuildingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _objectIdMeta =
-      const VerificationMeta('objectId');
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _shapeLengthMeta =
-      const VerificationMeta('shapeLength');
-  @override
-  late final GeneratedColumn<double> shapeLength = GeneratedColumn<double>(
-      'shape_length', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
-  static const VerificationMeta _shapeAreaMeta =
-      const VerificationMeta('shapeArea');
-  @override
-  late final GeneratedColumn<double> shapeArea = GeneratedColumn<double>(
-      'shape_area', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
@@ -40,16 +27,6 @@ class $BuildingsTable extends Buildings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _bldCensus2023Meta =
-      const VerificationMeta('bldCensus2023');
-  @override
-  late final GeneratedColumn<String> bldCensus2023 = GeneratedColumn<String>(
-      'bld_census2023', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 11),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('99999999999'));
   static const VerificationMeta _bldQualityMeta =
       const VerificationMeta('bldQuality');
   @override
@@ -207,36 +184,6 @@ class $BuildingsTable extends Buildings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
-  static const VerificationMeta _createdUserMeta =
-      const VerificationMeta('createdUser');
-  @override
-  late final GeneratedColumn<String> createdUser = GeneratedColumn<String>(
-      'created_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _createdDateMeta =
-      const VerificationMeta('createdDate');
-  @override
-  late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
-      'created_date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedUserMeta =
-      const VerificationMeta('lastEditedUser');
-  @override
-  late final GeneratedColumn<String> lastEditedUser = GeneratedColumn<String>(
-      'last_edited_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedDateMeta =
-      const VerificationMeta('lastEditedDate');
-  @override
-  late final GeneratedColumn<DateTime> lastEditedDate =
-      GeneratedColumn<DateTime>('last_edited_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _bldCentroidStatusMeta =
       const VerificationMeta('bldCentroidStatus');
   @override
@@ -266,24 +213,6 @@ class $BuildingsTable extends Buildings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 6),
       type: DriftSqlType.string,
       requiredDuringInsert: false);
-  static const VerificationMeta _externalCreatorMeta =
-      const VerificationMeta('externalCreator');
-  @override
-  late final GeneratedColumn<String> externalCreator = GeneratedColumn<String>(
-      'external_creator', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorMeta =
-      const VerificationMeta('externalEditor');
-  @override
-  late final GeneratedColumn<String> externalEditor = GeneratedColumn<String>(
-      'external_editor', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
   static const VerificationMeta _bldReviewMeta =
       const VerificationMeta('bldReview');
   @override
@@ -300,25 +229,10 @@ class $BuildingsTable extends Buildings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
-  static const VerificationMeta _externalCreatorDateMeta =
-      const VerificationMeta('externalCreatorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalCreatorDate =
-      GeneratedColumn<DateTime>('external_creator_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorDateMeta =
-      const VerificationMeta('externalEditorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalEditorDate =
-      GeneratedColumn<DateTime>('external_editor_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
-        objectId,
-        shapeLength,
-        shapeArea,
+        id,
         globalId,
-        bldCensus2023,
         bldQuality,
         bldMunicipality,
         bldEnumArea,
@@ -341,20 +255,12 @@ class $BuildingsTable extends Buildings
         bldElectricity,
         bldPipedGas,
         bldElevator,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
         bldCentroidStatus,
         bldDwellingRecs,
         bldEntranceRecs,
         bldAddressId,
-        externalCreator,
-        externalEditor,
         bldReview,
-        bldWaterSupply,
-        externalCreatorDate,
-        externalEditorDate
+        bldWaterSupply
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -366,31 +272,14 @@ class $BuildingsTable extends Buildings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('object_id')) {
-      context.handle(_objectIdMeta,
-          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
-    }
-    if (data.containsKey('shape_length')) {
-      context.handle(
-          _shapeLengthMeta,
-          shapeLength.isAcceptableOrUnknown(
-              data['shape_length']!, _shapeLengthMeta));
-    }
-    if (data.containsKey('shape_area')) {
-      context.handle(_shapeAreaMeta,
-          shapeArea.isAcceptableOrUnknown(data['shape_area']!, _shapeAreaMeta));
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('global_id')) {
       context.handle(_globalIdMeta,
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
-    }
-    if (data.containsKey('bld_census2023')) {
-      context.handle(
-          _bldCensus2023Meta,
-          bldCensus2023.isAcceptableOrUnknown(
-              data['bld_census2023']!, _bldCensus2023Meta));
     }
     if (data.containsKey('bld_quality')) {
       context.handle(
@@ -518,30 +407,6 @@ class $BuildingsTable extends Buildings
           bldElevator.isAcceptableOrUnknown(
               data['bld_elevator']!, _bldElevatorMeta));
     }
-    if (data.containsKey('created_user')) {
-      context.handle(
-          _createdUserMeta,
-          createdUser.isAcceptableOrUnknown(
-              data['created_user']!, _createdUserMeta));
-    }
-    if (data.containsKey('created_date')) {
-      context.handle(
-          _createdDateMeta,
-          createdDate.isAcceptableOrUnknown(
-              data['created_date']!, _createdDateMeta));
-    }
-    if (data.containsKey('last_edited_user')) {
-      context.handle(
-          _lastEditedUserMeta,
-          lastEditedUser.isAcceptableOrUnknown(
-              data['last_edited_user']!, _lastEditedUserMeta));
-    }
-    if (data.containsKey('last_edited_date')) {
-      context.handle(
-          _lastEditedDateMeta,
-          lastEditedDate.isAcceptableOrUnknown(
-              data['last_edited_date']!, _lastEditedDateMeta));
-    }
     if (data.containsKey('bld_centroid_status')) {
       context.handle(
           _bldCentroidStatusMeta,
@@ -566,18 +431,6 @@ class $BuildingsTable extends Buildings
           bldAddressId.isAcceptableOrUnknown(
               data['bld_address_id']!, _bldAddressIdMeta));
     }
-    if (data.containsKey('external_creator')) {
-      context.handle(
-          _externalCreatorMeta,
-          externalCreator.isAcceptableOrUnknown(
-              data['external_creator']!, _externalCreatorMeta));
-    }
-    if (data.containsKey('external_editor')) {
-      context.handle(
-          _externalEditorMeta,
-          externalEditor.isAcceptableOrUnknown(
-              data['external_editor']!, _externalEditorMeta));
-    }
     if (data.containsKey('bld_review')) {
       context.handle(_bldReviewMeta,
           bldReview.isAcceptableOrUnknown(data['bld_review']!, _bldReviewMeta));
@@ -588,37 +441,19 @@ class $BuildingsTable extends Buildings
           bldWaterSupply.isAcceptableOrUnknown(
               data['bld_water_supply']!, _bldWaterSupplyMeta));
     }
-    if (data.containsKey('external_creator_date')) {
-      context.handle(
-          _externalCreatorDateMeta,
-          externalCreatorDate.isAcceptableOrUnknown(
-              data['external_creator_date']!, _externalCreatorDateMeta));
-    }
-    if (data.containsKey('external_editor_date')) {
-      context.handle(
-          _externalEditorDateMeta,
-          externalEditorDate.isAcceptableOrUnknown(
-              data['external_editor_date']!, _externalEditorDateMeta));
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {objectId};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Building map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Building(
-      objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
-      shapeLength: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}shape_length']),
-      shapeArea: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}shape_area']),
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       globalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
-      bldCensus2023: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_census2023']),
       bldQuality: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_quality'])!,
       bldMunicipality: attachedDatabase.typeMapping
@@ -663,14 +498,6 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}bld_piped_gas']),
       bldElevator: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_elevator']),
-      createdUser: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}created_user']),
-      createdDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date']),
-      lastEditedUser: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}last_edited_user']),
-      lastEditedDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_edited_date']),
       bldCentroidStatus: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}bld_centroid_status'])!,
       bldDwellingRecs: attachedDatabase.typeMapping
@@ -679,20 +506,10 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}bld_entrance_recs']),
       bldAddressId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}bld_address_id']),
-      externalCreator: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}external_creator']),
-      externalEditor: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}external_editor']),
       bldReview: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_review'])!,
       bldWaterSupply: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_water_supply']),
-      externalCreatorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_creator_date']),
-      externalEditorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_editor_date']),
     );
   }
 
@@ -703,11 +520,8 @@ class $BuildingsTable extends Buildings
 }
 
 class Building extends DataClass implements Insertable<Building> {
-  final int objectId;
-  final double? shapeLength;
-  final double? shapeArea;
+  final int id;
   final String globalId;
-  final String? bldCensus2023;
   final int bldQuality;
   final int bldMunicipality;
   final String? bldEnumArea;
@@ -730,26 +544,15 @@ class Building extends DataClass implements Insertable<Building> {
   final int? bldElectricity;
   final int? bldPipedGas;
   final int? bldElevator;
-  final String? createdUser;
-  final DateTime? createdDate;
-  final String? lastEditedUser;
-  final DateTime? lastEditedDate;
   final int bldCentroidStatus;
   final int? bldDwellingRecs;
   final int? bldEntranceRecs;
   final String? bldAddressId;
-  final String? externalCreator;
-  final String? externalEditor;
   final int bldReview;
   final int? bldWaterSupply;
-  final DateTime? externalCreatorDate;
-  final DateTime? externalEditorDate;
   const Building(
-      {required this.objectId,
-      this.shapeLength,
-      this.shapeArea,
+      {required this.id,
       required this.globalId,
-      this.bldCensus2023,
       required this.bldQuality,
       required this.bldMunicipality,
       this.bldEnumArea,
@@ -772,34 +575,17 @@ class Building extends DataClass implements Insertable<Building> {
       this.bldElectricity,
       this.bldPipedGas,
       this.bldElevator,
-      this.createdUser,
-      this.createdDate,
-      this.lastEditedUser,
-      this.lastEditedDate,
       required this.bldCentroidStatus,
       this.bldDwellingRecs,
       this.bldEntranceRecs,
       this.bldAddressId,
-      this.externalCreator,
-      this.externalEditor,
       required this.bldReview,
-      this.bldWaterSupply,
-      this.externalCreatorDate,
-      this.externalEditorDate});
+      this.bldWaterSupply});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['object_id'] = Variable<int>(objectId);
-    if (!nullToAbsent || shapeLength != null) {
-      map['shape_length'] = Variable<double>(shapeLength);
-    }
-    if (!nullToAbsent || shapeArea != null) {
-      map['shape_area'] = Variable<double>(shapeArea);
-    }
+    map['id'] = Variable<int>(id);
     map['global_id'] = Variable<String>(globalId);
-    if (!nullToAbsent || bldCensus2023 != null) {
-      map['bld_census2023'] = Variable<String>(bldCensus2023);
-    }
     map['bld_quality'] = Variable<int>(bldQuality);
     map['bld_municipality'] = Variable<int>(bldMunicipality);
     if (!nullToAbsent || bldEnumArea != null) {
@@ -856,18 +642,6 @@ class Building extends DataClass implements Insertable<Building> {
     if (!nullToAbsent || bldElevator != null) {
       map['bld_elevator'] = Variable<int>(bldElevator);
     }
-    if (!nullToAbsent || createdUser != null) {
-      map['created_user'] = Variable<String>(createdUser);
-    }
-    if (!nullToAbsent || createdDate != null) {
-      map['created_date'] = Variable<DateTime>(createdDate);
-    }
-    if (!nullToAbsent || lastEditedUser != null) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser);
-    }
-    if (!nullToAbsent || lastEditedDate != null) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate);
-    }
     map['bld_centroid_status'] = Variable<int>(bldCentroidStatus);
     if (!nullToAbsent || bldDwellingRecs != null) {
       map['bld_dwelling_recs'] = Variable<int>(bldDwellingRecs);
@@ -878,38 +652,17 @@ class Building extends DataClass implements Insertable<Building> {
     if (!nullToAbsent || bldAddressId != null) {
       map['bld_address_id'] = Variable<String>(bldAddressId);
     }
-    if (!nullToAbsent || externalCreator != null) {
-      map['external_creator'] = Variable<String>(externalCreator);
-    }
-    if (!nullToAbsent || externalEditor != null) {
-      map['external_editor'] = Variable<String>(externalEditor);
-    }
     map['bld_review'] = Variable<int>(bldReview);
     if (!nullToAbsent || bldWaterSupply != null) {
       map['bld_water_supply'] = Variable<int>(bldWaterSupply);
-    }
-    if (!nullToAbsent || externalCreatorDate != null) {
-      map['external_creator_date'] = Variable<DateTime>(externalCreatorDate);
-    }
-    if (!nullToAbsent || externalEditorDate != null) {
-      map['external_editor_date'] = Variable<DateTime>(externalEditorDate);
     }
     return map;
   }
 
   BuildingsCompanion toCompanion(bool nullToAbsent) {
     return BuildingsCompanion(
-      objectId: Value(objectId),
-      shapeLength: shapeLength == null && nullToAbsent
-          ? const Value.absent()
-          : Value(shapeLength),
-      shapeArea: shapeArea == null && nullToAbsent
-          ? const Value.absent()
-          : Value(shapeArea),
+      id: Value(id),
       globalId: Value(globalId),
-      bldCensus2023: bldCensus2023 == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bldCensus2023),
       bldQuality: Value(bldQuality),
       bldMunicipality: Value(bldMunicipality),
       bldEnumArea: bldEnumArea == null && nullToAbsent
@@ -966,18 +719,6 @@ class Building extends DataClass implements Insertable<Building> {
       bldElevator: bldElevator == null && nullToAbsent
           ? const Value.absent()
           : Value(bldElevator),
-      createdUser: createdUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdUser),
-      createdDate: createdDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdDate),
-      lastEditedUser: lastEditedUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedUser),
-      lastEditedDate: lastEditedDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedDate),
       bldCentroidStatus: Value(bldCentroidStatus),
       bldDwellingRecs: bldDwellingRecs == null && nullToAbsent
           ? const Value.absent()
@@ -988,22 +729,10 @@ class Building extends DataClass implements Insertable<Building> {
       bldAddressId: bldAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(bldAddressId),
-      externalCreator: externalCreator == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreator),
-      externalEditor: externalEditor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditor),
       bldReview: Value(bldReview),
       bldWaterSupply: bldWaterSupply == null && nullToAbsent
           ? const Value.absent()
           : Value(bldWaterSupply),
-      externalCreatorDate: externalCreatorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreatorDate),
-      externalEditorDate: externalEditorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditorDate),
     );
   }
 
@@ -1011,11 +740,8 @@ class Building extends DataClass implements Insertable<Building> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Building(
-      objectId: serializer.fromJson<int>(json['objectId']),
-      shapeLength: serializer.fromJson<double?>(json['shapeLength']),
-      shapeArea: serializer.fromJson<double?>(json['shapeArea']),
+      id: serializer.fromJson<int>(json['id']),
       globalId: serializer.fromJson<String>(json['globalId']),
-      bldCensus2023: serializer.fromJson<String?>(json['bldCensus2023']),
       bldQuality: serializer.fromJson<int>(json['bldQuality']),
       bldMunicipality: serializer.fromJson<int>(json['bldMunicipality']),
       bldEnumArea: serializer.fromJson<String?>(json['bldEnumArea']),
@@ -1039,33 +765,20 @@ class Building extends DataClass implements Insertable<Building> {
       bldElectricity: serializer.fromJson<int?>(json['bldElectricity']),
       bldPipedGas: serializer.fromJson<int?>(json['bldPipedGas']),
       bldElevator: serializer.fromJson<int?>(json['bldElevator']),
-      createdUser: serializer.fromJson<String?>(json['createdUser']),
-      createdDate: serializer.fromJson<DateTime?>(json['createdDate']),
-      lastEditedUser: serializer.fromJson<String?>(json['lastEditedUser']),
-      lastEditedDate: serializer.fromJson<DateTime?>(json['lastEditedDate']),
       bldCentroidStatus: serializer.fromJson<int>(json['bldCentroidStatus']),
       bldDwellingRecs: serializer.fromJson<int?>(json['bldDwellingRecs']),
       bldEntranceRecs: serializer.fromJson<int?>(json['bldEntranceRecs']),
       bldAddressId: serializer.fromJson<String?>(json['bldAddressId']),
-      externalCreator: serializer.fromJson<String?>(json['externalCreator']),
-      externalEditor: serializer.fromJson<String?>(json['externalEditor']),
       bldReview: serializer.fromJson<int>(json['bldReview']),
       bldWaterSupply: serializer.fromJson<int?>(json['bldWaterSupply']),
-      externalCreatorDate:
-          serializer.fromJson<DateTime?>(json['externalCreatorDate']),
-      externalEditorDate:
-          serializer.fromJson<DateTime?>(json['externalEditorDate']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'objectId': serializer.toJson<int>(objectId),
-      'shapeLength': serializer.toJson<double?>(shapeLength),
-      'shapeArea': serializer.toJson<double?>(shapeArea),
+      'id': serializer.toJson<int>(id),
       'globalId': serializer.toJson<String>(globalId),
-      'bldCensus2023': serializer.toJson<String?>(bldCensus2023),
       'bldQuality': serializer.toJson<int>(bldQuality),
       'bldMunicipality': serializer.toJson<int>(bldMunicipality),
       'bldEnumArea': serializer.toJson<String?>(bldEnumArea),
@@ -1088,29 +801,18 @@ class Building extends DataClass implements Insertable<Building> {
       'bldElectricity': serializer.toJson<int?>(bldElectricity),
       'bldPipedGas': serializer.toJson<int?>(bldPipedGas),
       'bldElevator': serializer.toJson<int?>(bldElevator),
-      'createdUser': serializer.toJson<String?>(createdUser),
-      'createdDate': serializer.toJson<DateTime?>(createdDate),
-      'lastEditedUser': serializer.toJson<String?>(lastEditedUser),
-      'lastEditedDate': serializer.toJson<DateTime?>(lastEditedDate),
       'bldCentroidStatus': serializer.toJson<int>(bldCentroidStatus),
       'bldDwellingRecs': serializer.toJson<int?>(bldDwellingRecs),
       'bldEntranceRecs': serializer.toJson<int?>(bldEntranceRecs),
       'bldAddressId': serializer.toJson<String?>(bldAddressId),
-      'externalCreator': serializer.toJson<String?>(externalCreator),
-      'externalEditor': serializer.toJson<String?>(externalEditor),
       'bldReview': serializer.toJson<int>(bldReview),
       'bldWaterSupply': serializer.toJson<int?>(bldWaterSupply),
-      'externalCreatorDate': serializer.toJson<DateTime?>(externalCreatorDate),
-      'externalEditorDate': serializer.toJson<DateTime?>(externalEditorDate),
     };
   }
 
   Building copyWith(
-          {int? objectId,
-          Value<double?> shapeLength = const Value.absent(),
-          Value<double?> shapeArea = const Value.absent(),
+          {int? id,
           String? globalId,
-          Value<String?> bldCensus2023 = const Value.absent(),
           int? bldQuality,
           int? bldMunicipality,
           Value<String?> bldEnumArea = const Value.absent(),
@@ -1133,27 +835,15 @@ class Building extends DataClass implements Insertable<Building> {
           Value<int?> bldElectricity = const Value.absent(),
           Value<int?> bldPipedGas = const Value.absent(),
           Value<int?> bldElevator = const Value.absent(),
-          Value<String?> createdUser = const Value.absent(),
-          Value<DateTime?> createdDate = const Value.absent(),
-          Value<String?> lastEditedUser = const Value.absent(),
-          Value<DateTime?> lastEditedDate = const Value.absent(),
           int? bldCentroidStatus,
           Value<int?> bldDwellingRecs = const Value.absent(),
           Value<int?> bldEntranceRecs = const Value.absent(),
           Value<String?> bldAddressId = const Value.absent(),
-          Value<String?> externalCreator = const Value.absent(),
-          Value<String?> externalEditor = const Value.absent(),
           int? bldReview,
-          Value<int?> bldWaterSupply = const Value.absent(),
-          Value<DateTime?> externalCreatorDate = const Value.absent(),
-          Value<DateTime?> externalEditorDate = const Value.absent()}) =>
+          Value<int?> bldWaterSupply = const Value.absent()}) =>
       Building(
-        objectId: objectId ?? this.objectId,
-        shapeLength: shapeLength.present ? shapeLength.value : this.shapeLength,
-        shapeArea: shapeArea.present ? shapeArea.value : this.shapeArea,
+        id: id ?? this.id,
         globalId: globalId ?? this.globalId,
-        bldCensus2023:
-            bldCensus2023.present ? bldCensus2023.value : this.bldCensus2023,
         bldQuality: bldQuality ?? this.bldQuality,
         bldMunicipality: bldMunicipality ?? this.bldMunicipality,
         bldEnumArea: bldEnumArea.present ? bldEnumArea.value : this.bldEnumArea,
@@ -1188,12 +878,6 @@ class Building extends DataClass implements Insertable<Building> {
             bldElectricity.present ? bldElectricity.value : this.bldElectricity,
         bldPipedGas: bldPipedGas.present ? bldPipedGas.value : this.bldPipedGas,
         bldElevator: bldElevator.present ? bldElevator.value : this.bldElevator,
-        createdUser: createdUser.present ? createdUser.value : this.createdUser,
-        createdDate: createdDate.present ? createdDate.value : this.createdDate,
-        lastEditedUser:
-            lastEditedUser.present ? lastEditedUser.value : this.lastEditedUser,
-        lastEditedDate:
-            lastEditedDate.present ? lastEditedDate.value : this.lastEditedDate,
         bldCentroidStatus: bldCentroidStatus ?? this.bldCentroidStatus,
         bldDwellingRecs: bldDwellingRecs.present
             ? bldDwellingRecs.value
@@ -1203,31 +887,14 @@ class Building extends DataClass implements Insertable<Building> {
             : this.bldEntranceRecs,
         bldAddressId:
             bldAddressId.present ? bldAddressId.value : this.bldAddressId,
-        externalCreator: externalCreator.present
-            ? externalCreator.value
-            : this.externalCreator,
-        externalEditor:
-            externalEditor.present ? externalEditor.value : this.externalEditor,
         bldReview: bldReview ?? this.bldReview,
         bldWaterSupply:
             bldWaterSupply.present ? bldWaterSupply.value : this.bldWaterSupply,
-        externalCreatorDate: externalCreatorDate.present
-            ? externalCreatorDate.value
-            : this.externalCreatorDate,
-        externalEditorDate: externalEditorDate.present
-            ? externalEditorDate.value
-            : this.externalEditorDate,
       );
   Building copyWithCompanion(BuildingsCompanion data) {
     return Building(
-      objectId: data.objectId.present ? data.objectId.value : this.objectId,
-      shapeLength:
-          data.shapeLength.present ? data.shapeLength.value : this.shapeLength,
-      shapeArea: data.shapeArea.present ? data.shapeArea.value : this.shapeArea,
+      id: data.id.present ? data.id.value : this.id,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
-      bldCensus2023: data.bldCensus2023.present
-          ? data.bldCensus2023.value
-          : this.bldCensus2023,
       bldQuality:
           data.bldQuality.present ? data.bldQuality.value : this.bldQuality,
       bldMunicipality: data.bldMunicipality.present
@@ -1276,16 +943,6 @@ class Building extends DataClass implements Insertable<Building> {
           data.bldPipedGas.present ? data.bldPipedGas.value : this.bldPipedGas,
       bldElevator:
           data.bldElevator.present ? data.bldElevator.value : this.bldElevator,
-      createdUser:
-          data.createdUser.present ? data.createdUser.value : this.createdUser,
-      createdDate:
-          data.createdDate.present ? data.createdDate.value : this.createdDate,
-      lastEditedUser: data.lastEditedUser.present
-          ? data.lastEditedUser.value
-          : this.lastEditedUser,
-      lastEditedDate: data.lastEditedDate.present
-          ? data.lastEditedDate.value
-          : this.lastEditedDate,
       bldCentroidStatus: data.bldCentroidStatus.present
           ? data.bldCentroidStatus.value
           : this.bldCentroidStatus,
@@ -1298,33 +955,18 @@ class Building extends DataClass implements Insertable<Building> {
       bldAddressId: data.bldAddressId.present
           ? data.bldAddressId.value
           : this.bldAddressId,
-      externalCreator: data.externalCreator.present
-          ? data.externalCreator.value
-          : this.externalCreator,
-      externalEditor: data.externalEditor.present
-          ? data.externalEditor.value
-          : this.externalEditor,
       bldReview: data.bldReview.present ? data.bldReview.value : this.bldReview,
       bldWaterSupply: data.bldWaterSupply.present
           ? data.bldWaterSupply.value
           : this.bldWaterSupply,
-      externalCreatorDate: data.externalCreatorDate.present
-          ? data.externalCreatorDate.value
-          : this.externalCreatorDate,
-      externalEditorDate: data.externalEditorDate.present
-          ? data.externalEditorDate.value
-          : this.externalEditorDate,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('Building(')
-          ..write('objectId: $objectId, ')
-          ..write('shapeLength: $shapeLength, ')
-          ..write('shapeArea: $shapeArea, ')
+          ..write('id: $id, ')
           ..write('globalId: $globalId, ')
-          ..write('bldCensus2023: $bldCensus2023, ')
           ..write('bldQuality: $bldQuality, ')
           ..write('bldMunicipality: $bldMunicipality, ')
           ..write('bldEnumArea: $bldEnumArea, ')
@@ -1347,31 +989,20 @@ class Building extends DataClass implements Insertable<Building> {
           ..write('bldElectricity: $bldElectricity, ')
           ..write('bldPipedGas: $bldPipedGas, ')
           ..write('bldElevator: $bldElevator, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
           ..write('bldCentroidStatus: $bldCentroidStatus, ')
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
           ..write('bldAddressId: $bldAddressId, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor, ')
           ..write('bldReview: $bldReview, ')
-          ..write('bldWaterSupply: $bldWaterSupply, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate')
+          ..write('bldWaterSupply: $bldWaterSupply')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hashAll([
-        objectId,
-        shapeLength,
-        shapeArea,
+        id,
         globalId,
-        bldCensus2023,
         bldQuality,
         bldMunicipality,
         bldEnumArea,
@@ -1394,30 +1025,19 @@ class Building extends DataClass implements Insertable<Building> {
         bldElectricity,
         bldPipedGas,
         bldElevator,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
         bldCentroidStatus,
         bldDwellingRecs,
         bldEntranceRecs,
         bldAddressId,
-        externalCreator,
-        externalEditor,
         bldReview,
-        bldWaterSupply,
-        externalCreatorDate,
-        externalEditorDate
+        bldWaterSupply
       ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Building &&
-          other.objectId == this.objectId &&
-          other.shapeLength == this.shapeLength &&
-          other.shapeArea == this.shapeArea &&
+          other.id == this.id &&
           other.globalId == this.globalId &&
-          other.bldCensus2023 == this.bldCensus2023 &&
           other.bldQuality == this.bldQuality &&
           other.bldMunicipality == this.bldMunicipality &&
           other.bldEnumArea == this.bldEnumArea &&
@@ -1440,28 +1060,17 @@ class Building extends DataClass implements Insertable<Building> {
           other.bldElectricity == this.bldElectricity &&
           other.bldPipedGas == this.bldPipedGas &&
           other.bldElevator == this.bldElevator &&
-          other.createdUser == this.createdUser &&
-          other.createdDate == this.createdDate &&
-          other.lastEditedUser == this.lastEditedUser &&
-          other.lastEditedDate == this.lastEditedDate &&
           other.bldCentroidStatus == this.bldCentroidStatus &&
           other.bldDwellingRecs == this.bldDwellingRecs &&
           other.bldEntranceRecs == this.bldEntranceRecs &&
           other.bldAddressId == this.bldAddressId &&
-          other.externalCreator == this.externalCreator &&
-          other.externalEditor == this.externalEditor &&
           other.bldReview == this.bldReview &&
-          other.bldWaterSupply == this.bldWaterSupply &&
-          other.externalCreatorDate == this.externalCreatorDate &&
-          other.externalEditorDate == this.externalEditorDate);
+          other.bldWaterSupply == this.bldWaterSupply);
 }
 
 class BuildingsCompanion extends UpdateCompanion<Building> {
-  final Value<int> objectId;
-  final Value<double?> shapeLength;
-  final Value<double?> shapeArea;
+  final Value<int> id;
   final Value<String> globalId;
-  final Value<String?> bldCensus2023;
   final Value<int> bldQuality;
   final Value<int> bldMunicipality;
   final Value<String?> bldEnumArea;
@@ -1484,26 +1093,15 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int?> bldElectricity;
   final Value<int?> bldPipedGas;
   final Value<int?> bldElevator;
-  final Value<String?> createdUser;
-  final Value<DateTime?> createdDate;
-  final Value<String?> lastEditedUser;
-  final Value<DateTime?> lastEditedDate;
   final Value<int> bldCentroidStatus;
   final Value<int?> bldDwellingRecs;
   final Value<int?> bldEntranceRecs;
   final Value<String?> bldAddressId;
-  final Value<String?> externalCreator;
-  final Value<String?> externalEditor;
   final Value<int> bldReview;
   final Value<int?> bldWaterSupply;
-  final Value<DateTime?> externalCreatorDate;
-  final Value<DateTime?> externalEditorDate;
   const BuildingsCompanion({
-    this.objectId = const Value.absent(),
-    this.shapeLength = const Value.absent(),
-    this.shapeArea = const Value.absent(),
+    this.id = const Value.absent(),
     this.globalId = const Value.absent(),
-    this.bldCensus2023 = const Value.absent(),
     this.bldQuality = const Value.absent(),
     this.bldMunicipality = const Value.absent(),
     this.bldEnumArea = const Value.absent(),
@@ -1526,27 +1124,16 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldElectricity = const Value.absent(),
     this.bldPipedGas = const Value.absent(),
     this.bldElevator = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
     this.bldCentroidStatus = const Value.absent(),
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
     this.bldAddressId = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
     this.bldReview = const Value.absent(),
     this.bldWaterSupply = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
   });
   BuildingsCompanion.insert({
-    this.objectId = const Value.absent(),
-    this.shapeLength = const Value.absent(),
-    this.shapeArea = const Value.absent(),
+    this.id = const Value.absent(),
     required String globalId,
-    this.bldCensus2023 = const Value.absent(),
     this.bldQuality = const Value.absent(),
     required int bldMunicipality,
     this.bldEnumArea = const Value.absent(),
@@ -1569,30 +1156,19 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldElectricity = const Value.absent(),
     this.bldPipedGas = const Value.absent(),
     this.bldElevator = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
     this.bldCentroidStatus = const Value.absent(),
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
     this.bldAddressId = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
     this.bldReview = const Value.absent(),
     this.bldWaterSupply = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
   })  : globalId = Value(globalId),
         bldMunicipality = Value(bldMunicipality),
         bldLatitude = Value(bldLatitude),
         bldLongitude = Value(bldLongitude);
   static Insertable<Building> custom({
-    Expression<int>? objectId,
-    Expression<double>? shapeLength,
-    Expression<double>? shapeArea,
+    Expression<int>? id,
     Expression<String>? globalId,
-    Expression<String>? bldCensus2023,
     Expression<int>? bldQuality,
     Expression<int>? bldMunicipality,
     Expression<String>? bldEnumArea,
@@ -1615,27 +1191,16 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<int>? bldElectricity,
     Expression<int>? bldPipedGas,
     Expression<int>? bldElevator,
-    Expression<String>? createdUser,
-    Expression<DateTime>? createdDate,
-    Expression<String>? lastEditedUser,
-    Expression<DateTime>? lastEditedDate,
     Expression<int>? bldCentroidStatus,
     Expression<int>? bldDwellingRecs,
     Expression<int>? bldEntranceRecs,
     Expression<String>? bldAddressId,
-    Expression<String>? externalCreator,
-    Expression<String>? externalEditor,
     Expression<int>? bldReview,
     Expression<int>? bldWaterSupply,
-    Expression<DateTime>? externalCreatorDate,
-    Expression<DateTime>? externalEditorDate,
   }) {
     return RawValuesInsertable({
-      if (objectId != null) 'object_id': objectId,
-      if (shapeLength != null) 'shape_length': shapeLength,
-      if (shapeArea != null) 'shape_area': shapeArea,
+      if (id != null) 'id': id,
       if (globalId != null) 'global_id': globalId,
-      if (bldCensus2023 != null) 'bld_census2023': bldCensus2023,
       if (bldQuality != null) 'bld_quality': bldQuality,
       if (bldMunicipality != null) 'bld_municipality': bldMunicipality,
       if (bldEnumArea != null) 'bld_enum_area': bldEnumArea,
@@ -1659,31 +1224,18 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       if (bldElectricity != null) 'bld_electricity': bldElectricity,
       if (bldPipedGas != null) 'bld_piped_gas': bldPipedGas,
       if (bldElevator != null) 'bld_elevator': bldElevator,
-      if (createdUser != null) 'created_user': createdUser,
-      if (createdDate != null) 'created_date': createdDate,
-      if (lastEditedUser != null) 'last_edited_user': lastEditedUser,
-      if (lastEditedDate != null) 'last_edited_date': lastEditedDate,
       if (bldCentroidStatus != null) 'bld_centroid_status': bldCentroidStatus,
       if (bldDwellingRecs != null) 'bld_dwelling_recs': bldDwellingRecs,
       if (bldEntranceRecs != null) 'bld_entrance_recs': bldEntranceRecs,
       if (bldAddressId != null) 'bld_address_id': bldAddressId,
-      if (externalCreator != null) 'external_creator': externalCreator,
-      if (externalEditor != null) 'external_editor': externalEditor,
       if (bldReview != null) 'bld_review': bldReview,
       if (bldWaterSupply != null) 'bld_water_supply': bldWaterSupply,
-      if (externalCreatorDate != null)
-        'external_creator_date': externalCreatorDate,
-      if (externalEditorDate != null)
-        'external_editor_date': externalEditorDate,
     });
   }
 
   BuildingsCompanion copyWith(
-      {Value<int>? objectId,
-      Value<double?>? shapeLength,
-      Value<double?>? shapeArea,
+      {Value<int>? id,
       Value<String>? globalId,
-      Value<String?>? bldCensus2023,
       Value<int>? bldQuality,
       Value<int>? bldMunicipality,
       Value<String?>? bldEnumArea,
@@ -1706,26 +1258,15 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<int?>? bldElectricity,
       Value<int?>? bldPipedGas,
       Value<int?>? bldElevator,
-      Value<String?>? createdUser,
-      Value<DateTime?>? createdDate,
-      Value<String?>? lastEditedUser,
-      Value<DateTime?>? lastEditedDate,
       Value<int>? bldCentroidStatus,
       Value<int?>? bldDwellingRecs,
       Value<int?>? bldEntranceRecs,
       Value<String?>? bldAddressId,
-      Value<String?>? externalCreator,
-      Value<String?>? externalEditor,
       Value<int>? bldReview,
-      Value<int?>? bldWaterSupply,
-      Value<DateTime?>? externalCreatorDate,
-      Value<DateTime?>? externalEditorDate}) {
+      Value<int?>? bldWaterSupply}) {
     return BuildingsCompanion(
-      objectId: objectId ?? this.objectId,
-      shapeLength: shapeLength ?? this.shapeLength,
-      shapeArea: shapeArea ?? this.shapeArea,
+      id: id ?? this.id,
       globalId: globalId ?? this.globalId,
-      bldCensus2023: bldCensus2023 ?? this.bldCensus2023,
       bldQuality: bldQuality ?? this.bldQuality,
       bldMunicipality: bldMunicipality ?? this.bldMunicipality,
       bldEnumArea: bldEnumArea ?? this.bldEnumArea,
@@ -1748,40 +1289,23 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       bldElectricity: bldElectricity ?? this.bldElectricity,
       bldPipedGas: bldPipedGas ?? this.bldPipedGas,
       bldElevator: bldElevator ?? this.bldElevator,
-      createdUser: createdUser ?? this.createdUser,
-      createdDate: createdDate ?? this.createdDate,
-      lastEditedUser: lastEditedUser ?? this.lastEditedUser,
-      lastEditedDate: lastEditedDate ?? this.lastEditedDate,
       bldCentroidStatus: bldCentroidStatus ?? this.bldCentroidStatus,
       bldDwellingRecs: bldDwellingRecs ?? this.bldDwellingRecs,
       bldEntranceRecs: bldEntranceRecs ?? this.bldEntranceRecs,
       bldAddressId: bldAddressId ?? this.bldAddressId,
-      externalCreator: externalCreator ?? this.externalCreator,
-      externalEditor: externalEditor ?? this.externalEditor,
       bldReview: bldReview ?? this.bldReview,
       bldWaterSupply: bldWaterSupply ?? this.bldWaterSupply,
-      externalCreatorDate: externalCreatorDate ?? this.externalCreatorDate,
-      externalEditorDate: externalEditorDate ?? this.externalEditorDate,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (objectId.present) {
-      map['object_id'] = Variable<int>(objectId.value);
-    }
-    if (shapeLength.present) {
-      map['shape_length'] = Variable<double>(shapeLength.value);
-    }
-    if (shapeArea.present) {
-      map['shape_area'] = Variable<double>(shapeArea.value);
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
     }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
-    }
-    if (bldCensus2023.present) {
-      map['bld_census2023'] = Variable<String>(bldCensus2023.value);
     }
     if (bldQuality.present) {
       map['bld_quality'] = Variable<int>(bldQuality.value);
@@ -1849,18 +1373,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (bldElevator.present) {
       map['bld_elevator'] = Variable<int>(bldElevator.value);
     }
-    if (createdUser.present) {
-      map['created_user'] = Variable<String>(createdUser.value);
-    }
-    if (createdDate.present) {
-      map['created_date'] = Variable<DateTime>(createdDate.value);
-    }
-    if (lastEditedUser.present) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser.value);
-    }
-    if (lastEditedDate.present) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate.value);
-    }
     if (bldCentroidStatus.present) {
       map['bld_centroid_status'] = Variable<int>(bldCentroidStatus.value);
     }
@@ -1873,25 +1385,11 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (bldAddressId.present) {
       map['bld_address_id'] = Variable<String>(bldAddressId.value);
     }
-    if (externalCreator.present) {
-      map['external_creator'] = Variable<String>(externalCreator.value);
-    }
-    if (externalEditor.present) {
-      map['external_editor'] = Variable<String>(externalEditor.value);
-    }
     if (bldReview.present) {
       map['bld_review'] = Variable<int>(bldReview.value);
     }
     if (bldWaterSupply.present) {
       map['bld_water_supply'] = Variable<int>(bldWaterSupply.value);
-    }
-    if (externalCreatorDate.present) {
-      map['external_creator_date'] =
-          Variable<DateTime>(externalCreatorDate.value);
-    }
-    if (externalEditorDate.present) {
-      map['external_editor_date'] =
-          Variable<DateTime>(externalEditorDate.value);
     }
     return map;
   }
@@ -1899,11 +1397,8 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   @override
   String toString() {
     return (StringBuffer('BuildingsCompanion(')
-          ..write('objectId: $objectId, ')
-          ..write('shapeLength: $shapeLength, ')
-          ..write('shapeArea: $shapeArea, ')
+          ..write('id: $id, ')
           ..write('globalId: $globalId, ')
-          ..write('bldCensus2023: $bldCensus2023, ')
           ..write('bldQuality: $bldQuality, ')
           ..write('bldMunicipality: $bldMunicipality, ')
           ..write('bldEnumArea: $bldEnumArea, ')
@@ -1926,20 +1421,12 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
           ..write('bldElectricity: $bldElectricity, ')
           ..write('bldPipedGas: $bldPipedGas, ')
           ..write('bldElevator: $bldElevator, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
           ..write('bldCentroidStatus: $bldCentroidStatus, ')
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
           ..write('bldAddressId: $bldAddressId, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor, ')
           ..write('bldReview: $bldReview, ')
-          ..write('bldWaterSupply: $bldWaterSupply, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate')
+          ..write('bldWaterSupply: $bldWaterSupply')
           ..write(')'))
         .toString();
   }
@@ -1951,38 +1438,26 @@ class $EntrancesTable extends Entrances
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EntrancesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _objectIdMeta =
-      const VerificationMeta('objectId');
+  static const VerificationMeta _entBldGlobalIdMeta =
+      const VerificationMeta('entBldGlobalId');
   @override
-  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+  late final GeneratedColumn<String> entBldGlobalId = GeneratedColumn<String>(
+      'ent_bld_global_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES buildings (global_id)'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _entCensus2023Meta =
-      const VerificationMeta('entCensus2023');
-  @override
-  late final GeneratedColumn<String> entCensus2023 = GeneratedColumn<String>(
-      'ent_census2023', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 13),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('9999999999999'));
-  static const VerificationMeta _externalCreatorDateMeta =
-      const VerificationMeta('externalCreatorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalCreatorDate =
-      GeneratedColumn<DateTime>('external_creator_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorDateMeta =
-      const VerificationMeta('externalEditorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalEditorDate =
-      GeneratedColumn<DateTime>('external_editor_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
@@ -1992,16 +1467,6 @@ class $EntrancesTable extends Entrances
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _entBldGlobalIdMeta =
-      const VerificationMeta('entBldGlobalId');
-  @override
-  late final GeneratedColumn<String> entBldGlobalId = GeneratedColumn<String>(
-      'ent_bld_global_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('00000000-0000-0000-0000-000000000000'));
   static const VerificationMeta _entAddressIdMeta =
       const VerificationMeta('entAddressId');
   @override
@@ -2090,62 +1555,11 @@ class $EntrancesTable extends Entrances
   late final GeneratedColumn<int> entDwellingExpec = GeneratedColumn<int>(
       'ent_dwelling_expec', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _createdUserMeta =
-      const VerificationMeta('createdUser');
-  @override
-  late final GeneratedColumn<String> createdUser = GeneratedColumn<String>(
-      'created_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _createdDateMeta =
-      const VerificationMeta('createdDate');
-  @override
-  late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
-      'created_date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedUserMeta =
-      const VerificationMeta('lastEditedUser');
-  @override
-  late final GeneratedColumn<String> lastEditedUser = GeneratedColumn<String>(
-      'last_edited_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedDateMeta =
-      const VerificationMeta('lastEditedDate');
-  @override
-  late final GeneratedColumn<DateTime> lastEditedDate =
-      GeneratedColumn<DateTime>('last_edited_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _externalCreatorMeta =
-      const VerificationMeta('externalCreator');
-  @override
-  late final GeneratedColumn<String> externalCreator = GeneratedColumn<String>(
-      'external_creator', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorMeta =
-      const VerificationMeta('externalEditor');
-  @override
-  late final GeneratedColumn<String> externalEditor = GeneratedColumn<String>(
-      'external_editor', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
-        objectId,
-        entCensus2023,
-        externalCreatorDate,
-        externalEditorDate,
-        globalId,
         entBldGlobalId,
+        id,
+        globalId,
         entAddressId,
         entQuality,
         entLatitude,
@@ -2157,13 +1571,7 @@ class $EntrancesTable extends Entrances
         entTown,
         entZipCode,
         entDwellingRecs,
-        entDwellingExpec,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
-        externalCreator,
-        externalEditor
+        entDwellingExpec
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2175,39 +1583,22 @@ class $EntrancesTable extends Entrances
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('object_id')) {
-      context.handle(_objectIdMeta,
-          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
-    }
-    if (data.containsKey('ent_census2023')) {
+    if (data.containsKey('ent_bld_global_id')) {
       context.handle(
-          _entCensus2023Meta,
-          entCensus2023.isAcceptableOrUnknown(
-              data['ent_census2023']!, _entCensus2023Meta));
+          _entBldGlobalIdMeta,
+          entBldGlobalId.isAcceptableOrUnknown(
+              data['ent_bld_global_id']!, _entBldGlobalIdMeta));
+    } else if (isInserting) {
+      context.missing(_entBldGlobalIdMeta);
     }
-    if (data.containsKey('external_creator_date')) {
-      context.handle(
-          _externalCreatorDateMeta,
-          externalCreatorDate.isAcceptableOrUnknown(
-              data['external_creator_date']!, _externalCreatorDateMeta));
-    }
-    if (data.containsKey('external_editor_date')) {
-      context.handle(
-          _externalEditorDateMeta,
-          externalEditorDate.isAcceptableOrUnknown(
-              data['external_editor_date']!, _externalEditorDateMeta));
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('global_id')) {
       context.handle(_globalIdMeta,
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
-    }
-    if (data.containsKey('ent_bld_global_id')) {
-      context.handle(
-          _entBldGlobalIdMeta,
-          entBldGlobalId.isAcceptableOrUnknown(
-              data['ent_bld_global_id']!, _entBldGlobalIdMeta));
     }
     if (data.containsKey('ent_address_id')) {
       context.handle(
@@ -2283,65 +1674,21 @@ class $EntrancesTable extends Entrances
           entDwellingExpec.isAcceptableOrUnknown(
               data['ent_dwelling_expec']!, _entDwellingExpecMeta));
     }
-    if (data.containsKey('created_user')) {
-      context.handle(
-          _createdUserMeta,
-          createdUser.isAcceptableOrUnknown(
-              data['created_user']!, _createdUserMeta));
-    }
-    if (data.containsKey('created_date')) {
-      context.handle(
-          _createdDateMeta,
-          createdDate.isAcceptableOrUnknown(
-              data['created_date']!, _createdDateMeta));
-    }
-    if (data.containsKey('last_edited_user')) {
-      context.handle(
-          _lastEditedUserMeta,
-          lastEditedUser.isAcceptableOrUnknown(
-              data['last_edited_user']!, _lastEditedUserMeta));
-    }
-    if (data.containsKey('last_edited_date')) {
-      context.handle(
-          _lastEditedDateMeta,
-          lastEditedDate.isAcceptableOrUnknown(
-              data['last_edited_date']!, _lastEditedDateMeta));
-    }
-    if (data.containsKey('external_creator')) {
-      context.handle(
-          _externalCreatorMeta,
-          externalCreator.isAcceptableOrUnknown(
-              data['external_creator']!, _externalCreatorMeta));
-    }
-    if (data.containsKey('external_editor')) {
-      context.handle(
-          _externalEditorMeta,
-          externalEditor.isAcceptableOrUnknown(
-              data['external_editor']!, _externalEditorMeta));
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {objectId};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Entrance map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Entrance(
-      objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
-      entCensus2023: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}ent_census2023']),
-      externalCreatorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_creator_date']),
-      externalEditorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_editor_date']),
-      globalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
       entBldGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}ent_bld_global_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      globalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
       entAddressId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}ent_address_id']),
       entQuality: attachedDatabase.typeMapping
@@ -2366,18 +1713,6 @@ class $EntrancesTable extends Entrances
           .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_recs']),
       entDwellingExpec: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_expec']),
-      createdUser: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}created_user']),
-      createdDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date']),
-      lastEditedUser: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}last_edited_user']),
-      lastEditedDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_edited_date']),
-      externalCreator: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}external_creator']),
-      externalEditor: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}external_editor']),
     );
   }
 
@@ -2388,12 +1723,9 @@ class $EntrancesTable extends Entrances
 }
 
 class Entrance extends DataClass implements Insertable<Entrance> {
-  final int objectId;
-  final String? entCensus2023;
-  final DateTime? externalCreatorDate;
-  final DateTime? externalEditorDate;
-  final String globalId;
   final String entBldGlobalId;
+  final int id;
+  final String globalId;
   final String? entAddressId;
   final int entQuality;
   final double entLatitude;
@@ -2406,19 +1738,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   final int? entZipCode;
   final int? entDwellingRecs;
   final int? entDwellingExpec;
-  final String? createdUser;
-  final DateTime? createdDate;
-  final String? lastEditedUser;
-  final DateTime? lastEditedDate;
-  final String? externalCreator;
-  final String? externalEditor;
   const Entrance(
-      {required this.objectId,
-      this.entCensus2023,
-      this.externalCreatorDate,
-      this.externalEditorDate,
+      {required this.entBldGlobalId,
+      required this.id,
       required this.globalId,
-      required this.entBldGlobalId,
       this.entAddressId,
       required this.entQuality,
       required this.entLatitude,
@@ -2430,28 +1753,13 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       this.entTown,
       this.entZipCode,
       this.entDwellingRecs,
-      this.entDwellingExpec,
-      this.createdUser,
-      this.createdDate,
-      this.lastEditedUser,
-      this.lastEditedDate,
-      this.externalCreator,
-      this.externalEditor});
+      this.entDwellingExpec});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['object_id'] = Variable<int>(objectId);
-    if (!nullToAbsent || entCensus2023 != null) {
-      map['ent_census2023'] = Variable<String>(entCensus2023);
-    }
-    if (!nullToAbsent || externalCreatorDate != null) {
-      map['external_creator_date'] = Variable<DateTime>(externalCreatorDate);
-    }
-    if (!nullToAbsent || externalEditorDate != null) {
-      map['external_editor_date'] = Variable<DateTime>(externalEditorDate);
-    }
-    map['global_id'] = Variable<String>(globalId);
     map['ent_bld_global_id'] = Variable<String>(entBldGlobalId);
+    map['id'] = Variable<int>(id);
+    map['global_id'] = Variable<String>(globalId);
     if (!nullToAbsent || entAddressId != null) {
       map['ent_address_id'] = Variable<String>(entAddressId);
     }
@@ -2480,41 +1788,14 @@ class Entrance extends DataClass implements Insertable<Entrance> {
     if (!nullToAbsent || entDwellingExpec != null) {
       map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec);
     }
-    if (!nullToAbsent || createdUser != null) {
-      map['created_user'] = Variable<String>(createdUser);
-    }
-    if (!nullToAbsent || createdDate != null) {
-      map['created_date'] = Variable<DateTime>(createdDate);
-    }
-    if (!nullToAbsent || lastEditedUser != null) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser);
-    }
-    if (!nullToAbsent || lastEditedDate != null) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate);
-    }
-    if (!nullToAbsent || externalCreator != null) {
-      map['external_creator'] = Variable<String>(externalCreator);
-    }
-    if (!nullToAbsent || externalEditor != null) {
-      map['external_editor'] = Variable<String>(externalEditor);
-    }
     return map;
   }
 
   EntrancesCompanion toCompanion(bool nullToAbsent) {
     return EntrancesCompanion(
-      objectId: Value(objectId),
-      entCensus2023: entCensus2023 == null && nullToAbsent
-          ? const Value.absent()
-          : Value(entCensus2023),
-      externalCreatorDate: externalCreatorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreatorDate),
-      externalEditorDate: externalEditorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditorDate),
-      globalId: Value(globalId),
       entBldGlobalId: Value(entBldGlobalId),
+      id: Value(id),
+      globalId: Value(globalId),
       entAddressId: entAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(entAddressId),
@@ -2543,24 +1824,6 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entDwellingExpec: entDwellingExpec == null && nullToAbsent
           ? const Value.absent()
           : Value(entDwellingExpec),
-      createdUser: createdUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdUser),
-      createdDate: createdDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdDate),
-      lastEditedUser: lastEditedUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedUser),
-      lastEditedDate: lastEditedDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedDate),
-      externalCreator: externalCreator == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreator),
-      externalEditor: externalEditor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditor),
     );
   }
 
@@ -2568,14 +1831,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Entrance(
-      objectId: serializer.fromJson<int>(json['objectId']),
-      entCensus2023: serializer.fromJson<String?>(json['entCensus2023']),
-      externalCreatorDate:
-          serializer.fromJson<DateTime?>(json['externalCreatorDate']),
-      externalEditorDate:
-          serializer.fromJson<DateTime?>(json['externalEditorDate']),
-      globalId: serializer.fromJson<String>(json['globalId']),
       entBldGlobalId: serializer.fromJson<String>(json['entBldGlobalId']),
+      id: serializer.fromJson<int>(json['id']),
+      globalId: serializer.fromJson<String>(json['globalId']),
       entAddressId: serializer.fromJson<String?>(json['entAddressId']),
       entQuality: serializer.fromJson<int>(json['entQuality']),
       entLatitude: serializer.fromJson<double>(json['entLatitude']),
@@ -2590,24 +1848,15 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entZipCode: serializer.fromJson<int?>(json['entZipCode']),
       entDwellingRecs: serializer.fromJson<int?>(json['entDwellingRecs']),
       entDwellingExpec: serializer.fromJson<int?>(json['entDwellingExpec']),
-      createdUser: serializer.fromJson<String?>(json['createdUser']),
-      createdDate: serializer.fromJson<DateTime?>(json['createdDate']),
-      lastEditedUser: serializer.fromJson<String?>(json['lastEditedUser']),
-      lastEditedDate: serializer.fromJson<DateTime?>(json['lastEditedDate']),
-      externalCreator: serializer.fromJson<String?>(json['externalCreator']),
-      externalEditor: serializer.fromJson<String?>(json['externalEditor']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'objectId': serializer.toJson<int>(objectId),
-      'entCensus2023': serializer.toJson<String?>(entCensus2023),
-      'externalCreatorDate': serializer.toJson<DateTime?>(externalCreatorDate),
-      'externalEditorDate': serializer.toJson<DateTime?>(externalEditorDate),
-      'globalId': serializer.toJson<String>(globalId),
       'entBldGlobalId': serializer.toJson<String>(entBldGlobalId),
+      'id': serializer.toJson<int>(id),
+      'globalId': serializer.toJson<String>(globalId),
       'entAddressId': serializer.toJson<String?>(entAddressId),
       'entQuality': serializer.toJson<int>(entQuality),
       'entLatitude': serializer.toJson<double>(entLatitude),
@@ -2620,22 +1869,13 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       'entZipCode': serializer.toJson<int?>(entZipCode),
       'entDwellingRecs': serializer.toJson<int?>(entDwellingRecs),
       'entDwellingExpec': serializer.toJson<int?>(entDwellingExpec),
-      'createdUser': serializer.toJson<String?>(createdUser),
-      'createdDate': serializer.toJson<DateTime?>(createdDate),
-      'lastEditedUser': serializer.toJson<String?>(lastEditedUser),
-      'lastEditedDate': serializer.toJson<DateTime?>(lastEditedDate),
-      'externalCreator': serializer.toJson<String?>(externalCreator),
-      'externalEditor': serializer.toJson<String?>(externalEditor),
     };
   }
 
   Entrance copyWith(
-          {int? objectId,
-          Value<String?> entCensus2023 = const Value.absent(),
-          Value<DateTime?> externalCreatorDate = const Value.absent(),
-          Value<DateTime?> externalEditorDate = const Value.absent(),
+          {String? entBldGlobalId,
+          int? id,
           String? globalId,
-          String? entBldGlobalId,
           Value<String?> entAddressId = const Value.absent(),
           int? entQuality,
           double? entLatitude,
@@ -2647,25 +1887,11 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           Value<int?> entTown = const Value.absent(),
           Value<int?> entZipCode = const Value.absent(),
           Value<int?> entDwellingRecs = const Value.absent(),
-          Value<int?> entDwellingExpec = const Value.absent(),
-          Value<String?> createdUser = const Value.absent(),
-          Value<DateTime?> createdDate = const Value.absent(),
-          Value<String?> lastEditedUser = const Value.absent(),
-          Value<DateTime?> lastEditedDate = const Value.absent(),
-          Value<String?> externalCreator = const Value.absent(),
-          Value<String?> externalEditor = const Value.absent()}) =>
+          Value<int?> entDwellingExpec = const Value.absent()}) =>
       Entrance(
-        objectId: objectId ?? this.objectId,
-        entCensus2023:
-            entCensus2023.present ? entCensus2023.value : this.entCensus2023,
-        externalCreatorDate: externalCreatorDate.present
-            ? externalCreatorDate.value
-            : this.externalCreatorDate,
-        externalEditorDate: externalEditorDate.present
-            ? externalEditorDate.value
-            : this.externalEditorDate,
-        globalId: globalId ?? this.globalId,
         entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
+        id: id ?? this.id,
+        globalId: globalId ?? this.globalId,
         entAddressId:
             entAddressId.present ? entAddressId.value : this.entAddressId,
         entQuality: entQuality ?? this.entQuality,
@@ -2688,34 +1914,14 @@ class Entrance extends DataClass implements Insertable<Entrance> {
         entDwellingExpec: entDwellingExpec.present
             ? entDwellingExpec.value
             : this.entDwellingExpec,
-        createdUser: createdUser.present ? createdUser.value : this.createdUser,
-        createdDate: createdDate.present ? createdDate.value : this.createdDate,
-        lastEditedUser:
-            lastEditedUser.present ? lastEditedUser.value : this.lastEditedUser,
-        lastEditedDate:
-            lastEditedDate.present ? lastEditedDate.value : this.lastEditedDate,
-        externalCreator: externalCreator.present
-            ? externalCreator.value
-            : this.externalCreator,
-        externalEditor:
-            externalEditor.present ? externalEditor.value : this.externalEditor,
       );
   Entrance copyWithCompanion(EntrancesCompanion data) {
     return Entrance(
-      objectId: data.objectId.present ? data.objectId.value : this.objectId,
-      entCensus2023: data.entCensus2023.present
-          ? data.entCensus2023.value
-          : this.entCensus2023,
-      externalCreatorDate: data.externalCreatorDate.present
-          ? data.externalCreatorDate.value
-          : this.externalCreatorDate,
-      externalEditorDate: data.externalEditorDate.present
-          ? data.externalEditorDate.value
-          : this.externalEditorDate,
-      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       entBldGlobalId: data.entBldGlobalId.present
           ? data.entBldGlobalId.value
           : this.entBldGlobalId,
+      id: data.id.present ? data.id.value : this.id,
+      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       entAddressId: data.entAddressId.present
           ? data.entAddressId.value
           : this.entAddressId,
@@ -2747,34 +1953,15 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entDwellingExpec: data.entDwellingExpec.present
           ? data.entDwellingExpec.value
           : this.entDwellingExpec,
-      createdUser:
-          data.createdUser.present ? data.createdUser.value : this.createdUser,
-      createdDate:
-          data.createdDate.present ? data.createdDate.value : this.createdDate,
-      lastEditedUser: data.lastEditedUser.present
-          ? data.lastEditedUser.value
-          : this.lastEditedUser,
-      lastEditedDate: data.lastEditedDate.present
-          ? data.lastEditedDate.value
-          : this.lastEditedDate,
-      externalCreator: data.externalCreator.present
-          ? data.externalCreator.value
-          : this.externalCreator,
-      externalEditor: data.externalEditor.present
-          ? data.externalEditor.value
-          : this.externalEditor,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('Entrance(')
-          ..write('objectId: $objectId, ')
-          ..write('entCensus2023: $entCensus2023, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate, ')
-          ..write('globalId: $globalId, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
+          ..write('id: $id, ')
+          ..write('globalId: $globalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
           ..write('entLatitude: $entLatitude, ')
@@ -2786,54 +1973,35 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           ..write('entTown: $entTown, ')
           ..write('entZipCode: $entZipCode, ')
           ..write('entDwellingRecs: $entDwellingRecs, ')
-          ..write('entDwellingExpec: $entDwellingExpec, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor')
+          ..write('entDwellingExpec: $entDwellingExpec')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        objectId,
-        entCensus2023,
-        externalCreatorDate,
-        externalEditorDate,
-        globalId,
-        entBldGlobalId,
-        entAddressId,
-        entQuality,
-        entLatitude,
-        entLongitude,
-        entPointStatus,
-        entStrGlobalId,
-        entBuildingNumber,
-        entEntranceNumber,
-        entTown,
-        entZipCode,
-        entDwellingRecs,
-        entDwellingExpec,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
-        externalCreator,
-        externalEditor
-      ]);
+  int get hashCode => Object.hash(
+      entBldGlobalId,
+      id,
+      globalId,
+      entAddressId,
+      entQuality,
+      entLatitude,
+      entLongitude,
+      entPointStatus,
+      entStrGlobalId,
+      entBuildingNumber,
+      entEntranceNumber,
+      entTown,
+      entZipCode,
+      entDwellingRecs,
+      entDwellingExpec);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Entrance &&
-          other.objectId == this.objectId &&
-          other.entCensus2023 == this.entCensus2023 &&
-          other.externalCreatorDate == this.externalCreatorDate &&
-          other.externalEditorDate == this.externalEditorDate &&
-          other.globalId == this.globalId &&
           other.entBldGlobalId == this.entBldGlobalId &&
+          other.id == this.id &&
+          other.globalId == this.globalId &&
           other.entAddressId == this.entAddressId &&
           other.entQuality == this.entQuality &&
           other.entLatitude == this.entLatitude &&
@@ -2845,22 +2013,13 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           other.entTown == this.entTown &&
           other.entZipCode == this.entZipCode &&
           other.entDwellingRecs == this.entDwellingRecs &&
-          other.entDwellingExpec == this.entDwellingExpec &&
-          other.createdUser == this.createdUser &&
-          other.createdDate == this.createdDate &&
-          other.lastEditedUser == this.lastEditedUser &&
-          other.lastEditedDate == this.lastEditedDate &&
-          other.externalCreator == this.externalCreator &&
-          other.externalEditor == this.externalEditor);
+          other.entDwellingExpec == this.entDwellingExpec);
 }
 
 class EntrancesCompanion extends UpdateCompanion<Entrance> {
-  final Value<int> objectId;
-  final Value<String?> entCensus2023;
-  final Value<DateTime?> externalCreatorDate;
-  final Value<DateTime?> externalEditorDate;
-  final Value<String> globalId;
   final Value<String> entBldGlobalId;
+  final Value<int> id;
+  final Value<String> globalId;
   final Value<String?> entAddressId;
   final Value<int> entQuality;
   final Value<double> entLatitude;
@@ -2873,19 +2032,10 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   final Value<int?> entZipCode;
   final Value<int?> entDwellingRecs;
   final Value<int?> entDwellingExpec;
-  final Value<String?> createdUser;
-  final Value<DateTime?> createdDate;
-  final Value<String?> lastEditedUser;
-  final Value<DateTime?> lastEditedDate;
-  final Value<String?> externalCreator;
-  final Value<String?> externalEditor;
   const EntrancesCompanion({
-    this.objectId = const Value.absent(),
-    this.entCensus2023 = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
-    this.globalId = const Value.absent(),
     this.entBldGlobalId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.globalId = const Value.absent(),
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
     this.entLatitude = const Value.absent(),
@@ -2898,20 +2048,11 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entZipCode = const Value.absent(),
     this.entDwellingRecs = const Value.absent(),
     this.entDwellingExpec = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
   });
   EntrancesCompanion.insert({
-    this.objectId = const Value.absent(),
-    this.entCensus2023 = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
+    required String entBldGlobalId,
+    this.id = const Value.absent(),
     required String globalId,
-    this.entBldGlobalId = const Value.absent(),
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
     required double entLatitude,
@@ -2924,22 +2065,14 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entZipCode = const Value.absent(),
     this.entDwellingRecs = const Value.absent(),
     this.entDwellingExpec = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
-  })  : globalId = Value(globalId),
+  })  : entBldGlobalId = Value(entBldGlobalId),
+        globalId = Value(globalId),
         entLatitude = Value(entLatitude),
         entLongitude = Value(entLongitude);
   static Insertable<Entrance> custom({
-    Expression<int>? objectId,
-    Expression<String>? entCensus2023,
-    Expression<DateTime>? externalCreatorDate,
-    Expression<DateTime>? externalEditorDate,
-    Expression<String>? globalId,
     Expression<String>? entBldGlobalId,
+    Expression<int>? id,
+    Expression<String>? globalId,
     Expression<String>? entAddressId,
     Expression<int>? entQuality,
     Expression<double>? entLatitude,
@@ -2952,22 +2085,11 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     Expression<int>? entZipCode,
     Expression<int>? entDwellingRecs,
     Expression<int>? entDwellingExpec,
-    Expression<String>? createdUser,
-    Expression<DateTime>? createdDate,
-    Expression<String>? lastEditedUser,
-    Expression<DateTime>? lastEditedDate,
-    Expression<String>? externalCreator,
-    Expression<String>? externalEditor,
   }) {
     return RawValuesInsertable({
-      if (objectId != null) 'object_id': objectId,
-      if (entCensus2023 != null) 'ent_census2023': entCensus2023,
-      if (externalCreatorDate != null)
-        'external_creator_date': externalCreatorDate,
-      if (externalEditorDate != null)
-        'external_editor_date': externalEditorDate,
-      if (globalId != null) 'global_id': globalId,
       if (entBldGlobalId != null) 'ent_bld_global_id': entBldGlobalId,
+      if (id != null) 'id': id,
+      if (globalId != null) 'global_id': globalId,
       if (entAddressId != null) 'ent_address_id': entAddressId,
       if (entQuality != null) 'ent_quality': entQuality,
       if (entLatitude != null) 'ent_latitude': entLatitude,
@@ -2980,22 +2102,13 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       if (entZipCode != null) 'ent_zip_code': entZipCode,
       if (entDwellingRecs != null) 'ent_dwelling_recs': entDwellingRecs,
       if (entDwellingExpec != null) 'ent_dwelling_expec': entDwellingExpec,
-      if (createdUser != null) 'created_user': createdUser,
-      if (createdDate != null) 'created_date': createdDate,
-      if (lastEditedUser != null) 'last_edited_user': lastEditedUser,
-      if (lastEditedDate != null) 'last_edited_date': lastEditedDate,
-      if (externalCreator != null) 'external_creator': externalCreator,
-      if (externalEditor != null) 'external_editor': externalEditor,
     });
   }
 
   EntrancesCompanion copyWith(
-      {Value<int>? objectId,
-      Value<String?>? entCensus2023,
-      Value<DateTime?>? externalCreatorDate,
-      Value<DateTime?>? externalEditorDate,
+      {Value<String>? entBldGlobalId,
+      Value<int>? id,
       Value<String>? globalId,
-      Value<String>? entBldGlobalId,
       Value<String?>? entAddressId,
       Value<int>? entQuality,
       Value<double>? entLatitude,
@@ -3007,20 +2120,11 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       Value<int?>? entTown,
       Value<int?>? entZipCode,
       Value<int?>? entDwellingRecs,
-      Value<int?>? entDwellingExpec,
-      Value<String?>? createdUser,
-      Value<DateTime?>? createdDate,
-      Value<String?>? lastEditedUser,
-      Value<DateTime?>? lastEditedDate,
-      Value<String?>? externalCreator,
-      Value<String?>? externalEditor}) {
+      Value<int?>? entDwellingExpec}) {
     return EntrancesCompanion(
-      objectId: objectId ?? this.objectId,
-      entCensus2023: entCensus2023 ?? this.entCensus2023,
-      externalCreatorDate: externalCreatorDate ?? this.externalCreatorDate,
-      externalEditorDate: externalEditorDate ?? this.externalEditorDate,
-      globalId: globalId ?? this.globalId,
       entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
+      id: id ?? this.id,
+      globalId: globalId ?? this.globalId,
       entAddressId: entAddressId ?? this.entAddressId,
       entQuality: entQuality ?? this.entQuality,
       entLatitude: entLatitude ?? this.entLatitude,
@@ -3033,37 +2137,20 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       entZipCode: entZipCode ?? this.entZipCode,
       entDwellingRecs: entDwellingRecs ?? this.entDwellingRecs,
       entDwellingExpec: entDwellingExpec ?? this.entDwellingExpec,
-      createdUser: createdUser ?? this.createdUser,
-      createdDate: createdDate ?? this.createdDate,
-      lastEditedUser: lastEditedUser ?? this.lastEditedUser,
-      lastEditedDate: lastEditedDate ?? this.lastEditedDate,
-      externalCreator: externalCreator ?? this.externalCreator,
-      externalEditor: externalEditor ?? this.externalEditor,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (objectId.present) {
-      map['object_id'] = Variable<int>(objectId.value);
+    if (entBldGlobalId.present) {
+      map['ent_bld_global_id'] = Variable<String>(entBldGlobalId.value);
     }
-    if (entCensus2023.present) {
-      map['ent_census2023'] = Variable<String>(entCensus2023.value);
-    }
-    if (externalCreatorDate.present) {
-      map['external_creator_date'] =
-          Variable<DateTime>(externalCreatorDate.value);
-    }
-    if (externalEditorDate.present) {
-      map['external_editor_date'] =
-          Variable<DateTime>(externalEditorDate.value);
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
     }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
-    }
-    if (entBldGlobalId.present) {
-      map['ent_bld_global_id'] = Variable<String>(entBldGlobalId.value);
     }
     if (entAddressId.present) {
       map['ent_address_id'] = Variable<String>(entAddressId.value);
@@ -3101,36 +2188,15 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     if (entDwellingExpec.present) {
       map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec.value);
     }
-    if (createdUser.present) {
-      map['created_user'] = Variable<String>(createdUser.value);
-    }
-    if (createdDate.present) {
-      map['created_date'] = Variable<DateTime>(createdDate.value);
-    }
-    if (lastEditedUser.present) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser.value);
-    }
-    if (lastEditedDate.present) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate.value);
-    }
-    if (externalCreator.present) {
-      map['external_creator'] = Variable<String>(externalCreator.value);
-    }
-    if (externalEditor.present) {
-      map['external_editor'] = Variable<String>(externalEditor.value);
-    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('EntrancesCompanion(')
-          ..write('objectId: $objectId, ')
-          ..write('entCensus2023: $entCensus2023, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate, ')
-          ..write('globalId: $globalId, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
+          ..write('id: $id, ')
+          ..write('globalId: $globalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
           ..write('entLatitude: $entLatitude, ')
@@ -3142,13 +2208,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
           ..write('entTown: $entTown, ')
           ..write('entZipCode: $entZipCode, ')
           ..write('entDwellingRecs: $entDwellingRecs, ')
-          ..write('entDwellingExpec: $entDwellingExpec, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor')
+          ..write('entDwellingExpec: $entDwellingExpec')
           ..write(')'))
         .toString();
   }
@@ -3160,28 +2220,26 @@ class $DwellingsTable extends Dwellings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $DwellingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _objectIdMeta =
-      const VerificationMeta('objectId');
+  static const VerificationMeta _dwlEntGlobalIdMeta =
+      const VerificationMeta('dwlEntGlobalId');
   @override
-  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+  late final GeneratedColumn<String> dwlEntGlobalId = GeneratedColumn<String>(
+      'dwl_ent_global_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES entrances (global_id)'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
       hasAutoIncrement: true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _externalCreatorDateMeta =
-      const VerificationMeta('externalCreatorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalCreatorDate =
-      GeneratedColumn<DateTime>('external_creator_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorDateMeta =
-      const VerificationMeta('externalEditorDate');
-  @override
-  late final GeneratedColumn<DateTime> externalEditorDate =
-      GeneratedColumn<DateTime>('external_editor_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
@@ -3191,26 +2249,6 @@ class $DwellingsTable extends Dwellings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  static const VerificationMeta _dwlEntGlobalIdMeta =
-      const VerificationMeta('dwlEntGlobalId');
-  @override
-  late final GeneratedColumn<String> dwlEntGlobalId = GeneratedColumn<String>(
-      'dwl_ent_global_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('00000000-0000-0000-0000-000000000000'));
-  static const VerificationMeta _dwlCensus2023Meta =
-      const VerificationMeta('dwlCensus2023');
-  @override
-  late final GeneratedColumn<String> dwlCensus2023 = GeneratedColumn<String>(
-      'dwl_census2023', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 17),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('99999999999999999'));
   static const VerificationMeta _dwlAddressIdMeta =
       const VerificationMeta('dwlAddressId');
   @override
@@ -3341,62 +2379,11 @@ class $DwellingsTable extends Dwellings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
-  static const VerificationMeta _createdUserMeta =
-      const VerificationMeta('createdUser');
-  @override
-  late final GeneratedColumn<String> createdUser = GeneratedColumn<String>(
-      'created_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _createdDateMeta =
-      const VerificationMeta('createdDate');
-  @override
-  late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
-      'created_date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedUserMeta =
-      const VerificationMeta('lastEditedUser');
-  @override
-  late final GeneratedColumn<String> lastEditedUser = GeneratedColumn<String>(
-      'last_edited_user', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _lastEditedDateMeta =
-      const VerificationMeta('lastEditedDate');
-  @override
-  late final GeneratedColumn<DateTime> lastEditedDate =
-      GeneratedColumn<DateTime>('last_edited_date', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _externalCreatorMeta =
-      const VerificationMeta('externalCreator');
-  @override
-  late final GeneratedColumn<String> externalCreator = GeneratedColumn<String>(
-      'external_creator', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
-  static const VerificationMeta _externalEditorMeta =
-      const VerificationMeta('externalEditor');
-  @override
-  late final GeneratedColumn<String> externalEditor = GeneratedColumn<String>(
-      'external_editor', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
-        objectId,
-        externalCreatorDate,
-        externalEditorDate,
-        globalId,
         dwlEntGlobalId,
-        dwlCensus2023,
+        id,
+        globalId,
         dwlAddressId,
         dwlQuality,
         dwlFloor,
@@ -3413,13 +2400,7 @@ class $DwellingsTable extends Dwellings
         dwlHeatingFacility,
         dwlHeatingEnergy,
         dwlAirConditioner,
-        dwlSolarPanel,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
-        externalCreator,
-        externalEditor
+        dwlSolarPanel
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3431,39 +2412,22 @@ class $DwellingsTable extends Dwellings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('object_id')) {
-      context.handle(_objectIdMeta,
-          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
-    }
-    if (data.containsKey('external_creator_date')) {
+    if (data.containsKey('dwl_ent_global_id')) {
       context.handle(
-          _externalCreatorDateMeta,
-          externalCreatorDate.isAcceptableOrUnknown(
-              data['external_creator_date']!, _externalCreatorDateMeta));
+          _dwlEntGlobalIdMeta,
+          dwlEntGlobalId.isAcceptableOrUnknown(
+              data['dwl_ent_global_id']!, _dwlEntGlobalIdMeta));
+    } else if (isInserting) {
+      context.missing(_dwlEntGlobalIdMeta);
     }
-    if (data.containsKey('external_editor_date')) {
-      context.handle(
-          _externalEditorDateMeta,
-          externalEditorDate.isAcceptableOrUnknown(
-              data['external_editor_date']!, _externalEditorDateMeta));
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
     if (data.containsKey('global_id')) {
       context.handle(_globalIdMeta,
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
-    }
-    if (data.containsKey('dwl_ent_global_id')) {
-      context.handle(
-          _dwlEntGlobalIdMeta,
-          dwlEntGlobalId.isAcceptableOrUnknown(
-              data['dwl_ent_global_id']!, _dwlEntGlobalIdMeta));
-    }
-    if (data.containsKey('dwl_census2023')) {
-      context.handle(
-          _dwlCensus2023Meta,
-          dwlCensus2023.isAcceptableOrUnknown(
-              data['dwl_census2023']!, _dwlCensus2023Meta));
     }
     if (data.containsKey('dwl_address_id')) {
       context.handle(
@@ -3557,65 +2521,21 @@ class $DwellingsTable extends Dwellings
           dwlSolarPanel.isAcceptableOrUnknown(
               data['dwl_solar_panel']!, _dwlSolarPanelMeta));
     }
-    if (data.containsKey('created_user')) {
-      context.handle(
-          _createdUserMeta,
-          createdUser.isAcceptableOrUnknown(
-              data['created_user']!, _createdUserMeta));
-    }
-    if (data.containsKey('created_date')) {
-      context.handle(
-          _createdDateMeta,
-          createdDate.isAcceptableOrUnknown(
-              data['created_date']!, _createdDateMeta));
-    }
-    if (data.containsKey('last_edited_user')) {
-      context.handle(
-          _lastEditedUserMeta,
-          lastEditedUser.isAcceptableOrUnknown(
-              data['last_edited_user']!, _lastEditedUserMeta));
-    }
-    if (data.containsKey('last_edited_date')) {
-      context.handle(
-          _lastEditedDateMeta,
-          lastEditedDate.isAcceptableOrUnknown(
-              data['last_edited_date']!, _lastEditedDateMeta));
-    }
-    if (data.containsKey('external_creator')) {
-      context.handle(
-          _externalCreatorMeta,
-          externalCreator.isAcceptableOrUnknown(
-              data['external_creator']!, _externalCreatorMeta));
-    }
-    if (data.containsKey('external_editor')) {
-      context.handle(
-          _externalEditorMeta,
-          externalEditor.isAcceptableOrUnknown(
-              data['external_editor']!, _externalEditorMeta));
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {objectId};
+  Set<GeneratedColumn> get $primaryKey => {id};
   @override
   Dwelling map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Dwelling(
-      objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
-      externalCreatorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_creator_date']),
-      externalEditorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_editor_date']),
-      globalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
       dwlEntGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}dwl_ent_global_id'])!,
-      dwlCensus2023: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}dwl_census2023']),
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      globalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
       dwlAddressId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}dwl_address_id']),
       dwlQuality: attachedDatabase.typeMapping
@@ -3650,18 +2570,6 @@ class $DwellingsTable extends Dwellings
           DriftSqlType.int, data['${effectivePrefix}dwl_air_conditioner']),
       dwlSolarPanel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}dwl_solar_panel']),
-      createdUser: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}created_user']),
-      createdDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date']),
-      lastEditedUser: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}last_edited_user']),
-      lastEditedDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_edited_date']),
-      externalCreator: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}external_creator']),
-      externalEditor: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}external_editor']),
     );
   }
 
@@ -3672,12 +2580,9 @@ class $DwellingsTable extends Dwellings
 }
 
 class Dwelling extends DataClass implements Insertable<Dwelling> {
-  final int objectId;
-  final DateTime? externalCreatorDate;
-  final DateTime? externalEditorDate;
-  final String globalId;
   final String dwlEntGlobalId;
-  final String? dwlCensus2023;
+  final int id;
+  final String globalId;
   final String? dwlAddressId;
   final int dwlQuality;
   final int? dwlFloor;
@@ -3695,19 +2600,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int? dwlHeatingEnergy;
   final int? dwlAirConditioner;
   final int? dwlSolarPanel;
-  final String? createdUser;
-  final DateTime? createdDate;
-  final String? lastEditedUser;
-  final DateTime? lastEditedDate;
-  final String? externalCreator;
-  final String? externalEditor;
   const Dwelling(
-      {required this.objectId,
-      this.externalCreatorDate,
-      this.externalEditorDate,
+      {required this.dwlEntGlobalId,
+      required this.id,
       required this.globalId,
-      required this.dwlEntGlobalId,
-      this.dwlCensus2023,
       this.dwlAddressId,
       required this.dwlQuality,
       this.dwlFloor,
@@ -3724,28 +2620,13 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       this.dwlHeatingFacility,
       this.dwlHeatingEnergy,
       this.dwlAirConditioner,
-      this.dwlSolarPanel,
-      this.createdUser,
-      this.createdDate,
-      this.lastEditedUser,
-      this.lastEditedDate,
-      this.externalCreator,
-      this.externalEditor});
+      this.dwlSolarPanel});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['object_id'] = Variable<int>(objectId);
-    if (!nullToAbsent || externalCreatorDate != null) {
-      map['external_creator_date'] = Variable<DateTime>(externalCreatorDate);
-    }
-    if (!nullToAbsent || externalEditorDate != null) {
-      map['external_editor_date'] = Variable<DateTime>(externalEditorDate);
-    }
-    map['global_id'] = Variable<String>(globalId);
     map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId);
-    if (!nullToAbsent || dwlCensus2023 != null) {
-      map['dwl_census2023'] = Variable<String>(dwlCensus2023);
-    }
+    map['id'] = Variable<int>(id);
+    map['global_id'] = Variable<String>(globalId);
     if (!nullToAbsent || dwlAddressId != null) {
       map['dwl_address_id'] = Variable<String>(dwlAddressId);
     }
@@ -3793,41 +2674,14 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     if (!nullToAbsent || dwlSolarPanel != null) {
       map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel);
     }
-    if (!nullToAbsent || createdUser != null) {
-      map['created_user'] = Variable<String>(createdUser);
-    }
-    if (!nullToAbsent || createdDate != null) {
-      map['created_date'] = Variable<DateTime>(createdDate);
-    }
-    if (!nullToAbsent || lastEditedUser != null) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser);
-    }
-    if (!nullToAbsent || lastEditedDate != null) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate);
-    }
-    if (!nullToAbsent || externalCreator != null) {
-      map['external_creator'] = Variable<String>(externalCreator);
-    }
-    if (!nullToAbsent || externalEditor != null) {
-      map['external_editor'] = Variable<String>(externalEditor);
-    }
     return map;
   }
 
   DwellingsCompanion toCompanion(bool nullToAbsent) {
     return DwellingsCompanion(
-      objectId: Value(objectId),
-      externalCreatorDate: externalCreatorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreatorDate),
-      externalEditorDate: externalEditorDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditorDate),
-      globalId: Value(globalId),
       dwlEntGlobalId: Value(dwlEntGlobalId),
-      dwlCensus2023: dwlCensus2023 == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dwlCensus2023),
+      id: Value(id),
+      globalId: Value(globalId),
       dwlAddressId: dwlAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(dwlAddressId),
@@ -3875,24 +2729,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlSolarPanel: dwlSolarPanel == null && nullToAbsent
           ? const Value.absent()
           : Value(dwlSolarPanel),
-      createdUser: createdUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdUser),
-      createdDate: createdDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(createdDate),
-      lastEditedUser: lastEditedUser == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedUser),
-      lastEditedDate: lastEditedDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastEditedDate),
-      externalCreator: externalCreator == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalCreator),
-      externalEditor: externalEditor == null && nullToAbsent
-          ? const Value.absent()
-          : Value(externalEditor),
     );
   }
 
@@ -3900,14 +2736,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Dwelling(
-      objectId: serializer.fromJson<int>(json['objectId']),
-      externalCreatorDate:
-          serializer.fromJson<DateTime?>(json['externalCreatorDate']),
-      externalEditorDate:
-          serializer.fromJson<DateTime?>(json['externalEditorDate']),
-      globalId: serializer.fromJson<String>(json['globalId']),
       dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
-      dwlCensus2023: serializer.fromJson<String?>(json['dwlCensus2023']),
+      id: serializer.fromJson<int>(json['id']),
+      globalId: serializer.fromJson<String>(json['globalId']),
       dwlAddressId: serializer.fromJson<String?>(json['dwlAddressId']),
       dwlQuality: serializer.fromJson<int>(json['dwlQuality']),
       dwlFloor: serializer.fromJson<int?>(json['dwlFloor']),
@@ -3926,24 +2757,15 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlHeatingEnergy: serializer.fromJson<int?>(json['dwlHeatingEnergy']),
       dwlAirConditioner: serializer.fromJson<int?>(json['dwlAirConditioner']),
       dwlSolarPanel: serializer.fromJson<int?>(json['dwlSolarPanel']),
-      createdUser: serializer.fromJson<String?>(json['createdUser']),
-      createdDate: serializer.fromJson<DateTime?>(json['createdDate']),
-      lastEditedUser: serializer.fromJson<String?>(json['lastEditedUser']),
-      lastEditedDate: serializer.fromJson<DateTime?>(json['lastEditedDate']),
-      externalCreator: serializer.fromJson<String?>(json['externalCreator']),
-      externalEditor: serializer.fromJson<String?>(json['externalEditor']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'objectId': serializer.toJson<int>(objectId),
-      'externalCreatorDate': serializer.toJson<DateTime?>(externalCreatorDate),
-      'externalEditorDate': serializer.toJson<DateTime?>(externalEditorDate),
-      'globalId': serializer.toJson<String>(globalId),
       'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
-      'dwlCensus2023': serializer.toJson<String?>(dwlCensus2023),
+      'id': serializer.toJson<int>(id),
+      'globalId': serializer.toJson<String>(globalId),
       'dwlAddressId': serializer.toJson<String?>(dwlAddressId),
       'dwlQuality': serializer.toJson<int>(dwlQuality),
       'dwlFloor': serializer.toJson<int?>(dwlFloor),
@@ -3961,22 +2783,13 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       'dwlHeatingEnergy': serializer.toJson<int?>(dwlHeatingEnergy),
       'dwlAirConditioner': serializer.toJson<int?>(dwlAirConditioner),
       'dwlSolarPanel': serializer.toJson<int?>(dwlSolarPanel),
-      'createdUser': serializer.toJson<String?>(createdUser),
-      'createdDate': serializer.toJson<DateTime?>(createdDate),
-      'lastEditedUser': serializer.toJson<String?>(lastEditedUser),
-      'lastEditedDate': serializer.toJson<DateTime?>(lastEditedDate),
-      'externalCreator': serializer.toJson<String?>(externalCreator),
-      'externalEditor': serializer.toJson<String?>(externalEditor),
     };
   }
 
   Dwelling copyWith(
-          {int? objectId,
-          Value<DateTime?> externalCreatorDate = const Value.absent(),
-          Value<DateTime?> externalEditorDate = const Value.absent(),
+          {String? dwlEntGlobalId,
+          int? id,
           String? globalId,
-          String? dwlEntGlobalId,
-          Value<String?> dwlCensus2023 = const Value.absent(),
           Value<String?> dwlAddressId = const Value.absent(),
           int? dwlQuality,
           Value<int?> dwlFloor = const Value.absent(),
@@ -3993,25 +2806,11 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           Value<int?> dwlHeatingFacility = const Value.absent(),
           Value<int?> dwlHeatingEnergy = const Value.absent(),
           Value<int?> dwlAirConditioner = const Value.absent(),
-          Value<int?> dwlSolarPanel = const Value.absent(),
-          Value<String?> createdUser = const Value.absent(),
-          Value<DateTime?> createdDate = const Value.absent(),
-          Value<String?> lastEditedUser = const Value.absent(),
-          Value<DateTime?> lastEditedDate = const Value.absent(),
-          Value<String?> externalCreator = const Value.absent(),
-          Value<String?> externalEditor = const Value.absent()}) =>
+          Value<int?> dwlSolarPanel = const Value.absent()}) =>
       Dwelling(
-        objectId: objectId ?? this.objectId,
-        externalCreatorDate: externalCreatorDate.present
-            ? externalCreatorDate.value
-            : this.externalCreatorDate,
-        externalEditorDate: externalEditorDate.present
-            ? externalEditorDate.value
-            : this.externalEditorDate,
-        globalId: globalId ?? this.globalId,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
-        dwlCensus2023:
-            dwlCensus2023.present ? dwlCensus2023.value : this.dwlCensus2023,
+        id: id ?? this.id,
+        globalId: globalId ?? this.globalId,
         dwlAddressId:
             dwlAddressId.present ? dwlAddressId.value : this.dwlAddressId,
         dwlQuality: dwlQuality ?? this.dwlQuality,
@@ -4044,34 +2843,14 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
             : this.dwlAirConditioner,
         dwlSolarPanel:
             dwlSolarPanel.present ? dwlSolarPanel.value : this.dwlSolarPanel,
-        createdUser: createdUser.present ? createdUser.value : this.createdUser,
-        createdDate: createdDate.present ? createdDate.value : this.createdDate,
-        lastEditedUser:
-            lastEditedUser.present ? lastEditedUser.value : this.lastEditedUser,
-        lastEditedDate:
-            lastEditedDate.present ? lastEditedDate.value : this.lastEditedDate,
-        externalCreator: externalCreator.present
-            ? externalCreator.value
-            : this.externalCreator,
-        externalEditor:
-            externalEditor.present ? externalEditor.value : this.externalEditor,
       );
   Dwelling copyWithCompanion(DwellingsCompanion data) {
     return Dwelling(
-      objectId: data.objectId.present ? data.objectId.value : this.objectId,
-      externalCreatorDate: data.externalCreatorDate.present
-          ? data.externalCreatorDate.value
-          : this.externalCreatorDate,
-      externalEditorDate: data.externalEditorDate.present
-          ? data.externalEditorDate.value
-          : this.externalEditorDate,
-      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       dwlEntGlobalId: data.dwlEntGlobalId.present
           ? data.dwlEntGlobalId.value
           : this.dwlEntGlobalId,
-      dwlCensus2023: data.dwlCensus2023.present
-          ? data.dwlCensus2023.value
-          : this.dwlCensus2023,
+      id: data.id.present ? data.id.value : this.id,
+      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       dwlAddressId: data.dwlAddressId.present
           ? data.dwlAddressId.value
           : this.dwlAddressId,
@@ -4111,34 +2890,15 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlSolarPanel: data.dwlSolarPanel.present
           ? data.dwlSolarPanel.value
           : this.dwlSolarPanel,
-      createdUser:
-          data.createdUser.present ? data.createdUser.value : this.createdUser,
-      createdDate:
-          data.createdDate.present ? data.createdDate.value : this.createdDate,
-      lastEditedUser: data.lastEditedUser.present
-          ? data.lastEditedUser.value
-          : this.lastEditedUser,
-      lastEditedDate: data.lastEditedDate.present
-          ? data.lastEditedDate.value
-          : this.lastEditedDate,
-      externalCreator: data.externalCreator.present
-          ? data.externalCreator.value
-          : this.externalCreator,
-      externalEditor: data.externalEditor.present
-          ? data.externalEditor.value
-          : this.externalEditor,
     );
   }
 
   @override
   String toString() {
     return (StringBuffer('Dwelling(')
-          ..write('objectId: $objectId, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate, ')
-          ..write('globalId: $globalId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
-          ..write('dwlCensus2023: $dwlCensus2023, ')
+          ..write('id: $id, ')
+          ..write('globalId: $globalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
           ..write('dwlFloor: $dwlFloor, ')
@@ -4155,59 +2915,40 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           ..write('dwlHeatingFacility: $dwlHeatingFacility, ')
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
-          ..write('dwlSolarPanel: $dwlSolarPanel, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor')
+          ..write('dwlSolarPanel: $dwlSolarPanel')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hashAll([
-        objectId,
-        externalCreatorDate,
-        externalEditorDate,
-        globalId,
-        dwlEntGlobalId,
-        dwlCensus2023,
-        dwlAddressId,
-        dwlQuality,
-        dwlFloor,
-        dwlApartNumber,
-        dwlStatus,
-        dwlYearConstruction,
-        dwlYearElimination,
-        dwlType,
-        dwlOwnership,
-        dwlOccupancy,
-        dwlSurface,
-        dwlToilet,
-        dwlBath,
-        dwlHeatingFacility,
-        dwlHeatingEnergy,
-        dwlAirConditioner,
-        dwlSolarPanel,
-        createdUser,
-        createdDate,
-        lastEditedUser,
-        lastEditedDate,
-        externalCreator,
-        externalEditor
-      ]);
+  int get hashCode => Object.hash(
+      dwlEntGlobalId,
+      id,
+      globalId,
+      dwlAddressId,
+      dwlQuality,
+      dwlFloor,
+      dwlApartNumber,
+      dwlStatus,
+      dwlYearConstruction,
+      dwlYearElimination,
+      dwlType,
+      dwlOwnership,
+      dwlOccupancy,
+      dwlSurface,
+      dwlToilet,
+      dwlBath,
+      dwlHeatingFacility,
+      dwlHeatingEnergy,
+      dwlAirConditioner,
+      dwlSolarPanel);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Dwelling &&
-          other.objectId == this.objectId &&
-          other.externalCreatorDate == this.externalCreatorDate &&
-          other.externalEditorDate == this.externalEditorDate &&
-          other.globalId == this.globalId &&
           other.dwlEntGlobalId == this.dwlEntGlobalId &&
-          other.dwlCensus2023 == this.dwlCensus2023 &&
+          other.id == this.id &&
+          other.globalId == this.globalId &&
           other.dwlAddressId == this.dwlAddressId &&
           other.dwlQuality == this.dwlQuality &&
           other.dwlFloor == this.dwlFloor &&
@@ -4224,22 +2965,13 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           other.dwlHeatingFacility == this.dwlHeatingFacility &&
           other.dwlHeatingEnergy == this.dwlHeatingEnergy &&
           other.dwlAirConditioner == this.dwlAirConditioner &&
-          other.dwlSolarPanel == this.dwlSolarPanel &&
-          other.createdUser == this.createdUser &&
-          other.createdDate == this.createdDate &&
-          other.lastEditedUser == this.lastEditedUser &&
-          other.lastEditedDate == this.lastEditedDate &&
-          other.externalCreator == this.externalCreator &&
-          other.externalEditor == this.externalEditor);
+          other.dwlSolarPanel == this.dwlSolarPanel);
 }
 
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
-  final Value<int> objectId;
-  final Value<DateTime?> externalCreatorDate;
-  final Value<DateTime?> externalEditorDate;
-  final Value<String> globalId;
   final Value<String> dwlEntGlobalId;
-  final Value<String?> dwlCensus2023;
+  final Value<int> id;
+  final Value<String> globalId;
   final Value<String?> dwlAddressId;
   final Value<int> dwlQuality;
   final Value<int?> dwlFloor;
@@ -4257,19 +2989,10 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int?> dwlHeatingEnergy;
   final Value<int?> dwlAirConditioner;
   final Value<int?> dwlSolarPanel;
-  final Value<String?> createdUser;
-  final Value<DateTime?> createdDate;
-  final Value<String?> lastEditedUser;
-  final Value<DateTime?> lastEditedDate;
-  final Value<String?> externalCreator;
-  final Value<String?> externalEditor;
   const DwellingsCompanion({
-    this.objectId = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
-    this.globalId = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
-    this.dwlCensus2023 = const Value.absent(),
+    this.id = const Value.absent(),
+    this.globalId = const Value.absent(),
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
     this.dwlFloor = const Value.absent(),
@@ -4287,20 +3010,11 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlHeatingEnergy = const Value.absent(),
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
   });
   DwellingsCompanion.insert({
-    this.objectId = const Value.absent(),
-    this.externalCreatorDate = const Value.absent(),
-    this.externalEditorDate = const Value.absent(),
+    required String dwlEntGlobalId,
+    this.id = const Value.absent(),
     required String globalId,
-    this.dwlEntGlobalId = const Value.absent(),
-    this.dwlCensus2023 = const Value.absent(),
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
     this.dwlFloor = const Value.absent(),
@@ -4318,20 +3032,12 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlHeatingEnergy = const Value.absent(),
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
-    this.createdUser = const Value.absent(),
-    this.createdDate = const Value.absent(),
-    this.lastEditedUser = const Value.absent(),
-    this.lastEditedDate = const Value.absent(),
-    this.externalCreator = const Value.absent(),
-    this.externalEditor = const Value.absent(),
-  }) : globalId = Value(globalId);
+  })  : dwlEntGlobalId = Value(dwlEntGlobalId),
+        globalId = Value(globalId);
   static Insertable<Dwelling> custom({
-    Expression<int>? objectId,
-    Expression<DateTime>? externalCreatorDate,
-    Expression<DateTime>? externalEditorDate,
-    Expression<String>? globalId,
     Expression<String>? dwlEntGlobalId,
-    Expression<String>? dwlCensus2023,
+    Expression<int>? id,
+    Expression<String>? globalId,
     Expression<String>? dwlAddressId,
     Expression<int>? dwlQuality,
     Expression<int>? dwlFloor,
@@ -4349,22 +3055,11 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     Expression<int>? dwlHeatingEnergy,
     Expression<int>? dwlAirConditioner,
     Expression<int>? dwlSolarPanel,
-    Expression<String>? createdUser,
-    Expression<DateTime>? createdDate,
-    Expression<String>? lastEditedUser,
-    Expression<DateTime>? lastEditedDate,
-    Expression<String>? externalCreator,
-    Expression<String>? externalEditor,
   }) {
     return RawValuesInsertable({
-      if (objectId != null) 'object_id': objectId,
-      if (externalCreatorDate != null)
-        'external_creator_date': externalCreatorDate,
-      if (externalEditorDate != null)
-        'external_editor_date': externalEditorDate,
-      if (globalId != null) 'global_id': globalId,
       if (dwlEntGlobalId != null) 'dwl_ent_global_id': dwlEntGlobalId,
-      if (dwlCensus2023 != null) 'dwl_census2023': dwlCensus2023,
+      if (id != null) 'id': id,
+      if (globalId != null) 'global_id': globalId,
       if (dwlAddressId != null) 'dwl_address_id': dwlAddressId,
       if (dwlQuality != null) 'dwl_quality': dwlQuality,
       if (dwlFloor != null) 'dwl_floor': dwlFloor,
@@ -4385,22 +3080,13 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       if (dwlHeatingEnergy != null) 'dwl_heating_energy': dwlHeatingEnergy,
       if (dwlAirConditioner != null) 'dwl_air_conditioner': dwlAirConditioner,
       if (dwlSolarPanel != null) 'dwl_solar_panel': dwlSolarPanel,
-      if (createdUser != null) 'created_user': createdUser,
-      if (createdDate != null) 'created_date': createdDate,
-      if (lastEditedUser != null) 'last_edited_user': lastEditedUser,
-      if (lastEditedDate != null) 'last_edited_date': lastEditedDate,
-      if (externalCreator != null) 'external_creator': externalCreator,
-      if (externalEditor != null) 'external_editor': externalEditor,
     });
   }
 
   DwellingsCompanion copyWith(
-      {Value<int>? objectId,
-      Value<DateTime?>? externalCreatorDate,
-      Value<DateTime?>? externalEditorDate,
+      {Value<String>? dwlEntGlobalId,
+      Value<int>? id,
       Value<String>? globalId,
-      Value<String>? dwlEntGlobalId,
-      Value<String?>? dwlCensus2023,
       Value<String?>? dwlAddressId,
       Value<int>? dwlQuality,
       Value<int?>? dwlFloor,
@@ -4417,20 +3103,11 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int?>? dwlHeatingFacility,
       Value<int?>? dwlHeatingEnergy,
       Value<int?>? dwlAirConditioner,
-      Value<int?>? dwlSolarPanel,
-      Value<String?>? createdUser,
-      Value<DateTime?>? createdDate,
-      Value<String?>? lastEditedUser,
-      Value<DateTime?>? lastEditedDate,
-      Value<String?>? externalCreator,
-      Value<String?>? externalEditor}) {
+      Value<int?>? dwlSolarPanel}) {
     return DwellingsCompanion(
-      objectId: objectId ?? this.objectId,
-      externalCreatorDate: externalCreatorDate ?? this.externalCreatorDate,
-      externalEditorDate: externalEditorDate ?? this.externalEditorDate,
-      globalId: globalId ?? this.globalId,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
-      dwlCensus2023: dwlCensus2023 ?? this.dwlCensus2023,
+      id: id ?? this.id,
+      globalId: globalId ?? this.globalId,
       dwlAddressId: dwlAddressId ?? this.dwlAddressId,
       dwlQuality: dwlQuality ?? this.dwlQuality,
       dwlFloor: dwlFloor ?? this.dwlFloor,
@@ -4448,37 +3125,20 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       dwlHeatingEnergy: dwlHeatingEnergy ?? this.dwlHeatingEnergy,
       dwlAirConditioner: dwlAirConditioner ?? this.dwlAirConditioner,
       dwlSolarPanel: dwlSolarPanel ?? this.dwlSolarPanel,
-      createdUser: createdUser ?? this.createdUser,
-      createdDate: createdDate ?? this.createdDate,
-      lastEditedUser: lastEditedUser ?? this.lastEditedUser,
-      lastEditedDate: lastEditedDate ?? this.lastEditedDate,
-      externalCreator: externalCreator ?? this.externalCreator,
-      externalEditor: externalEditor ?? this.externalEditor,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (objectId.present) {
-      map['object_id'] = Variable<int>(objectId.value);
-    }
-    if (externalCreatorDate.present) {
-      map['external_creator_date'] =
-          Variable<DateTime>(externalCreatorDate.value);
-    }
-    if (externalEditorDate.present) {
-      map['external_editor_date'] =
-          Variable<DateTime>(externalEditorDate.value);
-    }
-    if (globalId.present) {
-      map['global_id'] = Variable<String>(globalId.value);
-    }
     if (dwlEntGlobalId.present) {
       map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId.value);
     }
-    if (dwlCensus2023.present) {
-      map['dwl_census2023'] = Variable<String>(dwlCensus2023.value);
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (globalId.present) {
+      map['global_id'] = Variable<String>(globalId.value);
     }
     if (dwlAddressId.present) {
       map['dwl_address_id'] = Variable<String>(dwlAddressId.value);
@@ -4531,36 +3191,15 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     if (dwlSolarPanel.present) {
       map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel.value);
     }
-    if (createdUser.present) {
-      map['created_user'] = Variable<String>(createdUser.value);
-    }
-    if (createdDate.present) {
-      map['created_date'] = Variable<DateTime>(createdDate.value);
-    }
-    if (lastEditedUser.present) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser.value);
-    }
-    if (lastEditedDate.present) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate.value);
-    }
-    if (externalCreator.present) {
-      map['external_creator'] = Variable<String>(externalCreator.value);
-    }
-    if (externalEditor.present) {
-      map['external_editor'] = Variable<String>(externalEditor.value);
-    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('DwellingsCompanion(')
-          ..write('objectId: $objectId, ')
-          ..write('externalCreatorDate: $externalCreatorDate, ')
-          ..write('externalEditorDate: $externalEditorDate, ')
-          ..write('globalId: $globalId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
-          ..write('dwlCensus2023: $dwlCensus2023, ')
+          ..write('id: $id, ')
+          ..write('globalId: $globalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
           ..write('dwlFloor: $dwlFloor, ')
@@ -4577,13 +3216,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
           ..write('dwlHeatingFacility: $dwlHeatingFacility, ')
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
-          ..write('dwlSolarPanel: $dwlSolarPanel, ')
-          ..write('createdUser: $createdUser, ')
-          ..write('createdDate: $createdDate, ')
-          ..write('lastEditedUser: $lastEditedUser, ')
-          ..write('lastEditedDate: $lastEditedDate, ')
-          ..write('externalCreator: $externalCreator, ')
-          ..write('externalEditor: $externalEditor')
+          ..write('dwlSolarPanel: $dwlSolarPanel')
           ..write(')'))
         .toString();
   }
@@ -4607,11 +3240,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 }
 
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
-  Value<int> objectId,
-  Value<double?> shapeLength,
-  Value<double?> shapeArea,
+  Value<int> id,
   required String globalId,
-  Value<String?> bldCensus2023,
   Value<int> bldQuality,
   required int bldMunicipality,
   Value<String?> bldEnumArea,
@@ -4634,27 +3264,16 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldElectricity,
   Value<int?> bldPipedGas,
   Value<int?> bldElevator,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
   Value<int> bldCentroidStatus,
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
   Value<String?> bldAddressId,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
   Value<int> bldReview,
   Value<int?> bldWaterSupply,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
 });
 typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
-  Value<int> objectId,
-  Value<double?> shapeLength,
-  Value<double?> shapeArea,
+  Value<int> id,
   Value<String> globalId,
-  Value<String?> bldCensus2023,
   Value<int> bldQuality,
   Value<int> bldMunicipality,
   Value<String?> bldEnumArea,
@@ -4677,21 +3296,34 @@ typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldElectricity,
   Value<int?> bldPipedGas,
   Value<int?> bldElevator,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
   Value<int> bldCentroidStatus,
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
   Value<String?> bldAddressId,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
   Value<int> bldReview,
   Value<int?> bldWaterSupply,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
 });
+
+final class $$BuildingsTableReferences
+    extends BaseReferences<_$AppDatabase, $BuildingsTable, Building> {
+  $$BuildingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$EntrancesTable, List<Entrance>>
+      _entrancesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.entrances,
+              aliasName: $_aliasNameGenerator(
+                  db.buildings.globalId, db.entrances.entBldGlobalId));
+
+  $$EntrancesTableProcessedTableManager get entrancesRefs {
+    final manager = $$EntrancesTableTableManager($_db, $_db.entrances).filter(
+        (f) => f.entBldGlobalId.globalId
+            .sqlEquals($_itemColumn<String>('global_id')!));
+
+    final cache = $_typedResult.readTableOrNull(_entrancesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$BuildingsTableFilterComposer
     extends Composer<_$AppDatabase, $BuildingsTable> {
@@ -4702,20 +3334,11 @@ class $$BuildingsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get shapeLength => $composableBuilder(
-      column: $table.shapeLength, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get shapeArea => $composableBuilder(
-      column: $table.shapeArea, builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bldCensus2023 => $composableBuilder(
-      column: $table.bldCensus2023, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => ColumnFilters(column));
@@ -4790,20 +3413,6 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<int> get bldElevator => $composableBuilder(
       column: $table.bldElevator, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get bldCentroidStatus => $composableBuilder(
       column: $table.bldCentroidStatus,
       builder: (column) => ColumnFilters(column));
@@ -4819,14 +3428,6 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<String> get bldAddressId => $composableBuilder(
       column: $table.bldAddressId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get bldReview => $composableBuilder(
       column: $table.bldReview, builder: (column) => ColumnFilters(column));
 
@@ -4834,13 +3435,26 @@ class $$BuildingsTableFilterComposer
       column: $table.bldWaterSupply,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
-      builder: (column) => ColumnFilters(column));
+  Expression<bool> entrancesRefs(
+      Expression<bool> Function($$EntrancesTableFilterComposer f) f) {
+    final $$EntrancesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.globalId,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.entBldGlobalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableFilterComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$BuildingsTableOrderingComposer
@@ -4852,21 +3466,11 @@ class $$BuildingsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get shapeLength => $composableBuilder(
-      column: $table.shapeLength, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get shapeArea => $composableBuilder(
-      column: $table.shapeArea, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get bldCensus2023 => $composableBuilder(
-      column: $table.bldCensus2023,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => ColumnOrderings(column));
@@ -4944,20 +3548,6 @@ class $$BuildingsTableOrderingComposer
   ColumnOrderings<int> get bldElevator => $composableBuilder(
       column: $table.bldElevator, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get bldCentroidStatus => $composableBuilder(
       column: $table.bldCentroidStatus,
       builder: (column) => ColumnOrderings(column));
@@ -4974,27 +3564,11 @@ class $$BuildingsTableOrderingComposer
       column: $table.bldAddressId,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get bldReview => $composableBuilder(
       column: $table.bldReview, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
       builder: (column) => ColumnOrderings(column));
 }
 
@@ -5007,20 +3581,11 @@ class $$BuildingsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get objectId =>
-      $composableBuilder(column: $table.objectId, builder: (column) => column);
-
-  GeneratedColumn<double> get shapeLength => $composableBuilder(
-      column: $table.shapeLength, builder: (column) => column);
-
-  GeneratedColumn<double> get shapeArea =>
-      $composableBuilder(column: $table.shapeArea, builder: (column) => column);
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
-
-  GeneratedColumn<String> get bldCensus2023 => $composableBuilder(
-      column: $table.bldCensus2023, builder: (column) => column);
 
   GeneratedColumn<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => column);
@@ -5088,18 +3653,6 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<int> get bldElevator => $composableBuilder(
       column: $table.bldElevator, builder: (column) => column);
 
-  GeneratedColumn<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => column);
-
-  GeneratedColumn<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate, builder: (column) => column);
-
   GeneratedColumn<int> get bldCentroidStatus => $composableBuilder(
       column: $table.bldCentroidStatus, builder: (column) => column);
 
@@ -5112,23 +3665,32 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<String> get bldAddressId => $composableBuilder(
       column: $table.bldAddressId, builder: (column) => column);
 
-  GeneratedColumn<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator, builder: (column) => column);
-
-  GeneratedColumn<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor, builder: (column) => column);
-
   GeneratedColumn<int> get bldReview =>
       $composableBuilder(column: $table.bldReview, builder: (column) => column);
 
   GeneratedColumn<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate, builder: (column) => column);
+  Expression<T> entrancesRefs<T extends Object>(
+      Expression<T> Function($$EntrancesTableAnnotationComposer a) f) {
+    final $$EntrancesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.globalId,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.entBldGlobalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$BuildingsTableTableManager extends RootTableManager<
@@ -5140,9 +3702,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
     $$BuildingsTableAnnotationComposer,
     $$BuildingsTableCreateCompanionBuilder,
     $$BuildingsTableUpdateCompanionBuilder,
-    (Building, BaseReferences<_$AppDatabase, $BuildingsTable, Building>),
+    (Building, $$BuildingsTableReferences),
     Building,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool entrancesRefs})> {
   $$BuildingsTableTableManager(_$AppDatabase db, $BuildingsTable table)
       : super(TableManagerState(
           db: db,
@@ -5154,11 +3716,8 @@ class $$BuildingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$BuildingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<double?> shapeLength = const Value.absent(),
-            Value<double?> shapeArea = const Value.absent(),
+            Value<int> id = const Value.absent(),
             Value<String> globalId = const Value.absent(),
-            Value<String?> bldCensus2023 = const Value.absent(),
             Value<int> bldQuality = const Value.absent(),
             Value<int> bldMunicipality = const Value.absent(),
             Value<String?> bldEnumArea = const Value.absent(),
@@ -5181,27 +3740,16 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldElectricity = const Value.absent(),
             Value<int?> bldPipedGas = const Value.absent(),
             Value<int?> bldElevator = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
             Value<int> bldCentroidStatus = const Value.absent(),
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
             Value<String?> bldAddressId = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
             Value<int> bldReview = const Value.absent(),
             Value<int?> bldWaterSupply = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
           }) =>
               BuildingsCompanion(
-            objectId: objectId,
-            shapeLength: shapeLength,
-            shapeArea: shapeArea,
+            id: id,
             globalId: globalId,
-            bldCensus2023: bldCensus2023,
             bldQuality: bldQuality,
             bldMunicipality: bldMunicipality,
             bldEnumArea: bldEnumArea,
@@ -5224,27 +3772,16 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldElectricity: bldElectricity,
             bldPipedGas: bldPipedGas,
             bldElevator: bldElevator,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
             bldCentroidStatus: bldCentroidStatus,
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
             bldAddressId: bldAddressId,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
             bldReview: bldReview,
             bldWaterSupply: bldWaterSupply,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
           ),
           createCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<double?> shapeLength = const Value.absent(),
-            Value<double?> shapeArea = const Value.absent(),
+            Value<int> id = const Value.absent(),
             required String globalId,
-            Value<String?> bldCensus2023 = const Value.absent(),
             Value<int> bldQuality = const Value.absent(),
             required int bldMunicipality,
             Value<String?> bldEnumArea = const Value.absent(),
@@ -5267,27 +3804,16 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldElectricity = const Value.absent(),
             Value<int?> bldPipedGas = const Value.absent(),
             Value<int?> bldElevator = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
             Value<int> bldCentroidStatus = const Value.absent(),
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
             Value<String?> bldAddressId = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
             Value<int> bldReview = const Value.absent(),
             Value<int?> bldWaterSupply = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
           }) =>
               BuildingsCompanion.insert(
-            objectId: objectId,
-            shapeLength: shapeLength,
-            shapeArea: shapeArea,
+            id: id,
             globalId: globalId,
-            bldCensus2023: bldCensus2023,
             bldQuality: bldQuality,
             bldMunicipality: bldMunicipality,
             bldEnumArea: bldEnumArea,
@@ -5310,25 +3836,43 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldElectricity: bldElectricity,
             bldPipedGas: bldPipedGas,
             bldElevator: bldElevator,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
             bldCentroidStatus: bldCentroidStatus,
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
             bldAddressId: bldAddressId,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
             bldReview: bldReview,
             bldWaterSupply: bldWaterSupply,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$BuildingsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({entrancesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (entrancesRefs) db.entrances],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (entrancesRefs)
+                    await $_getPrefetchedData<Building, $BuildingsTable,
+                            Entrance>(
+                        currentTable: table,
+                        referencedTable:
+                            $$BuildingsTableReferences._entrancesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$BuildingsTableReferences(db, table, p0)
+                                .entrancesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems.where(
+                                (e) => e.entBldGlobalId == item.globalId),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -5341,16 +3885,13 @@ typedef $$BuildingsTableProcessedTableManager = ProcessedTableManager<
     $$BuildingsTableAnnotationComposer,
     $$BuildingsTableCreateCompanionBuilder,
     $$BuildingsTableUpdateCompanionBuilder,
-    (Building, BaseReferences<_$AppDatabase, $BuildingsTable, Building>),
+    (Building, $$BuildingsTableReferences),
     Building,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool entrancesRefs})>;
 typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
-  Value<int> objectId,
-  Value<String?> entCensus2023,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
+  required String entBldGlobalId,
+  Value<int> id,
   required String globalId,
-  Value<String> entBldGlobalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
   required double entLatitude,
@@ -5363,20 +3904,11 @@ typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
   Value<int?> entZipCode,
   Value<int?> entDwellingRecs,
   Value<int?> entDwellingExpec,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
 });
 typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
-  Value<int> objectId,
-  Value<String?> entCensus2023,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
-  Value<String> globalId,
   Value<String> entBldGlobalId,
+  Value<int> id,
+  Value<String> globalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
   Value<double> entLatitude,
@@ -5389,13 +3921,43 @@ typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
   Value<int?> entZipCode,
   Value<int?> entDwellingRecs,
   Value<int?> entDwellingExpec,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
 });
+
+final class $$EntrancesTableReferences
+    extends BaseReferences<_$AppDatabase, $EntrancesTable, Entrance> {
+  $$EntrancesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $BuildingsTable _entBldGlobalIdTable(_$AppDatabase db) =>
+      db.buildings.createAlias($_aliasNameGenerator(
+          db.entrances.entBldGlobalId, db.buildings.globalId));
+
+  $$BuildingsTableProcessedTableManager get entBldGlobalId {
+    final $_column = $_itemColumn<String>('ent_bld_global_id')!;
+
+    final manager = $$BuildingsTableTableManager($_db, $_db.buildings)
+        .filter((f) => f.globalId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_entBldGlobalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$DwellingsTable, List<Dwelling>>
+      _dwellingsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.dwellings,
+              aliasName: $_aliasNameGenerator(
+                  db.entrances.globalId, db.dwellings.dwlEntGlobalId));
+
+  $$DwellingsTableProcessedTableManager get dwellingsRefs {
+    final manager = $$DwellingsTableTableManager($_db, $_db.dwellings).filter(
+        (f) => f.dwlEntGlobalId.globalId
+            .sqlEquals($_itemColumn<String>('global_id')!));
+
+    final cache = $_typedResult.readTableOrNull(_dwellingsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$EntrancesTableFilterComposer
     extends Composer<_$AppDatabase, $EntrancesTable> {
@@ -5406,26 +3968,11 @@ class $$EntrancesTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entCensus2023 => $composableBuilder(
-      column: $table.entCensus2023, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entBldGlobalId => $composableBuilder(
-      column: $table.entBldGlobalId,
-      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId, builder: (column) => ColumnFilters(column));
@@ -5469,27 +4016,46 @@ class $$EntrancesTableFilterComposer
       column: $table.entDwellingExpec,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnFilters(column));
+  $$BuildingsTableFilterComposer get entBldGlobalId {
+    final $$BuildingsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.entBldGlobalId,
+        referencedTable: $db.buildings,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BuildingsTableFilterComposer(
+              $db: $db,
+              $table: $db.buildings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
-  ColumnFilters<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnFilters(column));
+  Expression<bool> dwellingsRefs(
+      Expression<bool> Function($$DwellingsTableFilterComposer f) f) {
+    final $$DwellingsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.globalId,
+        referencedTable: $db.dwellings,
+        getReferencedColumn: (t) => t.dwlEntGlobalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DwellingsTableFilterComposer(
+              $db: $db,
+              $table: $db.dwellings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$EntrancesTableOrderingComposer
@@ -5501,27 +4067,11 @@ class $$EntrancesTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entCensus2023 => $composableBuilder(
-      column: $table.entCensus2023,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entBldGlobalId => $composableBuilder(
-      column: $table.entBldGlobalId,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId,
@@ -5567,27 +4117,25 @@ class $$EntrancesTableOrderingComposer
       column: $table.entDwellingExpec,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnOrderings(column));
+  $$BuildingsTableOrderingComposer get entBldGlobalId {
+    final $$BuildingsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.entBldGlobalId,
+        referencedTable: $db.buildings,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BuildingsTableOrderingComposer(
+              $db: $db,
+              $table: $db.buildings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$EntrancesTableAnnotationComposer
@@ -5599,23 +4147,11 @@ class $$EntrancesTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get objectId =>
-      $composableBuilder(column: $table.objectId, builder: (column) => column);
-
-  GeneratedColumn<String> get entCensus2023 => $composableBuilder(
-      column: $table.entCensus2023, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate, builder: (column) => column);
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
-
-  GeneratedColumn<String> get entBldGlobalId => $composableBuilder(
-      column: $table.entBldGlobalId, builder: (column) => column);
 
   GeneratedColumn<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId, builder: (column) => column);
@@ -5653,23 +4189,46 @@ class $$EntrancesTableAnnotationComposer
   GeneratedColumn<int> get entDwellingExpec => $composableBuilder(
       column: $table.entDwellingExpec, builder: (column) => column);
 
-  GeneratedColumn<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => column);
+  $$BuildingsTableAnnotationComposer get entBldGlobalId {
+    final $$BuildingsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.entBldGlobalId,
+        referencedTable: $db.buildings,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$BuildingsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.buildings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
-  GeneratedColumn<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => column);
-
-  GeneratedColumn<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate, builder: (column) => column);
-
-  GeneratedColumn<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator, builder: (column) => column);
-
-  GeneratedColumn<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor, builder: (column) => column);
+  Expression<T> dwellingsRefs<T extends Object>(
+      Expression<T> Function($$DwellingsTableAnnotationComposer a) f) {
+    final $$DwellingsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.globalId,
+        referencedTable: $db.dwellings,
+        getReferencedColumn: (t) => t.dwlEntGlobalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DwellingsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.dwellings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$EntrancesTableTableManager extends RootTableManager<
@@ -5681,9 +4240,9 @@ class $$EntrancesTableTableManager extends RootTableManager<
     $$EntrancesTableAnnotationComposer,
     $$EntrancesTableCreateCompanionBuilder,
     $$EntrancesTableUpdateCompanionBuilder,
-    (Entrance, BaseReferences<_$AppDatabase, $EntrancesTable, Entrance>),
+    (Entrance, $$EntrancesTableReferences),
     Entrance,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool entBldGlobalId, bool dwellingsRefs})> {
   $$EntrancesTableTableManager(_$AppDatabase db, $EntrancesTable table)
       : super(TableManagerState(
           db: db,
@@ -5695,12 +4254,9 @@ class $$EntrancesTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$EntrancesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<String?> entCensus2023 = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
-            Value<String> globalId = const Value.absent(),
             Value<String> entBldGlobalId = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<String> globalId = const Value.absent(),
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
             Value<double> entLatitude = const Value.absent(),
@@ -5713,20 +4269,11 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entZipCode = const Value.absent(),
             Value<int?> entDwellingRecs = const Value.absent(),
             Value<int?> entDwellingExpec = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
           }) =>
               EntrancesCompanion(
-            objectId: objectId,
-            entCensus2023: entCensus2023,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
-            globalId: globalId,
             entBldGlobalId: entBldGlobalId,
+            id: id,
+            globalId: globalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
             entLatitude: entLatitude,
@@ -5739,20 +4286,11 @@ class $$EntrancesTableTableManager extends RootTableManager<
             entZipCode: entZipCode,
             entDwellingRecs: entDwellingRecs,
             entDwellingExpec: entDwellingExpec,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
           ),
           createCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<String?> entCensus2023 = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
+            required String entBldGlobalId,
+            Value<int> id = const Value.absent(),
             required String globalId,
-            Value<String> entBldGlobalId = const Value.absent(),
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
             required double entLatitude,
@@ -5765,20 +4303,11 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entZipCode = const Value.absent(),
             Value<int?> entDwellingRecs = const Value.absent(),
             Value<int?> entDwellingExpec = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
           }) =>
               EntrancesCompanion.insert(
-            objectId: objectId,
-            entCensus2023: entCensus2023,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
-            globalId: globalId,
             entBldGlobalId: entBldGlobalId,
+            id: id,
+            globalId: globalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
             entLatitude: entLatitude,
@@ -5791,17 +4320,64 @@ class $$EntrancesTableTableManager extends RootTableManager<
             entZipCode: entZipCode,
             entDwellingRecs: entDwellingRecs,
             entDwellingExpec: entDwellingExpec,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$EntrancesTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: (
+              {entBldGlobalId = false, dwellingsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (dwellingsRefs) db.dwellings],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (entBldGlobalId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.entBldGlobalId,
+                    referencedTable:
+                        $$EntrancesTableReferences._entBldGlobalIdTable(db),
+                    referencedColumn: $$EntrancesTableReferences
+                        ._entBldGlobalIdTable(db)
+                        .globalId,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (dwellingsRefs)
+                    await $_getPrefetchedData<Entrance, $EntrancesTable,
+                            Dwelling>(
+                        currentTable: table,
+                        referencedTable:
+                            $$EntrancesTableReferences._dwellingsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$EntrancesTableReferences(db, table, p0)
+                                .dwellingsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems.where(
+                                (e) => e.dwlEntGlobalId == item.globalId),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -5814,16 +4390,13 @@ typedef $$EntrancesTableProcessedTableManager = ProcessedTableManager<
     $$EntrancesTableAnnotationComposer,
     $$EntrancesTableCreateCompanionBuilder,
     $$EntrancesTableUpdateCompanionBuilder,
-    (Entrance, BaseReferences<_$AppDatabase, $EntrancesTable, Entrance>),
+    (Entrance, $$EntrancesTableReferences),
     Entrance,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool entBldGlobalId, bool dwellingsRefs})>;
 typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
-  Value<int> objectId,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
+  required String dwlEntGlobalId,
+  Value<int> id,
   required String globalId,
-  Value<String> dwlEntGlobalId,
-  Value<String?> dwlCensus2023,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
   Value<int?> dwlFloor,
@@ -5841,20 +4414,11 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlHeatingEnergy,
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
 });
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
-  Value<int> objectId,
-  Value<DateTime?> externalCreatorDate,
-  Value<DateTime?> externalEditorDate,
-  Value<String> globalId,
   Value<String> dwlEntGlobalId,
-  Value<String?> dwlCensus2023,
+  Value<int> id,
+  Value<String> globalId,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
   Value<int?> dwlFloor,
@@ -5872,13 +4436,27 @@ typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlHeatingEnergy,
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
-  Value<String?> createdUser,
-  Value<DateTime?> createdDate,
-  Value<String?> lastEditedUser,
-  Value<DateTime?> lastEditedDate,
-  Value<String?> externalCreator,
-  Value<String?> externalEditor,
 });
+
+final class $$DwellingsTableReferences
+    extends BaseReferences<_$AppDatabase, $DwellingsTable, Dwelling> {
+  $$DwellingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $EntrancesTable _dwlEntGlobalIdTable(_$AppDatabase db) =>
+      db.entrances.createAlias($_aliasNameGenerator(
+          db.dwellings.dwlEntGlobalId, db.entrances.globalId));
+
+  $$EntrancesTableProcessedTableManager get dwlEntGlobalId {
+    final $_column = $_itemColumn<String>('dwl_ent_global_id')!;
+
+    final manager = $$EntrancesTableTableManager($_db, $_db.entrances)
+        .filter((f) => f.globalId.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_dwlEntGlobalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$DwellingsTableFilterComposer
     extends Composer<_$AppDatabase, $DwellingsTable> {
@@ -5889,26 +4467,11 @@ class $$DwellingsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
-      builder: (column) => ColumnFilters(column));
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get dwlEntGlobalId => $composableBuilder(
-      column: $table.dwlEntGlobalId,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get dwlCensus2023 => $composableBuilder(
-      column: $table.dwlCensus2023, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId, builder: (column) => ColumnFilters(column));
@@ -5967,27 +4530,25 @@ class $$DwellingsTableFilterComposer
   ColumnFilters<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnFilters(column));
+  $$EntrancesTableFilterComposer get dwlEntGlobalId {
+    final $$EntrancesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.dwlEntGlobalId,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableFilterComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$DwellingsTableOrderingComposer
@@ -5999,27 +4560,11 @@ class $$DwellingsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get objectId => $composableBuilder(
-      column: $table.objectId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate,
-      builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get dwlEntGlobalId => $composableBuilder(
-      column: $table.dwlEntGlobalId,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get dwlCensus2023 => $composableBuilder(
-      column: $table.dwlCensus2023,
-      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId,
@@ -6082,27 +4627,25 @@ class $$DwellingsTableOrderingComposer
       column: $table.dwlSolarPanel,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor,
-      builder: (column) => ColumnOrderings(column));
+  $$EntrancesTableOrderingComposer get dwlEntGlobalId {
+    final $$EntrancesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.dwlEntGlobalId,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableOrderingComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$DwellingsTableAnnotationComposer
@@ -6114,23 +4657,11 @@ class $$DwellingsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get objectId =>
-      $composableBuilder(column: $table.objectId, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get externalCreatorDate => $composableBuilder(
-      column: $table.externalCreatorDate, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get externalEditorDate => $composableBuilder(
-      column: $table.externalEditorDate, builder: (column) => column);
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
-
-  GeneratedColumn<String> get dwlEntGlobalId => $composableBuilder(
-      column: $table.dwlEntGlobalId, builder: (column) => column);
-
-  GeneratedColumn<String> get dwlCensus2023 => $composableBuilder(
-      column: $table.dwlCensus2023, builder: (column) => column);
 
   GeneratedColumn<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId, builder: (column) => column);
@@ -6183,23 +4714,25 @@ class $$DwellingsTableAnnotationComposer
   GeneratedColumn<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => column);
 
-  GeneratedColumn<String> get createdUser => $composableBuilder(
-      column: $table.createdUser, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdDate => $composableBuilder(
-      column: $table.createdDate, builder: (column) => column);
-
-  GeneratedColumn<String> get lastEditedUser => $composableBuilder(
-      column: $table.lastEditedUser, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get lastEditedDate => $composableBuilder(
-      column: $table.lastEditedDate, builder: (column) => column);
-
-  GeneratedColumn<String> get externalCreator => $composableBuilder(
-      column: $table.externalCreator, builder: (column) => column);
-
-  GeneratedColumn<String> get externalEditor => $composableBuilder(
-      column: $table.externalEditor, builder: (column) => column);
+  $$EntrancesTableAnnotationComposer get dwlEntGlobalId {
+    final $$EntrancesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.dwlEntGlobalId,
+        referencedTable: $db.entrances,
+        getReferencedColumn: (t) => t.globalId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntrancesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.entrances,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$DwellingsTableTableManager extends RootTableManager<
@@ -6211,9 +4744,9 @@ class $$DwellingsTableTableManager extends RootTableManager<
     $$DwellingsTableAnnotationComposer,
     $$DwellingsTableCreateCompanionBuilder,
     $$DwellingsTableUpdateCompanionBuilder,
-    (Dwelling, BaseReferences<_$AppDatabase, $DwellingsTable, Dwelling>),
+    (Dwelling, $$DwellingsTableReferences),
     Dwelling,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool dwlEntGlobalId})> {
   $$DwellingsTableTableManager(_$AppDatabase db, $DwellingsTable table)
       : super(TableManagerState(
           db: db,
@@ -6225,12 +4758,9 @@ class $$DwellingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$DwellingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
-            Value<String> globalId = const Value.absent(),
             Value<String> dwlEntGlobalId = const Value.absent(),
-            Value<String?> dwlCensus2023 = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<String> globalId = const Value.absent(),
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
             Value<int?> dwlFloor = const Value.absent(),
@@ -6248,20 +4778,11 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlHeatingEnergy = const Value.absent(),
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
           }) =>
               DwellingsCompanion(
-            objectId: objectId,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
-            globalId: globalId,
             dwlEntGlobalId: dwlEntGlobalId,
-            dwlCensus2023: dwlCensus2023,
+            id: id,
+            globalId: globalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,
             dwlFloor: dwlFloor,
@@ -6279,20 +4800,11 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlHeatingEnergy: dwlHeatingEnergy,
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
           ),
           createCompanionCallback: ({
-            Value<int> objectId = const Value.absent(),
-            Value<DateTime?> externalCreatorDate = const Value.absent(),
-            Value<DateTime?> externalEditorDate = const Value.absent(),
+            required String dwlEntGlobalId,
+            Value<int> id = const Value.absent(),
             required String globalId,
-            Value<String> dwlEntGlobalId = const Value.absent(),
-            Value<String?> dwlCensus2023 = const Value.absent(),
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
             Value<int?> dwlFloor = const Value.absent(),
@@ -6310,20 +4822,11 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlHeatingEnergy = const Value.absent(),
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
-            Value<String?> createdUser = const Value.absent(),
-            Value<DateTime?> createdDate = const Value.absent(),
-            Value<String?> lastEditedUser = const Value.absent(),
-            Value<DateTime?> lastEditedDate = const Value.absent(),
-            Value<String?> externalCreator = const Value.absent(),
-            Value<String?> externalEditor = const Value.absent(),
           }) =>
               DwellingsCompanion.insert(
-            objectId: objectId,
-            externalCreatorDate: externalCreatorDate,
-            externalEditorDate: externalEditorDate,
-            globalId: globalId,
             dwlEntGlobalId: dwlEntGlobalId,
-            dwlCensus2023: dwlCensus2023,
+            id: id,
+            globalId: globalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,
             dwlFloor: dwlFloor,
@@ -6341,17 +4844,49 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlHeatingEnergy: dwlHeatingEnergy,
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
-            createdUser: createdUser,
-            createdDate: createdDate,
-            lastEditedUser: lastEditedUser,
-            lastEditedDate: lastEditedDate,
-            externalCreator: externalCreator,
-            externalEditor: externalEditor,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$DwellingsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({dwlEntGlobalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (dwlEntGlobalId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.dwlEntGlobalId,
+                    referencedTable:
+                        $$DwellingsTableReferences._dwlEntGlobalIdTable(db),
+                    referencedColumn: $$DwellingsTableReferences
+                        ._dwlEntGlobalIdTable(db)
+                        .globalId,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -6364,9 +4899,9 @@ typedef $$DwellingsTableProcessedTableManager = ProcessedTableManager<
     $$DwellingsTableAnnotationComposer,
     $$DwellingsTableCreateCompanionBuilder,
     $$DwellingsTableUpdateCompanionBuilder,
-    (Dwelling, BaseReferences<_$AppDatabase, $DwellingsTable, Dwelling>),
+    (Dwelling, $$DwellingsTableReferences),
     Dwelling,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool dwlEntGlobalId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

@@ -34,9 +34,8 @@ class BuildingRepository implements IBuildingRepository {
       _dao.buildingDao.getBuildingById(globalId);
 
   @override
-  Future<void> updateBuildingGlobalId(int objectId, String newGlobalId) =>
-      _dao.buildingDao
-          .updateGlobalIdByObjectId(objectId: objectId, globalId: newGlobalId);
+  Future<void> updateBuildingGlobalId(int id, String newGlobalId) =>
+      _dao.buildingDao.updateGlobalIdById(id: id, globalId: newGlobalId);
 
   @override
   Future<Map<String, dynamic>> getBuildings(

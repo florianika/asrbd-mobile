@@ -43,11 +43,11 @@ class BuildingDao extends DatabaseAccessor<AppDatabase> with _$BuildingDaoMixin 
   }
 
   // 7. Update only GlobalID based on OBJECTID
-  Future<void> updateGlobalIdByObjectId({
-    required int objectId,
+  Future<void> updateGlobalIdById({
+    required int id,
     required String globalId,
   }) async {
-    await (update(buildings)..where((tbl) => tbl.objectId.equals(objectId)))
+    await (update(buildings)..where((tbl) => tbl.id.equals(id)))
         .write(
       BuildingsCompanion(
         globalId: Value(globalId),

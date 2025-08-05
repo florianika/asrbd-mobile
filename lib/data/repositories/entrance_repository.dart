@@ -73,8 +73,8 @@ class EntranceRepository implements IEntranceRepository {
 
   @override
   Future<void> updateEntranceGlobalID(
-      {required int objectId, required String newGlobalId}) async {
+      {required int id, required String newGlobalId}) async {
     await _dao.entranceDao
-        .updateEntranceGlobalID(objectId: objectId, newGlobalId: newGlobalId);
+        .updateEntranceGlobalID(id: id, newGlobalId: newGlobalId);
   }
 }

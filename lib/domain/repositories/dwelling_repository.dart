@@ -17,8 +17,8 @@ abstract class IDwellingRepository {
     required String newDwlEntGlobalID,
   });
 
-  Future<void> updateDwellingGlobalID({
-    required int objectId,
+  Future<void> updateDwellingById({
+    required int id,
     required String newGlobalId,
   });
 }

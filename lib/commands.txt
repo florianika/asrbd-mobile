@@ -24,3 +24,6 @@ python3 -m http.server 8000
 flutter build web
 
 rm -rf ~/.gradle ~/.dartServer ~/.vscode-remote
+
+
+flutter pub run build_runner build --delete-conflicting-outputs

@@ -4,5 +4,7 @@ part of 'dwellings_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$DwellingsDaoMixin on DatabaseAccessor<AppDatabase> {
+  $BuildingsTable get buildings => attachedDatabase.buildings;
+  $EntrancesTable get entrances => attachedDatabase.entrances;
   $DwellingsTable get dwellings => attachedDatabase.dwellings;
 }

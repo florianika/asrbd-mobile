@@ -18,7 +18,7 @@ abstract class IEntranceRepository {
   });
 
   Future<void> updateEntranceGlobalID({
-    required int objectId,
+    required int id,
     required String newGlobalId,
   });
 }

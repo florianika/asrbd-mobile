@@ -44,10 +44,10 @@ class DwellingRepository implements IDwellingRepository {
   }
 
   @override
-  Future<void> updateDwellingGlobalID(
-      {required int objectId, required String newGlobalId}) async {
+  Future<void> updateDwellingById(
+      {required int id, required String newGlobalId}) async {
     await _dao.dwellingDao
-        .updateDwellingGlobalID(objectId: objectId, newGlobalId: newGlobalId);
+        .updateDwellingById(id: id, newGlobalId: newGlobalId);
   }
 
   Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
