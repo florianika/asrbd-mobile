@@ -64,4 +64,9 @@ class BuildingRepository implements IBuildingRepository {
       Map<String, dynamic> attributes, List<LatLng>? points) async {
     return await buildingService.updateBuildingFeature(attributes, points);
   }
+
+  @override
+  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+    return await buildingService.getBuildingsCount(bounds, municipalityId);
+  }
 }

@@ -32,4 +32,6 @@ abstract class IBuildingRepository {
 
   Future<bool> updateBuildingFeature(
       Map<String, dynamic> attributes, List<LatLng>? points);
+
+  Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId);
 }

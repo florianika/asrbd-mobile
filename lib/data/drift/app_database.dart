@@ -8,7 +8,7 @@ import 'package:asrdb/data/drift/tables/dwellings.dart';
 import 'package:asrdb/data/drift/tables/entrances.dart';
 import 'package:drift/drift.dart';
 
-part 'app_database.g.dart'; // Drift generates this
+part 'app_database.g.dart';
 
 @DriftDatabase(
   tables: [Downloads, Buildings, Entrances, Dwellings],
