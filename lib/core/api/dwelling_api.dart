@@ -17,7 +17,13 @@ class DwellingApi {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/2?f=json&token=$esriToken');
   }
+ 
+   Future<Response> getDwellingAttributesJson(String esriToken) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.esriBaseUri.toString()}/2?f=pjson&token=$esriToken');
+   }
 
+ 
     Future<Response> addDwellingFeature(String esriToken,
       Map<String, dynamic> attributes, ) async {
     Map<String, String> contentType = <String, String>{
