@@ -36,6 +36,11 @@ class BuildingApi {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/1?f=json&token=$esriToken');
   }
+  
+      Future<Response> getBuildingAttributesJson(String esriToken) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.esriBaseUri.toString()}/1?f=pjson&token=$esriToken');
+  }
 
   Future<Response> addBuildingFeature(String esriToken,
       Map<String, dynamic> attributes, List<LatLng> points) async {
