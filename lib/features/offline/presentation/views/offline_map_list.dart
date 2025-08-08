@@ -348,18 +348,23 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     final map = _downloadedMaps[index];
     StorageService storageService = sl<StorageService>();
 
-     final Directory appDocDir = await getApplicationDocumentsDirectory();
+    // final Directory appDocDir = await getApplicationDocumentsDirectory();
 
-      // Create unique folder for this download session
-      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      final String sessionId = 'map_$timestamp';
-      final String offlineMapPath = '${appDocDir.path}/offline_maps/$sessionId';
+    // Use the EXISTING map's sessionId and path
+    // final String offlineMapPath =
+    //     '${appDocDir.path}/offline_maps/${map.sessionId}';
 
-if (!mounted) return;
+    if (!mounted) return;
 
-    context.read<TileCubit>().setPath(offlineMapPath);
+    // Point to the correct tiles folder for this specific downloaded map
+    context.read<TileCubit>().setOfflineSession(map.sessionId);
+
+    // Save the correct sessionId
     storageService.saveString(
-        boxName: HiveBoxes.offlineMap, key: "map", value: map.sessionId);
+      boxName: HiveBoxes.offlineMap,
+      key: "map",
+      value: map.sessionId,
+    );
   }
 
   Future<void> _deleteMap(int index) async {

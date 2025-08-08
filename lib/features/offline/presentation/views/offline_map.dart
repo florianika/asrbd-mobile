@@ -1,6 +1,12 @@
 import 'dart:math';
 
+import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,8 +26,9 @@ class _OfflineMapState extends State<OfflineMap> {
   final MapController _mapController = MapController();
 
   final double squareSize = 200;
-  final int _minZoom = 10;
-  final int _maxZoom = 16;
+  final int _minZoom = 19;
+  final int _maxZoom = 22;
+  double _currentZoom = 19; // initial zoom
 
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
@@ -54,8 +61,6 @@ class _OfflineMapState extends State<OfflineMap> {
     _calculateDownloadBounds();
 
     if (_downloadBounds != null) {
-      print(
-          'Downloading area bounds: ${_downloadBounds!.northWest} - ${_downloadBounds!.southEast}');
       await _downloadOfflineTiles();
     }
   }
@@ -143,7 +148,15 @@ class _OfflineMapState extends State<OfflineMap> {
 
             try {
               // Download tile
-              await Dio().download(tileUrl, tilePath);
+              await Dio().download(
+                tileUrl,
+                tilePath,
+                options: Options(
+                  headers: {
+                    'User-Agent': '${AppConfig.appName}/${AppConfig.version}'
+                  },
+                ),
+              );
 
               // Save first tile from zoom 13 as preview (or any if 13 not available)
               if (previewTilePath == null || zoom == 13) {
@@ -185,6 +198,11 @@ class _OfflineMapState extends State<OfflineMap> {
           'min': _minZoom,
           'max': _maxZoom,
         },
+        'center': {
+          'lat': _mapController.camera.center.latitude,
+          'lng': _mapController.camera.center.longitude,
+        },
+
         'totalTiles': downloadedTiles,
         'previewTile': previewTilePath != null
             ? _getRelativePreviewPath(previewTilePath, offlineMapPath)
@@ -195,6 +213,11 @@ class _OfflineMapState extends State<OfflineMap> {
       final metadataFile = File('$offlineMapPath/metadata.json');
       await metadataFile.writeAsString(jsonEncode(metadata));
 
+      if (!mounted) return;
+
+      final tileCubit = context.read<TileCubit>();
+      await tileCubit.setPath('$offlineMapPath/tiles', isOffline: true);
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -203,12 +226,13 @@ class _OfflineMapState extends State<OfflineMap> {
         ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error downloading offline map: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message: 'Error downloading offline map: $e',
+          type: MessageType.error,
+        );
+      }
     } finally {
       setState(() {
         _isDownloading = false;
@@ -264,8 +288,13 @@ class _OfflineMapState extends State<OfflineMap> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: LatLng(41.3275, 19.8189), // Tirana
-              initialZoom: 13,
+              initialCenter: LatLng(41.3275, 19.8189),
+              initialZoom: EsriConfig.initZoom,
+              onPositionChanged: (position, _) {
+                setState(() {
+                  _currentZoom = position.zoom;
+                });
+              },
             ),
             children: [
               TileLayer(
@@ -275,100 +304,106 @@ class _OfflineMapState extends State<OfflineMap> {
               ),
             ],
           ),
-
-          // Fixed download square in center
-          Center(
-            child: IgnorePointer(
-              child: Container(
-                width: squareSize,
-                height: squareSize,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.cyan,
-                    width: 3,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.cyan.withOpacity(0.1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.cyan.withOpacity(0.3),
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    // Corner decorations
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.cyan, width: 3),
-                            left: BorderSide(color: Colors.cyan, width: 3),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(color: Colors.cyan, width: 3),
-                            right: BorderSide(color: Colors.cyan, width: 3),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 8,
-                      left: 8,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Colors.cyan, width: 3),
-                            left: BorderSide(color: Colors.cyan, width: 3),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 8,
-                      right: 8,
-                      child: Container(
-                        width: 20,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: Colors.cyan, width: 3),
-                            right: BorderSide(color: Colors.cyan, width: 3),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Center crosshair
-                    Center(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.cyan,
-                        size: 24,
-                      ),
-                    ),
-                  ],
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'Zoom: ${_currentZoom.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
+
+          // Fixed download square in center
+          if (_currentZoom >= _minZoom)
+            Center(
+              child: IgnorePointer(
+                child: Container(
+                  width: squareSize,
+                  height: squareSize,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.cyan,
+                      width: 3,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.cyan.withOpacity(0.1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.cyan.withOpacity(0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      // Corner decorations...
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(color: Colors.cyan, width: 3),
+                              left: BorderSide(color: Colors.cyan, width: 3),
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Repeat other corners as before...
+                      Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(color: Colors.cyan, width: 3),
+                              right: BorderSide(color: Colors.cyan, width: 3),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Center(
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.cyan,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          else
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Zoom in to level 19 or higher to download',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ),
+            ),
 
           // Download button with progress indicator
           Positioned(
@@ -405,12 +440,20 @@ class _OfflineMapState extends State<OfflineMap> {
                   SizedBox(height: 16),
                 ],
                 FloatingActionButton.extended(
-                  onPressed: _isDownloading ? null : _downloadArea,
-                  backgroundColor: _isDownloading ? Colors.grey : Colors.cyan,
+                  onPressed: (_isDownloading || _currentZoom < _minZoom)
+                      ? null
+                      : _downloadArea,
+                  backgroundColor: (_isDownloading || _currentZoom < _minZoom)
+                      ? Colors.grey
+                      : Colors.cyan,
                   foregroundColor: Colors.white,
                   icon: Icon(
                       _isDownloading ? Icons.hourglass_empty : Icons.download),
-                  label: Text(_isDownloading ? 'Downloading...' : 'Download'),
+                  label: Text(_isDownloading
+                      ? 'Downloading...'
+                      : _currentZoom < _minZoom
+                          ? 'Zoom in to Download'
+                          : 'Download'),
                   elevation: 8,
                 ),
               ],

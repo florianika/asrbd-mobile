@@ -99,6 +99,7 @@ flutter:
      - .env
      - assets/legend/building_legend_config.json
      - assets/legend/entrance_legend_config.json
+     - assets/img/empty_tile.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

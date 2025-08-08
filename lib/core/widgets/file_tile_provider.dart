@@ -1,38 +1,32 @@
-import 'dart:io';
-
-import 'package:asrdb/core/services/storage_service.dart';
-import 'package:asrdb/main.dart';
+import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-class FileTileProvider extends TileProvider {
-  final String tileDirPath;
+class IndexedFileTileProvider extends TileProvider {
+  final TileIndexService? tileIndex;
   final bool isOffline;
 
-  FileTileProvider(this.tileDirPath, this.isOffline);
- 
+  IndexedFileTileProvider({
+    required this.tileIndex,
+    required this.isOffline,
+  });
+
+  String _osmUrl(TileCoordinates coords) =>
+      "https://tile.openstreetmap.org/${coords.z}/${coords.x}/${coords.y}.png";
 
   @override
   ImageProvider<Object> getImage(
       TileCoordinates coordinates, TileLayer options) {
-    // if (!isOffline) {
-    //   String url =
-    //       "https://tile.openstreetmap.org/${coordinates.z}/${coordinates.x}/${coordinates.y}.png";
-    //   return NetworkImage(url);
-    // }
+    final z = coordinates.z.toInt();
+    final x = coordinates.x.toInt();
+    final y = coordinates.y.toInt();
 
-  
+    if (!isOffline) return NetworkImage(_osmUrl(coordinates));
 
-    String filePath =
-        "$tileDirPath/${coordinates.z}/${coordinates.x}/${coordinates.y}.png";
-    File file = File(filePath);
-
-    if (file.existsSync()) {
-      return FileImage(file);
+    if (tileIndex != null && tileIndex!.hasTile(z, x, y)) {
+      return FileImage(tileIndex!.getFile(z, x, y));
     } else {
-      String url =
-          "https://tile.openstreetmap.org/${coordinates.z}/${coordinates.x}/${coordinates.y}.png";
-      return NetworkImage(url);
+      return const AssetImage('assets/img/empty_tile.png');
     }
   }
 }

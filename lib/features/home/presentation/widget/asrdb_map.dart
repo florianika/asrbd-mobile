@@ -120,12 +120,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       highlightMarkersGlobalId = [];
 
-        final storageResponsitory = sl<StorageRepository>();
-        storageResponsitory.saveString(
-            boxName: HiveBoxes.selectedBuilding,
-            key: 'currentBuildingGlobalId',
-            value: data[EntranceFields.entBldGlobalID]);
-
+      final storageResponsitory = sl<StorageRepository>();
+      storageResponsitory.saveString(
+          boxName: HiveBoxes.selectedBuilding,
+          key: 'currentBuildingGlobalId',
+          value: data[EntranceFields.entBldGlobalID]);
 
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
@@ -304,7 +303,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
         final features = buildings[GeneralFields.features] as List<dynamic>?;
         final building = features?.firstWhere(
-          (f) => f[GeneralFields.properties][GeneralFields.globalID].toString() == globalId,
+          (f) =>
+              f[GeneralFields.properties][GeneralFields.globalID].toString() ==
+              globalId,
           orElse: () => null,
         );
 
@@ -369,17 +370,17 @@ class _AsrdbMapState extends State<AsrdbMap> {
         ),
       ),
       children: [
-        BlocConsumer<TileCubit, TileCubitState>(listener: (context, state) {
-          if (state is Tile) {
-            setState(() {
-              tileDirPath = state.path;
-            });
-          }
-        }, builder: (context, state) {
-          return TileLayer(
-            tileProvider: ft.FileTileProvider(tileDirPath, false),
-          );
-        }),
+        BlocConsumer<TileCubit, TileState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return TileLayer(
+                key: ValueKey('${state.path}_${state.isOffline}'),
+                tileProvider: ft.IndexedFileTileProvider(
+                  tileIndex: state.indexService,
+                  isOffline: state.isOffline,
+                ),
+              );
+            }),
         const MunicipalityMarker(),
         if (_showLocationMarker)
           MarkerLayer(

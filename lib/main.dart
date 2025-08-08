@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
@@ -10,6 +12,7 @@ import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
+import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
@@ -38,6 +41,7 @@ import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/features/auth/presentation/lang_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
 import 'routing/route_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
@@ -65,6 +69,12 @@ void main() async {
   await legendService.loadLegendConfigs();
   await Hive.initFlutter();
   await StreetDatabase.database;
+
+  final Directory appDocDir = await getApplicationDocumentsDirectory();
+  final String offlineMapsPath = '${appDocDir.path}/offline_maps/';
+
+  final tileIndex = TileIndexService(offlineMapsPath);
+  await tileIndex.preloadTiles();
 
   sl.registerSingleton<DatabaseService>(DatabaseService());
 
