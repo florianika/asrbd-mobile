@@ -1,4 +1,4 @@
-import 'package:asrdb/core/constants/app_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';

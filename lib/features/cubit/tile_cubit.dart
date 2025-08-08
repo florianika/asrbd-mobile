@@ -2,30 +2,34 @@ import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:latlong2/latlong.dart';
 import 'dart:io';
+import 'dart:convert';
 
 class TileState extends Equatable {
   final String path;
   final bool isOffline;
   final String? activeSessionId;
   final TileIndexService? indexService;
+  final LatLng? mapCenter;
 
   const TileState({
     required this.path,
     required this.isOffline,
     this.activeSessionId,
     this.indexService,
+    this.mapCenter,
   });
 
   @override
-  List<Object?> get props => [path, isOffline, activeSessionId, indexService];
+  List<Object?> get props => [path, isOffline, activeSessionId, indexService, mapCenter];
 }
 
 class TileCubit extends Cubit<TileState> {
   static const String _offlineMapsDirName = 'offline_maps';
   TileIndexService? _globalIndexService;
 
-  TileCubit() : super(const TileState(path: '', isOffline: false)) {
+  TileCubit() : super(const TileState(path: '', isOffline: false, mapCenter: null)) {
     _initializeIndexService();
   }
 
@@ -33,7 +37,7 @@ class TileCubit extends Cubit<TileState> {
     try {
       final Directory appDocDir = await getApplicationDocumentsDirectory();
       final String offlineMapsPath = '${appDocDir.path}/$_offlineMapsDirName';
-
+      
       _globalIndexService = TileIndexService(offlineMapsPath);
     } catch (e) {
       print('Error initializing TileIndexService: $e');
@@ -42,8 +46,8 @@ class TileCubit extends Cubit<TileState> {
 
   /// Set online mode with URL template path
   Future<void> setOnlineMode(String urlTemplate) async {
-    _globalIndexService?.clear();
-
+     _globalIndexService?.clear();
+    
     emit(TileState(
       path: urlTemplate,
       isOffline: false,
@@ -53,7 +57,7 @@ class TileCubit extends Cubit<TileState> {
   }
 
   /// Set offline mode with a specific session
-  Future<void> setOfflineSession(String sessionId) async {
+  Future<void> setOfflineSession(String sessionId, LatLng centerMap) async {
     if (_globalIndexService == null) {
       await _initializeIndexService();
     }
@@ -70,15 +74,16 @@ class TileCubit extends Cubit<TileState> {
 
       // Get the tiles path for this session
       final String? tilesPath = _globalIndexService!.activeTilePath;
-
+      
       if (tilesPath != null) {
         emit(TileState(
           path: tilesPath,
           isOffline: true,
           activeSessionId: sessionId,
           indexService: _globalIndexService,
+          mapCenter: centerMap
         ));
-
+        
         print('Switched to offline session: $sessionId');
         print('Tiles path: $tilesPath');
         print('Available tiles: ${_globalIndexService!.tileCount}');
@@ -91,45 +96,48 @@ class TileCubit extends Cubit<TileState> {
   }
 
   /// Legacy method for backward compatibility
-  @Deprecated('Use setOfflineSession() instead')
-  Future<void> setPath(String path, {bool isOffline = false}) async {
-    if (isOffline) {
-      // Try to extract session ID from path
-      final pathSegments = path.split('/');
-      final tilesIndex = pathSegments.lastIndexOf('tiles');
-
-      if (tilesIndex > 0) {
-        final sessionId = pathSegments[tilesIndex - 1];
-        await setOfflineSession(sessionId);
-        return;
-      }
-    }
-
-    // Fallback to old behavior for online mode
-    emit(TileState(
-      path: path,
-      isOffline: isOffline,
-      activeSessionId: null,
-      indexService: null,
-    ));
-  }
+  // @Deprecated('Use setOfflineSession() instead')
+  // Future<void> setPath(String path, {bool isOffline = false}) async {
+  //   if (isOffline) {
+  //     // Try to extract session ID from path
+  //     final pathSegments = path.split('/');
+  //     final tilesIndex = pathSegments.lastIndexOf('tiles');
+      
+  //     if (tilesIndex > 0) {
+  //       final sessionId = pathSegments[tilesIndex - 1];
+  //       await setOfflineSession(sessionId);
+  //       return;
+  //     }
+  //   }
+    
+  //   // Fallback to old behavior for online mode
+  //   emit(TileState(
+  //     path: path,
+  //     isOffline: isOffline,
+  //     activeSessionId: null,
+  //     indexService: null,
+  //     mapCenter: null,
+  //   ));
+  // }
 
   /// Get all available offline sessions
   Future<List<String>> getAvailableSessions() async {
     if (_globalIndexService == null) {
       await _initializeIndexService();
     }
-
+    
     return _globalIndexService?.getAvailableSessions() ?? [];
   }
 
-  /// Switch between different offline sessions
-  Future<void> switchOfflineSession(String sessionId) async {
-    if (state.isOffline) {
-      await setOfflineSession(sessionId);
-    } else {
-      print('Not in offline mode. Use setOfflineSession() instead.');
-    }
+  /// Update map center (useful for tracking current map position)
+  void updateMapCenter(LatLng center) {
+    emit(TileState(
+      path: state.path,
+      isOffline: state.isOffline,
+      activeSessionId: state.activeSessionId,
+      indexService: state.indexService,
+      mapCenter: center,
+    ));
   }
 
   /// Check if a specific tile exists (only works in offline mode)
@@ -145,7 +153,7 @@ class TileCubit extends Cubit<TileState> {
     if (!state.isOffline || state.indexService == null) {
       return null;
     }
-
+    
     try {
       return state.indexService!.getFile(z, x, y);
     } catch (e) {
@@ -175,10 +183,11 @@ class TileCubit extends Cubit<TileState> {
   bool get isOffline => state.isOffline;
   String? get activeSessionId => state.activeSessionId;
   TileIndexService? get indexService => state.indexService;
+  LatLng? get mapCenter => state.mapCenter;
 
   @override
   Future<void> close() async {
-    _globalIndexService?.clear();
+     _globalIndexService?.clear();
     return super.close();
   }
 }

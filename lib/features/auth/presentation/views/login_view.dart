@@ -1,5 +1,5 @@
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter/material.dart';
-import 'package:asrdb/core/constants/app_config.dart';
 import 'package:asrdb/features/auth/presentation/layout/login_mobile.dart';
 import 'package:asrdb/features/auth/presentation/layout/login_tablet.dart';
 

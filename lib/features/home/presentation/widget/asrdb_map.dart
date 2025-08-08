@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -105,7 +104,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _goToCurrentLocation() async {
     final location = await LocationService.getCurrentLocation();
-    widget.mapController.move(location, EsriConfig.initZoom);
+    widget.mapController.move(location, AppConfig.initZoom);
     setState(() {
       _userLocation = location;
       _showLocationMarker = true;
@@ -156,7 +155,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       if (_debounce?.isActive ?? false) _debounce!.cancel();
       _debounce = Timer(const Duration(milliseconds: 500), () {
-        if (camera.zoom >= EsriConfig.buildingMinZoom) {
+        if (camera.zoom >= AppConfig.buildingMinZoom) {
           context
               .read<BuildingCubit>()
               .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
@@ -350,14 +349,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
       options: MapOptions(
         onLongPress: (tapPosition, point) => _hanldeOnLongPress(point),
         initialCenter: currentPosition,
-        initialZoom: EsriConfig.initZoom,
+        initialZoom: AppConfig.initZoom,
         onTap: (TapPosition position, LatLng latlng) =>
             _handleBuildingOnTap(latlng),
         onMapReady: () => {
           _goToCurrentLocation(),
           context.read<BuildingCubit>().getBuildings(
                 widget.mapController.camera.visibleBounds,
-                EsriConfig.buildingMinZoom,
+                AppConfig.buildingMinZoom,
                 userService.userInfo!.municipality,
               ),
           visibleBounds = widget.mapController.camera.visibleBounds,
@@ -370,17 +369,19 @@ class _AsrdbMapState extends State<AsrdbMap> {
         ),
       ),
       children: [
-        BlocConsumer<TileCubit, TileState>(
-            listener: (context, state) {},
-            builder: (context, state) {
-              return TileLayer(
-                key: ValueKey('${state.path}_${state.isOffline}'),
-                tileProvider: ft.IndexedFileTileProvider(
-                  tileIndex: state.indexService,
-                  isOffline: state.isOffline,
-                ),
-              );
-            }),
+        BlocConsumer<TileCubit, TileState>(listener: (context, state) {
+          setState(() {
+            currentPosition = state.mapCenter ?? currentPosition;
+          });
+        }, builder: (context, state) {
+          return TileLayer(
+            key: ValueKey('${state.path}_${state.isOffline}'),
+            tileProvider: ft.IndexedFileTileProvider(
+              tileIndex: state.indexService,
+              isOffline: state.isOffline,
+            ),
+          );
+        }),
         const MunicipalityMarker(),
         if (_showLocationMarker)
           MarkerLayer(

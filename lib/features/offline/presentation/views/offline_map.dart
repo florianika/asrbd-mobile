@@ -1,12 +1,13 @@
 import 'dart:math';
 
 import 'package:asrdb/core/config/app_config.dart';
-import 'package:asrdb/core/config/esri_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
-import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/repositories/building_repository.dart';
+import 'package:asrdb/features/offline/domain/download_usecases.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
@@ -107,12 +108,33 @@ class _OfflineMapState extends State<OfflineMap> {
         throw Exception('Download bounds not calculated');
       }
 
+      final buildingRepository = sl<BuildingRepository>();
+      final userService = sl<UserService>();
+
+      final noBuildings = await buildingRepository.buildingService
+          .getBuildingsCount(
+              _downloadBounds!, userService.userInfo!.municipality);
+
+      if (noBuildings > AppConfig.maxNoBuildings) {
+        if (!mounted) return;
+        NotifierService.showMessage(
+          context,
+          message:
+              'You cannot download an area with more than ${AppConfig.maxNoBuildings} building. Actual number is $noBuildings',
+          type: MessageType.warning,
+        );
+        return;
+      }
+      final downloadUseCase = sl<DownloadUsecases>();
+
       // Get the application documents directory
       final Directory appDocDir = await getApplicationDocumentsDirectory();
 
       // Create unique folder for this download session
-      final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      final String sessionId = 'map_$timestamp';
+      // final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final response = await downloadUseCase.insertDownload();
+      // response.id
+      final String sessionId = 'map_${response.id}';
       final String offlineMapPath = '${appDocDir.path}/offline_maps/$sessionId';
 
       // Create directory if it doesn't exist
@@ -215,8 +237,8 @@ class _OfflineMapState extends State<OfflineMap> {
 
       if (!mounted) return;
 
-      final tileCubit = context.read<TileCubit>();
-      await tileCubit.setPath('$offlineMapPath/tiles', isOffline: true);
+      // final tileCubit = context.read<TileCubit>();
+      // await tileCubit.setPath('$offlineMapPath/tiles', isOffline: true);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -289,7 +311,7 @@ class _OfflineMapState extends State<OfflineMap> {
             mapController: _mapController,
             options: MapOptions(
               initialCenter: LatLng(41.3275, 19.8189),
-              initialZoom: EsriConfig.initZoom,
+              initialZoom: AppConfig.initZoom,
               onPositionChanged: (position, _) {
                 setState(() {
                   _currentZoom = position.zoom;
@@ -325,7 +347,7 @@ class _OfflineMapState extends State<OfflineMap> {
           ),
 
           // Fixed download square in center
-          if (_currentZoom >= _minZoom)
+          if (_currentZoom >= AppConfig.minZoomDownload)
             Center(
               child: IgnorePointer(
                 child: Container(
@@ -399,7 +421,7 @@ class _OfflineMapState extends State<OfflineMap> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Zoom in to level 19 or higher to download',
+                  'Zoom in to level ${AppConfig.minZoomDownload} or higher to download',
                   style: TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
@@ -440,10 +462,12 @@ class _OfflineMapState extends State<OfflineMap> {
                   SizedBox(height: 16),
                 ],
                 FloatingActionButton.extended(
-                  onPressed: (_isDownloading || _currentZoom < _minZoom)
+                  onPressed: (_isDownloading ||
+                          _currentZoom < AppConfig.minZoomDownload)
                       ? null
                       : _downloadArea,
-                  backgroundColor: (_isDownloading || _currentZoom < _minZoom)
+                  backgroundColor: (_isDownloading ||
+                          _currentZoom < AppConfig.minZoomDownload)
                       ? Colors.grey
                       : Colors.cyan,
                   foregroundColor: Colors.white,
@@ -451,7 +475,7 @@ class _OfflineMapState extends State<OfflineMap> {
                       _isDownloading ? Icons.hourglass_empty : Icons.download),
                   label: Text(_isDownloading
                       ? 'Downloading...'
-                      : _currentZoom < _minZoom
+                      : _currentZoom < AppConfig.minZoomDownload
                           ? 'Zoom in to Download'
                           : 'Download'),
                   elevation: 8,

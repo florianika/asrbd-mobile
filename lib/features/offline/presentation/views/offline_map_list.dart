@@ -101,6 +101,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                   LatLng(metadata['bounds']['southEast']['lat'],
                       metadata['bounds']['southEast']['lng']),
                 ]),
+                center: LatLng(
+                  metadata['center']['lat'],
+                  metadata['center']['lng'],
+                ),
               );
 
               maps.add(map);
@@ -133,62 +137,6 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
       });
     }
   }
-
-  // Helper method to find any tile for preview
-  // Future<String?> _findAnyTileForPreview(String tilesPath) async {
-  //   try {
-  //     final Directory tilesDir = Directory(tilesPath);
-  //     if (!await tilesDir.exists()) {
-  //       print('Tiles directory does not exist: $tilesPath');
-  //       return null;
-  //     }
-
-  //     print('Searching for preview tile in: $tilesPath');
-
-  //     // Look for zoom level 13 first (good detail level)
-  //     Directory? preferredZoomDir = Directory('$tilesPath/13');
-  //     if (!await preferredZoomDir.exists()) {
-  //       // If zoom 13 doesn't exist, find any zoom level
-  //       print('Zoom 13 not found, looking for any zoom level...');
-  //       await for (FileSystemEntity entity in tilesDir.list()) {
-  //         if (entity is Directory) {
-  //           final String name = entity.path.split('/').last;
-  //           if (int.tryParse(name) != null) {
-  //             preferredZoomDir = Directory(entity.path);
-  //             print('Found zoom level: $name');
-  //             break;
-  //           }
-  //         }
-  //       }
-  //     } else {
-  //       print('Using zoom level 13');
-  //     }
-
-  //     if (preferredZoomDir != null && await preferredZoomDir.exists()) {
-  //       // Find first tile in this zoom level
-  //       await for (FileSystemEntity xDir in preferredZoomDir.list()) {
-  //         if (xDir is Directory) {
-  //           await for (FileSystemEntity tileFile in xDir.list()) {
-  //             if (tileFile is File && tileFile.path.endsWith('.png')) {
-  //               print('Found preview tile: ${tileFile.path}');
-  //               // Verify the file actually exists and has content
-  //               final stats = await tileFile.stat();
-  //               if (stats.size > 0) {
-  //                 return tileFile.path;
-  //               } else {
-  //                 print('Preview tile is empty: ${tileFile.path}');
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('Error finding preview tile: $e');
-  //   }
-  //   print('No valid preview tile found');
-  //   return null;
-  // }
 
   // Handle legacy map data (old structure without metadata)
   Future<DownloadedMap?> _analyzeLegacyMapData(Directory mapDir) async {
@@ -273,91 +221,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     return null;
   }
 
-  // Future<DownloadedMap?> _analyzeMapData(Directory mapDir) async {
-  //   try {
-  //     int totalTiles = 0;
-  //     int totalSize = 0;
-  //     List<int> zoomLevels = [];
-  //     DateTime? oldestDate;
-  //     DateTime? newestDate;
-  //     String? previewTilePath;
-
-  //     // Analyze each zoom level
-  //     await for (FileSystemEntity zoomEntity in mapDir.list()) {
-  //       if (zoomEntity is Directory) {
-  //         final String zoomStr = zoomEntity.path.split('/').last;
-  //         final int? zoom = int.tryParse(zoomStr);
-
-  //         if (zoom != null) {
-  //           zoomLevels.add(zoom);
-
-  //           // Count tiles in this zoom level
-  //           await for (FileSystemEntity xDir in zoomEntity.list()) {
-  //             if (xDir is Directory) {
-  //               await for (FileSystemEntity tileFile in xDir.list()) {
-  //                 if (tileFile is File && tileFile.path.endsWith('.png')) {
-  //                   totalTiles++;
-
-  //                   // Get first tile for preview (prefer middle zoom level)
-  //                   if (previewTilePath == null || zoom == 13) {
-  //                     previewTilePath = tileFile.path;
-  //                   }
-
-  //                   // Get file stats
-  //                   final FileStat stats = await tileFile.stat();
-  //                   totalSize += stats.size;
-
-  //                   // Track dates
-  //                   if (oldestDate == null ||
-  //                       stats.modified.isBefore(oldestDate)) {
-  //                     oldestDate = stats.modified;
-  //                   }
-  //                   if (newestDate == null ||
-  //                       stats.modified.isAfter(newestDate)) {
-  //                     newestDate = stats.modified;
-  //                   }
-  //                 }
-  //               }
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     if (totalTiles > 0) {
-  //       zoomLevels.sort();
-  //       return DownloadedMap(
-  //         name: 'Offline Map',
-  //         location: 'Tirana, Albania',
-  //         totalTiles: totalTiles,
-  //         sizeInBytes: totalSize,
-  //         zoomLevels: zoomLevels,
-  //         downloadDate: newestDate ?? DateTime.now(),
-  //         lastAccessed: oldestDate ?? DateTime.now(),
-  //         previewTilePath: previewTilePath,
-  //         sessionId: '',
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Error analyzing map data: $e');
-  //   }
-  //   return null;
-  // }
-
   Future<void> _applyMap(int index) async {
     final map = _downloadedMaps[index];
     StorageService storageService = sl<StorageService>();
 
-    // final Directory appDocDir = await getApplicationDocumentsDirectory();
-
-    // Use the EXISTING map's sessionId and path
-    // final String offlineMapPath =
-    //     '${appDocDir.path}/offline_maps/${map.sessionId}';
-
     if (!mounted) return;
 
     // Point to the correct tiles folder for this specific downloaded map
-    context.read<TileCubit>().setOfflineSession(map.sessionId);
+    context.read<TileCubit>().setOfflineSession(map.sessionId, map.center!);
 
     // Save the correct sessionId
     storageService.saveString(
@@ -746,6 +617,7 @@ class DownloadedMap {
   final DateTime lastAccessed;
   final String? previewTilePath;
   final LatLngBounds? bounds;
+  final LatLng? center;
 
   DownloadedMap({
     required this.sessionId,
@@ -758,5 +630,6 @@ class DownloadedMap {
     required this.lastAccessed,
     this.previewTilePath,
     this.bounds,
+    this.center,
   });
 }

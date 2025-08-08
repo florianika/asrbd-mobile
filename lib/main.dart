@@ -14,6 +14,7 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
@@ -32,6 +33,7 @@ import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -99,6 +101,12 @@ void main() async {
 
   sl.registerLazySingleton<AttributesCubit>(() => AttributesCubit(
       sl<EntranceUseCases>(), sl<BuildingUseCases>(), sl<DwellingUseCases>()));
+
+  sl.registerLazySingleton<DownloadRepository>(
+      () => DownloadRepository(sl<DatabaseService>()));
+      
+  sl.registerLazySingleton<DownloadUsecases>(
+      () => DownloadUsecases(sl<DownloadRepository>()));
 
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();

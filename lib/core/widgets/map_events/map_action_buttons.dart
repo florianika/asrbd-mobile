@@ -1,4 +1,4 @@
-import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
@@ -18,7 +18,7 @@ class MapActionButtons extends StatelessWidget {
 
   void _goToCurrentLocation() async {
     final location = await LocationService.getCurrentLocation();
-    mapController.move(location, EsriConfig.initZoom);
+    mapController.move(location, AppConfig.initZoom);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:asrdb/data/drift/daos/building_dao.dart';
+import 'package:asrdb/data/drift/daos/downloads_dao.dart';
 import 'package:asrdb/data/drift/daos/dwellings_dao.dart';
 import 'package:asrdb/data/drift/daos/entrances_dao.dart';
 import 'package:asrdb/data/drift/drift_initializer.dart';
@@ -12,7 +13,7 @@ part 'app_database.g.dart';
 
 @DriftDatabase(
   tables: [Downloads, Buildings, Entrances, Dwellings],
-  daos: [BuildingDao, EntrancesDao, DwellingsDao],
+  daos: [DownloadsDao, BuildingDao, EntrancesDao, DwellingsDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());

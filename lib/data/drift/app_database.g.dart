@@ -3548,6 +3548,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BuildingsTable buildings = $BuildingsTable(this);
   late final $EntrancesTable entrances = $EntrancesTable(this);
   late final $DwellingsTable dwellings = $DwellingsTable(this);
+  late final DownloadsDao downloadsDao = DownloadsDao(this as AppDatabase);
   late final BuildingDao buildingDao = BuildingDao(this as AppDatabase);
   late final EntrancesDao entrancesDao = EntrancesDao(this as AppDatabase);
   late final DwellingsDao dwellingsDao = DwellingsDao(this as AppDatabase);

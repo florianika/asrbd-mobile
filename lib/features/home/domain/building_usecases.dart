@@ -1,4 +1,4 @@
-import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/build_fields.dart';
@@ -28,7 +28,7 @@ class BuildingUseCases {
       return {};
     }
 
-    if (zoom < EsriConfig.buildingMinZoom) {
+    if (zoom < AppConfig.buildingMinZoom) {
       return {};
     }
     return await _buildingRepository.getBuildings(bounds, zoom, municipalityId);

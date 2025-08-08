@@ -1,5 +1,5 @@
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:asrdb/core/constants/app_config.dart';
 
 class LangCubit extends Cubit<String> {
   LangCubit()

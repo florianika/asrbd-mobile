@@ -1,4 +1,4 @@
-import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
@@ -20,7 +20,7 @@ class EntranceUseCases {
 
   Future<Map<String, dynamic>> getEntrances(
       double zoom, List<String> entBldGlobalID) async {
-    if (zoom < EsriConfig.entranceMinZoom) return {};
+    if (zoom < AppConfig.entranceMinZoom) return {};
 
     if (entBldGlobalID.isEmpty) return {};
 

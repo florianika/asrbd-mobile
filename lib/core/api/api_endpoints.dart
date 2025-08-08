@@ -1,4 +1,4 @@
-import 'package:asrdb/core/config/esri_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 
@@ -18,22 +18,23 @@ class ApiEndpoints {
   static const String postNotes = '/qms/notes';
 
   static Uri esriBaseUri = Uri(
-    scheme: 'https',
-    host: "salstatstaging.tddev.it",
-    path: '/arcgis/rest/services/SALSTAT/asrbd/FeatureServer/',
+    scheme: AppConfig.esriUriScheme,
+    host: AppConfig.esriUriHost,
+    path: AppConfig.esriUriPath,
   );
 
   static Uri municipalityBaseUri = Uri(
-    scheme: 'https',
-    host: "services7.arcgis.com",
-    path: '/E9FE1JuiACmTPbPv/arcgis/rest/services/Municipality/FeatureServer',
+    scheme: AppConfig.esriMunicipalityUriScheme,
+    host: AppConfig.esriMunicipalityUriHost,
+    path: AppConfig.esriMunicipalityUriPath,
   );
 
   static String getEsriMunicipality(int municipalityId) {
     final uri = Uri(
       scheme: municipalityBaseUri.scheme,
       host: municipalityBaseUri.host,
-      path: '${municipalityBaseUri.path}/7/query',
+      path:
+          '${municipalityBaseUri.path}/${AppConfig.municipalityLayerId}/query',
       queryParameters: {
         'where': 'ID_MUNICIPALITY = $municipalityId',
         'geometryType': 'esriGeometryEnvelope',
@@ -69,7 +70,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/1/query',
+      path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
       queryParameters: {
         'where': 'BldMunicipality = $municipalityId',
         'objectIds': '',
@@ -116,30 +117,29 @@ class ApiEndpoints {
       },
     ).toString();
   }
-   
-  static String getEsriBuildingsCount(String geometry, int municipalityId) {
-  return Uri(
-    scheme: esriBaseUri.scheme,
-    host: esriBaseUri.host,
-    path: '${esriBaseUri.path}/1/query',
-    queryParameters: {
-      'where': 'BldMunicipality = $municipalityId',
-      'geometry': geometry,
-      'geometryType': 'esriGeometryEnvelope',
-      'inSR': '4326',
-      'spatialRel': 'esriSpatialRelIntersects',
-      'returnCountOnly': 'true',
-      'f': 'json',
-    },
-  ).toString();
-}
 
-   
+  static String getEsriBuildingsCount(String geometry, int municipalityId) {
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
+      queryParameters: {
+        'where': 'BldMunicipality = $municipalityId',
+        'geometry': geometry,
+        'geometryType': 'esriGeometryEnvelope',
+        'inSR': '4326',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'returnCountOnly': 'true',
+        'f': 'json',
+      },
+    ).toString();
+  }
+
   static String getEsriBuildingInteresections(Map<String, dynamic> geometry) {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/1/query',
+      path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
       queryParameters: {
         'where': '1=1',
         'geometry': geometry,
@@ -157,7 +157,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/1/query',
+      path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
       queryParameters: {
         'where': 'GlobalID = \'$globalId\'',
         'objectIds': '',
@@ -211,7 +211,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/0/query',
+      path: '${esriBaseUri.path}/${AppConfig.entranceLayerId}/query',
       queryParameters: {
         'where': whereCondition,
         'objectIds': '',
@@ -263,7 +263,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/0/query',
+      path: '${esriBaseUri.path}/${AppConfig.entranceLayerId}/query',
       queryParameters: {
         'where': 'GlobalID = \'$globalId\'',
         'objectIds': '',
@@ -315,7 +315,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/2/query',
+      path: '${esriBaseUri.path}/${AppConfig.dwellingLayerId}/query',
       queryParameters: {
         'where': '',
         'objectIds': [objectId.toString()],
@@ -367,7 +367,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/2/query',
+      path: '${esriBaseUri.path}/${AppConfig.dwellingLayerId}/query',
       queryParameters: {
         'where': 'DwlEntGlobalID =\'$entranceGlobalId\'',
         'objectIds': '',
@@ -417,7 +417,7 @@ class ApiEndpoints {
     return Uri(
       scheme: esriBaseUri.scheme,
       host: esriBaseUri.host,
-      path: '${esriBaseUri.path}/3/query',
+      path: '${esriBaseUri.path}/${AppConfig.streetLayerId}/query',
       queryParameters: {
         'where': 'StrMunicipality=$municipalityId',
         'objectIds': '',
@@ -464,19 +464,19 @@ class ApiEndpoints {
   }
 
   static String addEsriFeauture(EntityType entityType) {
-    int layerId = EsriConfig.entranceLayerId;
+    int layerId = AppConfig.entranceLayerId;
 
     switch (entityType) {
       case EntityType.building:
-        layerId = EsriConfig.buildingLayerId;
+        layerId = AppConfig.buildingLayerId;
         break;
 
       case EntityType.entrance:
-        layerId = EsriConfig.entranceLayerId;
+        layerId = AppConfig.entranceLayerId;
         break;
 
       case EntityType.dwelling:
-        layerId = EsriConfig.dwellingLayerId;
+        layerId = AppConfig.dwellingLayerId;
         break;
     }
 
@@ -488,19 +488,19 @@ class ApiEndpoints {
   }
 
   static String updateEsriFeauture(EntityType entityType) {
-    int layerId = EsriConfig.entranceLayerId;
+    int layerId = AppConfig.entranceLayerId;
 
     switch (entityType) {
       case EntityType.building:
-        layerId = EsriConfig.buildingLayerId;
+        layerId = AppConfig.buildingLayerId;
         break;
 
       case EntityType.entrance:
-        layerId = EsriConfig.entranceLayerId;
+        layerId = AppConfig.entranceLayerId;
         break;
 
       case EntityType.dwelling:
-        layerId = EsriConfig.dwellingLayerId;
+        layerId = AppConfig.dwellingLayerId;
         break;
     }
 
@@ -512,19 +512,19 @@ class ApiEndpoints {
   }
 
   static String deleteEsriFeauture(EntityType entityType) {
-    int layerId = EsriConfig.entranceLayerId;
+    int layerId = AppConfig.entranceLayerId;
 
     switch (entityType) {
       case EntityType.building:
-        layerId = EsriConfig.buildingLayerId;
+        layerId = AppConfig.buildingLayerId;
         break;
 
       case EntityType.entrance:
-        layerId = EsriConfig.entranceLayerId;
+        layerId = AppConfig.entranceLayerId;
         break;
 
       case EntityType.dwelling:
-        layerId = EsriConfig.dwellingLayerId;
+        layerId = AppConfig.dwellingLayerId;
         break;
     }
 
