@@ -210,6 +210,12 @@ class $BuildingsTable extends Buildings
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _objectIdMeta =
+      const VerificationMeta('objectId');
+  @override
+  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
+      'object_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
@@ -219,6 +225,15 @@ class $BuildingsTable extends Buildings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _bldAddressIDMeta =
+      const VerificationMeta('bldAddressID');
+  @override
+  late final GeneratedColumn<String> bldAddressID = GeneratedColumn<String>(
+      'bld_address_i_d', aliasedName, true,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false);
   static const VerificationMeta _bldQualityMeta =
       const VerificationMeta('bldQuality');
   @override
@@ -320,11 +335,29 @@ class $BuildingsTable extends Buildings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(999));
+  static const VerificationMeta _bldCensus2023Meta =
+      const VerificationMeta('bldCensus2023');
+  @override
+  late final GeneratedColumn<String> bldCensus2023 = GeneratedColumn<String>(
+      'bld_census2023', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _bldAreaMeta =
       const VerificationMeta('bldArea');
   @override
   late final GeneratedColumn<double> bldArea = GeneratedColumn<double>(
       'bld_area', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _shapeLengthMeta =
+      const VerificationMeta('shapeLength');
+  @override
+  late final GeneratedColumn<double> shapeLength = GeneratedColumn<double>(
+      'shape_length', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _shapeAreaMeta =
+      const VerificationMeta('shapeArea');
+  @override
+  late final GeneratedColumn<double> shapeArea = GeneratedColumn<double>(
+      'shape_area', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldFloorsAboveMeta =
       const VerificationMeta('bldFloorsAbove');
@@ -335,9 +368,9 @@ class $BuildingsTable extends Buildings
   static const VerificationMeta _bldHeightMeta =
       const VerificationMeta('bldHeight');
   @override
-  late final GeneratedColumn<int> bldHeight = GeneratedColumn<int>(
+  late final GeneratedColumn<double> bldHeight = GeneratedColumn<double>(
       'bld_height', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldVolumeMeta =
       const VerificationMeta('bldVolume');
   @override
@@ -405,6 +438,12 @@ class $BuildingsTable extends Buildings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 6),
       type: DriftSqlType.string,
       requiredDuringInsert: false);
+  static const VerificationMeta _createdDateMeta =
+      const VerificationMeta('createdDate');
+  @override
+  late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
+      'created_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _bldReviewMeta =
       const VerificationMeta('bldReview');
   @override
@@ -421,11 +460,28 @@ class $BuildingsTable extends Buildings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
+  static const VerificationMeta _geometryTypeMeta =
+      const VerificationMeta('geometryType');
+  @override
+  late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
+      'geometry_type', aliasedName, true,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false);
+  static const VerificationMeta _coordinatesJsonMeta =
+      const VerificationMeta('coordinatesJson');
+  @override
+  late final GeneratedColumn<String> coordinatesJson = GeneratedColumn<String>(
+      'coordinates_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         downloadId,
         id,
+        objectId,
         globalId,
+        bldAddressID,
         bldQuality,
         bldMunicipality,
         bldEnumArea,
@@ -440,7 +496,10 @@ class $BuildingsTable extends Buildings
         bldYearDemolition,
         bldType,
         bldClass,
+        bldCensus2023,
         bldArea,
+        shapeLength,
+        shapeArea,
         bldFloorsAbove,
         bldHeight,
         bldVolume,
@@ -452,8 +511,11 @@ class $BuildingsTable extends Buildings
         bldDwellingRecs,
         bldEntranceRecs,
         bldAddressId,
+        createdDate,
         bldReview,
-        bldWaterSupply
+        bldWaterSupply,
+        geometryType,
+        coordinatesJson
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -476,11 +538,23 @@ class $BuildingsTable extends Buildings
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
+    if (data.containsKey('object_id')) {
+      context.handle(_objectIdMeta,
+          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+    } else if (isInserting) {
+      context.missing(_objectIdMeta);
+    }
     if (data.containsKey('global_id')) {
       context.handle(_globalIdMeta,
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
+    }
+    if (data.containsKey('bld_address_i_d')) {
+      context.handle(
+          _bldAddressIDMeta,
+          bldAddressID.isAcceptableOrUnknown(
+              data['bld_address_i_d']!, _bldAddressIDMeta));
     }
     if (data.containsKey('bld_quality')) {
       context.handle(
@@ -566,9 +640,25 @@ class $BuildingsTable extends Buildings
       context.handle(_bldClassMeta,
           bldClass.isAcceptableOrUnknown(data['bld_class']!, _bldClassMeta));
     }
+    if (data.containsKey('bld_census2023')) {
+      context.handle(
+          _bldCensus2023Meta,
+          bldCensus2023.isAcceptableOrUnknown(
+              data['bld_census2023']!, _bldCensus2023Meta));
+    }
     if (data.containsKey('bld_area')) {
       context.handle(_bldAreaMeta,
           bldArea.isAcceptableOrUnknown(data['bld_area']!, _bldAreaMeta));
+    }
+    if (data.containsKey('shape_length')) {
+      context.handle(
+          _shapeLengthMeta,
+          shapeLength.isAcceptableOrUnknown(
+              data['shape_length']!, _shapeLengthMeta));
+    }
+    if (data.containsKey('shape_area')) {
+      context.handle(_shapeAreaMeta,
+          shapeArea.isAcceptableOrUnknown(data['shape_area']!, _shapeAreaMeta));
     }
     if (data.containsKey('bld_floors_above')) {
       context.handle(
@@ -632,6 +722,12 @@ class $BuildingsTable extends Buildings
           bldAddressId.isAcceptableOrUnknown(
               data['bld_address_id']!, _bldAddressIdMeta));
     }
+    if (data.containsKey('created_date')) {
+      context.handle(
+          _createdDateMeta,
+          createdDate.isAcceptableOrUnknown(
+              data['created_date']!, _createdDateMeta));
+    }
     if (data.containsKey('bld_review')) {
       context.handle(_bldReviewMeta,
           bldReview.isAcceptableOrUnknown(data['bld_review']!, _bldReviewMeta));
@@ -641,6 +737,20 @@ class $BuildingsTable extends Buildings
           _bldWaterSupplyMeta,
           bldWaterSupply.isAcceptableOrUnknown(
               data['bld_water_supply']!, _bldWaterSupplyMeta));
+    }
+    if (data.containsKey('geometry_type')) {
+      context.handle(
+          _geometryTypeMeta,
+          geometryType.isAcceptableOrUnknown(
+              data['geometry_type']!, _geometryTypeMeta));
+    }
+    if (data.containsKey('coordinates_json')) {
+      context.handle(
+          _coordinatesJsonMeta,
+          coordinatesJson.isAcceptableOrUnknown(
+              data['coordinates_json']!, _coordinatesJsonMeta));
+    } else if (isInserting) {
+      context.missing(_coordinatesJsonMeta);
     }
     return context;
   }
@@ -655,8 +765,12 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      objectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
       globalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+      bldAddressID: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bld_address_i_d']),
       bldQuality: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_quality'])!,
       bldMunicipality: attachedDatabase.typeMapping
@@ -685,12 +799,18 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}bld_type']),
       bldClass: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_class']),
+      bldCensus2023: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bld_census2023']),
       bldArea: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}bld_area']),
+      shapeLength: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}shape_length']),
+      shapeArea: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}shape_area']),
       bldFloorsAbove: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_floors_above']),
       bldHeight: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_height']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bld_height']),
       bldVolume: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}bld_volume']),
       bldWasteWater: attachedDatabase.typeMapping
@@ -709,10 +829,16 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}bld_entrance_recs']),
       bldAddressId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}bld_address_id']),
+      createdDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date']),
       bldReview: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_review'])!,
       bldWaterSupply: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bld_water_supply']),
+      geometryType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+      coordinatesJson: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}coordinates_json'])!,
     );
   }
 
@@ -725,7 +851,9 @@ class $BuildingsTable extends Buildings
 class Building extends DataClass implements Insertable<Building> {
   final int downloadId;
   final int id;
+  final int objectId;
   final String globalId;
+  final String? bldAddressID;
   final int bldQuality;
   final int bldMunicipality;
   final String? bldEnumArea;
@@ -740,9 +868,12 @@ class Building extends DataClass implements Insertable<Building> {
   final int? bldYearDemolition;
   final int? bldType;
   final int? bldClass;
+  final String? bldCensus2023;
   final double? bldArea;
+  final double? shapeLength;
+  final double? shapeArea;
   final int? bldFloorsAbove;
-  final int? bldHeight;
+  final double? bldHeight;
   final double? bldVolume;
   final int? bldWasteWater;
   final int? bldElectricity;
@@ -752,12 +883,17 @@ class Building extends DataClass implements Insertable<Building> {
   final int? bldDwellingRecs;
   final int? bldEntranceRecs;
   final String? bldAddressId;
+  final DateTime? createdDate;
   final int bldReview;
   final int? bldWaterSupply;
+  final String? geometryType;
+  final String coordinatesJson;
   const Building(
       {required this.downloadId,
       required this.id,
+      required this.objectId,
       required this.globalId,
+      this.bldAddressID,
       required this.bldQuality,
       required this.bldMunicipality,
       this.bldEnumArea,
@@ -772,7 +908,10 @@ class Building extends DataClass implements Insertable<Building> {
       this.bldYearDemolition,
       this.bldType,
       this.bldClass,
+      this.bldCensus2023,
       this.bldArea,
+      this.shapeLength,
+      this.shapeArea,
       this.bldFloorsAbove,
       this.bldHeight,
       this.bldVolume,
@@ -784,14 +923,21 @@ class Building extends DataClass implements Insertable<Building> {
       this.bldDwellingRecs,
       this.bldEntranceRecs,
       this.bldAddressId,
+      this.createdDate,
       required this.bldReview,
-      this.bldWaterSupply});
+      this.bldWaterSupply,
+      this.geometryType,
+      required this.coordinatesJson});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['download_id'] = Variable<int>(downloadId);
     map['id'] = Variable<int>(id);
+    map['object_id'] = Variable<int>(objectId);
     map['global_id'] = Variable<String>(globalId);
+    if (!nullToAbsent || bldAddressID != null) {
+      map['bld_address_i_d'] = Variable<String>(bldAddressID);
+    }
     map['bld_quality'] = Variable<int>(bldQuality);
     map['bld_municipality'] = Variable<int>(bldMunicipality);
     if (!nullToAbsent || bldEnumArea != null) {
@@ -824,14 +970,23 @@ class Building extends DataClass implements Insertable<Building> {
     if (!nullToAbsent || bldClass != null) {
       map['bld_class'] = Variable<int>(bldClass);
     }
+    if (!nullToAbsent || bldCensus2023 != null) {
+      map['bld_census2023'] = Variable<String>(bldCensus2023);
+    }
     if (!nullToAbsent || bldArea != null) {
       map['bld_area'] = Variable<double>(bldArea);
+    }
+    if (!nullToAbsent || shapeLength != null) {
+      map['shape_length'] = Variable<double>(shapeLength);
+    }
+    if (!nullToAbsent || shapeArea != null) {
+      map['shape_area'] = Variable<double>(shapeArea);
     }
     if (!nullToAbsent || bldFloorsAbove != null) {
       map['bld_floors_above'] = Variable<int>(bldFloorsAbove);
     }
     if (!nullToAbsent || bldHeight != null) {
-      map['bld_height'] = Variable<int>(bldHeight);
+      map['bld_height'] = Variable<double>(bldHeight);
     }
     if (!nullToAbsent || bldVolume != null) {
       map['bld_volume'] = Variable<double>(bldVolume);
@@ -858,10 +1013,17 @@ class Building extends DataClass implements Insertable<Building> {
     if (!nullToAbsent || bldAddressId != null) {
       map['bld_address_id'] = Variable<String>(bldAddressId);
     }
+    if (!nullToAbsent || createdDate != null) {
+      map['created_date'] = Variable<DateTime>(createdDate);
+    }
     map['bld_review'] = Variable<int>(bldReview);
     if (!nullToAbsent || bldWaterSupply != null) {
       map['bld_water_supply'] = Variable<int>(bldWaterSupply);
     }
+    if (!nullToAbsent || geometryType != null) {
+      map['geometry_type'] = Variable<String>(geometryType);
+    }
+    map['coordinates_json'] = Variable<String>(coordinatesJson);
     return map;
   }
 
@@ -869,7 +1031,11 @@ class Building extends DataClass implements Insertable<Building> {
     return BuildingsCompanion(
       downloadId: Value(downloadId),
       id: Value(id),
+      objectId: Value(objectId),
       globalId: Value(globalId),
+      bldAddressID: bldAddressID == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bldAddressID),
       bldQuality: Value(bldQuality),
       bldMunicipality: Value(bldMunicipality),
       bldEnumArea: bldEnumArea == null && nullToAbsent
@@ -902,9 +1068,18 @@ class Building extends DataClass implements Insertable<Building> {
       bldClass: bldClass == null && nullToAbsent
           ? const Value.absent()
           : Value(bldClass),
+      bldCensus2023: bldCensus2023 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bldCensus2023),
       bldArea: bldArea == null && nullToAbsent
           ? const Value.absent()
           : Value(bldArea),
+      shapeLength: shapeLength == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shapeLength),
+      shapeArea: shapeArea == null && nullToAbsent
+          ? const Value.absent()
+          : Value(shapeArea),
       bldFloorsAbove: bldFloorsAbove == null && nullToAbsent
           ? const Value.absent()
           : Value(bldFloorsAbove),
@@ -936,10 +1111,17 @@ class Building extends DataClass implements Insertable<Building> {
       bldAddressId: bldAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(bldAddressId),
+      createdDate: createdDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdDate),
       bldReview: Value(bldReview),
       bldWaterSupply: bldWaterSupply == null && nullToAbsent
           ? const Value.absent()
           : Value(bldWaterSupply),
+      geometryType: geometryType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geometryType),
+      coordinatesJson: Value(coordinatesJson),
     );
   }
 
@@ -949,7 +1131,9 @@ class Building extends DataClass implements Insertable<Building> {
     return Building(
       downloadId: serializer.fromJson<int>(json['downloadId']),
       id: serializer.fromJson<int>(json['id']),
+      objectId: serializer.fromJson<int>(json['objectId']),
       globalId: serializer.fromJson<String>(json['globalId']),
+      bldAddressID: serializer.fromJson<String?>(json['bldAddressID']),
       bldQuality: serializer.fromJson<int>(json['bldQuality']),
       bldMunicipality: serializer.fromJson<int>(json['bldMunicipality']),
       bldEnumArea: serializer.fromJson<String?>(json['bldEnumArea']),
@@ -965,9 +1149,12 @@ class Building extends DataClass implements Insertable<Building> {
       bldYearDemolition: serializer.fromJson<int?>(json['bldYearDemolition']),
       bldType: serializer.fromJson<int?>(json['bldType']),
       bldClass: serializer.fromJson<int?>(json['bldClass']),
+      bldCensus2023: serializer.fromJson<String?>(json['bldCensus2023']),
       bldArea: serializer.fromJson<double?>(json['bldArea']),
+      shapeLength: serializer.fromJson<double?>(json['shapeLength']),
+      shapeArea: serializer.fromJson<double?>(json['shapeArea']),
       bldFloorsAbove: serializer.fromJson<int?>(json['bldFloorsAbove']),
-      bldHeight: serializer.fromJson<int?>(json['bldHeight']),
+      bldHeight: serializer.fromJson<double?>(json['bldHeight']),
       bldVolume: serializer.fromJson<double?>(json['bldVolume']),
       bldWasteWater: serializer.fromJson<int?>(json['bldWasteWater']),
       bldElectricity: serializer.fromJson<int?>(json['bldElectricity']),
@@ -977,8 +1164,11 @@ class Building extends DataClass implements Insertable<Building> {
       bldDwellingRecs: serializer.fromJson<int?>(json['bldDwellingRecs']),
       bldEntranceRecs: serializer.fromJson<int?>(json['bldEntranceRecs']),
       bldAddressId: serializer.fromJson<String?>(json['bldAddressId']),
+      createdDate: serializer.fromJson<DateTime?>(json['createdDate']),
       bldReview: serializer.fromJson<int>(json['bldReview']),
       bldWaterSupply: serializer.fromJson<int?>(json['bldWaterSupply']),
+      geometryType: serializer.fromJson<String?>(json['geometryType']),
+      coordinatesJson: serializer.fromJson<String>(json['coordinatesJson']),
     );
   }
   @override
@@ -987,7 +1177,9 @@ class Building extends DataClass implements Insertable<Building> {
     return <String, dynamic>{
       'downloadId': serializer.toJson<int>(downloadId),
       'id': serializer.toJson<int>(id),
+      'objectId': serializer.toJson<int>(objectId),
       'globalId': serializer.toJson<String>(globalId),
+      'bldAddressID': serializer.toJson<String?>(bldAddressID),
       'bldQuality': serializer.toJson<int>(bldQuality),
       'bldMunicipality': serializer.toJson<int>(bldMunicipality),
       'bldEnumArea': serializer.toJson<String?>(bldEnumArea),
@@ -1002,9 +1194,12 @@ class Building extends DataClass implements Insertable<Building> {
       'bldYearDemolition': serializer.toJson<int?>(bldYearDemolition),
       'bldType': serializer.toJson<int?>(bldType),
       'bldClass': serializer.toJson<int?>(bldClass),
+      'bldCensus2023': serializer.toJson<String?>(bldCensus2023),
       'bldArea': serializer.toJson<double?>(bldArea),
+      'shapeLength': serializer.toJson<double?>(shapeLength),
+      'shapeArea': serializer.toJson<double?>(shapeArea),
       'bldFloorsAbove': serializer.toJson<int?>(bldFloorsAbove),
-      'bldHeight': serializer.toJson<int?>(bldHeight),
+      'bldHeight': serializer.toJson<double?>(bldHeight),
       'bldVolume': serializer.toJson<double?>(bldVolume),
       'bldWasteWater': serializer.toJson<int?>(bldWasteWater),
       'bldElectricity': serializer.toJson<int?>(bldElectricity),
@@ -1014,15 +1209,20 @@ class Building extends DataClass implements Insertable<Building> {
       'bldDwellingRecs': serializer.toJson<int?>(bldDwellingRecs),
       'bldEntranceRecs': serializer.toJson<int?>(bldEntranceRecs),
       'bldAddressId': serializer.toJson<String?>(bldAddressId),
+      'createdDate': serializer.toJson<DateTime?>(createdDate),
       'bldReview': serializer.toJson<int>(bldReview),
       'bldWaterSupply': serializer.toJson<int?>(bldWaterSupply),
+      'geometryType': serializer.toJson<String?>(geometryType),
+      'coordinatesJson': serializer.toJson<String>(coordinatesJson),
     };
   }
 
   Building copyWith(
           {int? downloadId,
           int? id,
+          int? objectId,
           String? globalId,
+          Value<String?> bldAddressID = const Value.absent(),
           int? bldQuality,
           int? bldMunicipality,
           Value<String?> bldEnumArea = const Value.absent(),
@@ -1037,9 +1237,12 @@ class Building extends DataClass implements Insertable<Building> {
           Value<int?> bldYearDemolition = const Value.absent(),
           Value<int?> bldType = const Value.absent(),
           Value<int?> bldClass = const Value.absent(),
+          Value<String?> bldCensus2023 = const Value.absent(),
           Value<double?> bldArea = const Value.absent(),
+          Value<double?> shapeLength = const Value.absent(),
+          Value<double?> shapeArea = const Value.absent(),
           Value<int?> bldFloorsAbove = const Value.absent(),
-          Value<int?> bldHeight = const Value.absent(),
+          Value<double?> bldHeight = const Value.absent(),
           Value<double?> bldVolume = const Value.absent(),
           Value<int?> bldWasteWater = const Value.absent(),
           Value<int?> bldElectricity = const Value.absent(),
@@ -1049,12 +1252,18 @@ class Building extends DataClass implements Insertable<Building> {
           Value<int?> bldDwellingRecs = const Value.absent(),
           Value<int?> bldEntranceRecs = const Value.absent(),
           Value<String?> bldAddressId = const Value.absent(),
+          Value<DateTime?> createdDate = const Value.absent(),
           int? bldReview,
-          Value<int?> bldWaterSupply = const Value.absent()}) =>
+          Value<int?> bldWaterSupply = const Value.absent(),
+          Value<String?> geometryType = const Value.absent(),
+          String? coordinatesJson}) =>
       Building(
         downloadId: downloadId ?? this.downloadId,
         id: id ?? this.id,
+        objectId: objectId ?? this.objectId,
         globalId: globalId ?? this.globalId,
+        bldAddressID:
+            bldAddressID.present ? bldAddressID.value : this.bldAddressID,
         bldQuality: bldQuality ?? this.bldQuality,
         bldMunicipality: bldMunicipality ?? this.bldMunicipality,
         bldEnumArea: bldEnumArea.present ? bldEnumArea.value : this.bldEnumArea,
@@ -1078,7 +1287,11 @@ class Building extends DataClass implements Insertable<Building> {
             : this.bldYearDemolition,
         bldType: bldType.present ? bldType.value : this.bldType,
         bldClass: bldClass.present ? bldClass.value : this.bldClass,
+        bldCensus2023:
+            bldCensus2023.present ? bldCensus2023.value : this.bldCensus2023,
         bldArea: bldArea.present ? bldArea.value : this.bldArea,
+        shapeLength: shapeLength.present ? shapeLength.value : this.shapeLength,
+        shapeArea: shapeArea.present ? shapeArea.value : this.shapeArea,
         bldFloorsAbove:
             bldFloorsAbove.present ? bldFloorsAbove.value : this.bldFloorsAbove,
         bldHeight: bldHeight.present ? bldHeight.value : this.bldHeight,
@@ -1098,16 +1311,24 @@ class Building extends DataClass implements Insertable<Building> {
             : this.bldEntranceRecs,
         bldAddressId:
             bldAddressId.present ? bldAddressId.value : this.bldAddressId,
+        createdDate: createdDate.present ? createdDate.value : this.createdDate,
         bldReview: bldReview ?? this.bldReview,
         bldWaterSupply:
             bldWaterSupply.present ? bldWaterSupply.value : this.bldWaterSupply,
+        geometryType:
+            geometryType.present ? geometryType.value : this.geometryType,
+        coordinatesJson: coordinatesJson ?? this.coordinatesJson,
       );
   Building copyWithCompanion(BuildingsCompanion data) {
     return Building(
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
       id: data.id.present ? data.id.value : this.id,
+      objectId: data.objectId.present ? data.objectId.value : this.objectId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
+      bldAddressID: data.bldAddressID.present
+          ? data.bldAddressID.value
+          : this.bldAddressID,
       bldQuality:
           data.bldQuality.present ? data.bldQuality.value : this.bldQuality,
       bldMunicipality: data.bldMunicipality.present
@@ -1140,7 +1361,13 @@ class Building extends DataClass implements Insertable<Building> {
           : this.bldYearDemolition,
       bldType: data.bldType.present ? data.bldType.value : this.bldType,
       bldClass: data.bldClass.present ? data.bldClass.value : this.bldClass,
+      bldCensus2023: data.bldCensus2023.present
+          ? data.bldCensus2023.value
+          : this.bldCensus2023,
       bldArea: data.bldArea.present ? data.bldArea.value : this.bldArea,
+      shapeLength:
+          data.shapeLength.present ? data.shapeLength.value : this.shapeLength,
+      shapeArea: data.shapeArea.present ? data.shapeArea.value : this.shapeArea,
       bldFloorsAbove: data.bldFloorsAbove.present
           ? data.bldFloorsAbove.value
           : this.bldFloorsAbove,
@@ -1168,10 +1395,18 @@ class Building extends DataClass implements Insertable<Building> {
       bldAddressId: data.bldAddressId.present
           ? data.bldAddressId.value
           : this.bldAddressId,
+      createdDate:
+          data.createdDate.present ? data.createdDate.value : this.createdDate,
       bldReview: data.bldReview.present ? data.bldReview.value : this.bldReview,
       bldWaterSupply: data.bldWaterSupply.present
           ? data.bldWaterSupply.value
           : this.bldWaterSupply,
+      geometryType: data.geometryType.present
+          ? data.geometryType.value
+          : this.geometryType,
+      coordinatesJson: data.coordinatesJson.present
+          ? data.coordinatesJson.value
+          : this.coordinatesJson,
     );
   }
 
@@ -1180,7 +1415,9 @@ class Building extends DataClass implements Insertable<Building> {
     return (StringBuffer('Building(')
           ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
+          ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
+          ..write('bldAddressID: $bldAddressID, ')
           ..write('bldQuality: $bldQuality, ')
           ..write('bldMunicipality: $bldMunicipality, ')
           ..write('bldEnumArea: $bldEnumArea, ')
@@ -1195,7 +1432,10 @@ class Building extends DataClass implements Insertable<Building> {
           ..write('bldYearDemolition: $bldYearDemolition, ')
           ..write('bldType: $bldType, ')
           ..write('bldClass: $bldClass, ')
+          ..write('bldCensus2023: $bldCensus2023, ')
           ..write('bldArea: $bldArea, ')
+          ..write('shapeLength: $shapeLength, ')
+          ..write('shapeArea: $shapeArea, ')
           ..write('bldFloorsAbove: $bldFloorsAbove, ')
           ..write('bldHeight: $bldHeight, ')
           ..write('bldVolume: $bldVolume, ')
@@ -1207,8 +1447,11 @@ class Building extends DataClass implements Insertable<Building> {
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
           ..write('bldAddressId: $bldAddressId, ')
+          ..write('createdDate: $createdDate, ')
           ..write('bldReview: $bldReview, ')
-          ..write('bldWaterSupply: $bldWaterSupply')
+          ..write('bldWaterSupply: $bldWaterSupply, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinatesJson: $coordinatesJson')
           ..write(')'))
         .toString();
   }
@@ -1217,7 +1460,9 @@ class Building extends DataClass implements Insertable<Building> {
   int get hashCode => Object.hashAll([
         downloadId,
         id,
+        objectId,
         globalId,
+        bldAddressID,
         bldQuality,
         bldMunicipality,
         bldEnumArea,
@@ -1232,7 +1477,10 @@ class Building extends DataClass implements Insertable<Building> {
         bldYearDemolition,
         bldType,
         bldClass,
+        bldCensus2023,
         bldArea,
+        shapeLength,
+        shapeArea,
         bldFloorsAbove,
         bldHeight,
         bldVolume,
@@ -1244,8 +1492,11 @@ class Building extends DataClass implements Insertable<Building> {
         bldDwellingRecs,
         bldEntranceRecs,
         bldAddressId,
+        createdDate,
         bldReview,
-        bldWaterSupply
+        bldWaterSupply,
+        geometryType,
+        coordinatesJson
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1253,7 +1504,9 @@ class Building extends DataClass implements Insertable<Building> {
       (other is Building &&
           other.downloadId == this.downloadId &&
           other.id == this.id &&
+          other.objectId == this.objectId &&
           other.globalId == this.globalId &&
+          other.bldAddressID == this.bldAddressID &&
           other.bldQuality == this.bldQuality &&
           other.bldMunicipality == this.bldMunicipality &&
           other.bldEnumArea == this.bldEnumArea &&
@@ -1268,7 +1521,10 @@ class Building extends DataClass implements Insertable<Building> {
           other.bldYearDemolition == this.bldYearDemolition &&
           other.bldType == this.bldType &&
           other.bldClass == this.bldClass &&
+          other.bldCensus2023 == this.bldCensus2023 &&
           other.bldArea == this.bldArea &&
+          other.shapeLength == this.shapeLength &&
+          other.shapeArea == this.shapeArea &&
           other.bldFloorsAbove == this.bldFloorsAbove &&
           other.bldHeight == this.bldHeight &&
           other.bldVolume == this.bldVolume &&
@@ -1280,14 +1536,19 @@ class Building extends DataClass implements Insertable<Building> {
           other.bldDwellingRecs == this.bldDwellingRecs &&
           other.bldEntranceRecs == this.bldEntranceRecs &&
           other.bldAddressId == this.bldAddressId &&
+          other.createdDate == this.createdDate &&
           other.bldReview == this.bldReview &&
-          other.bldWaterSupply == this.bldWaterSupply);
+          other.bldWaterSupply == this.bldWaterSupply &&
+          other.geometryType == this.geometryType &&
+          other.coordinatesJson == this.coordinatesJson);
 }
 
 class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int> downloadId;
   final Value<int> id;
+  final Value<int> objectId;
   final Value<String> globalId;
+  final Value<String?> bldAddressID;
   final Value<int> bldQuality;
   final Value<int> bldMunicipality;
   final Value<String?> bldEnumArea;
@@ -1302,9 +1563,12 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int?> bldYearDemolition;
   final Value<int?> bldType;
   final Value<int?> bldClass;
+  final Value<String?> bldCensus2023;
   final Value<double?> bldArea;
+  final Value<double?> shapeLength;
+  final Value<double?> shapeArea;
   final Value<int?> bldFloorsAbove;
-  final Value<int?> bldHeight;
+  final Value<double?> bldHeight;
   final Value<double?> bldVolume;
   final Value<int?> bldWasteWater;
   final Value<int?> bldElectricity;
@@ -1314,12 +1578,17 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int?> bldDwellingRecs;
   final Value<int?> bldEntranceRecs;
   final Value<String?> bldAddressId;
+  final Value<DateTime?> createdDate;
   final Value<int> bldReview;
   final Value<int?> bldWaterSupply;
+  final Value<String?> geometryType;
+  final Value<String> coordinatesJson;
   const BuildingsCompanion({
     this.downloadId = const Value.absent(),
     this.id = const Value.absent(),
+    this.objectId = const Value.absent(),
     this.globalId = const Value.absent(),
+    this.bldAddressID = const Value.absent(),
     this.bldQuality = const Value.absent(),
     this.bldMunicipality = const Value.absent(),
     this.bldEnumArea = const Value.absent(),
@@ -1334,7 +1603,10 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldYearDemolition = const Value.absent(),
     this.bldType = const Value.absent(),
     this.bldClass = const Value.absent(),
+    this.bldCensus2023 = const Value.absent(),
     this.bldArea = const Value.absent(),
+    this.shapeLength = const Value.absent(),
+    this.shapeArea = const Value.absent(),
     this.bldFloorsAbove = const Value.absent(),
     this.bldHeight = const Value.absent(),
     this.bldVolume = const Value.absent(),
@@ -1346,13 +1618,18 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
     this.bldAddressId = const Value.absent(),
+    this.createdDate = const Value.absent(),
     this.bldReview = const Value.absent(),
     this.bldWaterSupply = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    this.coordinatesJson = const Value.absent(),
   });
   BuildingsCompanion.insert({
     required int downloadId,
     this.id = const Value.absent(),
+    required int objectId,
     required String globalId,
+    this.bldAddressID = const Value.absent(),
     this.bldQuality = const Value.absent(),
     required int bldMunicipality,
     this.bldEnumArea = const Value.absent(),
@@ -1367,7 +1644,10 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldYearDemolition = const Value.absent(),
     this.bldType = const Value.absent(),
     this.bldClass = const Value.absent(),
+    this.bldCensus2023 = const Value.absent(),
     this.bldArea = const Value.absent(),
+    this.shapeLength = const Value.absent(),
+    this.shapeArea = const Value.absent(),
     this.bldFloorsAbove = const Value.absent(),
     this.bldHeight = const Value.absent(),
     this.bldVolume = const Value.absent(),
@@ -1379,17 +1659,24 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
     this.bldAddressId = const Value.absent(),
+    this.createdDate = const Value.absent(),
     this.bldReview = const Value.absent(),
     this.bldWaterSupply = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    required String coordinatesJson,
   })  : downloadId = Value(downloadId),
+        objectId = Value(objectId),
         globalId = Value(globalId),
         bldMunicipality = Value(bldMunicipality),
         bldLatitude = Value(bldLatitude),
-        bldLongitude = Value(bldLongitude);
+        bldLongitude = Value(bldLongitude),
+        coordinatesJson = Value(coordinatesJson);
   static Insertable<Building> custom({
     Expression<int>? downloadId,
     Expression<int>? id,
+    Expression<int>? objectId,
     Expression<String>? globalId,
+    Expression<String>? bldAddressID,
     Expression<int>? bldQuality,
     Expression<int>? bldMunicipality,
     Expression<String>? bldEnumArea,
@@ -1404,9 +1691,12 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<int>? bldYearDemolition,
     Expression<int>? bldType,
     Expression<int>? bldClass,
+    Expression<String>? bldCensus2023,
     Expression<double>? bldArea,
+    Expression<double>? shapeLength,
+    Expression<double>? shapeArea,
     Expression<int>? bldFloorsAbove,
-    Expression<int>? bldHeight,
+    Expression<double>? bldHeight,
     Expression<double>? bldVolume,
     Expression<int>? bldWasteWater,
     Expression<int>? bldElectricity,
@@ -1416,13 +1706,18 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<int>? bldDwellingRecs,
     Expression<int>? bldEntranceRecs,
     Expression<String>? bldAddressId,
+    Expression<DateTime>? createdDate,
     Expression<int>? bldReview,
     Expression<int>? bldWaterSupply,
+    Expression<String>? geometryType,
+    Expression<String>? coordinatesJson,
   }) {
     return RawValuesInsertable({
       if (downloadId != null) 'download_id': downloadId,
       if (id != null) 'id': id,
+      if (objectId != null) 'object_id': objectId,
       if (globalId != null) 'global_id': globalId,
+      if (bldAddressID != null) 'bld_address_i_d': bldAddressID,
       if (bldQuality != null) 'bld_quality': bldQuality,
       if (bldMunicipality != null) 'bld_municipality': bldMunicipality,
       if (bldEnumArea != null) 'bld_enum_area': bldEnumArea,
@@ -1438,7 +1733,10 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       if (bldYearDemolition != null) 'bld_year_demolition': bldYearDemolition,
       if (bldType != null) 'bld_type': bldType,
       if (bldClass != null) 'bld_class': bldClass,
+      if (bldCensus2023 != null) 'bld_census2023': bldCensus2023,
       if (bldArea != null) 'bld_area': bldArea,
+      if (shapeLength != null) 'shape_length': shapeLength,
+      if (shapeArea != null) 'shape_area': shapeArea,
       if (bldFloorsAbove != null) 'bld_floors_above': bldFloorsAbove,
       if (bldHeight != null) 'bld_height': bldHeight,
       if (bldVolume != null) 'bld_volume': bldVolume,
@@ -1450,15 +1748,20 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       if (bldDwellingRecs != null) 'bld_dwelling_recs': bldDwellingRecs,
       if (bldEntranceRecs != null) 'bld_entrance_recs': bldEntranceRecs,
       if (bldAddressId != null) 'bld_address_id': bldAddressId,
+      if (createdDate != null) 'created_date': createdDate,
       if (bldReview != null) 'bld_review': bldReview,
       if (bldWaterSupply != null) 'bld_water_supply': bldWaterSupply,
+      if (geometryType != null) 'geometry_type': geometryType,
+      if (coordinatesJson != null) 'coordinates_json': coordinatesJson,
     });
   }
 
   BuildingsCompanion copyWith(
       {Value<int>? downloadId,
       Value<int>? id,
+      Value<int>? objectId,
       Value<String>? globalId,
+      Value<String?>? bldAddressID,
       Value<int>? bldQuality,
       Value<int>? bldMunicipality,
       Value<String?>? bldEnumArea,
@@ -1473,9 +1776,12 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<int?>? bldYearDemolition,
       Value<int?>? bldType,
       Value<int?>? bldClass,
+      Value<String?>? bldCensus2023,
       Value<double?>? bldArea,
+      Value<double?>? shapeLength,
+      Value<double?>? shapeArea,
       Value<int?>? bldFloorsAbove,
-      Value<int?>? bldHeight,
+      Value<double?>? bldHeight,
       Value<double?>? bldVolume,
       Value<int?>? bldWasteWater,
       Value<int?>? bldElectricity,
@@ -1485,12 +1791,17 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<int?>? bldDwellingRecs,
       Value<int?>? bldEntranceRecs,
       Value<String?>? bldAddressId,
+      Value<DateTime?>? createdDate,
       Value<int>? bldReview,
-      Value<int?>? bldWaterSupply}) {
+      Value<int?>? bldWaterSupply,
+      Value<String?>? geometryType,
+      Value<String>? coordinatesJson}) {
     return BuildingsCompanion(
       downloadId: downloadId ?? this.downloadId,
       id: id ?? this.id,
+      objectId: objectId ?? this.objectId,
       globalId: globalId ?? this.globalId,
+      bldAddressID: bldAddressID ?? this.bldAddressID,
       bldQuality: bldQuality ?? this.bldQuality,
       bldMunicipality: bldMunicipality ?? this.bldMunicipality,
       bldEnumArea: bldEnumArea ?? this.bldEnumArea,
@@ -1505,7 +1816,10 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       bldYearDemolition: bldYearDemolition ?? this.bldYearDemolition,
       bldType: bldType ?? this.bldType,
       bldClass: bldClass ?? this.bldClass,
+      bldCensus2023: bldCensus2023 ?? this.bldCensus2023,
       bldArea: bldArea ?? this.bldArea,
+      shapeLength: shapeLength ?? this.shapeLength,
+      shapeArea: shapeArea ?? this.shapeArea,
       bldFloorsAbove: bldFloorsAbove ?? this.bldFloorsAbove,
       bldHeight: bldHeight ?? this.bldHeight,
       bldVolume: bldVolume ?? this.bldVolume,
@@ -1517,8 +1831,11 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       bldDwellingRecs: bldDwellingRecs ?? this.bldDwellingRecs,
       bldEntranceRecs: bldEntranceRecs ?? this.bldEntranceRecs,
       bldAddressId: bldAddressId ?? this.bldAddressId,
+      createdDate: createdDate ?? this.createdDate,
       bldReview: bldReview ?? this.bldReview,
       bldWaterSupply: bldWaterSupply ?? this.bldWaterSupply,
+      geometryType: geometryType ?? this.geometryType,
+      coordinatesJson: coordinatesJson ?? this.coordinatesJson,
     );
   }
 
@@ -1531,8 +1848,14 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (objectId.present) {
+      map['object_id'] = Variable<int>(objectId.value);
+    }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
+    }
+    if (bldAddressID.present) {
+      map['bld_address_i_d'] = Variable<String>(bldAddressID.value);
     }
     if (bldQuality.present) {
       map['bld_quality'] = Variable<int>(bldQuality.value);
@@ -1576,14 +1899,23 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (bldClass.present) {
       map['bld_class'] = Variable<int>(bldClass.value);
     }
+    if (bldCensus2023.present) {
+      map['bld_census2023'] = Variable<String>(bldCensus2023.value);
+    }
     if (bldArea.present) {
       map['bld_area'] = Variable<double>(bldArea.value);
+    }
+    if (shapeLength.present) {
+      map['shape_length'] = Variable<double>(shapeLength.value);
+    }
+    if (shapeArea.present) {
+      map['shape_area'] = Variable<double>(shapeArea.value);
     }
     if (bldFloorsAbove.present) {
       map['bld_floors_above'] = Variable<int>(bldFloorsAbove.value);
     }
     if (bldHeight.present) {
-      map['bld_height'] = Variable<int>(bldHeight.value);
+      map['bld_height'] = Variable<double>(bldHeight.value);
     }
     if (bldVolume.present) {
       map['bld_volume'] = Variable<double>(bldVolume.value);
@@ -1612,11 +1944,20 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (bldAddressId.present) {
       map['bld_address_id'] = Variable<String>(bldAddressId.value);
     }
+    if (createdDate.present) {
+      map['created_date'] = Variable<DateTime>(createdDate.value);
+    }
     if (bldReview.present) {
       map['bld_review'] = Variable<int>(bldReview.value);
     }
     if (bldWaterSupply.present) {
       map['bld_water_supply'] = Variable<int>(bldWaterSupply.value);
+    }
+    if (geometryType.present) {
+      map['geometry_type'] = Variable<String>(geometryType.value);
+    }
+    if (coordinatesJson.present) {
+      map['coordinates_json'] = Variable<String>(coordinatesJson.value);
     }
     return map;
   }
@@ -1626,7 +1967,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     return (StringBuffer('BuildingsCompanion(')
           ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
+          ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
+          ..write('bldAddressID: $bldAddressID, ')
           ..write('bldQuality: $bldQuality, ')
           ..write('bldMunicipality: $bldMunicipality, ')
           ..write('bldEnumArea: $bldEnumArea, ')
@@ -1641,7 +1984,10 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
           ..write('bldYearDemolition: $bldYearDemolition, ')
           ..write('bldType: $bldType, ')
           ..write('bldClass: $bldClass, ')
+          ..write('bldCensus2023: $bldCensus2023, ')
           ..write('bldArea: $bldArea, ')
+          ..write('shapeLength: $shapeLength, ')
+          ..write('shapeArea: $shapeArea, ')
           ..write('bldFloorsAbove: $bldFloorsAbove, ')
           ..write('bldHeight: $bldHeight, ')
           ..write('bldVolume: $bldVolume, ')
@@ -1653,8 +1999,11 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
           ..write('bldAddressId: $bldAddressId, ')
+          ..write('createdDate: $createdDate, ')
           ..write('bldReview: $bldReview, ')
-          ..write('bldWaterSupply: $bldWaterSupply')
+          ..write('bldWaterSupply: $bldWaterSupply, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinatesJson: $coordinatesJson')
           ..write(')'))
         .toString();
   }
@@ -1792,6 +2141,21 @@ class $EntrancesTable extends Entrances
   late final GeneratedColumn<int> entDwellingExpec = GeneratedColumn<int>(
       'ent_dwelling_expec', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _geometryTypeMeta =
+      const VerificationMeta('geometryType');
+  @override
+  late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
+      'geometry_type', aliasedName, true,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false);
+  static const VerificationMeta _coordinatesMeta =
+      const VerificationMeta('coordinates');
+  @override
+  late final GeneratedColumn<String> coordinates = GeneratedColumn<String>(
+      'coordinates', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         downloadId,
@@ -1809,7 +2173,9 @@ class $EntrancesTable extends Entrances
         entTown,
         entZipCode,
         entDwellingRecs,
-        entDwellingExpec
+        entDwellingExpec,
+        geometryType,
+        coordinates
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1920,6 +2286,20 @@ class $EntrancesTable extends Entrances
           entDwellingExpec.isAcceptableOrUnknown(
               data['ent_dwelling_expec']!, _entDwellingExpecMeta));
     }
+    if (data.containsKey('geometry_type')) {
+      context.handle(
+          _geometryTypeMeta,
+          geometryType.isAcceptableOrUnknown(
+              data['geometry_type']!, _geometryTypeMeta));
+    }
+    if (data.containsKey('coordinates')) {
+      context.handle(
+          _coordinatesMeta,
+          coordinates.isAcceptableOrUnknown(
+              data['coordinates']!, _coordinatesMeta));
+    } else if (isInserting) {
+      context.missing(_coordinatesMeta);
+    }
     return context;
   }
 
@@ -1961,6 +2341,10 @@ class $EntrancesTable extends Entrances
           .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_recs']),
       entDwellingExpec: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_expec']),
+      geometryType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+      coordinates: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
   }
 
@@ -1987,6 +2371,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   final int? entZipCode;
   final int? entDwellingRecs;
   final int? entDwellingExpec;
+  final String? geometryType;
+  final String coordinates;
   const Entrance(
       {required this.downloadId,
       required this.entBldGlobalId,
@@ -2003,7 +2389,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       this.entTown,
       this.entZipCode,
       this.entDwellingRecs,
-      this.entDwellingExpec});
+      this.entDwellingExpec,
+      this.geometryType,
+      required this.coordinates});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2039,6 +2427,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
     if (!nullToAbsent || entDwellingExpec != null) {
       map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec);
     }
+    if (!nullToAbsent || geometryType != null) {
+      map['geometry_type'] = Variable<String>(geometryType);
+    }
+    map['coordinates'] = Variable<String>(coordinates);
     return map;
   }
 
@@ -2076,6 +2468,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entDwellingExpec: entDwellingExpec == null && nullToAbsent
           ? const Value.absent()
           : Value(entDwellingExpec),
+      geometryType: geometryType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geometryType),
+      coordinates: Value(coordinates),
     );
   }
 
@@ -2101,6 +2497,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entZipCode: serializer.fromJson<int?>(json['entZipCode']),
       entDwellingRecs: serializer.fromJson<int?>(json['entDwellingRecs']),
       entDwellingExpec: serializer.fromJson<int?>(json['entDwellingExpec']),
+      geometryType: serializer.fromJson<String?>(json['geometryType']),
+      coordinates: serializer.fromJson<String>(json['coordinates']),
     );
   }
   @override
@@ -2123,6 +2521,8 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       'entZipCode': serializer.toJson<int?>(entZipCode),
       'entDwellingRecs': serializer.toJson<int?>(entDwellingRecs),
       'entDwellingExpec': serializer.toJson<int?>(entDwellingExpec),
+      'geometryType': serializer.toJson<String?>(geometryType),
+      'coordinates': serializer.toJson<String>(coordinates),
     };
   }
 
@@ -2142,7 +2542,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           Value<int?> entTown = const Value.absent(),
           Value<int?> entZipCode = const Value.absent(),
           Value<int?> entDwellingRecs = const Value.absent(),
-          Value<int?> entDwellingExpec = const Value.absent()}) =>
+          Value<int?> entDwellingExpec = const Value.absent(),
+          Value<String?> geometryType = const Value.absent(),
+          String? coordinates}) =>
       Entrance(
         downloadId: downloadId ?? this.downloadId,
         entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
@@ -2170,6 +2572,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
         entDwellingExpec: entDwellingExpec.present
             ? entDwellingExpec.value
             : this.entDwellingExpec,
+        geometryType:
+            geometryType.present ? geometryType.value : this.geometryType,
+        coordinates: coordinates ?? this.coordinates,
       );
   Entrance copyWithCompanion(EntrancesCompanion data) {
     return Entrance(
@@ -2211,6 +2616,11 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entDwellingExpec: data.entDwellingExpec.present
           ? data.entDwellingExpec.value
           : this.entDwellingExpec,
+      geometryType: data.geometryType.present
+          ? data.geometryType.value
+          : this.geometryType,
+      coordinates:
+          data.coordinates.present ? data.coordinates.value : this.coordinates,
     );
   }
 
@@ -2232,7 +2642,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           ..write('entTown: $entTown, ')
           ..write('entZipCode: $entZipCode, ')
           ..write('entDwellingRecs: $entDwellingRecs, ')
-          ..write('entDwellingExpec: $entDwellingExpec')
+          ..write('entDwellingExpec: $entDwellingExpec, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinates: $coordinates')
           ..write(')'))
         .toString();
   }
@@ -2254,7 +2666,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       entTown,
       entZipCode,
       entDwellingRecs,
-      entDwellingExpec);
+      entDwellingExpec,
+      geometryType,
+      coordinates);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2274,7 +2688,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           other.entTown == this.entTown &&
           other.entZipCode == this.entZipCode &&
           other.entDwellingRecs == this.entDwellingRecs &&
-          other.entDwellingExpec == this.entDwellingExpec);
+          other.entDwellingExpec == this.entDwellingExpec &&
+          other.geometryType == this.geometryType &&
+          other.coordinates == this.coordinates);
 }
 
 class EntrancesCompanion extends UpdateCompanion<Entrance> {
@@ -2294,6 +2710,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   final Value<int?> entZipCode;
   final Value<int?> entDwellingRecs;
   final Value<int?> entDwellingExpec;
+  final Value<String?> geometryType;
+  final Value<String> coordinates;
   const EntrancesCompanion({
     this.downloadId = const Value.absent(),
     this.entBldGlobalId = const Value.absent(),
@@ -2311,6 +2729,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entZipCode = const Value.absent(),
     this.entDwellingRecs = const Value.absent(),
     this.entDwellingExpec = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    this.coordinates = const Value.absent(),
   });
   EntrancesCompanion.insert({
     required int downloadId,
@@ -2329,11 +2749,14 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.entZipCode = const Value.absent(),
     this.entDwellingRecs = const Value.absent(),
     this.entDwellingExpec = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    required String coordinates,
   })  : downloadId = Value(downloadId),
         entBldGlobalId = Value(entBldGlobalId),
         globalId = Value(globalId),
         entLatitude = Value(entLatitude),
-        entLongitude = Value(entLongitude);
+        entLongitude = Value(entLongitude),
+        coordinates = Value(coordinates);
   static Insertable<Entrance> custom({
     Expression<int>? downloadId,
     Expression<String>? entBldGlobalId,
@@ -2351,6 +2774,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     Expression<int>? entZipCode,
     Expression<int>? entDwellingRecs,
     Expression<int>? entDwellingExpec,
+    Expression<String>? geometryType,
+    Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
       if (downloadId != null) 'download_id': downloadId,
@@ -2369,6 +2794,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       if (entZipCode != null) 'ent_zip_code': entZipCode,
       if (entDwellingRecs != null) 'ent_dwelling_recs': entDwellingRecs,
       if (entDwellingExpec != null) 'ent_dwelling_expec': entDwellingExpec,
+      if (geometryType != null) 'geometry_type': geometryType,
+      if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
@@ -2388,7 +2815,9 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       Value<int?>? entTown,
       Value<int?>? entZipCode,
       Value<int?>? entDwellingRecs,
-      Value<int?>? entDwellingExpec}) {
+      Value<int?>? entDwellingExpec,
+      Value<String?>? geometryType,
+      Value<String>? coordinates}) {
     return EntrancesCompanion(
       downloadId: downloadId ?? this.downloadId,
       entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
@@ -2406,6 +2835,8 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       entZipCode: entZipCode ?? this.entZipCode,
       entDwellingRecs: entDwellingRecs ?? this.entDwellingRecs,
       entDwellingExpec: entDwellingExpec ?? this.entDwellingExpec,
+      geometryType: geometryType ?? this.geometryType,
+      coordinates: coordinates ?? this.coordinates,
     );
   }
 
@@ -2460,6 +2891,12 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     if (entDwellingExpec.present) {
       map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec.value);
     }
+    if (geometryType.present) {
+      map['geometry_type'] = Variable<String>(geometryType.value);
+    }
+    if (coordinates.present) {
+      map['coordinates'] = Variable<String>(coordinates.value);
+    }
     return map;
   }
 
@@ -2481,7 +2918,9 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
           ..write('entTown: $entTown, ')
           ..write('entZipCode: $entZipCode, ')
           ..write('entDwellingRecs: $entDwellingRecs, ')
-          ..write('entDwellingExpec: $entDwellingExpec')
+          ..write('entDwellingExpec: $entDwellingExpec, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinates: $coordinates')
           ..write(')'))
         .toString();
   }
@@ -2661,6 +3100,21 @@ class $DwellingsTable extends Dwellings
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
+  static const VerificationMeta _geometryTypeMeta =
+      const VerificationMeta('geometryType');
+  @override
+  late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
+      'geometry_type', aliasedName, true,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
+      type: DriftSqlType.string,
+      requiredDuringInsert: false);
+  static const VerificationMeta _coordinatesMeta =
+      const VerificationMeta('coordinates');
+  @override
+  late final GeneratedColumn<String> coordinates = GeneratedColumn<String>(
+      'coordinates', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         downloadId,
@@ -2683,7 +3137,9 @@ class $DwellingsTable extends Dwellings
         dwlHeatingFacility,
         dwlHeatingEnergy,
         dwlAirConditioner,
-        dwlSolarPanel
+        dwlSolarPanel,
+        geometryType,
+        coordinates
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2812,6 +3268,20 @@ class $DwellingsTable extends Dwellings
           dwlSolarPanel.isAcceptableOrUnknown(
               data['dwl_solar_panel']!, _dwlSolarPanelMeta));
     }
+    if (data.containsKey('geometry_type')) {
+      context.handle(
+          _geometryTypeMeta,
+          geometryType.isAcceptableOrUnknown(
+              data['geometry_type']!, _geometryTypeMeta));
+    }
+    if (data.containsKey('coordinates')) {
+      context.handle(
+          _coordinatesMeta,
+          coordinates.isAcceptableOrUnknown(
+              data['coordinates']!, _coordinatesMeta));
+    } else if (isInserting) {
+      context.missing(_coordinatesMeta);
+    }
     return context;
   }
 
@@ -2863,6 +3333,10 @@ class $DwellingsTable extends Dwellings
           DriftSqlType.int, data['${effectivePrefix}dwl_air_conditioner']),
       dwlSolarPanel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}dwl_solar_panel']),
+      geometryType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+      coordinates: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
   }
 
@@ -2894,6 +3368,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int? dwlHeatingEnergy;
   final int? dwlAirConditioner;
   final int? dwlSolarPanel;
+  final String? geometryType;
+  final String coordinates;
   const Dwelling(
       {required this.downloadId,
       required this.dwlEntGlobalId,
@@ -2915,7 +3391,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       this.dwlHeatingFacility,
       this.dwlHeatingEnergy,
       this.dwlAirConditioner,
-      this.dwlSolarPanel});
+      this.dwlSolarPanel,
+      this.geometryType,
+      required this.coordinates});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2970,6 +3448,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     if (!nullToAbsent || dwlSolarPanel != null) {
       map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel);
     }
+    if (!nullToAbsent || geometryType != null) {
+      map['geometry_type'] = Variable<String>(geometryType);
+    }
+    map['coordinates'] = Variable<String>(coordinates);
     return map;
   }
 
@@ -3026,6 +3508,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlSolarPanel: dwlSolarPanel == null && nullToAbsent
           ? const Value.absent()
           : Value(dwlSolarPanel),
+      geometryType: geometryType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(geometryType),
+      coordinates: Value(coordinates),
     );
   }
 
@@ -3055,6 +3541,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlHeatingEnergy: serializer.fromJson<int?>(json['dwlHeatingEnergy']),
       dwlAirConditioner: serializer.fromJson<int?>(json['dwlAirConditioner']),
       dwlSolarPanel: serializer.fromJson<int?>(json['dwlSolarPanel']),
+      geometryType: serializer.fromJson<String?>(json['geometryType']),
+      coordinates: serializer.fromJson<String>(json['coordinates']),
     );
   }
   @override
@@ -3082,6 +3570,8 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       'dwlHeatingEnergy': serializer.toJson<int?>(dwlHeatingEnergy),
       'dwlAirConditioner': serializer.toJson<int?>(dwlAirConditioner),
       'dwlSolarPanel': serializer.toJson<int?>(dwlSolarPanel),
+      'geometryType': serializer.toJson<String?>(geometryType),
+      'coordinates': serializer.toJson<String>(coordinates),
     };
   }
 
@@ -3106,7 +3596,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           Value<int?> dwlHeatingFacility = const Value.absent(),
           Value<int?> dwlHeatingEnergy = const Value.absent(),
           Value<int?> dwlAirConditioner = const Value.absent(),
-          Value<int?> dwlSolarPanel = const Value.absent()}) =>
+          Value<int?> dwlSolarPanel = const Value.absent(),
+          Value<String?> geometryType = const Value.absent(),
+          String? coordinates}) =>
       Dwelling(
         downloadId: downloadId ?? this.downloadId,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
@@ -3144,6 +3636,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
             : this.dwlAirConditioner,
         dwlSolarPanel:
             dwlSolarPanel.present ? dwlSolarPanel.value : this.dwlSolarPanel,
+        geometryType:
+            geometryType.present ? geometryType.value : this.geometryType,
+        coordinates: coordinates ?? this.coordinates,
       );
   Dwelling copyWithCompanion(DwellingsCompanion data) {
     return Dwelling(
@@ -3193,6 +3688,11 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlSolarPanel: data.dwlSolarPanel.present
           ? data.dwlSolarPanel.value
           : this.dwlSolarPanel,
+      geometryType: data.geometryType.present
+          ? data.geometryType.value
+          : this.geometryType,
+      coordinates:
+          data.coordinates.present ? data.coordinates.value : this.coordinates,
     );
   }
 
@@ -3219,7 +3719,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           ..write('dwlHeatingFacility: $dwlHeatingFacility, ')
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
-          ..write('dwlSolarPanel: $dwlSolarPanel')
+          ..write('dwlSolarPanel: $dwlSolarPanel, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinates: $coordinates')
           ..write(')'))
         .toString();
   }
@@ -3246,7 +3748,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
         dwlHeatingFacility,
         dwlHeatingEnergy,
         dwlAirConditioner,
-        dwlSolarPanel
+        dwlSolarPanel,
+        geometryType,
+        coordinates
       ]);
   @override
   bool operator ==(Object other) =>
@@ -3272,7 +3776,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           other.dwlHeatingFacility == this.dwlHeatingFacility &&
           other.dwlHeatingEnergy == this.dwlHeatingEnergy &&
           other.dwlAirConditioner == this.dwlAirConditioner &&
-          other.dwlSolarPanel == this.dwlSolarPanel);
+          other.dwlSolarPanel == this.dwlSolarPanel &&
+          other.geometryType == this.geometryType &&
+          other.coordinates == this.coordinates);
 }
 
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
@@ -3297,6 +3803,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int?> dwlHeatingEnergy;
   final Value<int?> dwlAirConditioner;
   final Value<int?> dwlSolarPanel;
+  final Value<String?> geometryType;
+  final Value<String> coordinates;
   const DwellingsCompanion({
     this.downloadId = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
@@ -3319,6 +3827,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlHeatingEnergy = const Value.absent(),
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    this.coordinates = const Value.absent(),
   });
   DwellingsCompanion.insert({
     required int downloadId,
@@ -3342,9 +3852,12 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlHeatingEnergy = const Value.absent(),
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
+    this.geometryType = const Value.absent(),
+    required String coordinates,
   })  : downloadId = Value(downloadId),
         dwlEntGlobalId = Value(dwlEntGlobalId),
-        globalId = Value(globalId);
+        globalId = Value(globalId),
+        coordinates = Value(coordinates);
   static Insertable<Dwelling> custom({
     Expression<int>? downloadId,
     Expression<String>? dwlEntGlobalId,
@@ -3367,6 +3880,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     Expression<int>? dwlHeatingEnergy,
     Expression<int>? dwlAirConditioner,
     Expression<int>? dwlSolarPanel,
+    Expression<String>? geometryType,
+    Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
       if (downloadId != null) 'download_id': downloadId,
@@ -3393,6 +3908,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       if (dwlHeatingEnergy != null) 'dwl_heating_energy': dwlHeatingEnergy,
       if (dwlAirConditioner != null) 'dwl_air_conditioner': dwlAirConditioner,
       if (dwlSolarPanel != null) 'dwl_solar_panel': dwlSolarPanel,
+      if (geometryType != null) 'geometry_type': geometryType,
+      if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
@@ -3417,7 +3934,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int?>? dwlHeatingFacility,
       Value<int?>? dwlHeatingEnergy,
       Value<int?>? dwlAirConditioner,
-      Value<int?>? dwlSolarPanel}) {
+      Value<int?>? dwlSolarPanel,
+      Value<String?>? geometryType,
+      Value<String>? coordinates}) {
     return DwellingsCompanion(
       downloadId: downloadId ?? this.downloadId,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
@@ -3440,6 +3959,8 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       dwlHeatingEnergy: dwlHeatingEnergy ?? this.dwlHeatingEnergy,
       dwlAirConditioner: dwlAirConditioner ?? this.dwlAirConditioner,
       dwlSolarPanel: dwlSolarPanel ?? this.dwlSolarPanel,
+      geometryType: geometryType ?? this.geometryType,
+      coordinates: coordinates ?? this.coordinates,
     );
   }
 
@@ -3509,6 +4030,12 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     if (dwlSolarPanel.present) {
       map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel.value);
     }
+    if (geometryType.present) {
+      map['geometry_type'] = Variable<String>(geometryType.value);
+    }
+    if (coordinates.present) {
+      map['coordinates'] = Variable<String>(coordinates.value);
+    }
     return map;
   }
 
@@ -3535,7 +4062,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
           ..write('dwlHeatingFacility: $dwlHeatingFacility, ')
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
-          ..write('dwlSolarPanel: $dwlSolarPanel')
+          ..write('dwlSolarPanel: $dwlSolarPanel, ')
+          ..write('geometryType: $geometryType, ')
+          ..write('coordinates: $coordinates')
           ..write(')'))
         .toString();
   }
@@ -3914,7 +4443,9 @@ typedef $$DownloadsTableProcessedTableManager = ProcessedTableManager<
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   required int downloadId,
   Value<int> id,
+  required int objectId,
   required String globalId,
+  Value<String?> bldAddressID,
   Value<int> bldQuality,
   required int bldMunicipality,
   Value<String?> bldEnumArea,
@@ -3929,9 +4460,12 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldYearDemolition,
   Value<int?> bldType,
   Value<int?> bldClass,
+  Value<String?> bldCensus2023,
   Value<double?> bldArea,
+  Value<double?> shapeLength,
+  Value<double?> shapeArea,
   Value<int?> bldFloorsAbove,
-  Value<int?> bldHeight,
+  Value<double?> bldHeight,
   Value<double?> bldVolume,
   Value<int?> bldWasteWater,
   Value<int?> bldElectricity,
@@ -3941,13 +4475,18 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
   Value<String?> bldAddressId,
+  Value<DateTime?> createdDate,
   Value<int> bldReview,
   Value<int?> bldWaterSupply,
+  Value<String?> geometryType,
+  required String coordinatesJson,
 });
 typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int> downloadId,
   Value<int> id,
+  Value<int> objectId,
   Value<String> globalId,
+  Value<String?> bldAddressID,
   Value<int> bldQuality,
   Value<int> bldMunicipality,
   Value<String?> bldEnumArea,
@@ -3962,9 +4501,12 @@ typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldYearDemolition,
   Value<int?> bldType,
   Value<int?> bldClass,
+  Value<String?> bldCensus2023,
   Value<double?> bldArea,
+  Value<double?> shapeLength,
+  Value<double?> shapeArea,
   Value<int?> bldFloorsAbove,
-  Value<int?> bldHeight,
+  Value<double?> bldHeight,
   Value<double?> bldVolume,
   Value<int?> bldWasteWater,
   Value<int?> bldElectricity,
@@ -3974,8 +4516,11 @@ typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
   Value<String?> bldAddressId,
+  Value<DateTime?> createdDate,
   Value<int> bldReview,
   Value<int?> bldWaterSupply,
+  Value<String?> geometryType,
+  Value<String> coordinatesJson,
 });
 
 final class $$BuildingsTableReferences
@@ -4026,8 +4571,14 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bldAddressID => $composableBuilder(
+      column: $table.bldAddressID, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => ColumnFilters(column));
@@ -4076,14 +4627,23 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<int> get bldClass => $composableBuilder(
       column: $table.bldClass, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get bldCensus2023 => $composableBuilder(
+      column: $table.bldCensus2023, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<double> get bldArea => $composableBuilder(
       column: $table.bldArea, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get shapeLength => $composableBuilder(
+      column: $table.shapeLength, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get shapeArea => $composableBuilder(
+      column: $table.shapeArea, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get bldFloorsAbove => $composableBuilder(
       column: $table.bldFloorsAbove,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get bldHeight => $composableBuilder(
+  ColumnFilters<double> get bldHeight => $composableBuilder(
       column: $table.bldHeight, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get bldVolume => $composableBuilder(
@@ -4117,11 +4677,21 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<String> get bldAddressId => $composableBuilder(
       column: $table.bldAddressId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<int> get bldReview => $composableBuilder(
       column: $table.bldReview, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coordinatesJson => $composableBuilder(
+      column: $table.coordinatesJson,
       builder: (column) => ColumnFilters(column));
 
   $$DownloadsTableFilterComposer get downloadId {
@@ -4178,8 +4748,15 @@ class $$BuildingsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bldAddressID => $composableBuilder(
+      column: $table.bldAddressID,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => ColumnOrderings(column));
@@ -4230,14 +4807,24 @@ class $$BuildingsTableOrderingComposer
   ColumnOrderings<int> get bldClass => $composableBuilder(
       column: $table.bldClass, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get bldCensus2023 => $composableBuilder(
+      column: $table.bldCensus2023,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<double> get bldArea => $composableBuilder(
       column: $table.bldArea, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get shapeLength => $composableBuilder(
+      column: $table.shapeLength, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get shapeArea => $composableBuilder(
+      column: $table.shapeArea, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get bldFloorsAbove => $composableBuilder(
       column: $table.bldFloorsAbove,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get bldHeight => $composableBuilder(
+  ColumnOrderings<double> get bldHeight => $composableBuilder(
       column: $table.bldHeight, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get bldVolume => $composableBuilder(
@@ -4273,11 +4860,22 @@ class $$BuildingsTableOrderingComposer
       column: $table.bldAddressId,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get bldReview => $composableBuilder(
       column: $table.bldReview, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get geometryType => $composableBuilder(
+      column: $table.geometryType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coordinatesJson => $composableBuilder(
+      column: $table.coordinatesJson,
       builder: (column) => ColumnOrderings(column));
 
   $$DownloadsTableOrderingComposer get downloadId {
@@ -4313,8 +4911,14 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
+  GeneratedColumn<int> get objectId =>
+      $composableBuilder(column: $table.objectId, builder: (column) => column);
+
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
+
+  GeneratedColumn<String> get bldAddressID => $composableBuilder(
+      column: $table.bldAddressID, builder: (column) => column);
 
   GeneratedColumn<int> get bldQuality => $composableBuilder(
       column: $table.bldQuality, builder: (column) => column);
@@ -4358,13 +4962,22 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<int> get bldClass =>
       $composableBuilder(column: $table.bldClass, builder: (column) => column);
 
+  GeneratedColumn<String> get bldCensus2023 => $composableBuilder(
+      column: $table.bldCensus2023, builder: (column) => column);
+
   GeneratedColumn<double> get bldArea =>
       $composableBuilder(column: $table.bldArea, builder: (column) => column);
+
+  GeneratedColumn<double> get shapeLength => $composableBuilder(
+      column: $table.shapeLength, builder: (column) => column);
+
+  GeneratedColumn<double> get shapeArea =>
+      $composableBuilder(column: $table.shapeArea, builder: (column) => column);
 
   GeneratedColumn<int> get bldFloorsAbove => $composableBuilder(
       column: $table.bldFloorsAbove, builder: (column) => column);
 
-  GeneratedColumn<int> get bldHeight =>
+  GeneratedColumn<double> get bldHeight =>
       $composableBuilder(column: $table.bldHeight, builder: (column) => column);
 
   GeneratedColumn<double> get bldVolume =>
@@ -4394,11 +5007,20 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<String> get bldAddressId => $composableBuilder(
       column: $table.bldAddressId, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get createdDate => $composableBuilder(
+      column: $table.createdDate, builder: (column) => column);
+
   GeneratedColumn<int> get bldReview =>
       $composableBuilder(column: $table.bldReview, builder: (column) => column);
 
   GeneratedColumn<int> get bldWaterSupply => $composableBuilder(
       column: $table.bldWaterSupply, builder: (column) => column);
+
+  GeneratedColumn<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => column);
+
+  GeneratedColumn<String> get coordinatesJson => $composableBuilder(
+      column: $table.coordinatesJson, builder: (column) => column);
 
   $$DownloadsTableAnnotationComposer get downloadId {
     final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
@@ -4467,7 +5089,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> downloadId = const Value.absent(),
             Value<int> id = const Value.absent(),
+            Value<int> objectId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
+            Value<String?> bldAddressID = const Value.absent(),
             Value<int> bldQuality = const Value.absent(),
             Value<int> bldMunicipality = const Value.absent(),
             Value<String?> bldEnumArea = const Value.absent(),
@@ -4482,9 +5106,12 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldYearDemolition = const Value.absent(),
             Value<int?> bldType = const Value.absent(),
             Value<int?> bldClass = const Value.absent(),
+            Value<String?> bldCensus2023 = const Value.absent(),
             Value<double?> bldArea = const Value.absent(),
+            Value<double?> shapeLength = const Value.absent(),
+            Value<double?> shapeArea = const Value.absent(),
             Value<int?> bldFloorsAbove = const Value.absent(),
-            Value<int?> bldHeight = const Value.absent(),
+            Value<double?> bldHeight = const Value.absent(),
             Value<double?> bldVolume = const Value.absent(),
             Value<int?> bldWasteWater = const Value.absent(),
             Value<int?> bldElectricity = const Value.absent(),
@@ -4494,13 +5121,18 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
             Value<String?> bldAddressId = const Value.absent(),
+            Value<DateTime?> createdDate = const Value.absent(),
             Value<int> bldReview = const Value.absent(),
             Value<int?> bldWaterSupply = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            Value<String> coordinatesJson = const Value.absent(),
           }) =>
               BuildingsCompanion(
             downloadId: downloadId,
             id: id,
+            objectId: objectId,
             globalId: globalId,
+            bldAddressID: bldAddressID,
             bldQuality: bldQuality,
             bldMunicipality: bldMunicipality,
             bldEnumArea: bldEnumArea,
@@ -4515,7 +5147,10 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldYearDemolition: bldYearDemolition,
             bldType: bldType,
             bldClass: bldClass,
+            bldCensus2023: bldCensus2023,
             bldArea: bldArea,
+            shapeLength: shapeLength,
+            shapeArea: shapeArea,
             bldFloorsAbove: bldFloorsAbove,
             bldHeight: bldHeight,
             bldVolume: bldVolume,
@@ -4527,13 +5162,18 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
             bldAddressId: bldAddressId,
+            createdDate: createdDate,
             bldReview: bldReview,
             bldWaterSupply: bldWaterSupply,
+            geometryType: geometryType,
+            coordinatesJson: coordinatesJson,
           ),
           createCompanionCallback: ({
             required int downloadId,
             Value<int> id = const Value.absent(),
+            required int objectId,
             required String globalId,
+            Value<String?> bldAddressID = const Value.absent(),
             Value<int> bldQuality = const Value.absent(),
             required int bldMunicipality,
             Value<String?> bldEnumArea = const Value.absent(),
@@ -4548,9 +5188,12 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldYearDemolition = const Value.absent(),
             Value<int?> bldType = const Value.absent(),
             Value<int?> bldClass = const Value.absent(),
+            Value<String?> bldCensus2023 = const Value.absent(),
             Value<double?> bldArea = const Value.absent(),
+            Value<double?> shapeLength = const Value.absent(),
+            Value<double?> shapeArea = const Value.absent(),
             Value<int?> bldFloorsAbove = const Value.absent(),
-            Value<int?> bldHeight = const Value.absent(),
+            Value<double?> bldHeight = const Value.absent(),
             Value<double?> bldVolume = const Value.absent(),
             Value<int?> bldWasteWater = const Value.absent(),
             Value<int?> bldElectricity = const Value.absent(),
@@ -4560,13 +5203,18 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
             Value<String?> bldAddressId = const Value.absent(),
+            Value<DateTime?> createdDate = const Value.absent(),
             Value<int> bldReview = const Value.absent(),
             Value<int?> bldWaterSupply = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            required String coordinatesJson,
           }) =>
               BuildingsCompanion.insert(
             downloadId: downloadId,
             id: id,
+            objectId: objectId,
             globalId: globalId,
+            bldAddressID: bldAddressID,
             bldQuality: bldQuality,
             bldMunicipality: bldMunicipality,
             bldEnumArea: bldEnumArea,
@@ -4581,7 +5229,10 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldYearDemolition: bldYearDemolition,
             bldType: bldType,
             bldClass: bldClass,
+            bldCensus2023: bldCensus2023,
             bldArea: bldArea,
+            shapeLength: shapeLength,
+            shapeArea: shapeArea,
             bldFloorsAbove: bldFloorsAbove,
             bldHeight: bldHeight,
             bldVolume: bldVolume,
@@ -4593,8 +5244,11 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
             bldAddressId: bldAddressId,
+            createdDate: createdDate,
             bldReview: bldReview,
             bldWaterSupply: bldWaterSupply,
+            geometryType: geometryType,
+            coordinatesJson: coordinatesJson,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -4683,6 +5337,8 @@ typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
   Value<int?> entZipCode,
   Value<int?> entDwellingRecs,
   Value<int?> entDwellingExpec,
+  Value<String?> geometryType,
+  required String coordinates,
 });
 typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
   Value<int> downloadId,
@@ -4701,6 +5357,8 @@ typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
   Value<int?> entZipCode,
   Value<int?> entDwellingRecs,
   Value<int?> entDwellingExpec,
+  Value<String?> geometryType,
+  Value<String> coordinates,
 });
 
 final class $$EntrancesTableReferences
@@ -4810,6 +5468,12 @@ class $$EntrancesTableFilterComposer
   ColumnFilters<int> get entDwellingExpec => $composableBuilder(
       column: $table.entDwellingExpec,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnFilters(column));
 
   $$DownloadsTableFilterComposer get downloadId {
     final $$DownloadsTableFilterComposer composer = $composerBuilder(
@@ -4932,6 +5596,13 @@ class $$EntrancesTableOrderingComposer
       column: $table.entDwellingExpec,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get geometryType => $composableBuilder(
+      column: $table.geometryType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnOrderings(column));
+
   $$DownloadsTableOrderingComposer get downloadId {
     final $$DownloadsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -5023,6 +5694,12 @@ class $$EntrancesTableAnnotationComposer
 
   GeneratedColumn<int> get entDwellingExpec => $composableBuilder(
       column: $table.entDwellingExpec, builder: (column) => column);
+
+  GeneratedColumn<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => column);
+
+  GeneratedColumn<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => column);
 
   $$DownloadsTableAnnotationComposer get downloadId {
     final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
@@ -5126,6 +5803,8 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entZipCode = const Value.absent(),
             Value<int?> entDwellingRecs = const Value.absent(),
             Value<int?> entDwellingExpec = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            Value<String> coordinates = const Value.absent(),
           }) =>
               EntrancesCompanion(
             downloadId: downloadId,
@@ -5144,6 +5823,8 @@ class $$EntrancesTableTableManager extends RootTableManager<
             entZipCode: entZipCode,
             entDwellingRecs: entDwellingRecs,
             entDwellingExpec: entDwellingExpec,
+            geometryType: geometryType,
+            coordinates: coordinates,
           ),
           createCompanionCallback: ({
             required int downloadId,
@@ -5162,6 +5843,8 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int?> entZipCode = const Value.absent(),
             Value<int?> entDwellingRecs = const Value.absent(),
             Value<int?> entDwellingExpec = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            required String coordinates,
           }) =>
               EntrancesCompanion.insert(
             downloadId: downloadId,
@@ -5180,6 +5863,8 @@ class $$EntrancesTableTableManager extends RootTableManager<
             entZipCode: entZipCode,
             entDwellingRecs: entDwellingRecs,
             entDwellingExpec: entDwellingExpec,
+            geometryType: geometryType,
+            coordinates: coordinates,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -5288,6 +5973,8 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlHeatingEnergy,
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
+  Value<String?> geometryType,
+  required String coordinates,
 });
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int> downloadId,
@@ -5311,6 +5998,8 @@ typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlHeatingEnergy,
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
+  Value<String?> geometryType,
+  Value<String> coordinates,
 });
 
 final class $$DwellingsTableReferences
@@ -5419,6 +6108,12 @@ class $$DwellingsTableFilterComposer
 
   ColumnFilters<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnFilters(column));
 
   $$DownloadsTableFilterComposer get downloadId {
     final $$DownloadsTableFilterComposer composer = $composerBuilder(
@@ -5537,6 +6232,13 @@ class $$DwellingsTableOrderingComposer
       column: $table.dwlSolarPanel,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get geometryType => $composableBuilder(
+      column: $table.geometryType,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnOrderings(column));
+
   $$DownloadsTableOrderingComposer get downloadId {
     final $$DownloadsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -5644,6 +6346,12 @@ class $$DwellingsTableAnnotationComposer
   GeneratedColumn<int> get dwlSolarPanel => $composableBuilder(
       column: $table.dwlSolarPanel, builder: (column) => column);
 
+  GeneratedColumn<String> get geometryType => $composableBuilder(
+      column: $table.geometryType, builder: (column) => column);
+
+  GeneratedColumn<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => column);
+
   $$DownloadsTableAnnotationComposer get downloadId {
     final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -5729,6 +6437,8 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlHeatingEnergy = const Value.absent(),
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            Value<String> coordinates = const Value.absent(),
           }) =>
               DwellingsCompanion(
             downloadId: downloadId,
@@ -5752,6 +6462,8 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlHeatingEnergy: dwlHeatingEnergy,
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
+            geometryType: geometryType,
+            coordinates: coordinates,
           ),
           createCompanionCallback: ({
             required int downloadId,
@@ -5775,6 +6487,8 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlHeatingEnergy = const Value.absent(),
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
+            Value<String?> geometryType = const Value.absent(),
+            required String coordinates,
           }) =>
               DwellingsCompanion.insert(
             downloadId: downloadId,
@@ -5798,6 +6512,8 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlHeatingEnergy: dwlHeatingEnergy,
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
+            geometryType: geometryType,
+            coordinates: coordinates,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

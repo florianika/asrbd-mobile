@@ -2,6 +2,8 @@ import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/building_service.dart';
 import 'package:asrdb/core/services/database_service.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/repositories/building_repository.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -38,13 +40,13 @@ class BuildingRepository implements IBuildingRepository {
       _dao.buildingDao.updateGlobalIdById(id: id, globalId: newGlobalId);
 
   @override
-  Future<Map<String, dynamic>> getBuildings(
+  Future<List<BuildingEntity>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId) async {
     return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 
   @override
-  Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
+  Future<BuildingEntity> getBuildingDetails(String globalId) async {
     return await buildingService.getBuildingDetails(globalId);
   }
 
@@ -54,15 +56,13 @@ class BuildingRepository implements IBuildingRepository {
   }
 
   @override
-  Future<String> addBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    return await buildingService.addBuildingFeature(attributes, points);
+  Future<String> addBuildingFeature(BuildingEntity building) async {
+    return await buildingService.addBuildingFeature(building);
   }
 
   @override
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng>? points) async {
-    return await buildingService.updateBuildingFeature(attributes, points);
+  Future<bool> updateBuildingFeature(BuildingEntity building) async {
+    return await buildingService.updateBuildingFeature(building);
   }
 
   @override

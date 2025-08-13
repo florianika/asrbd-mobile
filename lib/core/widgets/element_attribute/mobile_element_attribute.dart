@@ -10,7 +10,7 @@ void mobileElementAttribute(
   ShapeType shapeType,
   bool entranceOutsideVisibleArea,
   Map<String, dynamic> initialData,
-  Future<void> Function(Map<String, dynamic>) onSave,
+  void Function() onSave,
 ) {
   showModalBottomSheet(
     context: context,
@@ -51,16 +51,13 @@ void mobileElementAttribute(
                         selectedShapeType: shapeType,
                         entranceOutsideVisibleArea: entranceOutsideVisibleArea,
                         initialData: initialData,
-                        onSave: (formValues) async {
-                          await onSave(formValues);
-                        },
+                        // onSave: (formValues) async {
+                        //   await onSave(formValues);
+                        // },
                       ),
                     ),
                     EventButtonAttribute(
-                      onSave: (formValues) async {
-                        // Call the onSave function with the form values
-                        await onSave(formValues);
-                      },
+                      onSave: onSave,
                       onClose: null,
                       openDwelling: () => (),
                       selectedShapeType: shapeType,

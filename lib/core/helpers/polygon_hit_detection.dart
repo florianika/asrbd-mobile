@@ -1,31 +1,21 @@
-import 'package:latlong2/latlong.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:geodesy/geodesy.dart';
 
 class PolygonHitDetector {
-  /// Efficiently finds which polygon contains the tapped point
-  /// Returns the GlobalID of the polygon, or null if no polygon contains the point
-  static String? getPolygonIdAtPoint(
-    Map<String, dynamic> geoJsonData,
+  static BuildingEntity? getBuildingByTapLocation(
+    List<BuildingEntity> buildings,
     LatLng tapPoint,
   ) {
-    final features =
-        List<Map<String, dynamic>>.from(geoJsonData['features'] ?? []);
+    Geodesy geodesy = Geodesy();
 
-    // Early exit if no features
-    if (features.isEmpty) return null;
+    for (var building in buildings) {
+      bool isInside = geodesy.isGeoPointInPolygon(
+        tapPoint,
+        building.coordinates.first,
+      );
 
-    for (final feature in features) {
-      final geometry = feature['geometry'];
-      final properties = feature['properties'];
-
-      if (geometry == null || properties == null) continue;
-
-      final globalId = properties['GlobalID']?.toString();
-      if (globalId == null) continue;
-
-      // Check if point is within this polygon
-      if (_isPointInPolygon(tapPoint, geometry)) {
-        return globalId;
-      }
+      if (isInside) return building; // Return the first matching polygon
     }
 
     return null;
@@ -63,29 +53,6 @@ class PolygonHitDetector {
     return false; // All points are inside
   }
 
-  /// Checks if a point is inside a polygon using ray casting algorithm
-  /// Handles both Polygon and MultiPolygon geometries
-  static bool _isPointInPolygon(LatLng point, Map<String, dynamic> geometry) {
-    final String type = geometry['type'] ?? '';
-    final coordinates = geometry['coordinates'];
-
-    if (coordinates == null) return false;
-
-    switch (type) {
-      case 'Polygon':
-        return _isPointInPolygonCoordinates(point, coordinates);
-      case 'MultiPolygon':
-        // Check each polygon in the MultiPolygon
-        for (final polygonCoords in coordinates) {
-          if (_isPointInPolygonCoordinates(point, polygonCoords)) {
-            return true;
-          }
-        }
-        return false;
-      default:
-        return false;
-    }
-  }
 
   /// Checks if point is in polygon coordinates (handles holes)
   static bool _isPointInPolygonCoordinates(
@@ -167,8 +134,8 @@ class PolygonHitDetector {
 }
 
 // Extension method for easy access
-extension PolygonHitDetectionExtension on Map<String, dynamic> {
-  String? getPolygonIdAtPoint(LatLng tapPoint) {
-    return PolygonHitDetector.getPolygonIdAtPoint(this, tapPoint);
+extension PolygonHitDetectionExtension on List<BuildingEntity> {
+  BuildingEntity? getBuildingByTapLocation(LatLng tapPoint) {
+    return PolygonHitDetector.getBuildingByTapLocation(this, tapPoint);
   }
 }

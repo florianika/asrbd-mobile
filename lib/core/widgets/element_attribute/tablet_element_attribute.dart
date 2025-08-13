@@ -144,9 +144,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 ),
               ),
               child: EventButtonAttribute(
-                onSave: (formValues) async {
+                onSave: () {
                   if (_dynamicFormKey.currentState != null) {
-                    await _dynamicFormKey.currentState!.handleSave();
+                    _dynamicFormKey.currentState!.handleSave();
                   }
                 },
                 onClose: () => widget.onClose(),

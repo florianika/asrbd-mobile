@@ -43,4 +43,8 @@ class Dwellings extends Table {
       integer().nullable().withDefault(const Constant(9))();
   IntColumn get dwlSolarPanel =>
       integer().nullable().withDefault(const Constant(9))();
+
+  TextColumn get geometryType =>
+      text().withLength(min: 1, max: 255).nullable()();
+  TextColumn get coordinates => text()();
 }

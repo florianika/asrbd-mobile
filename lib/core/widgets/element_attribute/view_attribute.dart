@@ -1,7 +1,5 @@
-import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/widgets/element_attribute/mobile_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/view_attribute_shimmer.dart';
 import 'package:asrdb/core/widgets/side_container.dart';
@@ -36,28 +34,11 @@ class ViewAttribute extends StatefulWidget {
 }
 
 class _ViewAttributeState extends State<ViewAttribute> {
-  bool _isMobileSheetVisible = false;
-  bool? _isMobile;
   String? _lastGlobalId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    final isMobileView =
-        MediaQuery.of(context).size.width < AppConfig.tabletBreakpoint;
-
-    if (_isMobile == null) {
-      setState(() {
-        _isMobile = isMobileView;
-      });
-
-      if (isMobileView) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showMobileElementAttribute();
-        });
-      }
-    }
 
     _lastGlobalId ??= widget.initialData['GlobalID']?.toString();
   }
@@ -74,41 +55,8 @@ class _ViewAttributeState extends State<ViewAttribute> {
     _lastGlobalId = newGlobalId;
   }
 
-  void _showMobileElementAttribute() {
-    if (!mounted || _isMobileSheetVisible) return;
-
-    _isMobileSheetVisible = true;
-
-    mobileElementAttribute(
-      context,
-      widget.schema,
-      widget.selectedShapeType,
-      widget.entranceOutsideVisibleArea,
-      widget.initialData,
-      widget.save,
-    );
-
-    // Automatically call onClose after modal closes
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          _isMobileSheetVisible = false;
-        });
-        widget.onClose();
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_isMobile == null) {
-      return const SizedBox.shrink();
-    }
-
-    if (_isMobile!) {
-      return const SizedBox.shrink();
-    }
-
     return SideContainer(
       child: widget.isLoading
           ? const ViewAttributeShimmer()

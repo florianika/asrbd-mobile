@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:asrdb/core/api/esri_api_client.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
 import 'api_endpoints.dart';
@@ -29,47 +31,30 @@ class BuildingApi {
 
   Future<Response> getBuildingDetails(String esriToken, String globalId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriBuldingByGlobalId(globalId)}&token=$esriToken');
+        '${ApiEndpoints.getEsriBuildingByGlobalId(globalId)}&token=$esriToken');
   }
 
   Future<Response> getBuildingAttributes(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/1?f=json&token=$esriToken');
   }
-  
-      Future<Response> getBuildingAttributesJson(String esriToken) async {
+
+  Future<Response> getBuildingAttributesJson(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/1?f=pjson&token=$esriToken');
   }
 
-  Future<Response> addBuildingFeature(String esriToken,
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<Response> addBuildingFeature(
+      String esriToken, BuildingEntity building) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    // Convert LatLng points to coordinate arrays for polygon geometry
-    List<List<double>> coordinates =
-        points.map((point) => [point.longitude, point.latitude]).toList();
-
-    // Ensure the polygon is closed by adding the first point at the end if needed
-    if (coordinates.isNotEmpty &&
-        (coordinates.first[0] != coordinates.last[0] ||
-            coordinates.first[1] != coordinates.last[1])) {
-      coordinates.add([coordinates.first[0], coordinates.first[1]]);
-    }
-
-    final Map<String, dynamic> feature = {
-      'geometry': {
-        'rings': [coordinates],
-        'spatialReference': {'wkid': 4326},
-      },
-      'attributes': attributes,
-    };
+    BuildingDto buildingDto = BuildingDto.fromEntity(building);
 
     final payload = {
       'f': 'json',
-      'features': jsonEncode([feature]),
+      'features': jsonEncode([buildingDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };
@@ -81,41 +66,15 @@ class BuildingApi {
         data: payload);
   }
 
-  Future<Response> updateBuildingFeature(String esriToken,
-      Map<String, dynamic> attributes, List<LatLng>? points) async {
+  Future<Response> updateBuildingFeature(
+      String esriToken, BuildingDto building) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    Map<String, dynamic> feature = {};
-    if (points != null && points.isNotEmpty) {
-      // Convert LatLng points to coordinate arrays for polygon geometry
-      List<List<double>> coordinates =
-          points.map((point) => [point.longitude, point.latitude]).toList();
-
-      // Ensure the polygon is closed by adding the first point at the end if needed
-      if (coordinates.isNotEmpty &&
-          (coordinates.first[0] != coordinates.last[0] ||
-              coordinates.first[1] != coordinates.last[1])) {
-        coordinates.add([coordinates.first[0], coordinates.first[1]]);
-      }
-
-      feature = {
-        'geometry': {
-          'rings': [coordinates],
-          'spatialReference': {'wkid': 4326},
-        },
-        'attributes': attributes,
-      };
-    } else {
-      feature = {
-        'attributes': attributes,
-      };
-    }
-
     final payload = {
       'f': 'pjson',
-      'features': jsonEncode([feature]),
+      'features': jsonEncode([building.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };

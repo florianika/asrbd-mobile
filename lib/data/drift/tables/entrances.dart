@@ -27,4 +27,7 @@ class Entrances extends Table {
   IntColumn get entZipCode => integer().nullable()();
   IntColumn get entDwellingRecs => integer().nullable()();
   IntColumn get entDwellingExpec => integer().nullable()();
+  TextColumn get geometryType =>
+      text().withLength(min: 1, max: 255).nullable()();
+  TextColumn get coordinates => text()();
 }

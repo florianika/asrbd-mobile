@@ -1,5 +1,7 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/general_fields.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -16,7 +18,7 @@ class BuildingInitial extends BuildingState {}
 class BuildingLoading extends BuildingState {}
 
 class Buildings extends BuildingState {
-  final Map<String, dynamic> buildings;
+  final List<BuildingEntity> buildings;
   Buildings(this.buildings);
 }
 
@@ -106,12 +108,10 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   /// Add new building geometry
-  Future<void> addBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<void> addBuildingFeature(BuildingEntity building) async {
     emit(BuildingLoading());
     try {
-      final globalId =
-          await buildingUseCases.addBuildingFeature(attributes, points);
+      final globalId = await buildingUseCases.addBuildingFeature(building);
       emit(BuildingAddResponse(globalId));
     } catch (e) {
       emit(BuildingError(e.toString()));
@@ -119,12 +119,11 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   /// Update existing building
-  Future<void> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng>? points) async {
+  Future<void> updateBuildingFeature(BuildingEntity building) async {
     emit(BuildingLoading());
     try {
-      await buildingUseCases.updateBuildingFeature(attributes, points);
-      emit(BuildingUpdateResponse(attributes[GeneralFields.globalID]));
+      await buildingUseCases.updateBuildingFeature(building);
+      emit(BuildingUpdateResponse(building.globalId ?? ''));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
@@ -149,7 +148,8 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(BuildingGlobalId(globalId));
   }
 
-  Future<void> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
+  Future<void> getBuildingsCount(
+      LatLngBounds bounds, int municipalityId) async {
     emit(BuildingLoading());
     try {
       final count =
@@ -162,6 +162,6 @@ class BuildingCubit extends Cubit<BuildingState> {
 
   void clearBuildings() {
     _selectedBuildingGlobalId = null;
-    emit(Buildings({}));
+    emit(Buildings([]));
   }
 }

@@ -4,7 +4,9 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/build_fields.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -22,19 +24,19 @@ class BuildingUseCases {
     this._checkUseCases,
   );
 
-  Future<Map<String, dynamic>> getBuildings(
+  Future<List<BuildingEntity>> getBuildings(
       LatLngBounds? bounds, double zoom, int municipalityId) async {
     if (bounds == null) {
-      return {};
+      return [];
     }
 
     if (zoom < AppConfig.buildingMinZoom) {
-      return {};
+      return [];
     }
     return await _buildingRepository.getBuildings(bounds, zoom, municipalityId);
   }
 
-  Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
+  Future<BuildingEntity> getBuildingDetails(String globalId) async {
     return await _buildingRepository.getBuildingDetails(globalId);
   }
 
@@ -50,179 +52,114 @@ class BuildingUseCases {
   //   return await _buildingRepository.getBuildingIntersections(geometry);
   // }
 
-  Future<String> addBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    final globalId =
-        await _buildingRepository.addBuildingFeature(attributes, points);
+  Future<String> addBuildingFeature(BuildingEntity building) async {
+    final globalId = await _buildingRepository.addBuildingFeature(building);
     await _checkUseCases.checkAutomatic(
         globalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return globalId;
   }
 
-  Future<String> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng>? points) async {
-    final globalId = attributes[GeneralFields.globalID];
+  Future<String> updateBuildingFeature(BuildingEntity building) async {
+    // final globalId = attributes[GeneralFields.globalID];
 
-    await _buildingRepository.updateBuildingFeature(attributes, points);
+    await _buildingRepository.updateBuildingFeature(building);
     await _checkUseCases.checkAutomatic(
-        globalId.toString().replaceAll('{', '').replaceAll('}', ''));
-    return globalId;
+        building.globalId.toString().replaceAll('{', '').replaceAll('}', ''));
+    return building.globalId ?? '';
   }
 
   Future<bool> startReviewing(String globalId, int value) async {
-    var attributes = await getBuildingDetails(globalId);
+    var building = await getBuildingDetails(globalId);
 
-    if (attributes[BuildFields.bldReview] == 6) {
-      attributes[BuildFields.bldReview] = 4;
-      await _buildingRepository.updateBuildingFeature(attributes, null);
+    if (building.bldReview == 6) {
+      building.bldReview = 4;
+      await _buildingRepository.updateBuildingFeature(building);
       return true;
     }
 
     return false;
   }
 
-  Future<void> _setCentroidCoordinates(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    Geodesy geodesy,
-  ) async {
-    final centroid = geodesy.findPolygonCentroid(geometryCubit.points);
-    attributes[BuildFields.bldLatitude] = centroid.latitude;
-    attributes[BuildFields.bldLongitude] = centroid.longitude;
-  }
-
-  Map<String, dynamic> _removeFeatureByAttribute(
-      String attributeKey, dynamic attributeValue, Map<String, dynamic> data) {
-    if (attributeValue == null) return data;
-    if (data[GeneralFields.features] == null ||
-        data[GeneralFields.features] is! List) {
-      return data;
-    }
-
-    // Make a deep copy to avoid mutating the original map (optional but safer)
-    final Map<String, dynamic> updatedData = Map<String, dynamic>.from(data);
-    updatedData[GeneralFields.features] =
-        List<dynamic>.from(updatedData[GeneralFields.features]);
-
-    updatedData[GeneralFields.features].removeWhere((feature) {
-      final properties = feature[GeneralFields.properties];
-      return properties != null && properties[attributeKey] == attributeValue;
-    });
-
-    return updatedData;
-  }
-
-  List<List<LatLng>> _extractPolygons(Map<String, dynamic> geoJson) {
-    final List<List<LatLng>> polygons = [];
-
-    final features = geoJson[GeneralFields.features];
-    if (features is! List) return polygons;
-
-    for (final feature in features) {
-      final geometry = feature[GeneralFields.geometry];
-      if (geometry != null && geometry[GeneralFields.type] == 'Polygon') {
-        final coordinates = geometry[GeneralFields.coordinates];
-
-        if (coordinates is List && coordinates.isNotEmpty) {
-          final outerRing = coordinates[0]; // Only outer ring
-          if (outerRing is List) {
-            final polygon = outerRing
-                .where((point) => point is List && point.length >= 2)
-                .map<LatLng>((point) => LatLng(point[1], point[0])) // lat, lon
-                .toList();
-
-            polygons.add(polygon);
-          }
-        }
-      }
-    }
-
-    return polygons;
+  Future<void> _setCentroidCoordinates(BuildingEntity building) async {
+    final geodesy = Geodesy();
+    final centroid = geodesy.findPolygonCentroid(building.coordinates.first);
+    building.bldLatitude = centroid.latitude;
+    building.bldLongitude = centroid.longitude;
   }
 
   Future<bool> _validateBuildingOverlap(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    BuildingCubit buildingCubit,
-    Geodesy geodesy,
-  ) async {
-    var buildingsList = (buildingCubit.state as Buildings).buildings;
-    var buildings = _removeFeatureByAttribute(GeneralFields.globalID,
-        attributes[GeneralFields.globalID], buildingsList);
+      BuildingEntity building, List<BuildingEntity> buildings) async {
+    if (buildings.isEmpty) return false;
 
-    var polygons = _extractPolygons(buildings);
+    final geodesy = Geodesy();
+    // Filter out current building by globalId
+    final filteredBuildings =
+        buildings.where((b) => b.globalId != building.globalId);
 
-    for (int i = 0; i < polygons.length; i++) {
-      final polygon = polygons[i];
-      var intersectionPoints =
-          geodesy.getPolygonIntersection(geometryCubit.points, polygon);
+    // Flatten all polygon rings
+    final polygons =
+        filteredBuildings.expand((building) => building.coordinates);
+    // expand((building) => building.coordinates
+    //     .map((coords) => coords.map((point) => LatLng(point[1], point[0]))));
+
+    // The new polygon points for comparison
+    final newPolygonPoints = building.coordinates.first;
+
+    for (final polygon in polygons) {
+      final intersectionPoints = geodesy.getPolygonIntersection(
+        newPolygonPoints.toList(),
+        polygon,
+      );
 
       if (intersectionPoints.isNotEmpty) {
-        return false;
+        return false; // Overlap detected
       }
     }
 
-    return true;
+    return true; // No overlap found
   }
 
   Future<String?> saveBuilding(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    BuildingCubit buildingCubit,
+    BuildingEntity building,
+    List<BuildingEntity> buildings,
     bool isNew,
   ) async {
-    final userService = sl<UserService>();
-    final geodesy = Geodesy();
+    building.bldCentroidStatus = DefaultData.fieldData;
 
-    attributes[BuildFields.bldCentroidStatus] = DefaultData.fieldData;
+    if (building.coordinates.first.isNotEmpty) {
+      await _setCentroidCoordinates(building);
 
-    if (geometryCubit.points.isNotEmpty) {
-      await _setCentroidCoordinates(attributes, geometryCubit, geodesy);
-
-      if (!await _validateBuildingOverlap(
-          attributes, geometryCubit, buildingCubit, geodesy)) {
+      if (!await _validateBuildingOverlap(building, buildings)) {
         return Keys.overlapingBuildings;
       }
     }
 
     if (isNew) {
-      await _createNewBuilding(
-          attributes, geometryCubit, buildingCubit, userService);
+      await _createNewBuilding(building);
     } else {
-      await _updateExistingBuilding(
-          attributes, geometryCubit, buildingCubit, userService);
+      await _updateExistingBuilding(building);
     }
 
     return null;
   }
 
-  Future<void> _createNewBuilding(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    BuildingCubit buildingCubit,
-    UserService userService,
-  ) async {
-    attributes[BuildFields.bldMunicipality] =
-        userService.userInfo?.municipality;
-    attributes[GeneralFields.externalCreator] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalCreatorDate] =
-        DateTime.now().millisecondsSinceEpoch;
+  Future<void> _createNewBuilding(BuildingEntity building) async {
+    final buildingCubit = sl<BuildingCubit>();
+    final userService = sl<UserService>();
 
-    await buildingCubit.addBuildingFeature(attributes, geometryCubit.points);
+    building.bldMunicipality = userService.userInfo?.municipality;
+    building.externalCreator = '{${userService.userInfo?.nameId}}';
+    building.externalCreatorDate = DateTime.now();
+
+    await buildingCubit.addBuildingFeature(building);
   }
 
-  Future<void> _updateExistingBuilding(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    BuildingCubit buildingCubit,
-    UserService userService,
-  ) async {
-    attributes[GeneralFields.externalCreator] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalCreatorDate] =
-        DateTime.now().millisecondsSinceEpoch;
+  Future<void> _updateExistingBuilding(BuildingEntity building) async {
+    final buildingCubit = sl<BuildingCubit>();
+    final userService = sl<UserService>();
+    building.externalCreator = '{${userService.userInfo?.nameId}}';
+    building.externalCreatorDate = DateTime.now();
 
-    await buildingCubit.updateBuildingFeature(attributes, geometryCubit.points);
+    await buildingCubit.updateBuildingFeature(building);
   }
 }

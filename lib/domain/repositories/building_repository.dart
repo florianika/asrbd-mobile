@@ -1,5 +1,7 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -19,19 +21,18 @@ abstract class IBuildingRepository {
 
   Future<void> updateBuildingGlobalId(int objectId, String newGlobalId);
 
-  /// Remote / Service Operations
-  Future<Map<String, dynamic>> getBuildings(
+  Future<List<BuildingEntity>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId);
 
-  Future<Map<String, dynamic>> getBuildingDetails(String globalId);
+  Future<BuildingEntity> getBuildingDetails(String globalId);
 
   Future<List<FieldSchema>> getBuildingAttributes();
 
   Future<String> addBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points);
+      BuildingEntity building);
 
   Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng>? points);
+      BuildingEntity building);
 
   Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId);
 }

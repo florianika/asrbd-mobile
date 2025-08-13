@@ -17,7 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class EventButtonAttribute extends StatelessWidget {
-  final Future<void> Function(Map<String, dynamic>) onSave;
+  final void Function() onSave;
   final Function? onClose;
   final ShapeType selectedShapeType;
   final Function openDwelling;
@@ -66,7 +66,6 @@ class EventButtonAttribute extends StatelessWidget {
         }
       } finally {
         loadingCubit.hide();
-      
       }
     }
 
@@ -125,10 +124,7 @@ class EventButtonAttribute extends StatelessWidget {
             width: buttonWidth,
             height: buttonHeight,
             child: ElevatedButton(
-              onPressed: () async {
-                await onSave({});
-                // await validateData();
-              },
+              onPressed: onSave,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,

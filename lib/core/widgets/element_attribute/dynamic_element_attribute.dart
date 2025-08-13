@@ -4,6 +4,7 @@ import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/attribute_schema.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
@@ -22,12 +23,10 @@ class DynamicElementAttribute extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   final Future<void> Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
-  // final void Function(String?)? onDwelling;
   final bool readOnly;
   final bool showButtons;
   final List<ValidationResult>? validationResults;
-  final List<LatLng>?
-      entrancePointsOnMap; // Pass entrance coordinates for visibility check
+  final List<LatLng>? entrancePointsOnMap;
   final LatLngBounds? visibleBounds;
 
   const DynamicElementAttribute({
@@ -38,7 +37,6 @@ class DynamicElementAttribute extends StatefulWidget {
     this.initialData,
     this.onSave,
     this.onClose,
-    // this.onDwelling,
     this.showButtons = true,
     this.readOnly = false,
     this.validationResults,
@@ -117,6 +115,20 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   Future<void> handleSave() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('save clicked'),
+        duration: Duration(seconds: 10),
+        backgroundColor: Colors.blue,
+        action: SnackBarAction(
+          label: 'UNDO',
+          textColor: Colors.white,
+          onPressed: () {
+            // Handle action
+          },
+        ),
+      ),
+    );
     bool passedValidation = true;
     validationErrors.clear();
 
@@ -128,6 +140,21 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     } else if (widget.selectedShapeType == ShapeType.noShape) {
       schemaItems = schemaService.dwellingSchema;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('  - attributes'),
+        duration: Duration(seconds: 10),
+        backgroundColor: Colors.blue,
+        action: SnackBarAction(
+          label: 'UNDO',
+          textColor: Colors.white,
+          onPressed: () {
+            // Handle action
+          },
+        ),
+      ),
+    );
 
     schemaItems.attributes.map((attribute) {
       final itemFound =

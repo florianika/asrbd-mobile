@@ -18,8 +18,11 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
@@ -72,7 +75,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   final legendService = sl<LegendService>();
 
-  Map<String, dynamic>? buildingsData;
+  List<BuildingEntity> buildingsData = [];
   Map<String, dynamic>? entranceData;
   String? _selectedBuildingGlobalId;
 
@@ -161,7 +164,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
         } else {
           setState(() {
-            buildingsData = null;
+            buildingsData = [];
             entranceData = null;
             _selectedBuildingGlobalId = null;
           });
@@ -219,19 +222,37 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
     if (buildings == null) return;
 
-    final globalId =
-        PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
+    final buildingFound =
+        PolygonHitDetector.getBuildingByTapLocation(buildings, position);
 
-    if (globalId != null) {
-      final geometry =
-          GeometryHelper.getPolygonGeometryById(buildings, globalId);
+    if (buildingFound != null) {
+      // final geometry =
+      //     GeometryHelper.getPolygonGeometryById(buildings, globalId);
 
-      final coordinates = GeometryHelper.getPolygonPoints(geometry!);
+      // final coordinates = GeometryHelper.getPolygonPoints(geometry!);
+
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text('${buildingFound.globalId} - buildingFound.globalId'),
+      //     duration: Duration(seconds: 10),
+      //     backgroundColor: Colors.blue,
+      //     action: SnackBarAction(
+      //       label: 'UNDO',
+      //       textColor: Colors.white,
+      //       onPressed: () {
+      //         // Handle action
+      //       },
+      //     ),
+      //   ),
+      // );
 
       context
           .read<AttributesCubit>()
-          .setCurrentBuildingGlobalId(globalId.removeCurlyBraces());
-      context.read<NewGeometryCubit>().setPoints(coordinates);
+          .showBuildingAttributes(buildingFound.globalId);
+
+      context
+          .read<NewGeometryCubit>()
+          .setPoints(buildingFound.coordinates.first);
       context.read<NewGeometryCubit>().setType(ShapeType.polygon);
       context.read<NewGeometryCubit>().setDrawing(true);
     }
@@ -239,28 +260,21 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleBuildingOnTap(LatLng position) {
     try {
-      final buildingsState = context.read<BuildingCubit>().state;
+      final buildingFound =
+          PolygonHitDetector.getBuildingByTapLocation(buildingsData, position);
 
-      final buildings =
-          buildingsState is Buildings ? buildingsState.buildings : null;
-
-      if (buildings == null) return;
-
-      final globalId =
-          PolygonHitDetector.getPolygonIdAtPoint(buildings, position);
-
-      if (globalId != null) {
+      if (buildingFound != null) {
         context
             .read<AttributesCubit>()
-            .showBuildingAttributes(globalId.removeCurlyBraces());
+            .showBuildingAttributes(buildingFound.globalId);
 
         final storageResponsitory = sl<StorageRepository>();
         storageResponsitory.saveString(
             boxName: HiveBoxes.selectedBuilding,
             key: 'currentBuildingGlobalId',
-            value: globalId);
+            value: buildingFound.globalId!);
 
-        _selectedBuildingGlobalId = globalId;
+        _selectedBuildingGlobalId = buildingFound.globalId;
 
         List<dynamic> buildingEntrances = [];
         List<LatLng> entrancePoints = [];
@@ -278,7 +292,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   feature[GeneralFields.geometry] as Map<String, dynamic>?;
               if (props != null &&
                   props[EntranceFields.entBldGlobalID]?.toString() ==
-                      globalId &&
+                      buildingFound.globalId &&
                   geom != null &&
                   geom[GeneralFields.type] == 'Point') {
                 final coords = geom[GeneralFields.coordinates];
@@ -288,6 +302,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
             }
           }
         }
+
         final bounds = widget.mapController.camera.visibleBounds;
         final anyOutside =
             GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
@@ -300,24 +315,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
           widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
         }
 
-        final features = buildings[GeneralFields.features] as List<dynamic>?;
-        final building = features?.firstWhere(
-          (f) =>
-              f[GeneralFields.properties][GeneralFields.globalID].toString() ==
-              globalId,
-          orElse: () => null,
-        );
-
-        if (building != null) {
-          final geometry = building[GeneralFields.geometry];
-          final polygonPoints = GeometryHelper.getPolygonPoints(geometry);
-
-          if (polygonPoints.isNotEmpty) {
-            final center = GeometryHelper.getPolygonCentroid(polygonPoints);
-
-            widget.mapController.move(center, 20.5);
-          }
-        }
+        final center =
+            GeometryHelper.getPolygonCentroid(buildingFound.coordinates.first);
+        widget.mapController.move(center, 20.5);
       }
     } catch (e) {
       NotifierService.showMessage(
@@ -408,15 +408,16 @@ class _AsrdbMapState extends State<AsrdbMap> {
               );
               return;
             } else if (state is Buildings) {
-              if (state.buildings.isNotEmpty) {
+              setState(() {
                 buildingsData = state.buildings;
+              });
+              if (state.buildings.isNotEmpty) {
                 context.read<EntranceCubit>().getEntrances(
-                      zoom,
-                      EsriConditionHelper.getPropertiesAsList(
-                        GeneralFields.globalID,
-                        state.buildings,
-                      ),
-                    );
+                    zoom,
+                    state.buildings
+                        .map((building) => building.globalId)
+                        .whereType<String>()
+                        .toList());
               }
             }
           },

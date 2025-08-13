@@ -22,6 +22,8 @@ import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -111,15 +113,36 @@ class _ViewMapState extends State<ViewMap> {
     try {
       final isNew = attributes[EntranceFields.globalID] == null;
 
-      bool isValidShape = GeometryHelper.isPointOrValidPolygon(geometryCubit.points);
+      if (attributesCubit.shapeType == ShapeType.polygon) {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text(
+        //         '${BuildingDto.fromMap(attributes).coordinates.length} - coordinates'),
+        //     duration: Duration(seconds: 10),
+        //     backgroundColor: Colors.blue,
+        //     action: SnackBarAction(
+        //       label: 'UNDO',
+        //       textColor: Colors.white,
+        //       onPressed: () {
+        //         // Handle action
+        //       },
+        //     ),
+        //   ),
+        // );
 
-      if (!isValidShape) {
-        NotifierService.showMessage(
-          context,
-          messageKey: Keys.invalidShape,
-          type: MessageType.error,
-        );
-        return;
+        bool isValidShape = GeometryHelper.isPointOrValidPolygon(
+            geometryCubit.points.isNotEmpty
+                ? geometryCubit.points
+                : BuildingDto.fromMap(attributes).coordinates.first);
+
+        if (!isValidShape) {
+          NotifierService.showMessage(
+            context,
+            messageKey: Keys.invalidShape,
+            type: MessageType.error,
+          );
+          return;
+        }
       }
 
       // Check if geometry is outside municipality
@@ -135,7 +158,6 @@ class _ViewMapState extends State<ViewMap> {
       // Process based on shape type
       await _saveEntity(
         attributes,
-        geometryCubit,
         attributesCubit,
         isNew,
       );
@@ -184,30 +206,35 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _saveEntity(
     Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
+    // NewGeometryCubit geometryCubit,
     AttributesCubit attributesCubit,
     bool isNew,
   ) async {
     switch (attributesCubit.shapeType) {
       case ShapeType.point:
-        final entranceUseCase = sl<EntranceUseCases>();
-        final entranceCubit = context.read<EntranceCubit>();
-        final outputLogsCubit = context.read<OutputLogsCubit>();
+        // final entranceUseCase = sl<EntranceUseCases>();
+        // final entranceCubit = context.read<EntranceCubit>();
+        // final outputLogsCubit = context.read<OutputLogsCubit>();
 
-        await entranceUseCase.saveEntrance(
-          attributes,
-          geometryCubit,
-          outputLogsCubit,
-          entranceCubit,
-          isNew,
-        );
+        // await entranceUseCase.saveEntrance(
+        //   attributes,
+        //   // geometryCubit,
+        //   outputLogsCubit,
+        //   entranceCubit,
+        //   isNew,
+        // );
         break;
 
       case ShapeType.polygon:
         final buildingUseCase = sl<BuildingUseCases>();
         final buildingCubit = context.read<BuildingCubit>();
+
         String? response = await buildingUseCase.saveBuilding(
-            attributes, geometryCubit, buildingCubit, isNew);
+          BuildingDto.fromGeoJsonFeature(attributes).toEntity(),
+          // (buildingCubit.state as Buildings).buildings,
+          [],
+          isNew,
+        );
 
         if (response != null && mounted) {
           NotifierService.showMessage(
@@ -277,10 +304,9 @@ class _ViewMapState extends State<ViewMap> {
       loadingCubit.show();
       final buildingDetails =
           await buildingUseCases.getBuildingDetails(globalId);
-      final attributes =
-          buildingDetails[GeneralFields.features][0][GeneralFields.properties];
-      if (attributes[BuildFields.bldQuality] == DefaultData.untestedData &&
-          mounted) {
+      // final attributes =
+      //     buildingDetails[GeneralFields.features][0][GeneralFields.properties];
+      if (buildingDetails.bldQuality == DefaultData.untestedData && mounted) {
         NotifierService.showMessage(
           context,
           messageKey: Keys.finishReviewWarning,
@@ -295,15 +321,15 @@ class _ViewMapState extends State<ViewMap> {
 
         final result = await sl<NoteService>().getNotes(buildingGlobalId);
         final noteCount = result.notes.length;
-        if (attributes[BuildFields.bldQuality] ==
-                DefaultData.dataWithoutErrors &&
+
+        if (buildingDetails.bldQuality == DefaultData.dataWithoutErrors &&
             noteCount == 0) {
-          attributes[BuildFields.bldReview] = DefaultData.reviewApproved;
+          buildingDetails.bldReview = DefaultData.reviewApproved;
         } else {
-          attributes[BuildFields.bldReview] = DefaultData.reviewExecuted;
+          buildingDetails.bldReview = DefaultData.reviewExecuted;
         }
 
-        await buildingCubit.updateBuildingFeature(attributes, null);
+        await buildingCubit.updateBuildingFeature(buildingDetails);
       }
     } catch (e) {
       debugPrint("Error in _finishReviewing: $e");
@@ -465,8 +491,7 @@ class _ViewMapState extends State<ViewMap> {
                     }
                   },
                   builder: (context, state) {
-                    return (state is AttributesVisibility &&
-                            !state.showAttributes)
+                    return (state is Attributes && !state.showAttributes)
                         ? const SizedBox.shrink()
                         : ViewAttribute(
                             schema: state is Attributes ? state.schema : [],

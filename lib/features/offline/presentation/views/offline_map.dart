@@ -198,6 +198,16 @@ class _OfflineMapState extends State<OfflineMap> {
         }
       }
 
+      var buildings = await buildingRepository.getBuildings(
+        _downloadBounds!,
+        AppConfig.minZoomDownload,
+        userService.userInfo!.municipality,
+      );
+
+      
+
+      // buildingRepository.insertBuildings(buildings);
+
       // Save metadata for this download session
       final metadata = {
         'sessionId': sessionId,

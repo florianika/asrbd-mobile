@@ -3,6 +3,8 @@ import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/data/dto/building_dto.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -12,7 +14,7 @@ class BuildingService {
 
   final StorageService _storage = StorageService();
 
-  Future<Map<String, dynamic>> getBuildings(
+  Future<List<BuildingEntity>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId) async {
     try {
       String? esriToken =
@@ -24,11 +26,21 @@ class BuildingService {
       final response =
           await buildingApi.getBuildings(esriToken, bbox, municipalityId);
 
-      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
-        return response.data as Map<String, dynamic>;
+        final data = response.data as Map<String, dynamic>;
+        final features = data['features'] as List<dynamic>? ?? [];
+
+        final List<BuildingDto> buildingsDto = features
+            .map((feature) =>
+                BuildingDto.fromGeoJsonFeature(feature as Map<String, dynamic>))
+            .toList();
+
+        final buildingsEntity =
+            buildingsDto.map((dto) => dto.toEntity()).toList();
+
+        return buildingsEntity;
       } else {
-        throw Exception('Failed to login');
+        throw Exception('Failed to fetch buildings');
       }
     } catch (e) {
       throw Exception('Get buildings failed: $e');
@@ -62,8 +74,7 @@ class BuildingService {
     }
   }
 
-  Future<String> addBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+  Future<String> addBuildingFeature(BuildingEntity building) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
@@ -74,7 +85,7 @@ class BuildingService {
       // if (intersected) throw Exception("Polygon is intersected with other one");
 
       final response =
-          await buildingApi.addBuildingFeature(esriToken, attributes, points);
+          await buildingApi.addBuildingFeature(esriToken, building);
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;
@@ -109,15 +120,16 @@ class BuildingService {
     }
   }
 
-  Future<bool> updateBuildingFeature(
-      Map<String, dynamic> attributes, List<LatLng>? points) async {
+  Future<bool> updateBuildingFeature(BuildingEntity building) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await buildingApi.updateBuildingFeature(
-          esriToken, attributes, points);
+      BuildingDto buildingDto = BuildingDto.fromEntity(building);
+
+      final response =
+          await buildingApi.updateBuildingFeature(esriToken, buildingDto);
       if (response.statusCode == 200) {
         return true;
       } else {
@@ -128,7 +140,7 @@ class BuildingService {
     }
   }
 
-  Future<Map<String, dynamic>> getBuildingDetails(String globalId) async {
+  Future<BuildingEntity> getBuildingDetails(String globalId) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
@@ -144,13 +156,23 @@ class BuildingService {
           throw Exception(
               'Error fetching entrance details: ${mapData['error']['message']}');
         } else {
-          return mapData;
+          final features = mapData['features'] as List<dynamic>? ?? [];
+          final List<BuildingDto> buildingsDto = features
+              .map((feature) => BuildingDto.fromGeoJsonFeature(
+                  feature as Map<String, dynamic>))
+              .toList();
+
+          if (buildingsDto.isNotEmpty) {
+            return buildingsDto[0].toEntity();
+          } else {
+            throw Exception('No building found with globalId: $globalId');
+          }
         }
       } else {
         throw Exception('Get building details error');
       }
     } catch (e) {
-      throw Exception('Get building details: $e');
+      throw Exception('Get building details $globalId: $e');
     }
   }
 

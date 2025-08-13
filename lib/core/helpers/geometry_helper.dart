@@ -1,3 +1,4 @@
+import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodesy/geodesy.dart' show Geodesy;
 import 'package:latlong2/latlong.dart';
@@ -9,15 +10,13 @@ class GeometryHelper {
   }
 
 // Add this method to PolygonHitDetector
-  static Map<String, dynamic>? getPolygonGeometryById(
-      Map<String, dynamic> geoJson, String globalId) {
-    final features = List<Map<String, dynamic>>.from(geoJson['features'] ?? []);
-    for (final feature in features) {
-      if (feature['properties']?['GlobalID']?.toString() == globalId) {
-        return feature['geometry'];
-      }
-    }
-    return null;
+  static BuildingDto? getPolygonGeometryById(
+    List<BuildingDto> buildings,
+    String globalId,
+  ) {
+    return buildings.firstWhere(
+      (b) => b.globalId == globalId,
+    );
   }
 
   static List<LatLng> getPolygonPoints(Map<String, dynamic> geometry) {
@@ -48,12 +47,11 @@ class GeometryHelper {
   }
 
   static bool anyPointOutsideBounds(List<LatLng> points, LatLngBounds bounds) {
-    for (final point in points) {
-      if (!isPointInsideBounds(point, bounds)) {
-        return true;
-      }
-    }
-    return false;
+    Geodesy geodesy = Geodesy();
+    bool anyOutside = points.any((point) => !geodesy.isGeoPointInBoundingBox(
+        point, bounds.northWest, bounds.southEast));
+
+    return anyOutside;
   }
 
   static double _degToRad(double deg) => deg * pi / 180.0;
