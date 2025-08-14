@@ -54,8 +54,8 @@ class BuildingDto {
     this.shapeLength,
     this.shapeArea,
     this.globalId,
-    this.bldCensus2023,
-    this.bldQuality,
+    this.bldCensus2023 = '99999999999',
+    this.bldQuality = 9,
     this.bldMunicipality,
     this.bldEnumArea,
     this.bldLatitude,
@@ -64,24 +64,24 @@ class BuildingDto {
     this.bldProperty,
     this.bldPermitNumber,
     this.bldPermitDate,
-    this.bldStatus,
+    this.bldStatus = 4,
     this.bldYearConstruction,
     this.bldYearDemolition,
-    this.bldType,
-    this.bldClass,
+    this.bldType = 9,
+    this.bldClass = 999,
     this.bldArea,
     this.bldFloorsAbove,
     this.bldHeight,
     this.bldVolume,
-    this.bldWasteWater,
-    this.bldElectricity,
-    this.bldPipedGas,
-    this.bldElevator,
+    this.bldWasteWater = 9,
+    this.bldElectricity = 9,
+    this.bldPipedGas = 9,
+    this.bldElevator = 9,
     this.createdUser,
     this.createdDate,
     this.lastEditedUser,
     this.lastEditedDate,
-    this.bldCentroidStatus,
+    this.bldCentroidStatus = 1,
     this.bldDwellingRecs,
     this.bldEntranceRecs,
     this.bldAddressID,
@@ -107,7 +107,6 @@ class BuildingDto {
     int? safeInt(dynamic v) => (v is num) ? v.toInt() : null;
     double? safeDouble(dynamic v) => (v is num) ? v.toDouble() : null;
 
-    // Parse coordinates from map if present
     List<List<LatLng>> parseCoordinates(dynamic coordsData) {
       final coords = <List<LatLng>>[];
       if (coordsData is List) {
@@ -118,12 +117,10 @@ class BuildingDto {
               if (point is Map &&
                   point.containsKey('latitude') &&
                   point.containsKey('longitude')) {
-                // Handle LatLng objects serialized as maps
                 final lat = (point['latitude'] as num).toDouble();
                 final lon = (point['longitude'] as num).toDouble();
                 listRing.add(LatLng(lat, lon));
               } else if (point is List && point.length >= 2) {
-                // Handle coordinate pairs [lon, lat] or [lat, lon]
                 final lat = (point[0] as num).toDouble();
                 final lon = (point[1] as num).toDouble();
                 listRing.add(LatLng(lat, lon));
@@ -137,63 +134,63 @@ class BuildingDto {
     }
 
     return BuildingDto(
-      objectId: safeInt(map['objectId']) ?? 0,
-      geometryType: map['geometryType'] as String?,
-      coordinates: parseCoordinates(map['coordinates']),
-      shapeLength: safeDouble(map['shapeLength']),
-      shapeArea: safeDouble(map['shapeArea']),
-      globalId: map['globalId'] as String?,
-      bldCensus2023: map['bldCensus2023'] as String?,
-      bldQuality: safeInt(map['bldQuality']),
-      bldMunicipality: safeInt(map['bldMunicipality']),
-      bldEnumArea: map['bldEnumArea'] as String?,
-      bldLatitude: safeDouble(map['bldLatitude']),
-      bldLongitude: safeDouble(map['bldLongitude']),
-      bldCadastralZone: safeInt(map['bldCadastralZone']),
-      bldProperty: map['bldProperty'] as String?,
-      bldPermitNumber: map['bldPermitNumber'] as String?,
-      bldPermitDate: _fromEpochMs(map['bldPermitDate']) ??
-          (map['bldPermitDate'] is String
-              ? DateTime.tryParse(map['bldPermitDate'])
+      objectId: safeInt(map['ObjectId']) ?? 0,
+      geometryType: map['GeometryType'] as String?,
+      coordinates: parseCoordinates(map['Coordinates']),
+      shapeLength: safeDouble(map['ShapeLength']),
+      shapeArea: safeDouble(map['ShapeArea']),
+      globalId: map['GlobalId'] as String?,
+      bldCensus2023: map['BldCensus2023'] as String?,
+      bldQuality: safeInt(map['BldQuality']),
+      bldMunicipality: safeInt(map['BldMunicipality']),
+      bldEnumArea: map['BldEnumArea'] as String?,
+      bldLatitude: safeDouble(map['BldLatitude']),
+      bldLongitude: safeDouble(map['BldLongitude']),
+      bldCadastralZone: safeInt(map['BldCadastralZone']),
+      bldProperty: map['BldProperty'] as String?,
+      bldPermitNumber: map['BldPermitNumber'] as String?,
+      bldPermitDate: _fromEpochMs(map['BldPermitDate']) ??
+          (map['BldPermitDate'] is String
+              ? DateTime.tryParse(map['BldPermitDate'])
               : null),
-      bldStatus: safeInt(map['bldStatus']),
-      bldYearConstruction: safeInt(map['bldYearConstruction']),
-      bldYearDemolition: safeInt(map['bldYearDemolition']),
-      bldType: safeInt(map['bldType']),
-      bldClass: safeInt(map['bldClass']),
-      bldArea: safeDouble(map['bldArea']),
-      bldFloorsAbove: safeInt(map['bldFloorsAbove']),
-      bldHeight: safeDouble(map['bldHeight']),
-      bldVolume: safeDouble(map['bldVolume']),
-      bldWasteWater: safeInt(map['bldWasteWater']),
-      bldElectricity: safeInt(map['bldElectricity']),
-      bldPipedGas: safeInt(map['bldPipedGas']),
-      bldElevator: safeInt(map['bldElevator']),
-      createdUser: map['createdUser'] as String?,
-      createdDate: _fromEpochMs(map['createdDate']) ??
-          (map['createdDate'] is String
-              ? DateTime.tryParse(map['createdDate'])
+      bldStatus: safeInt(map['BldStatus']),
+      bldYearConstruction: safeInt(map['BldYearConstruction']),
+      bldYearDemolition: safeInt(map['BldYearDemolition']),
+      bldType: safeInt(map['BldType']),
+      bldClass: safeInt(map['BldClass']),
+      bldArea: safeDouble(map['BldArea']),
+      bldFloorsAbove: safeInt(map['BldFloorsAbove']),
+      bldHeight: safeDouble(map['BldHeight']),
+      bldVolume: safeDouble(map['BldVolume']),
+      bldWasteWater: safeInt(map['BldWasteWater']),
+      bldElectricity: safeInt(map['BldElectricity']),
+      bldPipedGas: safeInt(map['BldPipedGas']),
+      bldElevator: safeInt(map['BldElevator']),
+      createdUser: map['CreatedUser'] as String?,
+      createdDate: _fromEpochMs(map['CreatedDate']) ??
+          (map['CreatedDate'] is String
+              ? DateTime.tryParse(map['CreatedDate'])
               : null),
-      lastEditedUser: map['lastEditedUser'] as String?,
-      lastEditedDate: _fromEpochMs(map['lastEditedDate']) ??
-          (map['lastEditedDate'] is String
-              ? DateTime.tryParse(map['lastEditedDate'])
+      lastEditedUser: map['LastEditedUser'] as String?,
+      lastEditedDate: _fromEpochMs(map['LastEditedDate']) ??
+          (map['LastEditedDate'] is String
+              ? DateTime.tryParse(map['LastEditedDate'])
               : null),
-      bldCentroidStatus: safeInt(map['bldCentroidStatus']),
-      bldDwellingRecs: safeInt(map['bldDwellingRecs']),
-      bldEntranceRecs: safeInt(map['bldEntranceRecs']),
-      bldAddressID: map['bldAddressID'] as String?,
-      externalCreator: map['externalCreator'] as String?,
-      externalEditor: map['externalEditor'] as String?,
-      bldReview: safeInt(map['bldReview']),
-      bldWaterSupply: safeInt(map['bldWaterSupply']),
-      externalCreatorDate: _fromEpochMs(map['externalCreatorDate']) ??
-          (map['externalCreatorDate'] is String
-              ? DateTime.tryParse(map['externalCreatorDate'])
+      bldCentroidStatus: safeInt(map['BldCentroidStatus']),
+      bldDwellingRecs: safeInt(map['BldDwellingRecs']),
+      bldEntranceRecs: safeInt(map['BldEntranceRecs']),
+      bldAddressID: map['BldAddressID'] as String?,
+      externalCreator: map['ExternalCreator'] as String?,
+      externalEditor: map['ExternalEditor'] as String?,
+      bldReview: safeInt(map['BldReview']),
+      bldWaterSupply: safeInt(map['BldWaterSupply']),
+      externalCreatorDate: _fromEpochMs(map['ExternalCreatorDate']) ??
+          (map['ExternalCreatorDate'] is String
+              ? DateTime.tryParse(map['ExternalCreatorDate'])
               : null),
-      externalEditorDate: _fromEpochMs(map['externalEditorDate']) ??
-          (map['externalEditorDate'] is String
-              ? DateTime.tryParse(map['externalEditorDate'])
+      externalEditorDate: _fromEpochMs(map['ExternalEditorDate']) ??
+          (map['ExternalEditorDate'] is String
+              ? DateTime.tryParse(map['ExternalEditorDate'])
               : null),
     );
   }
@@ -428,5 +425,60 @@ class BuildingDto {
       externalCreatorDate: entity.externalCreatorDate,
       externalEditorDate: entity.externalEditorDate,
     );
+  }
+
+  Map<String, dynamic> toEsriFeature() {
+    return {
+      "geometry": {
+        "rings": coordinates
+            .map((ring) =>
+                ring.map((point) => [point.longitude, point.latitude]).toList())
+            .toList(),
+        "spatialReference": {"wkid": 4326}
+      },
+      "attributes": {
+        "OBJECTID": objectId,
+        "Shape__Length": shapeLength,
+        "Shape__Area": shapeArea,
+        "GlobalID": globalId,
+        "BldCensus2023": bldCensus2023,
+        "BldQuality": bldQuality,
+        "BldMunicipality": bldMunicipality,
+        "BldEnumArea": bldEnumArea,
+        "BldLatitude": bldLatitude,
+        "BldLongitude": bldLongitude,
+        "BldCadastralZone": bldCadastralZone,
+        "BldProperty": bldProperty,
+        "BldPermitNumber": bldPermitNumber,
+        "BldPermitDate": bldPermitDate?.millisecondsSinceEpoch,
+        "BldStatus": bldStatus,
+        "BldYearConstruction": bldYearConstruction,
+        "BldYearDemolition": bldYearDemolition,
+        "BldType": bldType,
+        "BldClass": bldClass,
+        "BldArea": bldArea,
+        "BldFloorsAbove": bldFloorsAbove,
+        "BldHeight": bldHeight,
+        "BldVolume": bldVolume,
+        "BldWasteWater": bldWasteWater,
+        "BldElectricity": bldElectricity,
+        "BldPipedGas": bldPipedGas,
+        "BldElevator": bldElevator,
+        "created_user": createdUser,
+        "created_date": createdDate?.millisecondsSinceEpoch,
+        "last_edited_user": lastEditedUser,
+        "last_edited_date": lastEditedDate?.millisecondsSinceEpoch,
+        "BldCentroidStatus": bldCentroidStatus,
+        "BldDwellingRecs": bldDwellingRecs,
+        "BldEntranceRecs": bldEntranceRecs,
+        "BldAddressID": bldAddressID,
+        "external_creator": externalCreator,
+        "external_editor": externalEditor,
+        "BldReview": bldReview,
+        "BldWaterSupply": bldWaterSupply,
+        "external_creator_date": externalCreatorDate?.millisecondsSinceEpoch,
+        "external_editor_date": externalEditorDate?.millisecondsSinceEpoch,
+      }
+    };
   }
 }

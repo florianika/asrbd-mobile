@@ -343,4 +343,31 @@ class GeometryHelper {
 
     return false;
   }
+
+  static List<List<LatLng>> convertGeometryCoordinates(
+      Map<String, dynamic> geometry) {
+    final coordinates = geometry['coordinates'];
+
+    if (coordinates == null || coordinates is! List) {
+      throw ArgumentError(
+          'Invalid geometry: coordinates missing or not a List');
+    }
+
+    return coordinates.map<List<LatLng>>((ring) {
+      if (ring is! List) {
+        throw ArgumentError('Invalid ring: expected a List of points');
+      }
+      return ring.map<LatLng>((pointMap) {
+        if (pointMap is! Map) {
+          throw ArgumentError('Invalid point: expected a Map with lat/lng');
+        }
+        final lat = pointMap['lat'];
+        final lng = pointMap['lng'];
+        if (lat == null || lng == null) {
+          throw ArgumentError('Point missing lat or lng');
+        }
+        return LatLng(lat.toDouble(), lng.toDouble());
+      }).toList();
+    }).toList();
+  }
 }

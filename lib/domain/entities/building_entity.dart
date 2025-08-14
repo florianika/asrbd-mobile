@@ -51,13 +51,13 @@ class BuildingEntity {
   BuildingEntity({
     required this.objectId,
     this.featureId,
-    this.geometryType,
+    this.geometryType = "Polygon",
     required this.coordinates,
     this.shapeLength,
     this.shapeArea,
     this.globalId,
-    this.bldCensus2023,
-    this.bldQuality,
+    this.bldCensus2023 = '99999999999',
+    this.bldQuality = 9,
     this.bldMunicipality,
     this.bldEnumArea,
     this.bldLatitude,
@@ -66,34 +66,137 @@ class BuildingEntity {
     this.bldProperty,
     this.bldPermitNumber,
     this.bldPermitDate,
-    this.bldStatus,
+    this.bldStatus = 4,
     this.bldYearConstruction,
     this.bldYearDemolition,
-    this.bldType,
-    this.bldClass,
+    this.bldType = 9,
+    this.bldClass = 999,
     this.bldArea,
     this.bldFloorsAbove,
     this.bldHeight,
     this.bldVolume,
-    this.bldWasteWater,
-    this.bldElectricity,
-    this.bldPipedGas,
-    this.bldElevator,
+    this.bldWasteWater = 9,
+    this.bldElectricity = 9,
+    this.bldPipedGas = 9,
+    this.bldElevator = 9,
     this.createdUser,
     this.createdDate,
     this.lastEditedUser,
     this.lastEditedDate,
-    this.bldCentroidStatus,
+    this.bldCentroidStatus = 1,
     this.bldDwellingRecs,
     this.bldEntranceRecs,
     this.bldAddressID,
     this.externalCreator,
     this.externalEditor,
-    this.bldReview,
-    this.bldWaterSupply,
+    this.bldReview = 1,
+    this.bldWaterSupply = 99,
     this.externalCreatorDate,
     this.externalEditorDate,
   });
+
+  static DateTime? _fromEpochMs(dynamic v) {
+    if (v == null) return null;
+    if (v is int) return DateTime.fromMillisecondsSinceEpoch(v);
+    if (v is String) {
+      final parsed = int.tryParse(v);
+      if (parsed != null) return DateTime.fromMillisecondsSinceEpoch(parsed);
+    }
+    return null;
+  }
+
+  factory BuildingEntity.fromMap(Map<String, dynamic> map) {
+    int? safeInt(dynamic v) => (v is num) ? v.toInt() : null;
+    double? safeDouble(dynamic v) => (v is num) ? v.toDouble() : null;
+
+    List<List<LatLng>> parseCoordinates(dynamic coordsData) {
+      final coords = <List<LatLng>>[];
+      if (coordsData is List) {
+        for (final ring in coordsData) {
+          final listRing = <LatLng>[];
+          if (ring is List) {
+            for (final point in ring) {
+              if (point is Map &&
+                  point.containsKey('latitude') &&
+                  point.containsKey('longitude')) {
+                final lat = (point['latitude'] as num).toDouble();
+                final lon = (point['longitude'] as num).toDouble();
+                listRing.add(LatLng(lat, lon));
+              } else if (point is List && point.length >= 2) {
+                final lat = (point[0] as num).toDouble();
+                final lon = (point[1] as num).toDouble();
+                listRing.add(LatLng(lat, lon));
+              }
+            }
+          }
+          coords.add(listRing);
+        }
+      }
+      return coords;
+    }
+
+    return BuildingEntity(
+      globalId: map['GlobalId'] as String?,
+      objectId: safeInt(map['ObjectId']) ?? 0,
+      featureId: safeInt(map['FeatureId']),
+      geometryType: map['GeometryType'] as String?,
+      coordinates: parseCoordinates(map['Coordinates']),
+      shapeLength: safeDouble(map['ShapeLength']),
+      shapeArea: safeDouble(map['ShapeArea']),
+      bldCensus2023: map['BldCensus2023'] as String?,
+      bldQuality: safeInt(map['BldQuality']),
+      bldMunicipality: safeInt(map['BldMunicipality']),
+      bldEnumArea: map['BldEnumArea'] as String?,
+      bldLatitude: safeDouble(map['BldLatitude']),
+      bldLongitude: safeDouble(map['BldLongitude']),
+      bldCadastralZone: safeInt(map['BldCadastralZone']),
+      bldProperty: map['BldProperty'] as String?,
+      bldPermitNumber: map['BldPermitNumber'] as String?,
+      bldPermitDate: _fromEpochMs(map['BldPermitDate']) ??
+          (map['BldPermitDate'] is String
+              ? DateTime.tryParse(map['BldPermitDate'])
+              : null),
+      bldStatus: safeInt(map['BldStatus']),
+      bldYearConstruction: safeInt(map['BldYearConstruction']),
+      bldYearDemolition: safeInt(map['BldYearDemolition']),
+      bldType: safeInt(map['BldType']),
+      bldClass: safeInt(map['BldClass']),
+      bldArea: safeDouble(map['BldArea']),
+      bldFloorsAbove: safeInt(map['BldFloorsAbove']),
+      bldHeight: safeDouble(map['BldHeight']),
+      bldVolume: safeDouble(map['BldVolume']),
+      bldWasteWater: safeInt(map['BldWasteWater']),
+      bldElectricity: safeInt(map['BldElectricity']),
+      bldPipedGas: safeInt(map['BldPipedGas']),
+      bldElevator: safeInt(map['BldElevator']),
+      createdUser: map['CreatedUser'] as String?,
+      createdDate: _fromEpochMs(map['CreatedDate']) ??
+          (map['CreatedDate'] is String
+              ? DateTime.tryParse(map['CreatedDate'])
+              : null),
+      lastEditedUser: map['LastEditedUser'] as String?,
+      lastEditedDate: _fromEpochMs(map['LastEditedDate']) ??
+          (map['LastEditedDate'] is String
+              ? DateTime.tryParse(map['LastEditedDate'])
+              : null),
+      bldCentroidStatus: safeInt(map['BldCentroidStatus']),
+      bldDwellingRecs: safeInt(map['BldDwellingRecs']),
+      bldEntranceRecs: safeInt(map['BldEntranceRecs']),
+      bldAddressID: map['BldAddressID'] as String?,
+      externalCreator: map['ExternalCreator'] as String?,
+      externalEditor: map['ExternalEditor'] as String?,
+      bldReview: safeInt(map['BldReview']),
+      bldWaterSupply: safeInt(map['BldWaterSupply']),
+      externalCreatorDate: _fromEpochMs(map['ExternalCreatorDate']) ??
+          (map['ExternalCreatorDate'] is String
+              ? DateTime.tryParse(map['ExternalCreatorDate'])
+              : null),
+      externalEditorDate: _fromEpochMs(map['ExternalEditorDate']) ??
+          (map['ExternalEditorDate'] is String
+              ? DateTime.tryParse(map['ExternalEditorDate'])
+              : null),
+    );
+  }
 }
 
 extension BuildingEntityMapper on BuildingEntity {
@@ -101,14 +204,14 @@ extension BuildingEntityMapper on BuildingEntity {
     return {
       'GlobalID': globalId,
       'OBJECTID': objectId,
-      'featureId': featureId,
-      'geometryType': geometryType,
-      'coordinates': coordinates
+      'FeatureId': featureId,
+      'GeometryType': geometryType,
+      'Coordinates': coordinates
           .map((ring) =>
               ring.map((point) => [point.longitude, point.latitude]).toList())
           .toList(),
       'Shape__Length': shapeLength,
-      'Shape__Area': shapeArea,      
+      'Shape__Area': shapeArea,
       'BldCensus2023': bldCensus2023,
       'BldQuality': bldQuality,
       'BldMunicipality': bldMunicipality,

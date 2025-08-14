@@ -5,7 +5,6 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:dio/dio.dart';
-import 'package:latlong2/latlong.dart';
 import 'api_endpoints.dart';
 
 class BuildingApi {
@@ -54,7 +53,7 @@ class BuildingApi {
 
     final payload = {
       'f': 'json',
-      'features': jsonEncode([buildingDto.toGeoJsonFeature()]),
+      'features': jsonEncode([buildingDto.toEsriFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };

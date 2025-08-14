@@ -66,6 +66,7 @@ dependencies:
   web_socket_channel: ^3.0.3
   drift: ^2.18.0
   sqlite3_flutter_libs: ^0.5.15
+  turf: ^0.0.10
 
 dependency_overrides:
   geolocator_android: 4.6.1

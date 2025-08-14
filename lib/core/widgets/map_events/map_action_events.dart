@@ -47,7 +47,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.2),
                         border: Border.all(
-                          color: (state as NewGeometry).type == ShapeType.point
+                          color: state.type == ShapeType.point
                               ? Colors.red
                               : Colors.blue,
                           width: 2,
@@ -101,7 +101,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           {
                             context
                                 .read<AttributesCubit>()
-                                .showBuildingAttributes(currentBuildingGlobalId)
+                                .addNewBuilding(state.points)
                           },
                       },
                       isEnabled: (((state).points.length > 2 &&

@@ -8,6 +8,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
+import 'package:latlong2/latlong.dart';
 
 abstract class AttributesState extends Equatable {
   @override
@@ -218,6 +219,59 @@ class AttributesCubit extends Cubit<AttributesState> {
         building.toMap(),
         ShapeType.polygon,
         buildingGlobalID,
+        null,
+        null,
+        showAttributes: true,
+      ));
+    } catch (e) {
+      emit(AttributesError(e.toString()));
+    }
+  }
+
+  Future<void> addNewBuilding(List<LatLng> coordinates) async {
+    if (showLoading) emit(AttributesLoading());
+    try {
+      final schema = await buildingUseCases.getBuildingAttibutes();
+
+      // Create a new BuildingEntity with defaults
+      final newBuilding = BuildingEntity(
+        objectId: 0,
+        coordinates: [coordinates],
+        shapeLength: null,
+        shapeArea: null,
+        globalId: null,
+        bldMunicipality: null,
+        bldEnumArea: null,
+        bldLatitude: null,
+        bldLongitude: null,
+        bldCadastralZone: null,
+        bldProperty: null,
+        bldPermitNumber: null,
+        bldPermitDate: null,
+        bldYearConstruction: null,
+        bldYearDemolition: null,
+        bldArea: null,
+        bldFloorsAbove: null,
+        bldHeight: null,
+        bldVolume: null,
+        createdUser: null,
+        createdDate: null,
+        lastEditedUser: null,
+        lastEditedDate: null,
+        bldDwellingRecs: null,
+        bldEntranceRecs: null,
+        bldAddressID: null,
+        externalCreator: null,
+        externalEditor: null,
+        externalCreatorDate: null,
+        externalEditorDate: null,
+      );
+
+      emit(Attributes(
+        schema,
+        newBuilding.toMap(),
+        ShapeType.polygon,
+        null,
         null,
         null,
         showAttributes: true,

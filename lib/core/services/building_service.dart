@@ -86,6 +86,7 @@ class BuildingService {
 
       final response =
           await buildingApi.addBuildingFeature(esriToken, building);
+          
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;

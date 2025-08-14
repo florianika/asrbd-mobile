@@ -8,7 +8,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
 
 class MapAppBar extends StatefulWidget implements PreferredSizeWidget {
-  const MapAppBar({super.key});
+  final String? msg;
+  const MapAppBar({super.key, this.msg});
 
   @override
   State<MapAppBar> createState() => _MapAppBarState();
@@ -26,7 +27,6 @@ class _MapAppBarState extends State<MapAppBar> {
     return BlocBuilder<FieldWorkCubit, FieldWorkStatus>(
       builder: (context, fieldWorkStatus) {
         final isActive = fieldWorkStatus.isFieldworkTime;
-        final msg = fieldWorkStatus.msg ?? '';
 
         // Detect change in field work status
         if (_previousFieldWorkStatus != null &&
@@ -41,7 +41,7 @@ class _MapAppBarState extends State<MapAppBar> {
           title: BlocBuilder<AttributesCubit, AttributesState>(
             builder: (context, state) {
               return Text(
-                'ASRDB - $msg',
+                'ASRDB - ${widget.msg}',
                 style: const TextStyle(fontSize: 12),
               );
             },

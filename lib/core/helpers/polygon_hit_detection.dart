@@ -21,6 +21,27 @@ class PolygonHitDetector {
     return null;
   }
 
+  static bool anyPointOutsideMultiPolygon(
+      List<LatLng> points, List<List<LatLng>> multiPolygonRings) {
+    final geodesy = Geodesy();
+
+    for (final point in points) {
+      bool insideAnyPolygon = false;
+
+      for (final polygon in multiPolygonRings) {
+        if (geodesy.isGeoPointInPolygon(point, polygon)) {
+          insideAnyPolygon = true;
+          break;
+        }
+      }
+
+      if (!insideAnyPolygon) {
+        return true; // Found a point outside all polygons
+      }
+    }
+    return false; // All points are inside at least one polygon
+  }
+
   /// Returns true if any point in the list falls outside the MultiPolygon
   static bool hasPointOutsideMultiPolygon(
     Map<String, dynamic> multiPolygonGeometry,
@@ -52,7 +73,6 @@ class PolygonHitDetector {
 
     return false; // All points are inside
   }
-
 
   /// Checks if point is in polygon coordinates (handles holes)
   static bool _isPointInPolygonCoordinates(

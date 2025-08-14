@@ -7,6 +7,7 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodesy/geodesy.dart';
+import 'package:turf/turf.dart' as turf;
 
 class BuildingUseCases {
   final BuildingRepository _buildingRepository;
@@ -80,6 +82,16 @@ class BuildingUseCases {
     return false;
   }
 
+  // List<List<turf.Position>> _toTurfCoords(List<List<LatLng>> coords) {
+  //   return coords
+  //       .map((ring) => ring
+  //           .map((latLng) => turf.Position(
+  //                   latLng.longitude, latLng.latitude) // turf wants [lng, lat]
+  //               )
+  //           .toList())
+  //       .toList();
+  // }
+
   Future<void> _setCentroidCoordinates(BuildingEntity building) async {
     final geodesy = Geodesy();
     final centroid = geodesy.findPolygonCentroid(building.coordinates.first);
@@ -87,71 +99,76 @@ class BuildingUseCases {
     building.bldLongitude = centroid.longitude;
   }
 
-  Future<bool> _validateBuildingOverlap(
-      BuildingEntity building, List<BuildingEntity> buildings) async {
-    if (buildings.isEmpty) return false;
-
-    final geodesy = Geodesy();
-    // Filter out current building by globalId
-    final filteredBuildings =
-        buildings.where((b) => b.globalId != building.globalId);
-
-    // Flatten all polygon rings
-    final polygons =
-        filteredBuildings.expand((building) => building.coordinates);
-    // expand((building) => building.coordinates
-    //     .map((coords) => coords.map((point) => LatLng(point[1], point[0]))));
-
-    // The new polygon points for comparison
-    final newPolygonPoints = building.coordinates.first;
-
-    for (final polygon in polygons) {
-      final intersectionPoints = geodesy.getPolygonIntersection(
-        newPolygonPoints.toList(),
-        polygon,
-      );
-
-      if (intersectionPoints.isNotEmpty) {
-        return false; // Overlap detected
+  List<List<LatLng>> _closePolygon(List<List<LatLng>> coords) {
+    return coords.map((ring) {
+      final copy = List<LatLng>.from(ring);
+      if (copy.first != copy.last) {
+        copy.add(copy.first);
       }
-    }
-
-    return true; // No overlap found
+      return copy;
+    }).toList();
   }
 
-  Future<String?> saveBuilding(
+  bool intersectsWithOtherBuildings(
     BuildingEntity building,
     List<BuildingEntity> buildings,
-    bool isNew,
-  ) async {
-    building.bldCentroidStatus = DefaultData.fieldData;
+  ) {
+    if (buildings.isEmpty) return false;
 
-    if (building.coordinates.first.isNotEmpty) {
-      await _setCentroidCoordinates(building);
+    List<List<LatLng>> newBuildingCoordinates =
+        _closePolygon(building.coordinates);
 
-      if (!await _validateBuildingOverlap(building, buildings)) {
-        return Keys.overlapingBuildings;
+    // Convert LatLng list to turf.Position
+    List<List<turf.Position>> toTurfCoords(List<List<LatLng>> coords) {
+      return coords
+          .map((ring) => ring
+              .map((latLng) => turf.Position(latLng.longitude, latLng.latitude))
+              .toList())
+          .toList();
+    }
+
+    final geom1 =
+        turf.Polygon(coordinates: toTurfCoords(newBuildingCoordinates));
+
+    for (final b in buildings) {
+      List<List<LatLng>> bCoordinates = _closePolygon(b.coordinates);
+
+      final geom2 = turf.Polygon(coordinates: toTurfCoords(bCoordinates));
+      if (turf.booleanIntersects(geom1, geom2)) {
+        return true;
       }
     }
 
-    if (isNew) {
-      await _createNewBuilding(building);
-    } else {
-      await _updateExistingBuilding(building);
-    }
-
-    return null;
+    return false;
   }
 
-  Future<void> _createNewBuilding(BuildingEntity building) async {
-    final buildingCubit = sl<BuildingCubit>();
+  Future<SaveResult> saveBuilding(
+    BuildingEntity building,
+    bool offlineMode,
+  ) async {
+    bool isNewBuilding = building.globalId == null;
+    building.bldCentroidStatus = DefaultData.fieldData;
+
+    await _setCentroidCoordinates(building);
+
+    if (isNewBuilding) {
+      String globalId = await _createNewBuilding(building);
+      return SaveResult(true, Keys.successAddBuilding, globalId);
+    } else {
+      await _updateExistingBuilding(building);
+      return SaveResult(true, Keys.successUpdateBuilding, building.globalId);
+    }
+  }
+
+  Future<String> _createNewBuilding(BuildingEntity building) async {
+    final buildingUseCase = sl<BuildingUseCases>();
     final userService = sl<UserService>();
 
     building.bldMunicipality = userService.userInfo?.municipality;
     building.externalCreator = '{${userService.userInfo?.nameId}}';
     building.externalCreatorDate = DateTime.now();
 
-    await buildingCubit.addBuildingFeature(building);
+    return await buildingUseCase.addBuildingFeature(building);
   }
 
   Future<void> _updateExistingBuilding(BuildingEntity building) async {

@@ -1,4 +1,5 @@
 import 'package:asrdb/core/db/street_database.dart';
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
@@ -7,6 +8,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/main.dart';
@@ -115,20 +117,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   Future<void> handleSave() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('save clicked'),
-        duration: Duration(seconds: 10),
-        backgroundColor: Colors.blue,
-        action: SnackBarAction(
-          label: 'UNDO',
-          textColor: Colors.white,
-          onPressed: () {
-            // Handle action
-          },
-        ),
-      ),
-    );
     bool passedValidation = true;
     validationErrors.clear();
 
@@ -140,21 +128,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     } else if (widget.selectedShapeType == ShapeType.noShape) {
       schemaItems = schemaService.dwellingSchema;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('  - attributes'),
-        duration: Duration(seconds: 10),
-        backgroundColor: Colors.blue,
-        action: SnackBarAction(
-          label: 'UNDO',
-          textColor: Colors.white,
-          onPressed: () {
-            // Handle action
-          },
-        ),
-      ),
-    );
 
     schemaItems.attributes.map((attribute) {
       final itemFound =
@@ -168,7 +141,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       }
     });
 
-    setState(() {});
+    setState(() {});   
 
     if (passedValidation && widget.onSave != null) {
       await widget.onSave!(formValues);

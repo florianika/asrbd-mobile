@@ -24,6 +24,7 @@ import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -39,6 +40,7 @@ import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -72,6 +74,7 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
   bool _entranceOutsideVisibleArea = false;
+  int? BldQuality;
 
   final legendService = sl<LegendService>();
 
@@ -111,67 +114,56 @@ class _ViewMapState extends State<ViewMap> {
     loadingCubit.show();
 
     try {
-      final isNew = attributes[EntranceFields.globalID] == null;
+      // if (attributesCubit.shapeType == ShapeType.polygon) {
+      //   bool isValidShape = GeometryHelper.isPointOrValidPolygon(
+      //       geometryCubit.points.isNotEmpty
+      //           ? geometryCubit.points
+      //           : BuildingDto.fromMap(attributes).coordinates.first);
 
-      if (attributesCubit.shapeType == ShapeType.polygon) {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text(
-        //         '${BuildingDto.fromMap(attributes).coordinates.length} - coordinates'),
-        //     duration: Duration(seconds: 10),
-        //     backgroundColor: Colors.blue,
-        //     action: SnackBarAction(
-        //       label: 'UNDO',
-        //       textColor: Colors.white,
-        //       onPressed: () {
-        //         // Handle action
-        //       },
-        //     ),
-        //   ),
-        // );
+      //   if (!isValidShape) {
+      //     NotifierService.showMessage(
+      //       context,
+      //       messageKey: Keys.invalidShape,
+      //       type: MessageType.error,
+      //     );
+      //     return;
+      //   }
+      // }
 
-        bool isValidShape = GeometryHelper.isPointOrValidPolygon(
-            geometryCubit.points.isNotEmpty
-                ? geometryCubit.points
-                : BuildingDto.fromMap(attributes).coordinates.first);
-
-        if (!isValidShape) {
-          NotifierService.showMessage(
-            context,
-            messageKey: Keys.invalidShape,
-            type: MessageType.error,
-          );
-          return;
-        }
-      }
+      final building = BuildingEntity.fromMap(attributes);
+      setState(() {
+        BldQuality = building.bldQuality;
+      });
 
       // Check if geometry is outside municipality
-      if (!await _validateMunicipalityBounds(geometryCubit) && mounted) {
-        NotifierService.showMessage(
-          context,
-          messageKey: Keys.outsideMunicipality,
-          type: MessageType.warning,
-        );
-        return;
-      }
+      // if (!await _isWithinMunicipality(building.coordinates.first) && mounted) {
+      //   NotifierService.showMessage(
+      //     context,
+      //     messageKey: Keys.outsideMunicipality,
+      //     type: MessageType.warning,
+      //   );
+      //   return;
+      // }
+
+      await _saveBuilding(building);
 
       // Process based on shape type
-      await _saveEntity(
-        attributes,
-        attributesCubit,
-        isNew,
-      );
+      // await _saveEntity(
+      //   attributes,
+      //   attributesCubit,
+      //   isNew,
+      // );
 
       // Clean up after successful save
       _cleanupAfterSave(geometryCubit);
 
-      if (mounted) {
-        NotifierService.showMessage(
-          context,
-          messageKey: Keys.successGeneral,
-          type: MessageType.success,
-        );
-      }
+      // if (mounted) {
+      //   NotifierService.showMessage(
+      //     context,
+      //     messageKey: Keys.successGeneral,
+      //     type: MessageType.success,
+      //   );
+      // }
     } catch (e) {
       _handleSaveError(e);
     } finally {
@@ -179,20 +171,47 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<bool> _validateMunicipalityBounds(
-      NewGeometryCubit geometryCubit) async {
+  // Future<bool> _validateMunicipalityBounds(
+  //     NewGeometryCubit geometryCubit) async {
+  //   bool isOutsideMunicipality = false;
+
+  //   final state = context.read<MunicipalityCubit>().state;
+
+  //   if (state is Municipality && geometryCubit.points.isNotEmpty) {
+  //     final municipality = state.municipality;
+  //     isOutsideMunicipality = PolygonHitDetector.anyPointOutsideMultiPolygon(
+  //       municipality![GeneralFields.features][0][GeneralFields.geometry],
+  //       geometryCubit.points,
+  //     );
+  //   }
+
+  //   if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
+  //     NotifierService.showMessage(
+  //       context,
+  //       messageKey: Keys.outsideMunicipality,
+  //       type: MessageType.warning,
+  //     );
+  //     return false;
+  //   }
+
+  //   return true;
+  // }
+
+  Future<bool> _isWithinMunicipality(List<LatLng> coordinates) async {
     bool isOutsideMunicipality = false;
 
     final state = context.read<MunicipalityCubit>().state;
 
-    if (state is Municipality && geometryCubit.points.isNotEmpty) {
+    if (state is Municipality && coordinates.isNotEmpty) {
       final municipality = state.municipality;
-      isOutsideMunicipality = PolygonHitDetector.hasPointOutsideMultiPolygon(
-          municipality![GeneralFields.features][0][GeneralFields.geometry],
-          geometryCubit.points);
+      isOutsideMunicipality = PolygonHitDetector.anyPointOutsideMultiPolygon(
+        coordinates,
+        GeometryHelper.convertGeometryCoordinates(
+            municipality![GeneralFields.features][0][GeneralFields.geometry]),
+      );
     }
 
-    if (isOutsideMunicipality && geometryCubit.points.isNotEmpty) {
+    if (isOutsideMunicipality && coordinates.isNotEmpty) {
       NotifierService.showMessage(
         context,
         messageKey: Keys.outsideMunicipality,
@@ -204,65 +223,105 @@ class _ViewMapState extends State<ViewMap> {
     return true;
   }
 
-  Future<void> _saveEntity(
-    Map<String, dynamic> attributes,
-    // NewGeometryCubit geometryCubit,
-    AttributesCubit attributesCubit,
-    bool isNew,
-  ) async {
-    switch (attributesCubit.shapeType) {
-      case ShapeType.point:
-        // final entranceUseCase = sl<EntranceUseCases>();
-        // final entranceCubit = context.read<EntranceCubit>();
-        // final outputLogsCubit = context.read<OutputLogsCubit>();
+  Future<void> _saveBuilding(BuildingEntity building) async {
+    final buildingUseCase = sl<BuildingUseCases>();
+    final buildingCubit = context.read<BuildingCubit>();
+    final offlineMode = false;
 
-        // await entranceUseCase.saveEntrance(
-        //   attributes,
-        //   // geometryCubit,
-        //   outputLogsCubit,
-        //   entranceCubit,
-        //   isNew,
-        // );
-        break;
+    try {
+      final buildings = (buildingCubit.state as Buildings).buildings;
 
-      case ShapeType.polygon:
-        final buildingUseCase = sl<BuildingUseCases>();
-        final buildingCubit = context.read<BuildingCubit>();
-
-        String? response = await buildingUseCase.saveBuilding(
-          BuildingDto.fromGeoJsonFeature(attributes).toEntity(),
-          // (buildingCubit.state as Buildings).buildings,
-          [],
-          isNew,
+      if (buildingUseCase.intersectsWithOtherBuildings(building, buildings)) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.overlapingBuildings,
+          type: MessageType.warning,
         );
+        return;
+      }
 
-        if (response != null && mounted) {
-          NotifierService.showMessage(
-            context,
-            message: response.toString(),
-            type: MessageType.error,
-          );
-        }
-        break;
-      case ShapeType.noShape:
-        final dwellingUseCase = sl<DwellingUseCases>();
-        final dwellingCubit = context.read<DwellingCubit>();
-        final entranceCubit = context.read<EntranceCubit>();
-        final outputLogsCubit = context.read<OutputLogsCubit>();
+      SaveResult response = await buildingUseCase.saveBuilding(
+        building,
+        offlineMode,
+      );
 
-        final storageResponsitory = sl<StorageRepository>();
-        String? buildingGlobalId = await storageResponsitory.getString(
-          boxName: HiveBoxes.selectedBuilding,
-          key: 'currentBuildingGlobalId',
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message:
+              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
+          type: response.success ? MessageType.success : MessageType.error,
         );
-
-        // _selectedBuildingGlobalId = globalId;
-
-        await dwellingUseCase.saveDwelling(attributes, dwellingCubit,
-            entranceCubit, outputLogsCubit, buildingGlobalId!, isNew);
-        break;
+      }
+    } on Exception catch (e) {
+      if (!mounted) return;
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
     }
   }
+
+  // Future<void> _saveEntity(
+  //   Map<String, dynamic> attributes,
+  //   // NewGeometryCubit geometryCubit,
+  //   AttributesCubit attributesCubit,
+  //   bool isNew,
+  // ) async {
+  //   switch (attributesCubit.shapeType) {
+  //     case ShapeType.point:
+  // final entranceUseCase = sl<EntranceUseCases>();
+  // final entranceCubit = context.read<EntranceCubit>();
+  // final outputLogsCubit = context.read<OutputLogsCubit>();
+
+  // await entranceUseCase.saveEntrance(
+  //   attributes,
+  //   // geometryCubit,
+  //   outputLogsCubit,
+  //   entranceCubit,
+  //   isNew,
+  // );
+  // break;
+
+  // case ShapeType.polygon:
+  //   final buildingUseCase = sl<BuildingUseCases>();
+  //   final buildingCubit = context.read<BuildingCubit>();
+
+  //   String? response = await buildingUseCase.saveBuilding(
+  //     BuildingDto.fromGeoJsonFeature(attributes).toEntity(),
+  //     // (buildingCubit.state as Buildings).buildings,
+  //     [],
+  //     isNew,
+  //   );
+
+  //   if (response != null && mounted) {
+  //     NotifierService.showMessage(
+  //       context,
+  //       message: response.toString(),
+  //       type: MessageType.error,
+  //     );
+  //   }
+  //   break;
+  //     case ShapeType.noShape:
+  //       final dwellingUseCase = sl<DwellingUseCases>();
+  //       final dwellingCubit = context.read<DwellingCubit>();
+  //       final entranceCubit = context.read<EntranceCubit>();
+  //       final outputLogsCubit = context.read<OutputLogsCubit>();
+
+  //       final storageResponsitory = sl<StorageRepository>();
+  //       String? buildingGlobalId = await storageResponsitory.getString(
+  //         boxName: HiveBoxes.selectedBuilding,
+  //         key: 'currentBuildingGlobalId',
+  //       );
+
+  //       // _selectedBuildingGlobalId = globalId;
+
+  //       await dwellingUseCase.saveDwelling(attributes, dwellingCubit,
+  //           entranceCubit, outputLogsCubit, buildingGlobalId!, isNew);
+  //       break;
+  //   }
+  // }
 
   void _cleanupAfterSave(NewGeometryCubit geometryCubit) {
     geometryCubit.setDrawing(false);
@@ -347,7 +406,7 @@ class _ViewMapState extends State<ViewMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const MapAppBar(),
+      appBar: MapAppBar(msg: BldQuality.toString()),
       drawer: const SideMenu(),
       body: BlocBuilder<LoadingCubit, LoadingState>(
         builder: (context, state) {

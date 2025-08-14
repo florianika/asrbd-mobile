@@ -48,5 +48,7 @@ class LocalizedEn {
     Keys.finishValidateWarning:
         "Please verify the structural components of the building.",
     Keys.invalidShape: "The drawn shape is not valid. Please try again.",
+    Keys.successAddBuilding: "Building was successfully added.",
+    Keys.successUpdateBuilding: "Building was successfully updated.",
   };
 }
