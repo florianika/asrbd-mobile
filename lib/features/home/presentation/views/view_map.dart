@@ -109,8 +109,7 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
     final geometryCubit = context.read<NewGeometryCubit>();
-    final attributesCubit = context.read<AttributesCubit>();
-
+    
     loadingCubit.show();
 
     try {
@@ -131,9 +130,6 @@ class _ViewMapState extends State<ViewMap> {
       // }
 
       final building = BuildingEntity.fromMap(attributes);
-      setState(() {
-        BldQuality = building.bldQuality;
-      });
 
       // Check if geometry is outside municipality
       // if (!await _isWithinMunicipality(building.coordinates.first) && mounted) {

@@ -115,6 +115,9 @@ class BuildingUseCases {
   ) {
     if (buildings.isEmpty) return false;
 
+    final buildingsToCheck =
+        buildings.where((x) => x.globalId != building.globalId);
+
     List<List<LatLng>> newBuildingCoordinates =
         _closePolygon(building.coordinates);
 
@@ -130,7 +133,7 @@ class BuildingUseCases {
     final geom1 =
         turf.Polygon(coordinates: toTurfCoords(newBuildingCoordinates));
 
-    for (final b in buildings) {
+    for (final b in buildingsToCheck) {
       List<List<LatLng>> bCoordinates = _closePolygon(b.coordinates);
 
       final geom2 = turf.Polygon(coordinates: toTurfCoords(bCoordinates));
@@ -172,11 +175,11 @@ class BuildingUseCases {
   }
 
   Future<void> _updateExistingBuilding(BuildingEntity building) async {
-    final buildingCubit = sl<BuildingCubit>();
+    final buildingUseCase = sl<BuildingUseCases>();
     final userService = sl<UserService>();
     building.externalCreator = '{${userService.userInfo?.nameId}}';
     building.externalCreatorDate = DateTime.now();
 
-    await buildingCubit.updateBuildingFeature(building);
+    await buildingUseCase.updateBuildingFeature(building);
   }
 }

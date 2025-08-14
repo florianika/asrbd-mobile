@@ -78,6 +78,8 @@ class BuildingApi {
       'token': esriToken
     };
 
+    print([building.toGeoJsonFeature()]);
+
     _apiClient.clearHeaders();
     _apiClient.setHeaders(contentType);
 

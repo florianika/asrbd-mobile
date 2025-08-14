@@ -80,13 +80,9 @@ class BuildingService {
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      // bool intersected = await getBuildingIntersections(EsriConditionHelper.createEsriPolygonGeometry(points));
-
-      // if (intersected) throw Exception("Polygon is intersected with other one");
-
       final response =
           await buildingApi.addBuildingFeature(esriToken, building);
-          
+
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;
@@ -131,10 +127,36 @@ class BuildingService {
 
       final response =
           await buildingApi.updateBuildingFeature(esriToken, buildingDto);
+
       if (response.statusCode == 200) {
-        return true;
+        // Ensure response data is decoded
+        final dynamic rawData = response.data;
+        final Map<String, dynamic> mapData = rawData is String
+            ? jsonDecode(rawData)
+            : rawData as Map<String, dynamic>;
+
+        // Check for top-level error
+        if (mapData.containsKey('error')) {
+          final errorMsg = mapData['error']['message'] ?? 'Unknown error';
+          final details = mapData['error']['details']?.join(', ') ?? '';
+          throw Exception('Server error: $errorMsg. $details');
+        }
+
+        // Check updateResults for success
+        final updateResults = mapData['updateResults'];
+        if (updateResults is List && updateResults.isNotEmpty) {
+          final result = updateResults[0];
+          if (result is Map && result['success'] == true) {
+            return true;
+          } else {
+            throw Exception(
+                'Feature update failed: ${result['error']?['message'] ?? 'Unknown reason'}');
+          }
+        }
+
+        throw Exception('Unexpected response format.');
       } else {
-        return false;
+        throw Exception('Failed request: HTTP ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Update building feature: $e');

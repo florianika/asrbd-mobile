@@ -123,8 +123,8 @@ class BuildingEntity {
                 final lon = (point['longitude'] as num).toDouble();
                 listRing.add(LatLng(lat, lon));
               } else if (point is List && point.length >= 2) {
-                final lat = (point[0] as num).toDouble();
-                final lon = (point[1] as num).toDouble();
+                final lat = (point[1] as num).toDouble();
+                final lon = (point[0] as num).toDouble();
                 listRing.add(LatLng(lat, lon));
               }
             }
@@ -136,8 +136,8 @@ class BuildingEntity {
     }
 
     return BuildingEntity(
-      globalId: map['GlobalId'] as String?,
-      objectId: safeInt(map['ObjectId']) ?? 0,
+      globalId: map['GlobalID'] as String?,
+      objectId: safeInt(map['OBJECTID']) ?? 0,
       featureId: safeInt(map['FeatureId']),
       geometryType: map['GeometryType'] as String?,
       coordinates: parseCoordinates(map['Coordinates']),
