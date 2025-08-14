@@ -1,6 +1,4 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/general_fields.dart';
-import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -8,7 +6,6 @@ import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 // States
 abstract class BuildingState {}
@@ -102,28 +99,6 @@ class BuildingCubit extends Cubit<BuildingState> {
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       emit(BuildingAttributes(schema));
-    } catch (e) {
-      emit(BuildingError(e.toString()));
-    }
-  }
-
-  /// Add new building geometry
-  Future<void> addBuildingFeature(BuildingEntity building) async {
-    emit(BuildingLoading());
-    try {
-      final globalId = await buildingUseCases.addBuildingFeature(building);
-      emit(BuildingAddResponse(globalId));
-    } catch (e) {
-      emit(BuildingError(e.toString()));
-    }
-  }
-
-  /// Update existing building
-  Future<void> updateBuildingFeature(BuildingEntity building) async {
-    emit(BuildingLoading());
-    try {
-      await buildingUseCases.updateBuildingFeature(building);
-      emit(BuildingUpdateResponse(building.globalId ?? ''));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }

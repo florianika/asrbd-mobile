@@ -928,6 +928,7 @@ class Building extends DataClass implements Insertable<Building> {
       this.bldWaterSupply,
       this.geometryType,
       required this.coordinatesJson});
+      
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
