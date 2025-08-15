@@ -73,7 +73,7 @@ class MapActionButtons extends StatelessWidget {
                   onPressed: () => {
                     context.read<NewGeometryCubit>().setDrawing(true),
                     context.read<NewGeometryCubit>().setType(ShapeType.polygon),
-                    context.read<AttributesCubit>().showAttributes(false)
+                    // context.read<AttributesCubit>().showAttributes(false)
                   },
                   icon: Icons.hexagon_outlined,
                 );
@@ -90,7 +90,9 @@ class MapActionButtons extends StatelessWidget {
                   onPressed: () => {
                     context.read<NewGeometryCubit>().setDrawing(true),
                     context.read<NewGeometryCubit>().setType(ShapeType.point),
-                    // context.read<AttributesCubit>().showAttributes(false)
+                    context
+                        .read<AttributesCubit>()
+                        .toggleAttributesVisibility(false)
                   },
                   isEnabled: attributeContext.currentBuildingGlobalId != null &&
                       attributeContext.shapeType == ShapeType.polygon,

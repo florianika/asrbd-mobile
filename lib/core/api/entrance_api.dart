@@ -42,7 +42,7 @@ class EntranceApi {
 
     final payload = {
       'f': 'pjson',
-      'features': jsonEncode(entranceDto.toGeoJsonFeature()),
+      'features': jsonEncode([entranceDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };
@@ -64,7 +64,7 @@ class EntranceApi {
 
     final payload = {
       'f': 'pjson',
-      'features': jsonEncode(entranceDto.toGeoJsonFeature()),
+      'features': jsonEncode([entranceDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };

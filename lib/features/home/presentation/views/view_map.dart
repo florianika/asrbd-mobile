@@ -32,6 +32,7 @@ import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -102,18 +103,18 @@ class _ViewMapState extends State<ViewMap> {
     loadingCubit.show();
 
     try {
-      if (attributes['geometryType'] == 'Polygon') {
+      if (attributes['GeometryType'] == 'Polygon') {
         final building = BuildingEntity.fromMap(attributes);
         await _saveBuilding(building);
-      } else if (attributes['geometryType'] == 'Point') {
+      } else if (attributes['GeometryType'] == 'Point') {
         final entrance = EntranceEntity.fromMap(attributes);
         await _saveEntrance(entrance);
       } else {
-        // NotifierService.showMessage(
-        //   context,
-        //   messageKey: Keys.unsupportedGeometryType,
-        //   type: MessageType.error,
-        // );
+        NotifierService.showMessage(
+          context,
+          message: "unsupported geometry type: ${attributes['geometryType']}",
+          type: MessageType.error,
+        );
         return;
       }
 
@@ -403,6 +404,7 @@ class _ViewMapState extends State<ViewMap> {
                     return (state is Attributes && !state.showAttributes)
                         ? const SizedBox.shrink()
                         : ViewAttribute(
+                          
                             schema: state is Attributes ? state.schema : [],
                             selectedShapeType: state is Attributes
                                 ? state.shapeType

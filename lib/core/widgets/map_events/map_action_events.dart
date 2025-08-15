@@ -92,10 +92,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
                         if (state.type == ShapeType.point)
                           {
                             _placeMarker(),
-                            context
-                                .read<AttributesCubit>()
-                                .showEntranceAttributes(
-                                    null, currentBuildingGlobalId)
+                            context.read<AttributesCubit>().addNewEntrance(
+                                state.points.first, currentBuildingGlobalId!)
                           }
                         else if (state.type == ShapeType.polygon)
                           {

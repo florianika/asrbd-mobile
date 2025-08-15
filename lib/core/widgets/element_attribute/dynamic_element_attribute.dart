@@ -1,14 +1,11 @@
 import 'package:asrdb/core/db/street_database.dart';
-import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
 import 'package:asrdb/core/models/attributes/attribute_schema.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
-import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/main.dart';
@@ -141,11 +138,37 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       }
     });
 
-    setState(() {});   
+    setState(() {});
 
     if (passedValidation && widget.onSave != null) {
       await widget.onSave!(formValues);
     }
+  }
+
+  String _getHeaderTitle() {
+    switch (widget.selectedShapeType) {
+      case ShapeType.polygon:
+        return 'Building';
+      case ShapeType.point:
+        return 'Entrance';
+      case ShapeType.noShape:
+        return 'Dwelling';
+    }
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+      child: Text(
+        _getHeaderTitle(),
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.black87,
+        ),
+      ),
+    );
   }
 
   Map<String, List<dynamic>> _groupAttributesBySection() {
@@ -796,6 +819,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           padding: const EdgeInsets.only(top: 20),
           child: Column(
             children: [
+              _buildHeader(),
               ...sections.entries.map((sectionEntry) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

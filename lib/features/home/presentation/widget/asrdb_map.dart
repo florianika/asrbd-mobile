@@ -114,8 +114,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleEntranceTap(EntranceEntity entrance) {
     try {
-      // EntranceEntity entrance = EntranceEntity.fromMap(data);
-
       _selectedGlobalId = entrance.globalId;
 
       if (_selectedGlobalId == null) return;

@@ -32,7 +32,7 @@ class EntranceDto {
 
   EntranceDto({
     required this.objectId,
-    this.geometryType,
+    this.geometryType = 'Point',
     this.coordinates,
     this.globalId,
     this.entCensus2023 = '9999999999999',
@@ -182,13 +182,11 @@ class EntranceDto {
 
     return {
       "type": "Feature",
-      "geometry": coordinates != null
-          ? {
-              "x": coordinates!.longitude,
-              "y": coordinates!.latitude,
-              'spatialReference': {'wkid': 4326},
-            }
-          : null,
+      "geometry": {
+        "x": coordinates!.longitude,
+        "y": coordinates!.latitude,
+        'spatialReference': {'wkid': 4326},
+      },
       "attributes": attributes
     };
   }
