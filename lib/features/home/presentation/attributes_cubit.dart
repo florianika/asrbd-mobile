@@ -1,6 +1,7 @@
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -176,15 +177,14 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final data = await entranceUseCases.getEntranceDetails(entranceGlobalID);
-      final features = data[GeneralFields.features] ?? [];
-      final props =
-          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
+      final entrance =
+          await entranceUseCases.getEntranceDetails(entranceGlobalID);
+
       emit(Attributes(
         schema,
-        props,
+        entrance.toMap(),
         ShapeType.point,
-        props[EntranceFields.entBldGlobalID] ?? buildingGlobalID,
+        entrance.globalId,
         entranceGlobalID,
         null,
         showAttributes: true,

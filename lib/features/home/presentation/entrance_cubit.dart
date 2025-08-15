@@ -1,13 +1,10 @@
-import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
-import 'package:asrdb/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -18,7 +15,7 @@ class EntranceInitial extends EntranceState {}
 class EntranceLoading extends EntranceState {}
 
 class Entrances extends EntranceState {
-  final Map<String, dynamic> entrances;
+  final List<EntranceEntity> entrances;
   Entrances(this.entrances);
 }
 
@@ -106,37 +103,37 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  Future<void> addEntranceFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    emit(EntranceLoading());
-    try {
-      final success =
-          await entranceUseCases.addEntranceFeature(attributes, points);
-      await checkUseCases.checkAutomatic(
-          attributes[EntranceFields.entBldGlobalID]
-              .toString()
-              .replaceAll('{', '')
-              .replaceAll('}', ''));
-      emit(EntranceAddResponse(
-          success, attributes[EntranceFields.entBldGlobalID]));
-    } catch (e) {
-      emit(EntranceError(e.toString()));
-    }
-  }
+  // Future<void> addEntranceFeature(
+  //     Map<String, dynamic> attributes, List<LatLng> points) async {
+  //   emit(EntranceLoading());
+  //   try {
+  //     final success =
+  //         await entranceUseCases.addEntranceFeature(attributes, points);
+  //     await checkUseCases.checkAutomatic(
+  //         attributes[EntranceFields.entBldGlobalID]
+  //             .toString()
+  //             .replaceAll('{', '')
+  //             .replaceAll('}', ''));
+  //     emit(EntranceAddResponse(
+  //         success, attributes[EntranceFields.entBldGlobalID]));
+  //   } catch (e) {
+  //     emit(EntranceError(e.toString()));
+  //   }
+  // }
 
-  Future<void> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng? point) async {
-    emit(EntranceLoading());
-    try {
-      final success =
-          await entranceUseCases.updateEntranceFeature(attributes, point);
-          
-      emit(EntranceUpdateResponse(
-          success, attributes[EntranceFields.entBldGlobalID]));
-    } catch (e) {
-      emit(EntranceError(e.toString()));
-    }
-  }
+  // Future<void> updateEntranceFeature(
+  //     Map<String, dynamic> attributes, LatLng? point) async {
+  //   emit(EntranceLoading());
+  //   try {
+  //     final success =
+  //         await entranceUseCases.updateEntranceFeature(attributes, point);
+
+  //     emit(EntranceUpdateResponse(
+  //         success, attributes[EntranceFields.entBldGlobalID]));
+  //   } catch (e) {
+  //     emit(EntranceError(e.toString()));
+  //   }
+  // }
 
   Future<void> deleteEntranceFeature(String objectId) async {
     emit(EntranceLoading());

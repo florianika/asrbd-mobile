@@ -44,5 +44,7 @@ class LocalizedAl {
     Keys.invalidShape: "Forma e hedhur nuk është e vlefshme. Ju lutemi, provoni përsëri.",
     Keys.successAddBuilding: "Ndertesa u shtua me sukses.",
     Keys.successUpdateBuilding: "Ndertesa u përditësua me sukses.",
+    Keys.successAddEntrance: "Hyrja u shtua me sukses.",
+    Keys.successUpdateEntrance: "Hyrja u përditësua me sukses.",
   };
 }

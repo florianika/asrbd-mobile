@@ -18,6 +18,7 @@ import 'package:asrdb/core/widgets/markers/building_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -73,7 +74,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   final legendService = sl<LegendService>();
 
   List<BuildingEntity> buildingsData = [];
-  Map<String, dynamic>? entranceData;
+  List<EntranceEntity> entranceData = [];
   String? _selectedBuildingGlobalId;
 
   Timer? _debounce;
@@ -111,9 +112,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
     });
   }
 
-  void _handleEntranceTap(Map<String, dynamic> data) {
+  void _handleEntranceTap(EntranceEntity entrance) {
     try {
-      _selectedGlobalId = data[EntranceFields.globalID];
+      // EntranceEntity entrance = EntranceEntity.fromMap(data);
+
+      _selectedGlobalId = entrance.globalId;
 
       if (_selectedGlobalId == null) return;
 
@@ -123,24 +126,55 @@ class _AsrdbMapState extends State<AsrdbMap> {
       storageResponsitory.saveString(
           boxName: HiveBoxes.selectedBuilding,
           key: 'currentBuildingGlobalId',
-          value: data[EntranceFields.entBldGlobalID]);
+          value: entrance.entBldGlobalID!);
 
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
-      context.read<DwellingCubit>().closeDwellings();
-      context.read<NewGeometryCubit>().setType(ShapeType.point);
+      // context.read<DwellingCubit>().closeDwellings();
+      // context.read<NewGeometryCubit>().setType(ShapeType.point);
+      // context
+      //     .read<EntranceCubit>()
+      //     .getEntranceDetails(_selectedGlobalId!, buildingGlobalId);
+
       context
-          .read<EntranceCubit>()
-          .getEntranceDetails(_selectedGlobalId!, buildingGlobalId);
-      context.read<OutputLogsCubit>().outputLogsBuildings(
-          StringHelper.removeCurlyBracesFromString(
-              data[EntranceFields.entBldGlobalID].toString()));
+          .read<AttributesCubit>()
+          .showEntranceAttributes(entrance.globalId, buildingGlobalId);
+
+      // context.read<OutputLogsCubit>().outputLogsBuildings(
+      //     StringHelper.removeCurlyBracesFromString(
+      //         entrance.entBldGlobalID.toString()));
     } catch (e) {
       NotifierService.showMessage(
         context,
         message: e.toString(),
         type: MessageType.error,
       );
+    }
+  }
+
+  void _checkEntranceVisibility(MapCamera camera) {
+    if (_selectedBuildingGlobalId != null && entranceData.isNotEmpty) {
+      final entrancePoints = entranceData
+          .where(
+              (e) => e.entBldGlobalID?.toString() == _selectedBuildingGlobalId)
+          .map((e) => e.coordinates)
+          .whereType<LatLng>()
+          .toList();
+
+      if (entrancePoints.isNotEmpty && entrancePoints.isNotEmpty) {
+        final isOutside = GeometryHelper.anyPointOutsideBounds(
+          entrancePoints,
+          camera.visibleBounds,
+        );
+
+        if (_entranceOutsideVisibleArea != isOutside) {
+          setState(() {
+            _entranceOutsideVisibleArea = isOutside;
+          });
+
+          widget.onEntranceVisibilityChange?.call(isOutside);
+        }
+      }
     }
   }
 
@@ -162,7 +196,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         } else {
           setState(() {
             buildingsData = [];
-            entranceData = null;
+            entranceData = [];
             _selectedBuildingGlobalId = null;
           });
           context.read<BuildingCubit>().clearBuildings();
@@ -171,37 +205,31 @@ class _AsrdbMapState extends State<AsrdbMap> {
       });
 
       zoom = camera.zoom;
-      visibleBounds = widget.mapController.camera.visibleBounds;
-      if (_selectedBuildingGlobalId != null && entranceData != null) {
-        final features =
-            entranceData?[GeneralFields.features] as List<dynamic>?;
+      _checkEntranceVisibility(camera);
+      // visibleBounds = widget.mapController.camera.visibleBounds;
+      // if (_selectedBuildingGlobalId != null && entranceData.isNotEmpty) {
+      //   final entrancePoints = entranceData
+      //       .where((e) =>
+      //           e.entBldGlobalID?.toString() == _selectedBuildingGlobalId)
+      //       .map((e) => e.coordinates)
+      //       .whereType<LatLng>()
+      //       .toList();
 
-        final entrancePoints = features
-            ?.whereType<Map<String, dynamic>>()
-            .where((f) =>
-                f[GeneralFields.properties]?[EntranceFields.entBldGlobalID]
-                    ?.toString() ==
-                _selectedBuildingGlobalId)
-            .map((f) {
-          final coords = f[GeneralFields.geometry][GeneralFields.coordinates];
-          return LatLng(coords[1], coords[0]);
-        }).toList();
+      //   if (entrancePoints.isNotEmpty && entrancePoints.isNotEmpty) {
+      //     final isOutside = GeometryHelper.anyPointOutsideBounds(
+      //       entrancePoints,
+      //       camera.visibleBounds,
+      //     );
 
-        if (entrancePoints != null && entrancePoints.isNotEmpty) {
-          final isOutside = GeometryHelper.anyPointOutsideBounds(
-            entrancePoints,
-            camera.visibleBounds,
-          );
+      //     if (_entranceOutsideVisibleArea != isOutside) {
+      //       setState(() {
+      //         _entranceOutsideVisibleArea = isOutside;
+      //       });
 
-          if (_entranceOutsideVisibleArea != isOutside) {
-            setState(() {
-              _entranceOutsideVisibleArea = isOutside;
-            });
-
-            widget.onEntranceVisibilityChange?.call(isOutside);
-          }
-        }
-      }
+      //       widget.onEntranceVisibilityChange?.call(isOutside);
+      //     }
+      //   }
+      // }
     } on Exception catch (e) {
       NotifierService.showMessage(
         context,
@@ -273,44 +301,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
         _selectedBuildingGlobalId = buildingFound.globalId;
 
-        List<dynamic> buildingEntrances = [];
-        List<LatLng> entrancePoints = [];
-
-        if (entranceData != null) {
-          final entranceFeatures =
-              entranceData?[GeneralFields.features] as List<dynamic>?;
-
-          if (entranceFeatures != null) {
-            for (final feature
-                in entranceFeatures.whereType<Map<String, dynamic>>()) {
-              final props =
-                  feature[GeneralFields.properties] as Map<String, dynamic>?;
-              final geom =
-                  feature[GeneralFields.geometry] as Map<String, dynamic>?;
-              if (props != null &&
-                  props[EntranceFields.entBldGlobalID]?.toString() ==
-                      buildingFound.globalId &&
-                  geom != null &&
-                  geom[GeneralFields.type] == 'Point') {
-                final coords = geom[GeneralFields.coordinates];
-                entrancePoints.add(LatLng(coords[1], coords[0]));
-                buildingEntrances.add(props[GeneralFields.globalID]);
-              }
-            }
-          }
-        }
-
-        final bounds = widget.mapController.camera.visibleBounds;
-        final anyOutside =
-            GeometryHelper.anyPointOutsideBounds(entrancePoints, bounds);
-
-        setState(() {
-          _entranceOutsideVisibleArea = anyOutside;
-        });
-
-        if (widget.onEntranceVisibilityChange != null) {
-          widget.onEntranceVisibilityChange!(_entranceOutsideVisibleArea);
-        }
+        _checkEntranceVisibility(widget.mapController.camera);
 
         final center =
             GeometryHelper.getPolygonCentroid(buildingFound.coordinates.first);

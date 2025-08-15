@@ -53,7 +53,7 @@ class BuildingApi {
 
     final payload = {
       'f': 'json',
-      'features': jsonEncode([buildingDto.toEsriFeature()]),
+      'features': jsonEncode([buildingDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };

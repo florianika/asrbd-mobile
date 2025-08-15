@@ -3,6 +3,8 @@ import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/data/dto/entrance_dto.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:latlong2/latlong.dart';
 
 class EntranceService {
@@ -11,7 +13,7 @@ class EntranceService {
 
   final StorageService _storage = StorageService();
   // Login method
-  Future<Map<String, dynamic>> getEntrances(
+  Future<List<EntranceEntity>> getEntrances(
       double zoom, List<String> entBldGlobalID) async {
     try {
       String? esriToken =
@@ -28,7 +30,18 @@ class EntranceService {
           throw Exception(
               'Error fetching entrances: ${mapData['error']['message']}');
         } else {
-          return mapData;
+          final data = response.data as Map<String, dynamic>;
+          final features = data['features'] as List<dynamic>? ?? [];
+
+          final List<EntranceDto> entranceDtos = features
+              .map((feature) => EntranceDto.fromGeoJsonFeature(
+                  feature as Map<String, dynamic>))
+              .toList();
+
+          final entranceEntites =
+              entranceDtos.map((dto) => dto.toEntity()).toList();
+
+          return entranceEntites;
         }
       } else {
         throw Exception('Get entrances');
@@ -38,7 +51,7 @@ class EntranceService {
     }
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
+  Future<EntranceEntity> getEntranceDetails(String globalId) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
@@ -54,7 +67,17 @@ class EntranceService {
           throw Exception(
               'Error fetching entrance details: ${mapData['error']['message']}');
         } else {
-          return mapData;
+          final features = mapData['features'] as List<dynamic>? ?? [];
+          final List<EntranceDto> entranceDto = features
+              .map((feature) => EntranceDto.fromGeoJsonFeature(
+                  feature as Map<String, dynamic>))
+              .toList();
+
+          if (entranceDto.isNotEmpty) {
+            return entranceDto[0].toEntity();
+          } else {
+            throw Exception('No building found with globalId: $globalId');
+          }
         }
       } else {
         throw Exception('Get entrance details');
@@ -91,10 +114,7 @@ class EntranceService {
     }
   }
 
-  Future<bool> addEntranceFeature(
-    Map<String, dynamic> attributes,
-    List<LatLng> points,
-  ) async {
+  Future<String> addEntranceFeature(EntranceEntity entrance) async {
     try {
       final esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
@@ -102,8 +122,7 @@ class EntranceService {
 
       final response = await entranceApi.addEntranceFeature(
         esriToken,
-        attributes,
-        points,
+        entrance,
       );
 
       if (response.statusCode == 200) {
@@ -124,7 +143,7 @@ class EntranceService {
         if (addResults is List && addResults.isNotEmpty) {
           final result = addResults[0];
           if (result is Map && result['success'] == true) {
-            return true;
+            return result['globalId'];
           } else {
             throw Exception(
                 'Feature add failed: ${result['error']?['message'] ?? 'Unknown reason'}');
@@ -139,19 +158,43 @@ class EntranceService {
     }
   }
 
-  Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng? point) async {
+  Future<bool> updateEntranceFeature(EntranceEntity entrance) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
-          await entranceApi.updateEntranceFeature(esriToken, attributes, point);
+          await entranceApi.updateEntranceFeature(esriToken, entrance);
       if (response.statusCode == 200) {
-        return true;
+        // Ensure response data is decoded
+        final dynamic rawData = response.data;
+        final Map<String, dynamic> mapData = rawData is String
+            ? jsonDecode(rawData)
+            : rawData as Map<String, dynamic>;
+
+        // Check for top-level error
+        if (mapData.containsKey('error')) {
+          final errorMsg = mapData['error']['message'] ?? 'Unknown error';
+          final details = mapData['error']['details']?.join(', ') ?? '';
+          throw Exception('Server error: $errorMsg. $details');
+        }
+
+        // Check updateResults for success
+        final updateResults = mapData['updateResults'];
+        if (updateResults is List && updateResults.isNotEmpty) {
+          final result = updateResults[0];
+          if (result is Map && result['success'] == true) {
+            return true;
+          } else {
+            throw Exception(
+                'Feature update failed: ${result['error']?['message'] ?? 'Unknown reason'}');
+          }
+        }
+
+        throw Exception('Unexpected response format.');
       } else {
-        return false;
+        throw Exception('Failed request: HTTP ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Update entrance feature: $e');

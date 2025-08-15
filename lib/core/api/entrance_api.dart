@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:asrdb/core/api/esri_api_client.dart';
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/data/dto/entrance_dto.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:dio/dio.dart';
 import 'package:latlong2/latlong.dart';
 import 'api_endpoints.dart';
@@ -24,30 +26,23 @@ class EntranceApi {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
   }
-  
-    Future<Response> getEntranceAttributesJson(String esriToken) async {
+
+  Future<Response> getEntranceAttributesJson(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/0?f=pjson&token=$esriToken');
   }
-   
-  Future<Response> addEntranceFeature(String esriToken,
-      Map<String, dynamic> attributes, List<LatLng> points) async {
+
+  Future<Response> addEntranceFeature(
+      String esriToken, EntranceEntity entrance) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    final Map<String, dynamic> feature = {
-      'geometry': {
-        'x': points[0].longitude,
-        'y': points[0].latitude,
-        'spatialReference': {'wkid': 4326},
-      },
-      'attributes': attributes,
-    };
+    EntranceDto entranceDto = EntranceDto.fromEntity(entrance);
 
     final payload = {
       'f': 'pjson',
-      'features': jsonEncode([feature]),
+      'features': jsonEncode(entranceDto.toGeoJsonFeature()),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };
@@ -60,25 +55,16 @@ class EntranceApi {
   }
 
   Future<Response> updateEntranceFeature(
-      String esriToken, Map<String, dynamic> attributes, LatLng? point) async {
+      String esriToken, EntranceEntity entrance) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
 
-    final Map<String, dynamic> feature = point != null
-        ? {
-            'geometry': {
-              'x': point.longitude,
-              'y': point.latitude,
-              'spatialReference': {'wkid': 4326},
-            },
-            'attributes': attributes,
-          }
-        : {'attributes': attributes};
+    EntranceDto entranceDto = EntranceDto.fromEntity(entrance);
 
     final payload = {
       'f': 'pjson',
-      'features': jsonEncode([feature]),
+      'features': jsonEncode(entranceDto.toGeoJsonFeature()),
       'rollbackOnFailure': 'true',
       'token': esriToken
     };

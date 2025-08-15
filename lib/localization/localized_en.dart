@@ -50,5 +50,7 @@ class LocalizedEn {
     Keys.invalidShape: "The drawn shape is not valid. Please try again.",
     Keys.successAddBuilding: "Building was successfully added.",
     Keys.successUpdateBuilding: "Building was successfully updated.",
+    Keys.successAddEntrance: "Entrance was successfully added.",
+    Keys.successUpdateEntrance: "Entrance was successfully updated.",
   };
 }

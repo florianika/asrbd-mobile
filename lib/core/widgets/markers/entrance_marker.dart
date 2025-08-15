@@ -1,10 +1,8 @@
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/entrance_helper.dart';
-import 'package:asrdb/core/helpers/geometry_helper.dart';
-import 'package:asrdb/core/helpers/string_helper.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/services/legend_service.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class EntranceMarker extends StatefulWidget {
-  final Map<String, dynamic>? entranceData;
+  final List<EntranceEntity> entranceData;
   final String attributeLegend;
   final Function onTap;
   final Function onLongPress;
@@ -20,7 +18,7 @@ class EntranceMarker extends StatefulWidget {
 
   const EntranceMarker({
     super.key,
-    this.entranceData,
+    required this.entranceData,
     required this.onTap,
     required this.onLongPress,
     required this.mapController,
@@ -38,7 +36,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
   @override
   Widget build(BuildContext context) {
     final entranceData = widget.entranceData;
-    if (entranceData == null || entranceData.isEmpty) return const SizedBox();
+    if (entranceData.isEmpty) return const SizedBox();
 
     return BlocConsumer<AttributesCubit, AttributesState>(
       listener: (context, state) {
@@ -50,50 +48,38 @@ class _EntranceMarkerState extends State<EntranceMarker> {
       },
       builder: (context, state) {
         final attributesCubit = context.read<AttributesCubit>();
-        final currentBldId =
-            attributesCubit.currentBuildingGlobalId?.removeCurlyBraces();
-        final currentEntId =
-            attributesCubit.currentEntranceGlobalId?.removeCurlyBraces();
+        final currentBldId = attributesCubit.currentBuildingGlobalId;
+        final currentEntId = attributesCubit.currentEntranceGlobalId;
         final shapeType = attributesCubit.shapeType;
 
-        final features =
-            List<Map<String, dynamic>>.from(entranceData['features']);
-
         return MarkerLayer(
-          markers: features.map((feature) {
-            final props = Map<String, dynamic>.from(feature['properties']);
-            final position =
-                GeometryHelper.parseCoordinates(feature['geometry']).first;
-            final globalId = props['GlobalID']?.toString().removeCurlyBraces();
-            final buildingGlobalId = props[EntranceFields.entBldGlobalID]
-                ?.toString()
-                .removeCurlyBraces();
-
-            final isSelected = globalId != null && globalId == currentEntId;
+          markers: entranceData.map((entrance) {
+            final isSelected = entrance.globalId == currentEntId;
             final isPolygonMatch = shapeType == ShapeType.polygon &&
-                buildingGlobalId == currentBldId;
+                entrance.entBldGlobalID == currentBldId;
 
             final fillColor = isSelected
                 ? Colors.red.withOpacity(0.7)
                 : legendService.getColorForValue(
                       LegendType.entrance,
                       widget.attributeLegend,
-                      props['EntQuality'],
+                      entrance.entQuality ?? 9,
                     ) ??
                     Colors.black;
 
             final label = EntranceHelper.entranceLabel(
-              props['EntBuildingNumber'],
-              props['EntEntranceNumber'],
+              entrance.entBuildingNumber,
+              entrance.entEntranceNumber,
             );
 
             return Marker(
               width: markerSize,
               height: markerSize,
-              point: position,
+              point: entrance.coordinates!,
               child: GestureDetector(
-                onTap: () => widget.onTap(props),
-                onLongPress: () => widget.onLongPress(position, globalId),
+                onTap: () => widget.onTap(entrance),
+                onLongPress: () =>
+                    widget.onLongPress(entrance.coordinates, entrance.globalId),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [

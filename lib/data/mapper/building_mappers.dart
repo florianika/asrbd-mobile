@@ -5,6 +5,7 @@ import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:drift/drift.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:uuid/uuid.dart';
 
 // DTO -> BuildingsCompanion
 extension BuildingDtoToDrift on BuildingDto {
@@ -12,7 +13,7 @@ extension BuildingDtoToDrift on BuildingDto {
     return BuildingsCompanion(
       objectId: Value(objectId),
       geometryType: Value(geometryType),
-      coordinatesJson: Value(jsonEncode(coordinates)),
+      coordinates: Value(jsonEncode(coordinates)),
       shapeLength: Value(shapeLength),
       shapeArea: Value(shapeArea),
       globalId: Value.absentIfNull(globalId),
@@ -57,12 +58,65 @@ extension BuildingDtoToDrift on BuildingDto {
   }
 }
 
+var uuid = Uuid();
+
+extension BuildingEntityToDrift on BuildingEntity {
+  Building toDriftBuilding(int downloadId) {
+    return Building(
+      objectId: objectId,
+      geometryType: geometryType,
+      coordinates: jsonEncode(coordinates),
+      shapeLength: shapeLength,
+      shapeArea: shapeArea,
+      globalId: globalId ?? uuid.v4(),
+      bldCensus2023: bldCensus2023,
+      bldQuality: bldQuality,
+      bldMunicipality: bldMunicipality,
+      bldEnumArea: bldEnumArea,
+      bldLatitude: bldLatitude,
+      bldLongitude: bldLongitude,
+      bldCadastralZone: bldCadastralZone,
+      bldProperty: bldProperty,
+      bldPermitNumber: bldPermitNumber,
+      bldPermitDate: bldPermitDate,
+      bldStatus: bldStatus,
+      bldYearConstruction: bldYearConstruction,
+      bldYearDemolition: bldYearDemolition,
+      bldType: bldType,
+      bldClass: bldClass,
+      bldArea: bldArea,
+      bldFloorsAbove: bldFloorsAbove,
+      bldHeight: bldHeight,
+      bldVolume: bldVolume,
+      bldWasteWater: bldWasteWater,
+      bldElectricity: bldElectricity,
+      bldPipedGas: bldPipedGas,
+      bldElevator: bldElevator,
+      // createdUser: Value(createdUser),
+      createdDate: createdDate,
+      // lastEditedUser: Value(lastEditedUser),
+      // lastEditedDate: Value(lastEditedDate),
+      bldCentroidStatus: bldCentroidStatus,
+      bldDwellingRecs: bldDwellingRecs,
+      bldEntranceRecs: bldEntranceRecs,
+      bldAddressID: bldAddressID,
+      // externalCreator: Value(externalCreator),
+      // externalEditor: Value(externalEditor),
+      bldReview: bldReview,
+      bldWaterSupply: bldWaterSupply,
+      downloadId: downloadId,
+      id: 0,
+      // externalCreatorDate: Value(externalCreatorDate),
+      // externalEditorDate: Value(externalEditorDate),
+    );
+  }
+}
+
 // Drift row -> Domain entity
 extension BuildingRowToEntity on Building {
   BuildingEntity toEntity() {
-    final coordsDecoded = (jsonDecode(coordinatesJson) as List)
-        .map<List<LatLng>>((r) => r)
-        .toList();
+    final coordsDecoded =
+        (jsonDecode(coordinates) as List).map<List<LatLng>>((r) => r).toList();
 
     return BuildingEntity(
       objectId: objectId,

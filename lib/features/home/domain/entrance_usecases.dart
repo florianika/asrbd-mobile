@@ -2,32 +2,30 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/mapper/entrance_mapper.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
+import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
-import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
-import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
-import 'package:latlong2/latlong.dart';
 
 class EntranceUseCases {
   final EntranceRepository _entranceRepository;
 
   EntranceUseCases(this._entranceRepository);
 
-  Future<Map<String, dynamic>> getEntrances(
+  Future<List<EntranceEntity>> getEntrances(
       double zoom, List<String> entBldGlobalID) async {
-    if (zoom < AppConfig.entranceMinZoom) return {};
+    if (zoom < AppConfig.entranceMinZoom) return [];
 
-    if (entBldGlobalID.isEmpty) return {};
+    if (entBldGlobalID.isEmpty) return [];
 
     return await _entranceRepository.getEntrances(zoom, entBldGlobalID);
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
+  Future<EntranceEntity> getEntranceDetails(String globalId) async {
     return await _entranceRepository.getEntranceDetails(globalId);
   }
 
@@ -35,91 +33,109 @@ class EntranceUseCases {
     return await _entranceRepository.getEntranceAttributes();
   }
 
-  Future<bool> addEntranceFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    return await _entranceRepository.addEntranceFeature(attributes, points);
+  Future<String> _addEntranceFeatureOnline(EntranceEntity entrance) async {
+    return await _entranceRepository.addEntranceFeature(entrance);
   }
 
-  Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng? point) async {
-    return await _entranceRepository.updateEntranceFeature(attributes, point);
+  Future<String> _addEntranceFeatureOffline(EntranceEntity entrance) async {
+    final globalId =
+        await _entranceRepository.insertEntrance(entrance.toDriftEntrance(123));
+
+    return '';
+  }
+
+  Future<bool> _updateEntranceFeatureOnline(EntranceEntity entrance) async {
+    return await _entranceRepository.updateEntranceFeature(entrance);
+  }
+
+  Future<bool> _updateEntranceFeatureOffline(EntranceEntity entrance) async {
+    //return await _entranceRepository.updateEntranceFeature(entrance);
+    throw UnimplementedError(
+        'Offline update for entrance feature is not implemented yet');
   }
 
   Future<bool> deleteEntranceFeature(String objectId) async {
-    return await _entranceRepository.deleteEntranceFeature(objectId);
+    return await _entranceRepository.deleteEntranceFeature(objectId); //
   }
 
-  Future<void> saveEntrance(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    OutputLogsCubit outputLogsCubit,
-    EntranceCubit entranceCubit,
-    bool isNew,
-  ) async {
-    final userService = sl<UserService>();
-    attributes[EntranceFields.entPointStatus] = DefaultData.fieldData;
+  //   Future<SaveResult> saveBuilding(
+  //   BuildingEntity building,
+  //   bool offlineMode,
+  // ) async {
+  //   bool isNewBuilding = building.globalId == null;
+  //   building.bldCentroidStatus = DefaultData.fieldData;
 
-    if (isNew) {
-      await _createNewEntrance(attributes, geometryCubit, entranceCubit,
-          outputLogsCubit, userService);
+  //   await _setCentroidCoordinates(building);
+
+  //   if (isNewBuilding) {
+  //     String globalId = await _createNewBuilding(building, offlineMode);
+  //     return SaveResult(true, Keys.successAddBuilding, globalId);
+  //   } else {
+  //     await _updateExistingBuilding(building);
+  //     return SaveResult(true, Keys.successUpdateBuilding, building.globalId);
+  //   }
+  // }
+
+  Future<SaveResult> saveEntrance(
+      EntranceEntity entrance, bool offlineMode) async {
+    entrance.entPointStatus = DefaultData.fieldData;
+    bool isNewEntrance = entrance.globalId == null;
+
+    if (isNewEntrance) {
+      String globalId = await _createNewEntrance(entrance, offlineMode);
+      return SaveResult(true, Keys.successAddEntrance, globalId);
     } else {
-      await _updateExistingEntrance(attributes, geometryCubit, entranceCubit,
-          outputLogsCubit, userService);
+      await _updateExistingEntrance(entrance, offlineMode);
+      return SaveResult(true, Keys.successUpdateEntrance, entrance.globalId);
     }
   }
 
-  Future<void> _createNewEntrance(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    EntranceCubit entranceCubit,
-    OutputLogsCubit outputLogsCubit,
-    UserService userService,
-  ) async {
+  Future<String> _createNewEntrance(
+      EntranceEntity entrance, bool offlineMode) async {
     final storageRepository = sl<StorageRepository>();
+    final entranceUseCases = sl<EntranceUseCases>();
+    final userService = sl<UserService>();
     String? buildingGlobalId = await storageRepository.getString(
       boxName: HiveBoxes.selectedBuilding,
       key: 'currentBuildingGlobalId',
     );
 
-    attributes[EntranceFields.entBldGlobalID] = buildingGlobalId;
-    attributes[GeneralFields.externalCreator] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalCreatorDate] =
-        DateTime.now().millisecondsSinceEpoch;
-    attributes[EntranceFields.entLatitude] =
-        geometryCubit.points.first.latitude;
-    attributes[EntranceFields.entLongitude] =
-        geometryCubit.points.first.longitude;
+    entrance.entBldGlobalID = buildingGlobalId;
+    entrance.externalCreator = '{${userService.userInfo?.nameId}}';
+    entrance.externalCreatorDate = DateTime.now();
+    entrance.entLatitude = entrance.coordinates?.latitude;
+    entrance.entLongitude = entrance.coordinates?.longitude;
 
-    await entranceCubit.addEntranceFeature(attributes, geometryCubit.points);
-    await outputLogsCubit.checkAutomatic(
-        attributes[EntranceFields.entBldGlobalID]
-            .toString()
-            .replaceAll('{', '')
-            .replaceAll('}', ''));
+    if (!offlineMode) {
+      return await entranceUseCases._addEntranceFeatureOnline(entrance);
+      // await outputLogsCubit.checkAutomatic(
+      //     attributes[EntranceFields.entBldGlobalID]
+      //         .toString()
+      //         .replaceAll('{', '')
+      //         .replaceAll('}', ''));
+    } else {
+      return await entranceUseCases._addEntranceFeatureOffline(entrance);
+    }
   }
 
   Future<void> _updateExistingEntrance(
-    Map<String, dynamic> attributes,
-    NewGeometryCubit geometryCubit,
-    EntranceCubit entranceCubit,
-    OutputLogsCubit outputLogsCubit,
-    UserService userService,
-  ) async {
-    attributes[GeneralFields.externalEditor] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalEditorDate] =
-        DateTime.now().millisecondsSinceEpoch;
+      EntranceEntity entrance, bool offlineMode) async {
+    final entranceUseCases = sl<EntranceUseCases>();
+    final userService = sl<UserService>();
 
-    await entranceCubit.updateEntranceFeature(
-      attributes,
-      geometryCubit.points.isNotEmpty ? geometryCubit.points.first : null,
-    );
+    entrance.externalEditor = '{${userService.userInfo?.nameId}}';
+    entrance.externalEditorDate = DateTime.now();
 
-    await outputLogsCubit.checkAutomatic(
-        attributes[EntranceFields.entBldGlobalID]
-            .toString()
-            .replaceAll('{', '')
-            .replaceAll('}', ''));
+    if (!offlineMode) {
+      await entranceUseCases._updateEntranceFeatureOnline(entrance);
+
+      // await outputLogsCubit.checkAutomatic(
+      //     attributes[EntranceFields.entBldGlobalID]
+      //         .toString()
+      //         .replaceAll('{', '')
+      //         .replaceAll('}', ''));
+    } else {
+      await entranceUseCases._updateEntranceFeatureOffline(entrance);
+    }
   }
 }

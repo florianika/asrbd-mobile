@@ -37,5 +37,7 @@ class Keys {
   static const String successGeneral = 'successGeneral';
   static const String successAddBuilding = 'successAddBuilding';
   static const String successUpdateBuilding = 'successUpdateBuilding';
+  static const String successAddEntrance = 'successAddEntrance';
+  static const String successUpdateEntrance = 'successUpdateEntrance';
   static const String invalidShape = 'invalidShape';
 }

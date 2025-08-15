@@ -2,6 +2,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/entrance_service.dart';
 import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/repositories/entrance_repository.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -11,12 +12,12 @@ class EntranceRepository implements IEntranceRepository {
 
   EntranceRepository(this._dao, this.entranceService);
 
-  Future<Map<String, dynamic>> getEntrances(
+  Future<List<EntranceEntity>> getEntrances(
       double zoom, List<String> entBldGlobalID) async {
     return await entranceService.getEntrances(zoom, entBldGlobalID);
   }
 
-  Future<Map<String, dynamic>> getEntranceDetails(String globalId) async {
+  Future<EntranceEntity> getEntranceDetails(String globalId) async {
     return await entranceService.getEntranceDetails(globalId);
   }
 
@@ -24,14 +25,13 @@ class EntranceRepository implements IEntranceRepository {
     return await entranceService.getEntranceAttributes();
   }
 
-  Future<bool> addEntranceFeature(
-      Map<String, dynamic> attributes, List<LatLng> points) async {
-    return await entranceService.addEntranceFeature(attributes, points);
+  Future<String> addEntranceFeature(EntranceEntity entrance) async {
+    return await entranceService.addEntranceFeature(entrance);
   }
 
   Future<bool> updateEntranceFeature(
-      Map<String, dynamic> attributes, LatLng? point) async {
-    return await entranceService.updateEntranceFeature(attributes, point);
+      EntranceEntity entrance) async {
+    return await entranceService.updateEntranceFeature(entrance);
   }
 
   Future<bool> deleteEntranceFeature(String objectId) async {
