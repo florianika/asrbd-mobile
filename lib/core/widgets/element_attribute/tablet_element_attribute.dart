@@ -112,8 +112,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             }
 
                             return DynamicElementAttribute(
-                              key: ValueKey(
-                                  '${widget.selectedShapeType}_${widget.initialData.hashCode}'),
+                              key: _dynamicFormKey,
                               schema: widget.schema,
                               selectedShapeType: widget.selectedShapeType,
                               entranceOutsideVisibleArea:

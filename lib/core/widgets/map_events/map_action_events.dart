@@ -23,13 +23,20 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
   void _placeMarker() {
     final center = widget.mapController.camera.center;
-    context.read<NewGeometryCubit>().addPoint(center);
+    final newGeometryContext = context.read<NewGeometryCubit>();
+    newGeometryContext.addPoint(center);
+
+    if (newGeometryContext.type == ShapeType.point) {
+      final currentBuildingGlobalId =
+          context.read<AttributesCubit>().currentBuildingGlobalId;
+
+      context.read<AttributesCubit>().addNewEntrance(
+          widget.mapController.camera.center, currentBuildingGlobalId!);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentBuildingGlobalId =
-        context.watch<AttributesCubit>().currentBuildingGlobalId;
     return BlocConsumer<NewGeometryCubit, NewGeometryState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -92,8 +99,6 @@ class _MapActionEventsState extends State<MapActionEvents> {
                         if (state.type == ShapeType.point)
                           {
                             _placeMarker(),
-                            context.read<AttributesCubit>().addNewEntrance(
-                                state.points.first, currentBuildingGlobalId!)
                           }
                         else if (state.type == ShapeType.polygon)
                           {

@@ -44,7 +44,7 @@ class Attributes extends AttributesState {
   @override
   List<Object?> get props => [
         schema,
-        initialData.toString(),
+        initialData,
         shapeType,
         buildingGlobalId,
         entranceGlobalId,
