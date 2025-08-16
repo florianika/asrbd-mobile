@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/dto/dwelling_dto.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:drift/drift.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
 // DTO -> DwellingsCompanion
@@ -31,9 +29,6 @@ extension DwellingDtoToDrift on DwellingDto {
       dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
       dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
       geometryType: Value.absentIfNull(geometryType),
-      coordinates: Value(coordinates != null
-          ? jsonEncode([coordinates!.longitude, coordinates!.latitude])
-          : jsonEncode(null)),
     );
   }
 }
@@ -64,9 +59,6 @@ extension DwellingEntityToDrift on DwellingEntity {
       dwlAirConditioner: dwlAirConditioner,
       dwlSolarPanel: dwlSolarPanel,
       geometryType: geometryType,
-      coordinates: coordinates != null
-          ? jsonEncode([coordinates!.longitude, coordinates!.latitude])
-          : jsonEncode(null),
       downloadId: downloadId,
       id: 0,
     );
@@ -76,25 +68,9 @@ extension DwellingEntityToDrift on DwellingEntity {
 // Drift row -> Domain entity
 extension DwellingRowToEntity on Dwelling {
   DwellingEntity toEntity() {
-    LatLng? coordsDecoded;
-
-    try {
-      final decoded = jsonDecode(coordinates);
-      if (decoded is List && decoded.length >= 2) {
-        coordsDecoded = LatLng(
-          (decoded[1] as num).toDouble(), // latitude
-          (decoded[0] as num).toDouble(), // longitude
-        );
-      }
-    } catch (e) {
-      // Handle decode error - coordinates will remain null
-      coordsDecoded = null;
-    }
-
     return DwellingEntity(
       objectId: id,
       geometryType: geometryType,
-      coordinates: coordsDecoded,
       globalId: globalId,
       dwlEntGlobalID: dwlEntGlobalId,
       dwlAddressID: dwlAddressId,

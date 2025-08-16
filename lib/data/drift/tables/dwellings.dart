@@ -46,5 +46,4 @@ class Dwellings extends Table {
 
   TextColumn get geometryType =>
       text().withLength(min: 1, max: 255).nullable()();
-  TextColumn get coordinates => text()();
 }

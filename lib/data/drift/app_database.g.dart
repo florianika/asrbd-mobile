@@ -3468,12 +3468,6 @@ class $DwellingsTable extends Dwellings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
       requiredDuringInsert: false);
-  static const VerificationMeta _coordinatesMeta =
-      const VerificationMeta('coordinates');
-  @override
-  late final GeneratedColumn<String> coordinates = GeneratedColumn<String>(
-      'coordinates', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         downloadId,
@@ -3497,8 +3491,7 @@ class $DwellingsTable extends Dwellings
         dwlHeatingEnergy,
         dwlAirConditioner,
         dwlSolarPanel,
-        geometryType,
-        coordinates
+        geometryType
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3633,14 +3626,6 @@ class $DwellingsTable extends Dwellings
           geometryType.isAcceptableOrUnknown(
               data['geometry_type']!, _geometryTypeMeta));
     }
-    if (data.containsKey('coordinates')) {
-      context.handle(
-          _coordinatesMeta,
-          coordinates.isAcceptableOrUnknown(
-              data['coordinates']!, _coordinatesMeta));
-    } else if (isInserting) {
-      context.missing(_coordinatesMeta);
-    }
     return context;
   }
 
@@ -3694,8 +3679,6 @@ class $DwellingsTable extends Dwellings
           .read(DriftSqlType.int, data['${effectivePrefix}dwl_solar_panel']),
       geometryType: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
-      coordinates: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
   }
 
@@ -3728,7 +3711,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int? dwlAirConditioner;
   final int? dwlSolarPanel;
   final String? geometryType;
-  final String coordinates;
   const Dwelling(
       {required this.downloadId,
       required this.dwlEntGlobalId,
@@ -3751,8 +3733,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       this.dwlHeatingEnergy,
       this.dwlAirConditioner,
       this.dwlSolarPanel,
-      this.geometryType,
-      required this.coordinates});
+      this.geometryType});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3810,7 +3791,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     if (!nullToAbsent || geometryType != null) {
       map['geometry_type'] = Variable<String>(geometryType);
     }
-    map['coordinates'] = Variable<String>(coordinates);
     return map;
   }
 
@@ -3870,7 +3850,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       geometryType: geometryType == null && nullToAbsent
           ? const Value.absent()
           : Value(geometryType),
-      coordinates: Value(coordinates),
     );
   }
 
@@ -3901,7 +3880,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       dwlAirConditioner: serializer.fromJson<int?>(json['dwlAirConditioner']),
       dwlSolarPanel: serializer.fromJson<int?>(json['dwlSolarPanel']),
       geometryType: serializer.fromJson<String?>(json['geometryType']),
-      coordinates: serializer.fromJson<String>(json['coordinates']),
     );
   }
   @override
@@ -3930,7 +3908,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       'dwlAirConditioner': serializer.toJson<int?>(dwlAirConditioner),
       'dwlSolarPanel': serializer.toJson<int?>(dwlSolarPanel),
       'geometryType': serializer.toJson<String?>(geometryType),
-      'coordinates': serializer.toJson<String>(coordinates),
     };
   }
 
@@ -3956,8 +3933,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           Value<int?> dwlHeatingEnergy = const Value.absent(),
           Value<int?> dwlAirConditioner = const Value.absent(),
           Value<int?> dwlSolarPanel = const Value.absent(),
-          Value<String?> geometryType = const Value.absent(),
-          String? coordinates}) =>
+          Value<String?> geometryType = const Value.absent()}) =>
       Dwelling(
         downloadId: downloadId ?? this.downloadId,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
@@ -3997,7 +3973,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
             dwlSolarPanel.present ? dwlSolarPanel.value : this.dwlSolarPanel,
         geometryType:
             geometryType.present ? geometryType.value : this.geometryType,
-        coordinates: coordinates ?? this.coordinates,
       );
   Dwelling copyWithCompanion(DwellingsCompanion data) {
     return Dwelling(
@@ -4050,8 +4025,6 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       geometryType: data.geometryType.present
           ? data.geometryType.value
           : this.geometryType,
-      coordinates:
-          data.coordinates.present ? data.coordinates.value : this.coordinates,
     );
   }
 
@@ -4079,8 +4052,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
           ..write('dwlSolarPanel: $dwlSolarPanel, ')
-          ..write('geometryType: $geometryType, ')
-          ..write('coordinates: $coordinates')
+          ..write('geometryType: $geometryType')
           ..write(')'))
         .toString();
   }
@@ -4108,8 +4080,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
         dwlHeatingEnergy,
         dwlAirConditioner,
         dwlSolarPanel,
-        geometryType,
-        coordinates
+        geometryType
       ]);
   @override
   bool operator ==(Object other) =>
@@ -4136,8 +4107,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           other.dwlHeatingEnergy == this.dwlHeatingEnergy &&
           other.dwlAirConditioner == this.dwlAirConditioner &&
           other.dwlSolarPanel == this.dwlSolarPanel &&
-          other.geometryType == this.geometryType &&
-          other.coordinates == this.coordinates);
+          other.geometryType == this.geometryType);
 }
 
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
@@ -4163,7 +4133,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int?> dwlAirConditioner;
   final Value<int?> dwlSolarPanel;
   final Value<String?> geometryType;
-  final Value<String> coordinates;
   const DwellingsCompanion({
     this.downloadId = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
@@ -4187,7 +4156,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
     this.geometryType = const Value.absent(),
-    this.coordinates = const Value.absent(),
   });
   DwellingsCompanion.insert({
     required int downloadId,
@@ -4212,11 +4180,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlAirConditioner = const Value.absent(),
     this.dwlSolarPanel = const Value.absent(),
     this.geometryType = const Value.absent(),
-    required String coordinates,
   })  : downloadId = Value(downloadId),
         dwlEntGlobalId = Value(dwlEntGlobalId),
-        globalId = Value(globalId),
-        coordinates = Value(coordinates);
+        globalId = Value(globalId);
   static Insertable<Dwelling> custom({
     Expression<int>? downloadId,
     Expression<String>? dwlEntGlobalId,
@@ -4240,7 +4206,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     Expression<int>? dwlAirConditioner,
     Expression<int>? dwlSolarPanel,
     Expression<String>? geometryType,
-    Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
       if (downloadId != null) 'download_id': downloadId,
@@ -4268,7 +4233,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       if (dwlAirConditioner != null) 'dwl_air_conditioner': dwlAirConditioner,
       if (dwlSolarPanel != null) 'dwl_solar_panel': dwlSolarPanel,
       if (geometryType != null) 'geometry_type': geometryType,
-      if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
@@ -4294,8 +4258,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int?>? dwlHeatingEnergy,
       Value<int?>? dwlAirConditioner,
       Value<int?>? dwlSolarPanel,
-      Value<String?>? geometryType,
-      Value<String>? coordinates}) {
+      Value<String?>? geometryType}) {
     return DwellingsCompanion(
       downloadId: downloadId ?? this.downloadId,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
@@ -4319,7 +4282,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       dwlAirConditioner: dwlAirConditioner ?? this.dwlAirConditioner,
       dwlSolarPanel: dwlSolarPanel ?? this.dwlSolarPanel,
       geometryType: geometryType ?? this.geometryType,
-      coordinates: coordinates ?? this.coordinates,
     );
   }
 
@@ -4392,9 +4354,6 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     if (geometryType.present) {
       map['geometry_type'] = Variable<String>(geometryType.value);
     }
-    if (coordinates.present) {
-      map['coordinates'] = Variable<String>(coordinates.value);
-    }
     return map;
   }
 
@@ -4422,8 +4381,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
           ..write('dwlHeatingEnergy: $dwlHeatingEnergy, ')
           ..write('dwlAirConditioner: $dwlAirConditioner, ')
           ..write('dwlSolarPanel: $dwlSolarPanel, ')
-          ..write('geometryType: $geometryType, ')
-          ..write('coordinates: $coordinates')
+          ..write('geometryType: $geometryType')
           ..write(')'))
         .toString();
   }
@@ -6448,7 +6406,6 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
   Value<String?> geometryType,
-  required String coordinates,
 });
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int> downloadId,
@@ -6473,7 +6430,6 @@ typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int?> dwlAirConditioner,
   Value<int?> dwlSolarPanel,
   Value<String?> geometryType,
-  Value<String> coordinates,
 });
 
 final class $$DwellingsTableReferences
@@ -6585,9 +6541,6 @@ class $$DwellingsTableFilterComposer
 
   ColumnFilters<String> get geometryType => $composableBuilder(
       column: $table.geometryType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get coordinates => $composableBuilder(
-      column: $table.coordinates, builder: (column) => ColumnFilters(column));
 
   $$DownloadsTableFilterComposer get downloadId {
     final $$DownloadsTableFilterComposer composer = $composerBuilder(
@@ -6710,9 +6663,6 @@ class $$DwellingsTableOrderingComposer
       column: $table.geometryType,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get coordinates => $composableBuilder(
-      column: $table.coordinates, builder: (column) => ColumnOrderings(column));
-
   $$DownloadsTableOrderingComposer get downloadId {
     final $$DownloadsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -6823,9 +6773,6 @@ class $$DwellingsTableAnnotationComposer
   GeneratedColumn<String> get geometryType => $composableBuilder(
       column: $table.geometryType, builder: (column) => column);
 
-  GeneratedColumn<String> get coordinates => $composableBuilder(
-      column: $table.coordinates, builder: (column) => column);
-
   $$DownloadsTableAnnotationComposer get downloadId {
     final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -6912,7 +6859,6 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
             Value<String?> geometryType = const Value.absent(),
-            Value<String> coordinates = const Value.absent(),
           }) =>
               DwellingsCompanion(
             downloadId: downloadId,
@@ -6937,7 +6883,6 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
             geometryType: geometryType,
-            coordinates: coordinates,
           ),
           createCompanionCallback: ({
             required int downloadId,
@@ -6962,7 +6907,6 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int?> dwlAirConditioner = const Value.absent(),
             Value<int?> dwlSolarPanel = const Value.absent(),
             Value<String?> geometryType = const Value.absent(),
-            required String coordinates,
           }) =>
               DwellingsCompanion.insert(
             downloadId: downloadId,
@@ -6987,7 +6931,6 @@ class $$DwellingsTableTableManager extends RootTableManager<
             dwlAirConditioner: dwlAirConditioner,
             dwlSolarPanel: dwlSolarPanel,
             geometryType: geometryType,
-            coordinates: coordinates,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

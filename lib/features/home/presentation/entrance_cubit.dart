@@ -1,12 +1,10 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:latlong2/latlong.dart';
 
 abstract class EntranceState {}
 

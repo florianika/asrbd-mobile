@@ -137,12 +137,14 @@ class _ViewMapState extends State<ViewMap> {
     final offlineMode = false;
 
     try {
-      final currentBuildingGlobalId =
-          context.read<AttributesCubit>().currentBuildingGlobalId;
+      // final currentBuildingGlobalId =
+      //     context.read<AttributesCubit>().currentBuildingGlobalId;
 
-      dwelling.dwlEntGlobalID = entranceCubit.selectedEntranceGlobalId;
+      dwelling.dwlEntGlobalID ??= entranceCubit.selectedEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
-          dwelling, currentBuildingGlobalId!, offlineMode);
+        dwelling,
+        offlineMode,
+      );
 
       if (mounted) {
         NotifierService.showMessage(

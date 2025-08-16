@@ -1,11 +1,8 @@
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
-import 'package:latlong2/latlong.dart';
 
 class DwellingDto {
   final int objectId;
   final String? geometryType;
-  final LatLng? coordinates;
-
   final String? globalId;
   final String? dwlEntGlobalID;
   final String? dwlCensus2023;
@@ -38,7 +35,6 @@ class DwellingDto {
   DwellingDto({
     required this.objectId,
     this.geometryType = 'Point',
-    this.coordinates,
     this.globalId,
     this.dwlEntGlobalID = '{00000000-0000-0000-0000-000000000000}',
     this.dwlCensus2023 = '99999999999999999',
@@ -82,25 +78,9 @@ class DwellingDto {
   factory DwellingDto.fromMap(Map<String, dynamic> map) {
     int? safeInt(dynamic v) => (v is num) ? v.toInt() : null;
 
-    LatLng? parseCoordinates(dynamic coordsData) {
-      if (coordsData is List && coordsData.length >= 2) {
-        final lon = (coordsData[0] as num).toDouble();
-        final lat = (coordsData[1] as num).toDouble();
-        return LatLng(lat, lon);
-      } else if (coordsData is Map &&
-          coordsData.containsKey('latitude') &&
-          coordsData.containsKey('longitude')) {
-        final lat = (coordsData['latitude'] as num).toDouble();
-        final lon = (coordsData['longitude'] as num).toDouble();
-        return LatLng(lat, lon);
-      }
-      return null;
-    }
-
     return DwellingDto(
       objectId: safeInt(map['OBJECTID']) ?? 0,
       geometryType: map['GeometryType'] as String?,
-      coordinates: parseCoordinates(map['Coordinates']),
       globalId: map['GlobalID'] as String?,
       dwlEntGlobalID: map['DwlEntGlobalID'] as String?,
       dwlCensus2023: map['DwlCensus2023'] as String?,
@@ -204,27 +184,14 @@ class DwellingDto {
 
     return {
       "type": "Feature",
-      "geometry": {
-        "x": coordinates!.longitude,
-        "y": coordinates!.latitude,
-        'spatialReference': {'wkid': 4326},
-      },
-      "attributes": attributes
+      "geometry": null,
+      "attributes": attributes,
     };
   }
 
   factory DwellingDto.fromGeoJsonFeature(Map<String, dynamic> feature) {
     final geometry = feature['geometry'] as Map<String, dynamic>? ?? {};
     final type = geometry['type'] as String?;
-    final coordsRaw = geometry['coordinates'];
-
-    LatLng? coords;
-
-    if (type == 'Point' && coordsRaw is List && coordsRaw.length >= 2) {
-      final lon = (coordsRaw[0] as num).toDouble();
-      final lat = (coordsRaw[1] as num).toDouble();
-      coords = LatLng(lat, lon);
-    }
 
     final props = feature['properties'] as Map<String, dynamic>? ?? {};
 
@@ -233,7 +200,6 @@ class DwellingDto {
     return DwellingDto(
       objectId: safeInt(props['OBJECTID']) ?? 0,
       geometryType: type,
-      coordinates: coords,
       globalId: props['GlobalID'] as String?,
       dwlEntGlobalID: props['DwlEntGlobalID'] as String?,
       dwlCensus2023: props['DwlCensus2023'] as String?,
@@ -269,7 +235,6 @@ class DwellingDto {
     return DwellingEntity(
       objectId: objectId,
       geometryType: geometryType,
-      coordinates: coordinates,
       globalId: globalId,
       dwlEntGlobalID: dwlEntGlobalID,
       dwlCensus2023: dwlCensus2023,
@@ -305,7 +270,7 @@ class DwellingDto {
     return DwellingDto(
       objectId: entity.objectId,
       geometryType: entity.geometryType,
-      coordinates: entity.coordinates,
+      // coordinates: entity.coordinates,
       globalId: entity.globalId,
       dwlEntGlobalID: entity.dwlEntGlobalID,
       dwlCensus2023: entity.dwlCensus2023,

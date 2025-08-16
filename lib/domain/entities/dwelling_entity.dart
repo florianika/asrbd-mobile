@@ -1,13 +1,9 @@
-import 'package:latlong2/latlong.dart';
-
 class DwellingEntity {
   final int objectId;
   final int? featureId;
   final String? geometryType;
-  final LatLng? coordinates;
-
   final String? globalId;
-   String? dwlEntGlobalID;
+  String? dwlEntGlobalID;
   final String? dwlCensus2023;
   DateTime? externalCreatorDate;
   DateTime? externalEditorDate;
@@ -38,8 +34,7 @@ class DwellingEntity {
   DwellingEntity({
     required this.objectId,
     this.featureId,
-    this.geometryType = "Point",
-    this.coordinates,
+    this.geometryType,
     this.globalId,
     this.dwlEntGlobalID = '{00000000-0000-0000-0000-000000000000}',
     this.dwlCensus2023 = '99999999999999999',
@@ -83,27 +78,11 @@ class DwellingEntity {
   factory DwellingEntity.fromMap(Map<String, dynamic> map) {
     int? safeInt(dynamic v) => (v is num) ? v.toInt() : null;
 
-    LatLng? parseCoordinates(dynamic coordsData) {
-      if (coordsData is List && coordsData.length >= 2) {
-        final lon = (coordsData[0] as num).toDouble();
-        final lat = (coordsData[1] as num).toDouble();
-        return LatLng(lat, lon);
-      } else if (coordsData is Map &&
-          coordsData.containsKey('latitude') &&
-          coordsData.containsKey('longitude')) {
-        final lat = (coordsData['latitude'] as num).toDouble();
-        final lon = (coordsData['longitude'] as num).toDouble();
-        return LatLng(lat, lon);
-      }
-      return null;
-    }
-
     return DwellingEntity(
       globalId: map['GlobalID'] as String?,
       objectId: safeInt(map['OBJECTID']) ?? 0,
       featureId: safeInt(map['FeatureId']),
       geometryType: map['GeometryType'] as String?,
-      coordinates: parseCoordinates(map['Coordinates']),
       dwlEntGlobalID: map['DwlEntGlobalID'] as String?,
       dwlCensus2023: map['DwlCensus2023'] as String?,
       externalCreatorDate: _fromEpochMs(map['external_creator_date']) ??
@@ -154,9 +133,6 @@ extension DwellingEntityMapper on DwellingEntity {
       'OBJECTID': objectId,
       'FeatureId': featureId,
       'GeometryType': geometryType,
-      'Coordinates': coordinates != null
-          ? [coordinates!.longitude, coordinates!.latitude]
-          : null,
       'DwlEntGlobalID': dwlEntGlobalID,
       'DwlCensus2023': dwlCensus2023,
       'external_creator_date': externalCreatorDate?.millisecondsSinceEpoch,

@@ -1,4 +1,3 @@
-
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/dwelling_repository.dart';
@@ -22,16 +21,14 @@ class DwellingUseCases {
     return await _dwellingRepository.getDwellingAttributes();
   }
 
-  Future<String> _addDwellingFeatureOnline(
-      DwellingEntity dwelling, String buildingGlobalId) async {
+  Future<String> _addDwellingFeatureOnline(DwellingEntity dwelling) async {
     String response = await _dwellingRepository.addDwellingFeature(dwelling);
-    await _checkUseCases.checkAutomatic(
-        buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
+    // await _checkUseCases.checkAutomatic(
+    //     buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return response;
   }
 
-  Future<String> _addDwellingFeatureOffline(
-      DwellingEntity dwelling, String buildingGlobalId) async {
+  Future<String> _addDwellingFeatureOffline(DwellingEntity dwelling) async {
     throw UnimplementedError(
         'Offline add for dwelling feature is not implemented yet');
   }
@@ -60,7 +57,6 @@ class DwellingUseCases {
 
   Future<String> _createNewDwelling(
     DwellingEntity dwelling,
-    String buildingGlobalId,
     bool offlineMode,
   ) async {
     final userService = sl<UserService>();
@@ -70,16 +66,14 @@ class DwellingUseCases {
     dwelling.externalCreatorDate = DateTime.now();
 
     if (!offlineMode) {
-      return await dwellingUseCases._addDwellingFeatureOnline(
-          dwelling, buildingGlobalId);
+      return await dwellingUseCases._addDwellingFeatureOnline(dwelling);
       // await outputLogsCubit.checkAutomatic(
       //     attributes[EntranceFields.entBldGlobalID]
       //         .toString()
       //         .replaceAll('{', '')
       //         .replaceAll('}', ''));
     } else {
-      return await dwellingUseCases._addDwellingFeatureOffline(
-          dwelling, buildingGlobalId);
+      return await dwellingUseCases._addDwellingFeatureOffline(dwelling);
     }
   }
 
@@ -111,14 +105,13 @@ class DwellingUseCases {
     }
   }
 
-  Future<SaveResult> saveDwelling(DwellingEntity dwelling,
-      String buildingGlobalId, bool offlineMode) async {
-    // final userService = sl<UserService>();
+  Future<SaveResult> saveDwelling(
+      DwellingEntity dwelling, bool offlineMode) async {
     bool isNewEntrance = dwelling.globalId == null;
 
     if (isNewEntrance) {
-      String globalId =
-          await _createNewDwelling(dwelling, buildingGlobalId, offlineMode);
+      
+      String globalId = await _createNewDwelling(dwelling, offlineMode);
       return SaveResult(true, Keys.successAddEntrance, globalId);
     } else {
       await _updateExistingDwelling(dwelling, offlineMode);

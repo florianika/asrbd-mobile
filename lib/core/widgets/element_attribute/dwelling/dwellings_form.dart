@@ -865,8 +865,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
   Future<void> _onSaveDwelling(
       Map<String, dynamic> attributes, String buildingGlobalId) async {
-    attributes['DwlEntGlobalID'] =
-        context.read<AttributesCubit>().currentEntranceGlobalId;
+   
     if (_isEditMode) {
       //   await context
       //       .read<DwellingCubit>()

@@ -1,11 +1,7 @@
 import 'package:asrdb/core/constants/default_data.dart';
-import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
-import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
-import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
-import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';

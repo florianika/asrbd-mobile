@@ -2,7 +2,6 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/user_service.dart';
-import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';

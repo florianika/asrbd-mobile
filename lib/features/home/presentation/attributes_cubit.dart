@@ -1,5 +1,4 @@
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
