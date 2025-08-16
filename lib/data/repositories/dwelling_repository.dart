@@ -2,6 +2,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/dwelling_service.dart';
 import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/repositories/dwelling_repository.dart';
 
 class DwellingRepository implements IDwellingRepository {
@@ -46,11 +47,10 @@ class DwellingRepository implements IDwellingRepository {
   @override
   Future<void> updateDwellingById(
       {required int id, required String newGlobalId}) async {
-    await _dao.dwellingDao
-        .updateDwellingById(id: id, newGlobalId: newGlobalId);
+    await _dao.dwellingDao.updateDwellingById(id: id, newGlobalId: newGlobalId);
   }
 
-  Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
+  Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     return await dwellingService.getDwellings(entranceGlobalId);
   }
 
@@ -58,15 +58,15 @@ class DwellingRepository implements IDwellingRepository {
     return await dwellingService.getDwellingAttributes();
   }
 
-  Future<bool> addDwellingFeature(Map<String, dynamic> attributes) async {
-    return await dwellingService.addDwellingFeature(attributes);
+  Future<String> addDwellingFeature(DwellingEntity dwelling) async {
+    return await dwellingService.addDwellingFeature(dwelling);
   }
 
-  Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
+  Future<DwellingEntity> getDwellingDetails(int objectId) async {
     return await dwellingService.getDwellingDetails(objectId);
   }
 
-  Future<bool> updateDwellingFeature(Map<String, dynamic> attributes) async {
-    return await dwellingService.updateDwellingFeature(attributes);
+  Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {
+    return await dwellingService.updateDwellingFeature(dwelling);
   }
 }

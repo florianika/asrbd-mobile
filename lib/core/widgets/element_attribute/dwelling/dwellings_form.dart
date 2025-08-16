@@ -3,6 +3,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/side_container.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
@@ -11,8 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DwellingForm extends StatefulWidget {
+  final Function onSave;
+
   const DwellingForm({
     super.key,
+    required this.onSave,
   });
 
   @override
@@ -20,12 +24,12 @@ class DwellingForm extends StatefulWidget {
 }
 
 class _DwellingFormState extends State<DwellingForm> {
-  final List<Map<String, dynamic>> _dwellingRows = [];
-  List<FieldSchema> _dwellingSchema = [];
+  final List<DwellingEntity> _dwellingRows = [];
+  final List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
-  Map<String, dynamic>? _viewPendingRow;
+  DwellingEntity? _viewPendingRow;
   final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
   final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
@@ -39,8 +43,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
     String? entranceGlobalId =
         context.read<AttributesCubit>().currentEntranceGlobalId;
-    buildingGlobalId =
-        context.read<AttributesCubit>().currentBuildingGlobalId;
+    buildingGlobalId = context.read<AttributesCubit>().currentBuildingGlobalId;
 
     // final id = widget.entranceGlobalId;
     _initialData['DwlEntGlobalID'] = entranceGlobalId;
@@ -65,34 +68,32 @@ class _DwellingFormState extends State<DwellingForm> {
     return BlocConsumer<DwellingCubit, DwellingState>(
       listener: (context, state) {
         if (state is Dwellings) {
-          final featuresRaw = state.dwellings['features'];
+          final dwellings = state.dwellings;
 
-          if (featuresRaw is List) {
-            final features = featuresRaw;
-            setState(() {
-              _dwellingRows.clear();
-              _dwellingRows.addAll(
-                features.map((f) => Map<String, dynamic>.from(f['properties'])),
-              );
-            });
-          }
-        } else if (state is DwellingAttributes) {
+          // if (featuresRaw is List) {
+          // final features = featuresRaw;
           setState(() {
-            _dwellingSchema = state.attributes;
-            _showDwellingForm = _viewPendingRow == null;
+            _dwellingRows.clear();
+            _dwellingRows.addAll(dwellings);
           });
-
-          if (_viewPendingRow != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showViewDialog(_viewPendingRow!);
-              _viewPendingRow = null;
-            });
-          }
-        } else if (state is DwellingError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
         }
+        // } else if (state is DwellingAttributes) {
+        //   setState(() {
+        //     _dwellingSchema = state.attributes;
+        //     _showDwellingForm = _viewPendingRow == null;
+        //   });
+
+        //   if (_viewPendingRow != null) {
+        //     WidgetsBinding.instance.addPostFrameCallback((_) {
+        //       _showViewDialog(_viewPendingRow!);
+        //       _viewPendingRow = null;
+        //     });
+        //   }
+        // } else if (state is DwellingError) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(content: Text(state.message)),
+        //   );
+        // }
       },
       builder: (context, state) {
         return (state is Dwellings && state.showDwellingList)
@@ -142,7 +143,8 @@ class _DwellingFormState extends State<DwellingForm> {
                                 });
                               },
                               save: (formValues) async {
-                                await _onSaveDwelling(formValues, buildingGlobalId!);
+                                await _onSaveDwelling(
+                                    formValues, buildingGlobalId!);
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;
@@ -165,9 +167,9 @@ class _DwellingFormState extends State<DwellingForm> {
 
   Widget _buildCustomHeader() {
     // Get the first dwelling's OBJECTID for display
-    final objectId = _dwellingRows.isNotEmpty
-        ? _dwellingRows.first['OBJECTID']?.toString() ?? "N/A"
-        : "N/A";
+    // final objectId = _dwellingRows.isNotEmpty
+    //     ? _dwellingRows.first['OBJECTID']?.toString() ?? "N/A"
+    //     : "N/A";
 
     return Card(
       elevation: 3,
@@ -221,14 +223,14 @@ class _DwellingFormState extends State<DwellingForm> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Object ID: $objectId',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+                  // const SizedBox(height: 4),
+                  // Text(
+                  //   'Object ID: $objectId',
+                  //   style: TextStyle(
+                  //     fontSize: 14,
+                  //     color: Colors.grey[600],
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -271,12 +273,11 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildExpandableDwellingItem(
-      Map<String, dynamic> dwelling, int index) {
+  Widget _buildExpandableDwellingItem(DwellingEntity dwelling, int index) {
     final isExpanded = _expandedDwellings.contains(index);
     // final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
-    final apartNumber = dwelling['DwlApartNumber']?.toString() ?? 'N/A';
-    final quality = dwelling['DwlQuality']?.toString() ?? '0';
+    final apartNumber = dwelling.dwlApartNumber?.toString() ?? 'N/A';
+    final quality = dwelling.dwlQuality?.toString() ?? '0';
     final qualityInfo = _getQualityInfo(quality);
 
     return Card(
@@ -378,7 +379,7 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildExpandedContent(Map<String, dynamic> dwelling, int index) {
+  Widget _buildExpandedContent(DwellingEntity dwelling, int index) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
@@ -432,16 +433,21 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildDwellingDataGrid(Map<String, dynamic> dwelling) {
-    // Show only 3 specific attributes
-    const allowedKeys = {'DwlFloor', 'DwlApartNumber', 'DwlQuality'};
+  Widget _buildDwellingDataGrid(DwellingEntity dwelling) {
+    // Define the properties to show with their corresponding entity fields
     final dataItems = <MapEntry<String, dynamic>>[];
 
+    // Map the allowed keys to entity properties
+    final propertyMap = {
+      'DwlFloor': dwelling.dwlFloor,
+      'DwlApartNumber': dwelling.dwlApartNumber,
+      'DwlQuality': dwelling.dwlQuality,
+    };
+
+    // Only add non-null values in the specified order
     for (final key in _columnOrder) {
-      if (allowedKeys.contains(key) &&
-          dwelling.containsKey(key) &&
-          dwelling[key] != null) {
-        dataItems.add(MapEntry(key, dwelling[key]));
+      if (propertyMap.containsKey(key) && propertyMap[key] != null) {
+        dataItems.add(MapEntry(key, propertyMap[key]));
       }
     }
 
@@ -553,11 +559,11 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   // Helper methods
-  Map<String, List<Map<String, dynamic>>> _groupDwellingsByFloor() {
-    final grouped = <String, List<Map<String, dynamic>>>{};
+  Map<String, List<DwellingEntity>> _groupDwellingsByFloor() {
+    final grouped = <String, List<DwellingEntity>>{};
 
     for (final dwelling in _dwellingRows) {
-      final floor = dwelling['DwlFloor']?.toString() ?? 'Unknown';
+      final floor = dwelling.dwlFloor?.toString() ?? 'Unknown';
       if (!grouped.containsKey(floor)) {
         grouped[floor] = [];
       }
@@ -578,14 +584,14 @@ class _DwellingFormState extends State<DwellingForm> {
         sortedKeys.map((key) => MapEntry(key, grouped[key]!)));
   }
 
-  bool _floorHasErrors(List<Map<String, dynamic>> dwellings) {
+  bool _floorHasErrors(List<DwellingEntity> dwellings) {
     return dwellings.any((dwelling) {
-      final quality = dwelling['DwlQuality']?.toString() ?? '0';
+      final quality = dwelling.dwlQuality?.toString() ?? '0';
       return quality == '2' || quality == '3'; // Missing data or Contradictory
     });
   }
 
-  Widget _buildFloorGroup(String floor, List<Map<String, dynamic>> dwellings) {
+  Widget _buildFloorGroup(String floor, List<DwellingEntity> dwellings) {
     final isFloorExpanded = _expandedFloors.contains(floor);
     final hasErrors = _floorHasErrors(dwellings);
 
@@ -695,8 +701,7 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildFloorContent(
-      String floor, List<Map<String, dynamic>> dwellings) {
+  Widget _buildFloorContent(String floor, List<DwellingEntity> dwellings) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: Column(
@@ -705,7 +710,8 @@ class _DwellingFormState extends State<DwellingForm> {
           const SizedBox(height: 6),
           ...dwellings.asMap().entries.map((entry) {
             final dwelling = entry.value;
-            final dwellingIndex = _dwellingRows.indexOf(dwelling);
+            final dwellingIndex = _dwellingRows
+                .indexWhere((d) => d.globalId == dwelling.globalId);
             return Padding(
               padding: const EdgeInsets.only(bottom: 6),
               child: _buildExpandableDwellingItem(dwelling, dwellingIndex),
@@ -722,7 +728,7 @@ class _DwellingFormState extends State<DwellingForm> {
         _expandedFloors.remove(floor);
         // Also collapse all dwellings in this floor
         for (final dwelling in _dwellingRows) {
-          if (dwelling['DwlFloor']?.toString() == floor) {
+          if (dwelling.dwlFloor?.toString() == floor) {
             final index = _dwellingRows.indexOf(dwelling);
             _expandedDwellings.remove(index);
           }
@@ -779,7 +785,7 @@ class _DwellingFormState extends State<DwellingForm> {
     }
   }
 
-  void _onViewDwelling(Map<String, dynamic> row) {
+  void _onViewDwelling(DwellingEntity row) {
     if (_dwellingSchema.isEmpty) {
       _viewPendingRow = row;
       context.read<DwellingCubit>().getDwellingAttibutes();
@@ -788,7 +794,7 @@ class _DwellingFormState extends State<DwellingForm> {
     _showViewDialog(row);
   }
 
-  void _showViewDialog(Map<String, dynamic> row) {
+  void _showViewDialog(DwellingEntity row) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -826,7 +832,7 @@ class _DwellingFormState extends State<DwellingForm> {
                   schema: _dwellingSchema,
                   selectedShapeType: ShapeType.noShape,
                   entranceOutsideVisibleArea: false,
-                  initialData: row,
+                  initialData: row.toMap(),
                   onClose: () => Navigator.pop(context),
                   save: (_) async {},
                   readOnly: true,
@@ -841,10 +847,10 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  void _onEditDwelling(Map<String, dynamic> row) {
+  void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();
     context.read<NewGeometryCubit>().setType(ShapeType.noShape);
-    context.read<AttributesCubit>().showDwellingAttributes(row['OBJECTID']);
+    context.read<AttributesCubit>().showDwellingAttributes(row.objectId);
   }
 
   void handleOnClose() {
@@ -857,13 +863,20 @@ class _DwellingFormState extends State<DwellingForm> {
     context.read<AttributesCubit>().showDwellingAttributes(null);
   }
 
-  Future<void> _onSaveDwelling(Map<String, dynamic> attributes, String buildingGlobalId) async {
+  Future<void> _onSaveDwelling(
+      Map<String, dynamic> attributes, String buildingGlobalId) async {
     attributes['DwlEntGlobalID'] =
         context.read<AttributesCubit>().currentEntranceGlobalId;
     if (_isEditMode) {
-      await context.read<DwellingCubit>().updateDwellingFeature(attributes, buildingGlobalId);
-    } else {
-      await context.read<DwellingCubit>().addDwellingFeature(attributes, buildingGlobalId);
+      //   await context
+      //       .read<DwellingCubit>()
+      //       .updateDwellingFeature(attributes, buildingGlobalId);
+      // } else {
+      //   await context
+      //       .read<DwellingCubit>()
+      //       .addDwellingFeature(attributes, buildingGlobalId);
+
+      widget.onSave(attributes);
     }
 
     setState(() {

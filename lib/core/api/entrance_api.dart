@@ -5,7 +5,6 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/data/dto/entrance_dto.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:dio/dio.dart';
-import 'package:latlong2/latlong.dart';
 import 'api_endpoints.dart';
 
 class EntranceApi {

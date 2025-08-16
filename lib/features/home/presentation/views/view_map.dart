@@ -17,9 +17,11 @@ import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
 import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
@@ -108,6 +110,9 @@ class _ViewMapState extends State<ViewMap> {
       } else if (attributes['GeometryType'] == 'Point') {
         final entrance = EntranceEntity.fromMap(attributes);
         await _saveEntrance(entrance);
+      } else if (attributes['GeometryType'] == null) {
+        final dwelling = DwellingEntity.fromMap(attributes);
+        await _saveDwelling(dwelling);
       } else {
         NotifierService.showMessage(
           context,
@@ -123,6 +128,37 @@ class _ViewMapState extends State<ViewMap> {
       _handleSaveError(e);
     } finally {
       loadingCubit.hide();
+    }
+  }
+
+  Future<void> _saveDwelling(DwellingEntity dwelling) async {
+    final entranceUseCase = sl<DwellingUseCases>();
+    final entranceCubit = sl<EntranceCubit>();
+    final offlineMode = false;
+
+    try {
+      final currentBuildingGlobalId =
+          context.read<AttributesCubit>().currentBuildingGlobalId;
+
+      dwelling.dwlEntGlobalID = entranceCubit.selectedEntranceGlobalId;
+      SaveResult response = await entranceUseCase.saveDwelling(
+          dwelling, currentBuildingGlobalId!, offlineMode);
+
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message:
+              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
+          type: response.success ? MessageType.success : MessageType.error,
+        );
+      }
+    } on Exception catch (e) {
+      if (!mounted) return;
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
     }
   }
 
@@ -388,7 +424,7 @@ class _ViewMapState extends State<ViewMap> {
                   },
                   child: const SizedBox.shrink(),
                 ),
-                const DwellingForm(),
+                DwellingForm(onSave: _onSave),
                 BlocConsumer<AttributesCubit, AttributesState>(
                   listener: (context, state) {
                     if (state is AttributesError) {
@@ -397,7 +433,7 @@ class _ViewMapState extends State<ViewMap> {
                         message: state.message,
                         type: MessageType.error,
                       );
-                    } 
+                    }
                   },
                   builder: (context, state) {
                     return (state is Attributes && !state.showAttributes)

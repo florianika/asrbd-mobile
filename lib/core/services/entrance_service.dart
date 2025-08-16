@@ -5,7 +5,6 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/data/dto/entrance_dto.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
-import 'package:latlong2/latlong.dart';
 
 class EntranceService {
   final EntranceApi entranceApi;

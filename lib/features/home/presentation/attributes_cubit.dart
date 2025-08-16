@@ -1,6 +1,7 @@
 import 'package:asrdb/core/models/entrance/entrance_fields.dart';
 import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -140,13 +141,13 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final data = await dwellingUseCases.getDwellingDetails(dwellingObjectID);
-      final features = data[GeneralFields.features] ?? [];
-      final props =
-          features.isNotEmpty ? features[0][GeneralFields.properties] : {};
+      final dwelling = await dwellingUseCases.getDwellingDetails(dwellingObjectID);
+      // final features = data[GeneralFields.features] ?? [];
+      // final props =
+      //     features.isNotEmpty ? features[0][GeneralFields.properties] : {};
       emit(Attributes(
         schema,
-        props,
+        dwelling.toMap(),
         ShapeType.noShape,
         null,
         null,

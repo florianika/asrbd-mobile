@@ -1,4 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +11,7 @@ class DwellingInitial extends DwellingState {}
 class DwellingLoading extends DwellingState {}
 
 class Dwellings extends DwellingState {
-  final Map<String, dynamic> dwellings;
+  final List<DwellingEntity> dwellings;
   final bool showDwellingList;
   Dwellings(this.dwellings, this.showDwellingList);
 }
@@ -45,15 +46,14 @@ class DwellingCubit extends Cubit<DwellingState> {
   final AttributesCubit attributesCubit;
 
   DwellingCubit(this.dwellingUseCases, this.attributesCubit)
-      : super(Dwellings({}, false));
+      : super(Dwellings([], false));
 
   Future<void> getDwellings(String? entranceGlobalId) async {
     emit(DwellingLoading());
     try {
       attributesCubit.showAttributes(false);
       final dwellings = await dwellingUseCases.getDwellings(entranceGlobalId);
-      emit(Dwellings(
-         dwellings , true));
+      emit(Dwellings(dwellings, true));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
@@ -62,7 +62,7 @@ class DwellingCubit extends Cubit<DwellingState> {
   void closeDwellings() {
     emit(DwellingLoading());
     try {
-      emit(Dwellings({}, false));
+      emit(Dwellings([], false));
     } catch (e) {
       emit(DwellingError(e.toString()));
     }
@@ -77,28 +77,28 @@ class DwellingCubit extends Cubit<DwellingState> {
     }
   }
 
-  Future<void> addDwellingFeature(
-    Map<String, dynamic> attributes,
-    String buildingGlobalId,
-  ) async {
-    emit(DwellingLoading());
-    try {
-      emit(DwellingAddResponse(
-          await dwellingUseCases.addDwellingFeature(attributes, buildingGlobalId)));
-    } catch (e) {
-      emit(DwellingError(e.toString()));
-    }
-  }
+  // Future<void> addDwellingFeature(
+  //   Map<String, dynamic> attributes,
+  //   String buildingGlobalId,
+  // ) async {
+  //   emit(DwellingLoading());
+  //   try {
+  //     emit(DwellingAddResponse(
+  //         await dwellingUseCases.addDwellingFeature(attributes, buildingGlobalId)));
+  //   } catch (e) {
+  //     emit(DwellingError(e.toString()));
+  //   }
+  // }
 
-  Future<void> updateDwellingFeature(Map<String, dynamic> attributes, String buildingGlobalId) async {
-    emit(DwellingLoading());
-    try {
-      emit(DwellingUpdateResponse(
-          await dwellingUseCases.updateDwellingFeature(attributes, buildingGlobalId)));
-    } catch (e) {
-      emit(DwellingError(e.toString()));
-    }
-  }
+  // Future<void> updateDwellingFeature(Map<String, dynamic> attributes, String buildingGlobalId) async {
+  //   emit(DwellingLoading());
+  //   try {
+  //     emit(DwellingUpdateResponse(
+  //         await dwellingUseCases.updateDwellingFeature(attributes, buildingGlobalId)));
+  //   } catch (e) {
+  //     emit(DwellingError(e.toString()));
+  //   }
+  // }
 
   Future<void> getDwellingDetails(int? objectId) async {
     emit(DwellingLoading());

@@ -1,12 +1,11 @@
+
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/dwelling_repository.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
+import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
-import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
-import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
-import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
 
 class DwellingUseCases {
@@ -14,7 +13,8 @@ class DwellingUseCases {
   final CheckUseCases _checkUseCases;
 
   DwellingUseCases(this._dwellingRepository, this._checkUseCases);
-  Future<Map<String, dynamic>> getDwellings(String? entranceGlobalId) async {
+
+  Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     return await _dwellingRepository.getDwellings(entranceGlobalId);
   }
 
@@ -22,81 +22,107 @@ class DwellingUseCases {
     return await _dwellingRepository.getDwellingAttributes();
   }
 
-  Future<bool> addDwellingFeature(
-      Map<String, dynamic> attributes, String buildingGlobalId) async {
-    bool response = await _dwellingRepository.addDwellingFeature(attributes);
+  Future<String> _addDwellingFeatureOnline(
+      DwellingEntity dwelling, String buildingGlobalId) async {
+    String response = await _dwellingRepository.addDwellingFeature(dwelling);
     await _checkUseCases.checkAutomatic(
         buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return response;
   }
 
-  Future<Map<String, dynamic>> getDwellingDetails(int objectId) async {
+  Future<String> _addDwellingFeatureOffline(
+      DwellingEntity dwelling, String buildingGlobalId) async {
+    throw UnimplementedError(
+        'Offline add for dwelling feature is not implemented yet');
+  }
+
+  Future<DwellingEntity> getDwellingDetails(int objectId) async {
     return await _dwellingRepository.getDwellingDetails(objectId);
   }
 
-  Future<bool> updateDwellingFeature(
-      Map<String, dynamic> attributes, String buildingGlobalId) async {
-    bool response = await _dwellingRepository.updateDwellingFeature(attributes);
+  Future<bool> _updateDwellingFeatureOnline(
+      DwellingEntity dwelling, String buildingGlobalId) async {
+    bool response = await _dwellingRepository.updateDwellingFeature(dwelling);
     await _checkUseCases.checkAutomatic(
         buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
 
     return response;
   }
 
-  Future<void> _createNewDwelling(
-    Map<String, dynamic> attributes,
-    DwellingCubit dwellingCubit,
-    EntranceCubit entranceCubit,
-    OutputLogsCubit outputLogsCubit,
-    UserService userService,
-    String buildingGlobalId,
-  ) async {
-    attributes[EntranceFields.dwlEntGlobalID] =
-        entranceCubit.selectedEntranceGlobalId;
-    attributes[GeneralFields.externalCreator] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalCreatorDate] =
-        DateTime.now().millisecondsSinceEpoch;
+  Future<bool> _updateDwellingFeatureOffline(
+      DwellingEntity dwelling, String buildingGlobalId) async {
+    bool response = await _dwellingRepository.updateDwellingFeature(dwelling);
+    await _checkUseCases.checkAutomatic(
+        buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
 
-    await dwellingCubit.addDwellingFeature(attributes, buildingGlobalId);
-    await outputLogsCubit.checkAutomatic(
-        buildingGlobalId.replaceAll('{', '').replaceAll('}', ''));
+    return response;
+  }
+
+  Future<String> _createNewDwelling(
+    DwellingEntity dwelling,
+    String buildingGlobalId,
+    bool offlineMode,
+  ) async {
+    final userService = sl<UserService>();
+    final dwellingUseCases = sl<DwellingUseCases>();
+
+    dwelling.externalCreator = '{${userService.userInfo?.nameId}}';
+    dwelling.externalCreatorDate = DateTime.now();
+
+    if (!offlineMode) {
+      return await dwellingUseCases._addDwellingFeatureOnline(
+          dwelling, buildingGlobalId);
+      // await outputLogsCubit.checkAutomatic(
+      //     attributes[EntranceFields.entBldGlobalID]
+      //         .toString()
+      //         .replaceAll('{', '')
+      //         .replaceAll('}', ''));
+    } else {
+      return await dwellingUseCases._addDwellingFeatureOffline(
+          dwelling, buildingGlobalId);
+    }
   }
 
   Future<void> _updateExistingDwelling(
-    Map<String, dynamic> attributes,
-    DwellingCubit dwellingCubit,
-    OutputLogsCubit outputLogsCubit,
-    UserService userService,
-    String buildingGlobalId,
-  ) async {
-    attributes[GeneralFields.externalEditor] =
-        '{${userService.userInfo?.nameId}}';
-    attributes[GeneralFields.externalEditorDate] =
-        DateTime.now().millisecondsSinceEpoch;
+      DwellingEntity dwelling, bool offlineMode) async {
+    final userService = sl<UserService>();
+    final DwellingUseCases dwellingUseCases = sl<DwellingUseCases>();
+    // DwellingCubit dwellingCubit,
 
-    await dwellingCubit.updateDwellingFeature(attributes, buildingGlobalId);
-    await outputLogsCubit.checkAutomatic(
-        buildingGlobalId
-            .replaceAll('{', '')
-            .replaceAll('}', ''));
+    // attributes[GeneralFields.externalEditor] =
+    //     '{${userService.userInfo?.nameId}}';
+    // attributes[GeneralFields.externalEditorDate] =
+    //     DateTime.now().millisecondsSinceEpoch;
+
+    dwelling.externalEditor = '{${userService.userInfo?.nameId}}';
+    dwelling.externalEditorDate = DateTime.now();
+
+    if (!offlineMode) {
+      await dwellingUseCases._updateDwellingFeatureOnline(
+          dwelling, dwelling.dwlEntGlobalID!);
+      // await outputLogsCubit.checkAutomatic(
+      //     attributes[EntranceFields.entBldGlobalID]
+      //         .toString()
+      //         .replaceAll('{', '')
+      //         .replaceAll('}', ''));
+    } else {
+      await dwellingUseCases._updateDwellingFeatureOffline(
+          dwelling, dwelling.dwlEntGlobalID!);
+    }
   }
 
-  Future<void> saveDwelling(
-      Map<String, dynamic> attributes,
-      DwellingCubit dwellingCubit,
-      EntranceCubit entranceCubit,
-      OutputLogsCubit outputLogsCubit,
-      String buildingGlobalId,
-      bool isNew) async {
-    final userService = sl<UserService>();
+  Future<SaveResult> saveDwelling(DwellingEntity dwelling,
+      String buildingGlobalId, bool offlineMode) async {
+    // final userService = sl<UserService>();
+    bool isNewEntrance = dwelling.globalId == null;
 
-    if (isNew) {
-      await _createNewDwelling(attributes, dwellingCubit, entranceCubit,
-          outputLogsCubit, userService, buildingGlobalId);
+    if (isNewEntrance) {
+      String globalId =
+          await _createNewDwelling(dwelling, buildingGlobalId, offlineMode);
+      return SaveResult(true, Keys.successAddEntrance, globalId);
     } else {
-      await _updateExistingDwelling(attributes, dwellingCubit, outputLogsCubit,
-          userService, buildingGlobalId);
+      await _updateExistingDwelling(dwelling, offlineMode);
+      return SaveResult(true, Keys.successUpdateEntrance, dwelling.globalId);
     }
   }
 }
