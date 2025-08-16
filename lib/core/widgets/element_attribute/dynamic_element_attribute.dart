@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:uuid/uuid.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
   final List<FieldSchema> schema;
@@ -668,6 +669,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
 
     final inputDecoration = _getInputDecoration(attribute, elementFound);
+
     if (elementFound.codedValues != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -675,14 +677,29 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           AbsorbPointer(
             absorbing: attribute.display.enumerator == "read",
             child: DropdownButtonFormField<Object?>(
-              key: ValueKey(elementFound.name),
+              key: ValueKey('${elementFound.name}_${widget.hashCode}'),
               isExpanded: true,
               decoration: inputDecoration,
-              value: widget.initialData![elementFound.name] ??
-                  elementFound.defaultValue,
+              value: () {
+                // Get the intended value
+                final intendedValue = widget.initialData![elementFound.name] ??
+                    elementFound.defaultValue;
+
+                // Check if this value exists in codedValues
+                final availableCodes = elementFound.codedValues!
+                    .map((code) => code['code'])
+                    .toSet();
+
+                // Only return the value if it exists in the dropdown items
+                return availableCodes.contains(intendedValue)
+                    ? intendedValue
+                    : null;
+              }(),
               items: elementFound.codedValues!
                   .map<DropdownMenuItem<Object?>>(
                       (code) => DropdownMenuItem<Object?>(
+                            key: ValueKey(
+                                '${elementFound.name}_${code['name']}_${widget.hashCode}'),
                             value: code['code'],
                             child: Text(
                               code['name'].toString(),
