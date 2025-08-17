@@ -79,7 +79,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
               child: GestureDetector(
                 onTap: () => widget.onTap(entrance),
                 onLongPress: () =>
-                    widget.onLongPress(entrance.coordinates, entrance.globalId),
+                    widget.onLongPress(entrance),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [

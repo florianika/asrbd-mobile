@@ -314,13 +314,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  void _onLongTapEntrance(LatLng coordinates, String entranceGlobalId) {
-    final buildingGlobalId =
-        context.read<AttributesCubit>().currentBuildingGlobalId;
-    context.read<AttributesCubit>().showEntranceAttributes(
-        entranceGlobalId.removeCurlyBraces(), buildingGlobalId);
+  void _onLongTapEntrance(EntranceEntity entrance) {
+    // final buildingGlobalId =
+    //     context.read<AttributesCubit>().currentBuildingGlobalId;
+    // context
+    //     .read<AttributesCubit>()
+    //     .showEntranceAttributes(entrance.globalId, buildingGlobalId);
 
-    context.read<NewGeometryCubit>().setPoints([coordinates]);
+    context.read<NewGeometryCubit>().setPoints([entrance.coordinates!]);
     context.read<NewGeometryCubit>().setType(ShapeType.point);
     context.read<NewGeometryCubit>().setDrawing(true);
     context.read<NewGeometryCubit>().setMovingPoint(true);

@@ -140,7 +140,8 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final dwelling = await dwellingUseCases.getDwellingDetails(dwellingObjectID);
+      final dwelling =
+          await dwellingUseCases.getDwellingDetails(dwellingObjectID);
       // final features = data[GeneralFields.features] ?? [];
       // final props =
       //     features.isNotEmpty ? features[0][GeneralFields.properties] : {};
@@ -288,14 +289,44 @@ class AttributesCubit extends Cubit<AttributesState> {
       final schema = await entranceUseCases.getEntranceAttributes();
 
       // Create a new BuildingEntity with defaults
-      final newBuilding = EntranceEntity(
+      final newEntrance = EntranceEntity(
           objectId: 0,
           coordinates: coordinates,
           entBldGlobalID: buildingGlobalId);
 
       emit(Attributes(
         schema,
-        newBuilding.toMap(),
+        newEntrance.toMap(),
+        ShapeType.point,
+        null,
+        null,
+        null,
+        showAttributes: true,
+      ));
+    } catch (e) {
+      emit(AttributesError(e.toString()));
+    }
+  }
+
+  Future<void> updateEntrance(
+      LatLng coordinates) async {
+    if (showLoading) emit(AttributesLoading());
+    try {
+      final schema = await entranceUseCases.getEntranceAttributes();
+
+      // Create a new BuildingEntity with defaults
+      // final newBuilding = EntranceEntity(
+      //     objectId: 0,
+      //     coordinates: coordinates,
+      //     entBldGlobalID: buildingGlobalId);
+
+      final updatedEntrance =
+          EntranceEntity.fromMap((state as Attributes).initialData);
+      updatedEntrance.coordinates = coordinates;
+
+      emit(Attributes(
+        schema,
+        updatedEntrance.toMap(),
         ShapeType.point,
         null,
         null,

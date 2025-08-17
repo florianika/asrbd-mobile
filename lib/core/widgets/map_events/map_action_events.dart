@@ -24,14 +24,20 @@ class _MapActionEventsState extends State<MapActionEvents> {
   void _placeMarker() {
     final center = widget.mapController.camera.center;
     final newGeometryContext = context.read<NewGeometryCubit>();
+    final attributesCubit = context.read<AttributesCubit>();
     newGeometryContext.addPoint(center);
 
     if (newGeometryContext.type == ShapeType.point) {
-      final currentBuildingGlobalId =
-          context.read<AttributesCubit>().currentBuildingGlobalId;
+      final currentBuildingGlobalId = attributesCubit.currentBuildingGlobalId;
 
-      context.read<AttributesCubit>().addNewEntrance(
-          widget.mapController.camera.center, currentBuildingGlobalId!);
+      bool isMovingPoint = newGeometryContext.isMovingPoint;
+
+      if (!isMovingPoint) {
+        attributesCubit.addNewEntrance(
+            widget.mapController.camera.center, currentBuildingGlobalId!);
+      } else {
+        attributesCubit.updateEntrance(widget.mapController.camera.center);
+      }
     }
   }
 
@@ -89,13 +95,13 @@ class _MapActionEventsState extends State<MapActionEvents> {
                       isEnabled: true,
                       onPressed: context.read<NewGeometryCubit>().redo,
                     ),
+                    // if (!((state).isMovingPoint &&
+                    //     (state).type == ShapeType.point)) ...[
                     const SizedBox(height: 20),
                     FloatingButton(
                       icon: Icons.check,
                       heroTag: 'done',
                       onPressed: () => {
-                        context.read<NewGeometryCubit>().setDrawing(false),
-                        context.read<NewGeometryCubit>().setMovingPoint(false),
                         if (state.type == ShapeType.point)
                           {
                             _placeMarker(),
@@ -104,15 +110,18 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           {
                             context
                                 .read<AttributesCubit>()
-                                .addNewBuilding(state.points)
+                                .addNewBuilding(state.points),
+                            context.read<NewGeometryCubit>().setDrawing(false),
+                            context
+                                .read<NewGeometryCubit>()
+                                .setMovingPoint(false),
                           },
                       },
                       isEnabled: (((state).points.length > 2 &&
                               (state).type != ShapeType.point) ||
                           (state).type == ShapeType.point),
-                      isVisible: !((state).isMovingPoint &&
-                          (state).type == ShapeType.point),
                     ),
+                    // ],
                     if (state.type == ShapeType.polygon) ...[
                       const SizedBox(height: 20),
                       FloatingButton(

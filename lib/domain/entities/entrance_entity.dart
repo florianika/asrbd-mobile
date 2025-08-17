@@ -4,7 +4,7 @@ class EntranceEntity {
   final int objectId;
   final int? featureId;
   final String? geometryType;
-  final LatLng? coordinates;
+  LatLng? coordinates;
 
   final String? globalId;
   final String? entCensus2023;
