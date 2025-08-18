@@ -19,6 +19,7 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
   BuildingGeometryCubit() : super(BuildingGeometry(null, false, false));
 
   List<LatLng> _points = []; // Working with the main ring (first ring)
+  BuildingEntity? _originalBuilding; // ✅ Store the original building
   bool _isDrawing = false;
   bool _isMovingPoint = false;
 
@@ -27,13 +28,67 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
 
   void _emitCurrentState() {
     // Create a BuildingEntity with the current points
-    final building = _points.isNotEmpty
-        ? BuildingEntity(
-            objectId: 0, // Temporary ID for new buildings
-            coordinates: [_points], // Wrap in outer list for polygon rings
-          )
-        : null;
+    final building = _originalBuilding != null
+        ? _createUpdatedBuilding()
+        : (_points.isNotEmpty
+            ? BuildingEntity(
+                objectId: 0, // Temporary ID for new buildings
+                coordinates: [_points], // Wrap in outer list for polygon rings
+              )
+            : null);
     emit(BuildingGeometry(building, _isDrawing, _isMovingPoint));
+  }
+
+  // ✅ Create updated building with new coordinates but keeping original data
+  BuildingEntity? _createUpdatedBuilding() {
+    if (_originalBuilding == null) return null;
+
+    return BuildingEntity(
+      objectId: _originalBuilding!.objectId,
+      featureId: _originalBuilding!.featureId,
+      geometryType: _originalBuilding!.geometryType,
+      coordinates: [_points], // Updated coordinates with current points
+      shapeLength: _originalBuilding!.shapeLength,
+      shapeArea: _originalBuilding!.shapeArea,
+      globalId: _originalBuilding!.globalId,
+      bldCensus2023: _originalBuilding!.bldCensus2023,
+      bldQuality: _originalBuilding!.bldQuality,
+      bldMunicipality: _originalBuilding!.bldMunicipality,
+      bldEnumArea: _originalBuilding!.bldEnumArea,
+      bldLatitude: _originalBuilding!.bldLatitude,
+      bldLongitude: _originalBuilding!.bldLongitude,
+      bldCadastralZone: _originalBuilding!.bldCadastralZone,
+      bldProperty: _originalBuilding!.bldProperty,
+      bldPermitNumber: _originalBuilding!.bldPermitNumber,
+      bldPermitDate: _originalBuilding!.bldPermitDate,
+      bldStatus: _originalBuilding!.bldStatus,
+      bldYearConstruction: _originalBuilding!.bldYearConstruction,
+      bldYearDemolition: _originalBuilding!.bldYearDemolition,
+      bldType: _originalBuilding!.bldType,
+      bldClass: _originalBuilding!.bldClass,
+      bldArea: _originalBuilding!.bldArea,
+      bldFloorsAbove: _originalBuilding!.bldFloorsAbove,
+      bldHeight: _originalBuilding!.bldHeight,
+      bldVolume: _originalBuilding!.bldVolume,
+      bldWasteWater: _originalBuilding!.bldWasteWater,
+      bldElectricity: _originalBuilding!.bldElectricity,
+      bldPipedGas: _originalBuilding!.bldPipedGas,
+      bldElevator: _originalBuilding!.bldElevator,
+      createdUser: _originalBuilding!.createdUser,
+      createdDate: _originalBuilding!.createdDate,
+      lastEditedUser: _originalBuilding!.lastEditedUser,
+      lastEditedDate: DateTime.now(), // ✅ Update timestamp
+      bldCentroidStatus: _originalBuilding!.bldCentroidStatus,
+      bldDwellingRecs: _originalBuilding!.bldDwellingRecs,
+      bldEntranceRecs: _originalBuilding!.bldEntranceRecs,
+      bldAddressID: _originalBuilding!.bldAddressID,
+      externalCreator: _originalBuilding!.externalCreator,
+      externalEditor: _originalBuilding!.externalEditor,
+      bldReview: _originalBuilding!.bldReview,
+      bldWaterSupply: _originalBuilding!.bldWaterSupply,
+      externalCreatorDate: _originalBuilding!.externalCreatorDate,
+      externalEditorDate: _originalBuilding!.externalEditorDate,
+    );
   }
 
   // Set everything at once
@@ -86,6 +141,7 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
       _redoStack.clear();
     }
 
+    _originalBuilding = building; // ✅ Store the original building
     // Extract the first ring (main polygon) from coordinates
     _points = building?.coordinates.isNotEmpty == true
         ? List.from(building!.coordinates.first)
@@ -147,6 +203,7 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
       _redoStack.clear();
     }
 
+    _originalBuilding = null; // ✅ Clear original building too
     _points.clear();
     _emitCurrentState();
   }
@@ -186,6 +243,12 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
     _emitCurrentState();
   }
 
+  // ✅ Missing method that EditBuildingMarker needs
+  void setMovingPoint(bool isMovingPoint) {
+    _isMovingPoint = isMovingPoint;
+    _emitCurrentState();
+  }
+
   // Getters
   List<LatLng> get points => List.unmodifiable(_points);
   bool get isDrawing => _isDrawing;
@@ -194,4 +257,13 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
   bool get canRedo => _redoStack.isNotEmpty;
   bool get hasPoints => _points.isNotEmpty;
   int get pointCount => _points.length;
+
+  // ✅ Additional getters
+  BuildingEntity? get originalBuilding => _originalBuilding;
+  BuildingEntity? get currentBuilding {
+    final currentState = state;
+    return currentState is BuildingGeometry ? currentState.building : null;
+  }
+
+  bool get isEditingExisting => _originalBuilding != null;
 }

@@ -17,13 +17,13 @@ import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
+import 'package:asrdb/features/home/presentation/widget/markers/edit_building_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_entrance_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/location_tag_marker.dart';
 import 'package:asrdb/main.dart';
@@ -59,7 +59,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
 
-  Map<String, dynamic> _initialData = {};
+  // Map<String, dynamic> _initialData = {};
 
   List<dynamic> highlightMarkersGlobalId = [];
 
@@ -247,6 +247,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
         PolygonHitDetector.getBuildingByTapLocation(buildings, position);
 
     if (buildingFound != null) {
+      final geometryCubit = context.read<GeometryEditorCubit>();
+      geometryCubit.onBuildingLongPress(buildingFound);
       // final geometry =
       //     GeometryHelper.getPolygonGeometryById(buildings, globalId);
 
@@ -267,15 +269,15 @@ class _AsrdbMapState extends State<AsrdbMap> {
       //   ),
       // );
 
-      context
-          .read<AttributesCubit>()
-          .showBuildingAttributes(buildingFound.globalId);
+      // context
+      //     .read<AttributesCubit>()
+      //     .showBuildingAttributes(buildingFound.globalId);
 
-      context
-          .read<NewGeometryCubit>()
-          .setPoints(buildingFound.coordinates.first);
-      context.read<NewGeometryCubit>().setType(ShapeType.polygon);
-      context.read<NewGeometryCubit>().setDrawing(true);
+      // context
+      //     .read<NewGeometryCubit>()
+      //     .setPoints(buildingFound.coordinates.first);
+      // context.read<NewGeometryCubit>().setType(ShapeType.polygon);
+      // context.read<NewGeometryCubit>().setDrawing(true);
     }
   }
 
@@ -413,8 +415,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
             switch (state) {
               case Entrances(:final entrances):
                 entranceData = entrances;
-              case Entrance(:final entrance):
-                _initialData = entrance.toMap();
+              // case Entrance(:final entrance):
+              //   _initialData = entrance.toMap();
             }
           },
           builder: (context, state) {
@@ -426,6 +428,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
               mapController: widget.mapController,
             );
           },
+        ),
+        EditBuildingMarker(
+          mapKey: mapKey,
+          mapController: widget.mapController,
         ),
         EditEntranceMarker(
           mapKey: mapKey,

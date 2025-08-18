@@ -2,7 +2,7 @@
 import 'package:latlong2/latlong.dart';
 
 class BuildingEntity {
-  final int objectId;
+  int objectId;
   final int? featureId;
   final String? geometryType;
   final List<List<LatLng>> coordinates;
@@ -49,7 +49,7 @@ class BuildingEntity {
   final DateTime? externalEditorDate;
 
   BuildingEntity({
-    required this.objectId,
+    this.objectId = 0,
     this.featureId,
     this.geometryType = "Polygon",
     required this.coordinates,

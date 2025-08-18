@@ -55,7 +55,9 @@ class BuildingCubit extends Cubit<BuildingState> {
   final AttributesCubit attributesCubit;
   final DwellingCubit dwellingCubit;
   final OutputLogsCubit outputLogsCubit;
+
   String? _selectedBuildingGlobalId;
+  List<BuildingEntity> _buildings = []; // ✅ Store buildings privately
 
   BuildingCubit(
     this.buildingUseCases,
@@ -71,10 +73,57 @@ class BuildingCubit extends Cubit<BuildingState> {
     try {
       final buildings =
           await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
+      _buildings = buildings; // ✅ Store the buildings
       emit(Buildings(buildings));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
+  }
+
+  /// Update building coordinates
+  Future<void> updateBuildingCoordinates(BuildingEntity building) async {
+    // Use stored buildings regardless of current state
+    if (_buildings.isEmpty) return;
+
+    emit(BuildingLoading());
+
+    try {
+      final buildings = List<BuildingEntity>.from(_buildings);
+      final buildingIndex =
+          buildings.indexWhere((b) => b.globalId == building.globalId);
+
+      if (buildingIndex != -1) {
+        buildings[buildingIndex] = building; // Replace with updated building
+        _buildings = buildings; // ✅ Update stored buildings
+        emit(Buildings(buildings));
+      } else {
+        emit(BuildingError('Building not found'));
+      }
+    } catch (e) {
+      emit(BuildingError('Failed to update building: $e'));
+    }
+  }
+
+  /// Add new building to the stored list
+  void addBuilding(BuildingEntity building) {
+    _buildings.add(building);
+    emit(Buildings(List.from(_buildings)));
+  }
+
+  /// Update an existing building in the stored list
+  void updateBuilding(BuildingEntity updatedBuilding) {
+    final index =
+        _buildings.indexWhere((b) => b.globalId == updatedBuilding.globalId);
+    if (index != -1) {
+      _buildings[index] = updatedBuilding;
+      emit(Buildings(List.from(_buildings)));
+    }
+  }
+
+  /// Remove building from stored list
+  void removeBuilding(String globalId) {
+    _buildings.removeWhere((building) => building.globalId == globalId);
+    emit(Buildings(List.from(_buildings)));
   }
 
   /// Select and load building details
@@ -137,6 +186,31 @@ class BuildingCubit extends Cubit<BuildingState> {
 
   void clearBuildings() {
     _selectedBuildingGlobalId = null;
+    _buildings.clear(); // ✅ Clear stored buildings
     emit(Buildings([]));
+  }
+
+  // ✅ Public getter to access buildings anytime
+  List<BuildingEntity> get buildings => List.unmodifiable(_buildings);
+
+  // ✅ Check if we have buildings loaded
+  bool get hasBuildings => _buildings.isNotEmpty;
+
+  // ✅ Get specific building by globalId
+  BuildingEntity? getBuildingByGlobalId(String globalId) {
+    try {
+      return _buildings.firstWhere((b) => b.globalId == globalId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // ✅ Get building count
+  int get buildingCount => _buildings.length;
+
+  // ✅ Get currently selected building
+  BuildingEntity? get selectedBuilding {
+    if (_selectedBuildingGlobalId == null) return null;
+    return getBuildingByGlobalId(_selectedBuildingGlobalId!);
   }
 }

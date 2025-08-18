@@ -8,7 +8,6 @@ import 'building_geometry_cubit.dart';
 
 // Import your entities
 import 'package:asrdb/domain/entities/building_entity.dart';
-// import 'package:asrdb/domain/entities/entrance_entity.dart'; // Adjust path
 
 enum EntityType { entrance, building, none }
 
@@ -29,6 +28,7 @@ class GeometryEditorIdle extends GeometryEditorState {
 }
 
 class GeometryEditorCubit extends Cubit<GeometryEditorState> {
+  // ✅ Public access to cubits as you requested
   final EntranceGeometryCubit entranceCubit;
   final BuildingGeometryCubit buildingCubit;
 
@@ -142,6 +142,33 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     }
   }
 
+  // ✅ Additional helper methods for easier access
+  void updateEntrancePoint(LatLng newPoint) {
+    if (_selectedType == EntityType.entrance) {
+      entranceCubit.updatePoint(newPoint);
+    }
+  }
+
+  void updateBuildingPoint(int index, LatLng newPoint,
+      {bool saveToUndo = true}) {
+    if (_selectedType == EntityType.building) {
+      buildingCubit.updatePointPosition(index, newPoint,
+          saveToUndo: saveToUndo);
+    }
+  }
+
+  void setEntranceMoving(bool isMoving) {
+    if (_selectedType == EntityType.entrance) {
+      entranceCubit.setMovingPoint(isMoving);
+    }
+  }
+
+  void setBuildingMoving(bool isMoving) {
+    if (_selectedType == EntityType.building) {
+      buildingCubit.setMovingPoint(isMoving);
+    }
+  }
+
   // Finish creation mode
   void finishCreation() {
     if (_selectedType == EntityType.entrance) {
@@ -181,6 +208,7 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     // Here you would typically save to your repository
     // Then reset the UI
     entranceCubit.clearPoints();
+    buildingCubit.clearPoints();
     _mode = EditorMode.view;
     _showAdditionalUI = false;
     _emitCurrentState();
@@ -233,11 +261,28 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
   EntityType get selectedType => _selectedType;
   EditorMode get mode => _mode;
   bool get showAdditionalUI => _showAdditionalUI;
-  bool get isEditing => _mode != EditorMode.view;  
+  bool get isEditing => _mode != EditorMode.view;
+  bool get isDrawing => _selectedType == EntityType.entrance
+      ? entranceCubit.isDrawing
+      : buildingCubit.isDrawing;
   bool get canUndo => _selectedType == EntityType.entrance
       ? entranceCubit.canUndo
       : buildingCubit.canUndo;
   bool get canRedo => _selectedType == EntityType.entrance
       ? entranceCubit.canRedo
       : buildingCubit.canRedo;
+
+  // ✅ Additional convenience getters
+  LatLng? get currentEntrancePoint =>
+      _selectedType == EntityType.entrance ? entranceCubit.point : null;
+
+  List<LatLng> get currentBuildingPoints =>
+      _selectedType == EntityType.building ? buildingCubit.points : [];
+
+  bool get hasValidGeometry => _selectedType == EntityType.entrance
+      ? entranceCubit.hasPoint
+      : buildingCubit.hasPoints;
+
+  int get buildingPointCount =>
+      _selectedType == EntityType.building ? buildingCubit.pointCount : 0;
 }

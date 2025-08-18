@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:asrdb/core/constants/default_data.dart';
-import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';

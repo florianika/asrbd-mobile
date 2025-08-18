@@ -1,14 +1,14 @@
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/cubit/building_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
-import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
@@ -29,7 +29,7 @@ class MapActionEvents extends StatefulWidget {
 }
 
 class _MapActionEventsState extends State<MapActionEvents> {
-  Future<void> _moveEntrance() async {
+  Future<void> _saveEntrance() async {
     final geometryEditor = context.read<GeometryEditorCubit>();
     final loadingCubit = context.read<LoadingCubit>();
 
@@ -71,18 +71,50 @@ class _MapActionEventsState extends State<MapActionEvents> {
     }
   }
 
-  void _finishBuilding() {
+  void _addPointToBuilding() {
     final geometryEditor = context.read<GeometryEditorCubit>();
-    final attributesCubit = context.read<AttributesCubit>();
-    final buildingCubit = context.read<BuildingGeometryCubit>();
+    geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
+  }
 
-    if (geometryEditor.selectedType == EntityType.building &&
-        buildingCubit.hasPoints) {
-      // Add building to attributes
-      attributesCubit.addNewBuilding(buildingCubit.points);
+  Future<void> _saveBuilding() async {
+    final buildingUseCase = sl<BuildingUseCases>();
+    final geometryEditor = context.read<GeometryEditorCubit>();
+    final offlineMode = false;
 
-      // Finish the building creation
-      geometryEditor.finishCreation();
+    try {
+      BuildingEntity? building = geometryEditor.buildingCubit.currentBuilding;
+
+      if (building == null) {
+        NotifierService.showMessage(
+          context,
+          message: 'No building to save',
+          type: MessageType.warning,
+        );
+        return;
+      }
+
+      geometryEditor.saveChanges();
+
+      SaveResult response = await buildingUseCase.saveBuilding(
+        building,
+        offlineMode,
+      );
+
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message:
+              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
+          type: response.success ? MessageType.success : MessageType.error,
+        );
+      }
+    } on Exception catch (e) {
+      if (!mounted) return;
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
     }
   }
 
@@ -123,7 +155,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
                 final pointCount =
                     geometryEditor.selectedType == EntityType.building
-                        ? context.read<BuildingGeometryCubit>().pointCount
+                        ? geometryEditor.buildingCubit.pointCount
                         : 1; // Entrance always has 1 point max
 
                 return Stack(
@@ -195,14 +227,15 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             onPressed: () {
                               if (geometryEditor.selectedType ==
                                   EntityType.entrance) {
-                                _moveEntrance();
+                                _saveEntrance();
                               } else if (geometryEditor.selectedType ==
                                   EntityType.building) {
-                                _finishBuilding();
+                                _saveBuilding();
                               }
                             },
                             isEnabled: (geometryEditor.selectedType ==
-                                    EntityType.entrance) ||
+                                        EntityType.entrance &&
+                                    pointCount > 0) ||
                                 (geometryEditor.selectedType ==
                                         EntityType.building &&
                                     pointCount > 2),
@@ -216,7 +249,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               icon: Icons.add_location_alt_outlined,
                               heroTag: 'pin',
                               isEnabled: true,
-                              onPressed: () => {},
+                              onPressed: _addPointToBuilding,
                             ),
                           ],
 
