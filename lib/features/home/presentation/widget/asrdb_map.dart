@@ -5,9 +5,6 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
-import 'package:asrdb/core/helpers/string_helper.dart';
-import 'package:asrdb/core/models/entrance/entrance_fields.dart';
-import 'package:asrdb/core/models/general_fields.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
@@ -20,14 +17,15 @@ import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
+import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
-import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
-import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
-import 'package:asrdb/features/home/presentation/widget/edit_shape_elements.dart';
+import 'package:asrdb/features/home/presentation/widget/markers/edit_entrance_marker.dart';
+import 'package:asrdb/features/home/presentation/widget/markers/location_tag_marker.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -315,16 +313,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _onLongTapEntrance(EntranceEntity entrance) {
-    // final buildingGlobalId =
-    //     context.read<AttributesCubit>().currentBuildingGlobalId;
-    // context
-    //     .read<AttributesCubit>()
-    //     .showEntranceAttributes(entrance.globalId, buildingGlobalId);
-
-    context.read<NewGeometryCubit>().setPoints([entrance.coordinates!]);
-    context.read<NewGeometryCubit>().setType(ShapeType.point);
-    context.read<NewGeometryCubit>().setDrawing(true);
-    context.read<NewGeometryCubit>().setMovingPoint(true);
+    final geometryCubit = context.read<GeometryEditorCubit>();
+    geometryCubit.onEntranceLongPress(entrance);
   }
 
   @override
@@ -385,6 +375,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
               ),
             ],
           ),
+        Center(
+          child: LocationTagMarker(isActive: true),
+        ),
         BlocConsumer<BuildingCubit, BuildingState>(
           listener: (context, state) {
             if (state is BuildingError) {
@@ -421,16 +414,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               case Entrances(:final entrances):
                 entranceData = entrances;
               case Entrance(:final entrance):
-                if (entrance.isNotEmpty) {
-                  List<dynamic> features = entrance[GeneralFields.features];
-                  if (features.isNotEmpty &&
-                      features[0] is Map<String, dynamic>) {
-                    Map<String, dynamic> firstFeature = features[0];
-                    Map<String, dynamic> properties =
-                        firstFeature[GeneralFields.properties];
-                    _initialData = properties;
-                  }
-                }
+                _initialData = entrance.toMap();
             }
           },
           builder: (context, state) {
@@ -443,11 +427,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
             );
           },
         ),
-        EditShapeElements(
+        EditEntranceMarker(
           mapKey: mapKey,
           mapController: widget.mapController,
-          handleEntranceTap: _handleEntranceTap,
-          initialData: _initialData,
         ),
       ],
     );

@@ -18,7 +18,7 @@ class Entrances extends EntranceState {
 }
 
 class Entrance extends EntranceState {
-  final Map<String, dynamic> entrance;
+  final EntranceEntity entrance;
   Entrance(this.entrance);
 }
 
@@ -60,7 +60,8 @@ class EntranceCubit extends Cubit<EntranceState> {
   final AttributesCubit attributesCubit;
   final DwellingCubit dwellingCubit;
 
-  String? currentGlobalId; // ✅ Store current globalId
+  String? currentGlobalId;
+  List<EntranceEntity> _entrances = []; // ✅ Store entrances privately
 
   EntranceCubit(
     this.entranceUseCases,
@@ -72,12 +73,15 @@ class EntranceCubit extends Cubit<EntranceState> {
   Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
     emit(EntranceLoading());
     try {
-      emit(Entrances(
-          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs)));
+      final entrances =
+          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs);
+      _entrances = entrances; // ✅ Store the entrances
+      emit(Entrances(entrances));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
   }
+
 
   Future<void> getEntranceDetails(
       String globalId, String? buildingGlobalId) async {
@@ -85,7 +89,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       attributesCubit.showAttributes(true);
       await attributesCubit.showEntranceAttributes(globalId, buildingGlobalId);
-      currentGlobalId = globalId; // ✅ Save the globalId for later access
+      currentGlobalId = globalId;
       emit(EntranceGlobalId(globalId));
     } catch (e) {
       emit(EntranceError(e.toString()));
@@ -101,48 +105,54 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-  // Future<void> addEntranceFeature(
-  //     Map<String, dynamic> attributes, List<LatLng> points) async {
-  //   emit(EntranceLoading());
-  //   try {
-  //     final success =
-  //         await entranceUseCases.addEntranceFeature(attributes, points);
-  //     await checkUseCases.checkAutomatic(
-  //         attributes[EntranceFields.entBldGlobalID]
-  //             .toString()
-  //             .replaceAll('{', '')
-  //             .replaceAll('}', ''));
-  //     emit(EntranceAddResponse(
-  //         success, attributes[EntranceFields.entBldGlobalID]));
-  //   } catch (e) {
-  //     emit(EntranceError(e.toString()));
-  //   }
-  // }
-
-  // Future<void> updateEntranceFeature(
-  //     Map<String, dynamic> attributes, LatLng? point) async {
-  //   emit(EntranceLoading());
-  //   try {
-  //     final success =
-  //         await entranceUseCases.updateEntranceFeature(attributes, point);
-
-  //     emit(EntranceUpdateResponse(
-  //         success, attributes[EntranceFields.entBldGlobalID]));
-  //   } catch (e) {
-  //     emit(EntranceError(e.toString()));
-  //   }
-  // }
-
   Future<void> deleteEntranceFeature(String objectId) async {
     emit(EntranceLoading());
     try {
-      emit(EntranceDeleteResponse(
-          await entranceUseCases.deleteEntranceFeature(objectId)));
+      final isDeleted = await entranceUseCases.deleteEntranceFeature(objectId);
+
+      // ✅ Remove from stored entrances if deletion was successful
+      if (isDeleted) {
+        _entrances.removeWhere(
+            (entrance) => entrance.objectId.toString() == objectId);
+      }
+
+      emit(EntranceDeleteResponse(isDeleted));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
   }
 
-  /// ✅ Public getter to access the currently active entrance global ID
+  // ✅ Add new entrance to the stored list
+  void addEntrance(EntranceEntity entrance) {
+    _entrances.add(entrance);
+    emit(Entrances(List.from(_entrances)));
+  }
+
+  // ✅ Update an entrance in the stored list
+  void updateEntrance(EntranceEntity updatedEntrance) {
+    final index =
+        _entrances.indexWhere((e) => e.globalId == updatedEntrance.globalId);
+    if (index != -1) {
+      _entrances[index] = updatedEntrance;
+      emit(Entrances(List.from(_entrances)));
+    }
+  }
+
+  /// Public getter to access the currently active entrance global ID
   String? get selectedEntranceGlobalId => currentGlobalId;
+
+  /// ✅ Public getter to access entrances anytime
+  List<EntranceEntity> get entrances => List.unmodifiable(_entrances);
+
+  /// ✅ Check if we have entrances loaded
+  bool get hasEntrances => _entrances.isNotEmpty;
+
+  /// ✅ Get specific entrance by globalId
+  EntranceEntity? getEntranceByGlobalId(String globalId) {
+    try {
+      return _entrances.firstWhere((e) => e.globalId == globalId);
+    } catch (e) {
+      return null;
+    }
+  }
 }

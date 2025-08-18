@@ -17,6 +17,9 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
+import 'package:asrdb/features/home/cubit/building_geometry_cubit.dart';
+import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
+import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
@@ -104,7 +107,7 @@ void main() async {
 
   sl.registerLazySingleton<DownloadRepository>(
       () => DownloadRepository(sl<DatabaseService>()));
-      
+
   sl.registerLazySingleton<DownloadUsecases>(
       () => DownloadUsecases(sl<DownloadRepository>()));
 
@@ -113,6 +116,12 @@ void main() async {
   sl.registerFactory<TileCubit>(() => TileCubit());
 
   sl.registerFactory<NewGeometryCubit>(() => NewGeometryCubit());
+
+  sl.registerFactory<EntranceGeometryCubit>(() => EntranceGeometryCubit());
+  sl.registerFactory<BuildingGeometryCubit>(() => BuildingGeometryCubit());
+  sl.registerFactory<GeometryEditorCubit>(() => GeometryEditorCubit(
+      entranceCubit: sl<EntranceGeometryCubit>(),
+      buildingCubit: sl<BuildingGeometryCubit>()));
 
   initAuthModule(sl);
   initEntranceModule(sl);
@@ -145,6 +154,9 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<MunicipalityCubit>()),
         BlocProvider(create: (context) => sl<OutputLogsCubit>()),
         BlocProvider(create: (context) => sl<TileCubit>()),
+        BlocProvider(create: (context) => sl<EntranceGeometryCubit>()),
+        BlocProvider(create: (context) => sl<BuildingGeometryCubit>()),
+        BlocProvider(create: (context) => sl<GeometryEditorCubit>()),
         BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
         BlocProvider(

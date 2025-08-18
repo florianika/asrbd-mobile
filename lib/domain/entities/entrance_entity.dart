@@ -31,7 +31,7 @@ class EntranceEntity {
   String? externalEditor;
 
   EntranceEntity({
-    required this.objectId,
+    this.objectId = 0,
     this.featureId,
     this.geometryType = "Point",
     this.coordinates,
@@ -59,6 +59,67 @@ class EntranceEntity {
     this.externalCreator,
     this.externalEditor,
   });
+
+  // ✅ copyWith method
+  EntranceEntity copyWith({
+    int? objectId,
+    int? featureId,
+    String? geometryType,
+    LatLng? coordinates,
+    String? globalId,
+    String? entCensus2023,
+    DateTime? externalCreatorDate,
+    DateTime? externalEditorDate,
+    String? entBldGlobalID,
+    String? entAddressID,
+    int? entQuality,
+    double? entLatitude,
+    double? entLongitude,
+    int? entPointStatus,
+    String? entStrGlobalID,
+    String? entBuildingNumber,
+    String? entEntranceNumber,
+    int? entTown,
+    int? entZipCode,
+    int? entDwellingRecs,
+    int? entDwellingExpec,
+    String? createdUser,
+    DateTime? createdDate,
+    String? lastEditedUser,
+    DateTime? lastEditedDate,
+    String? externalCreator,
+    String? externalEditor,
+  }) {
+    return EntranceEntity(
+      objectId: objectId ?? this.objectId,
+      featureId: featureId ?? this.featureId,
+      geometryType: geometryType ?? this.geometryType,
+      coordinates: coordinates ?? this.coordinates,
+      globalId: globalId ?? this.globalId,
+      entCensus2023: entCensus2023 ?? this.entCensus2023,
+      externalCreatorDate: externalCreatorDate ?? this.externalCreatorDate,
+      externalEditorDate: externalEditorDate ?? this.externalEditorDate,
+      entBldGlobalID: entBldGlobalID ?? this.entBldGlobalID,
+      entAddressID: entAddressID ?? this.entAddressID,
+      entQuality: entQuality ?? this.entQuality,
+      entLatitude: entLatitude ?? this.entLatitude,
+      entLongitude: entLongitude ?? this.entLongitude,
+      entPointStatus: entPointStatus ?? this.entPointStatus,
+      entStrGlobalID: entStrGlobalID ?? this.entStrGlobalID,
+      entBuildingNumber: entBuildingNumber ?? this.entBuildingNumber,
+      entEntranceNumber: entEntranceNumber ?? this.entEntranceNumber,
+      entTown: entTown ?? this.entTown,
+      entZipCode: entZipCode ?? this.entZipCode,
+      entDwellingRecs: entDwellingRecs ?? this.entDwellingRecs,
+      entDwellingExpec: entDwellingExpec ?? this.entDwellingExpec,
+      createdUser: createdUser ?? this.createdUser,
+      createdDate: createdDate ?? this.createdDate,
+      lastEditedUser: lastEditedUser ?? this.lastEditedUser,
+      lastEditedDate: lastEditedDate ?? this.lastEditedDate,
+      externalCreator: externalCreator ?? this.externalCreator,
+      externalEditor: externalEditor ?? this.externalEditor,
+    );
+  }
 
   static DateTime? _fromEpochMs(dynamic v) {
     if (v == null) return null;

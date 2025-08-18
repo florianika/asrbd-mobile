@@ -2,16 +2,15 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
+import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/building_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-class MapActionButtons extends StatelessWidget {
+class MapGeometryEditor extends StatelessWidget {
   final MapController mapController;
-  const MapActionButtons({
+  const MapGeometryEditor({
     super.key,
     required this.mapController,
   });
@@ -64,41 +63,28 @@ class MapActionButtons extends StatelessWidget {
         Positioned(
           bottom: 90,
           left: 20,
-          child: BlocConsumer<NewGeometryCubit, NewGeometryState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                return FloatingButton(
-                  heroTag: 'rectangle',
-                  isEnabled: true,
-                  onPressed: () => {
-                    context.read<NewGeometryCubit>().setDrawing(true),
-                    context.read<NewGeometryCubit>().setType(ShapeType.polygon),
-                    // context.read<AttributesCubit>().showAttributes(false)
-                  },
-                  icon: Icons.hexagon_outlined,
-                );
-              }),
+          child: FloatingButton(
+            heroTag: 'rectangle',
+            isEnabled: true,
+            onPressed: () => {
+              context.read<GeometryEditorCubit>().startCreatingBuilding(),
+            },
+            icon: Icons.hexagon_outlined,
+          ),
         ),
         Positioned(
           bottom: 30,
           left: 20,
-          child: BlocConsumer<BuildingCubit, BuildingState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                return FloatingButton(
-                  heroTag: 'entrance',
-                  onPressed: () => {
-                    context.read<NewGeometryCubit>().setDrawing(true),
-                    context.read<NewGeometryCubit>().setType(ShapeType.point),
-                    context
-                        .read<AttributesCubit>()
-                        .toggleAttributesVisibility(false)
-                  },
-                  isEnabled: attributeContext.currentBuildingGlobalId != null &&
-                      attributeContext.shapeType == ShapeType.polygon,
-                  icon: Icons.adjust,
-                );
-              }),
+          child: FloatingButton(
+            heroTag: 'entrance',
+            onPressed: () => {
+              context.read<GeometryEditorCubit>().startCreatingEntrance(),
+              context.read<AttributesCubit>().toggleAttributesVisibility(false)
+            },
+            isEnabled: attributeContext.currentBuildingGlobalId != null &&
+                attributeContext.shapeType == ShapeType.polygon,
+            icon: Icons.adjust,
+          ),
         ),
       ],
     );

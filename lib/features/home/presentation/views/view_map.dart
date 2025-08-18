@@ -13,13 +13,14 @@ import 'package:asrdb/core/widgets/element_attribute/dwelling/dwellings_form.dar
 import 'package:asrdb/core/widgets/element_attribute/view_attribute.dart';
 import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
-import 'package:asrdb/core/widgets/map_events/map_action_buttons.dart';
-import 'package:asrdb/core/widgets/map_events/map_action_events.dart';
+import 'package:asrdb/core/widgets/map_shape_editor/map_geometry_editor.dart';
+import 'package:asrdb/core/widgets/map_shape_editor/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
+import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
@@ -52,7 +53,7 @@ class _ViewMapState extends State<ViewMap> {
 
   Map<String, dynamic>? buildingsData;
   Map<String, dynamic>? entranceData;
-  EntityType entityType = EntityType.entrance;
+  // EntityType entityType = EntityType.entrance;
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'quality';
@@ -334,17 +335,13 @@ class _ViewMapState extends State<ViewMap> {
                           });
                         },
                       ),
-                      BlocConsumer<NewGeometryCubit, NewGeometryState>(
-                          listener: (context, state) {},
-                          builder: (context, state) {
-                            return (state as NewGeometry).isDrawing
-                                ? MapActionEvents(
-                                    mapController: mapController,
-                                  )
-                                : MapActionButtons(
-                                    mapController: mapController,
-                                  );
-                          }),
+                      BlocBuilder<GeometryEditorCubit, GeometryEditorState>(
+                        builder: (context, state) {
+                          return context.read<GeometryEditorCubit>().isEditing
+                              ? MapActionEvents(mapController: mapController)
+                              : MapGeometryEditor(mapController: mapController);
+                        },
+                      ),
                       Positioned(
                         top: 20,
                         right: 20,
