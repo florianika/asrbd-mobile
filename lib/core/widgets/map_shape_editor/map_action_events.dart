@@ -9,6 +9,7 @@ import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
+import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
@@ -29,17 +30,17 @@ class MapActionEvents extends StatefulWidget {
 }
 
 class _MapActionEventsState extends State<MapActionEvents> {
+  int counter = 0;
   Future<void> _saveEntrance() async {
     final geometryEditor = context.read<GeometryEditorCubit>();
     final loadingCubit = context.read<LoadingCubit>();
+    final attributeCubit = context.read<AttributesCubit>();
 
     loadingCubit.show();
 
     EntranceEntity? entrance = geometryEditor.entranceCubit.currentEntrance;
     entrance ??=
         EntranceEntity(coordinates: widget.mapController.camera.center);
-
-    geometryEditor.saveChanges();
 
     final entranceUseCase = sl<EntranceUseCases>();
     final offlineMode = false;
@@ -50,6 +51,71 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       widget.mapController.move(widget.mapController.camera.center,
           widget.mapController.camera.zoom + 0.3);
+
+      loadingCubit.hide();
+
+      await attributeCubit.showEntranceAttributes(entrance.globalId, null);
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message:
+              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
+          type: response.success ? MessageType.success : MessageType.error,
+        );
+      }
+    } on Exception catch (e) {
+      loadingCubit.hide();
+      if (!mounted) return;
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
+    } finally {
+      geometryEditor.saveChanges();
+    }
+  }
+
+  void _addPointToBuilding() {
+    final geometryEditor = context.read<GeometryEditorCubit>();
+
+    geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
+    setState(() {
+      counter = geometryEditor.buildingCubit.pointCount;
+    });
+  }
+
+  Future<void> _saveBuilding() async {
+    final buildingUseCase = sl<BuildingUseCases>();
+    final geometryEditor = context.read<GeometryEditorCubit>();
+    final attributeCubit = context.read<AttributesCubit>();
+    final loadingCubit = context.read<LoadingCubit>();
+    final offlineMode = false;
+
+    try {
+      loadingCubit.show();
+      BuildingEntity? building = geometryEditor.buildingCubit.currentBuilding;
+
+      if (building == null) {
+        NotifierService.showMessage(
+          context,
+          message: 'No building to save',
+          type: MessageType.warning,
+        );
+        return;
+      }
+
+      SaveResult response = await buildingUseCase.saveBuilding(
+        building,
+        offlineMode,
+      );
+
+      widget.mapController.move(widget.mapController.camera.center,
+          widget.mapController.camera.zoom + 0.3);
+
+      loadingCubit.hide();
+
+      await attributeCubit.showBuildingAttributes(building.globalId);
 
       if (mounted) {
         NotifierService.showMessage(
@@ -67,54 +133,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         type: MessageType.error,
       );
     } finally {
-      loadingCubit.hide();
-    }
-  }
-
-  void _addPointToBuilding() {
-    final geometryEditor = context.read<GeometryEditorCubit>();
-    geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
-  }
-
-  Future<void> _saveBuilding() async {
-    final buildingUseCase = sl<BuildingUseCases>();
-    final geometryEditor = context.read<GeometryEditorCubit>();
-    final offlineMode = false;
-
-    try {
-      BuildingEntity? building = geometryEditor.buildingCubit.currentBuilding;
-
-      if (building == null) {
-        NotifierService.showMessage(
-          context,
-          message: 'No building to save',
-          type: MessageType.warning,
-        );
-        return;
-      }
-
       geometryEditor.saveChanges();
-
-      SaveResult response = await buildingUseCase.saveBuilding(
-        building,
-        offlineMode,
-      );
-
-      if (mounted) {
-        NotifierService.showMessage(
-          context,
-          message:
-              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
-          type: response.success ? MessageType.success : MessageType.error,
-        );
-      }
-    } on Exception catch (e) {
-      if (!mounted) return;
-      NotifierService.showMessage(
-        context,
-        message: e.toString(),
-        type: MessageType.error,
-      );
     }
   }
 
@@ -132,7 +151,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
           builder: (context, entranceState) {
             return BlocBuilder<BuildingGeometryCubit, BuildingGeometryState>(
               builder: (context, buildingState) {
-                final geometryEditor = context.read<GeometryEditorCubit>();
+                final geometryEditor = context.watch<GeometryEditorCubit>();
 
                 // Determine current state based on selected type
                 final isDrawing =
@@ -153,10 +172,10 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             ? buildingState.isMovingPoint
                             : false);
 
-                final pointCount =
-                    geometryEditor.selectedType == EntityType.building
-                        ? geometryEditor.buildingCubit.pointCount
-                        : 1; // Entrance always has 1 point max
+                // final pointCount =
+                //     geometryEditor.selectedType == EntityType.building
+                //         ? geometryEditor.buildingCubit.pointCount
+                // : 1; // Entrance always has 1 point max
 
                 return Stack(
                   children: [
@@ -234,11 +253,10 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               }
                             },
                             isEnabled: (geometryEditor.selectedType ==
-                                        EntityType.entrance &&
-                                    pointCount > 0) ||
+                                    EntityType.entrance) ||
                                 (geometryEditor.selectedType ==
                                         EntityType.building &&
-                                    pointCount > 2),
+                                    counter > 2),
                           ),
 
                           // Add point button (only for buildings)

@@ -5,7 +5,6 @@ import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
-import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
