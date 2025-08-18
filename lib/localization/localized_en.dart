@@ -1,5 +1,4 @@
 import 'package:asrdb/localization/keys.dart';
-import 'package:flutter/material.dart';
 
 class LocalizedEn {
   static final Map<String, String> localizedStrings = {

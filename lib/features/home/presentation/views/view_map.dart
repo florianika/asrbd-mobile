@@ -53,7 +53,6 @@ class _ViewMapState extends State<ViewMap> {
 
   Map<String, dynamic>? buildingsData;
   Map<String, dynamic>? entranceData;
-  // EntityType entityType = EntityType.entrance;
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'quality';
@@ -303,14 +302,12 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _finishReviewing(String globalId) async {
     final loadingCubit = context.read<LoadingCubit>();
     final buildingUseCases = sl<BuildingUseCases>();
-    // final buildingCubit = context.read<BuildingCubit>();
 
     try {
       loadingCubit.show();
       final buildingDetails =
           await buildingUseCases.getBuildingDetails(globalId);
-      // final attributes =
-      //     buildingDetails[GeneralFields.features][0][GeneralFields.properties];
+     
       if (buildingDetails.bldQuality == DefaultData.untestedData && mounted) {
         NotifierService.showMessage(
           context,
@@ -341,7 +338,7 @@ class _ViewMapState extends State<ViewMap> {
         NotifierService.showMessage(
           context,
           messageKey: Keys.finishReviewingSuccess,
-          type: MessageType.warning,
+          type: MessageType.success,
         );
       }
     } catch (e) {

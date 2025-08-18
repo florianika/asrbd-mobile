@@ -4,6 +4,7 @@ import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
@@ -21,6 +22,7 @@ import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_building_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_entrance_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/location_tag_marker.dart';
@@ -124,19 +126,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
-      // context.read<DwellingCubit>().closeDwellings();
-      // context.read<NewGeometryCubit>().setType(ShapeType.point);
-      // context
-      //     .read<EntranceCubit>()
-      //     .getEntranceDetails(_selectedGlobalId!, buildingGlobalId);
 
       context
           .read<AttributesCubit>()
           .showEntranceAttributes(entrance.globalId, buildingGlobalId);
 
-      // context.read<OutputLogsCubit>().outputLogsBuildings(
-      //     StringHelper.removeCurlyBracesFromString(
-      //         entrance.entBldGlobalID.toString()));
+      context
+          .read<OutputLogsCubit>()
+          .outputLogsBuildings(entrance.entBldGlobalID.removeCurlyBraces()!);
     } catch (e) {
       NotifierService.showMessage(
         context,
@@ -247,35 +244,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     if (buildingFound != null) {
       final geometryCubit = context.read<GeometryEditorCubit>();
       geometryCubit.onBuildingLongPress(buildingFound);
-      // final geometry =
-      //     GeometryHelper.getPolygonGeometryById(buildings, globalId);
-
-      // final coordinates = GeometryHelper.getPolygonPoints(geometry!);
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text('${buildingFound.globalId} - buildingFound.globalId'),
-      //     duration: Duration(seconds: 10),
-      //     backgroundColor: Colors.blue,
-      //     action: SnackBarAction(
-      //       label: 'UNDO',
-      //       textColor: Colors.white,
-      //       onPressed: () {
-      //         // Handle action
-      //       },
-      //     ),
-      //   ),
-      // );
-
-      // context
-      //     .read<AttributesCubit>()
-      //     .showBuildingAttributes(buildingFound.globalId);
-
-      // context
-      //     .read<NewGeometryCubit>()
-      //     .setPoints(buildingFound.coordinates.first);
-      // context.read<NewGeometryCubit>().setType(ShapeType.polygon);
-      // context.read<NewGeometryCubit>().setDrawing(true);
     }
   }
 
@@ -413,8 +381,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
             switch (state) {
               case Entrances(:final entrances):
                 entranceData = entrances;
-              // case Entrance(:final entrance):
-              //   _initialData = entrance.toMap();
             }
           },
           builder: (context, state) {
