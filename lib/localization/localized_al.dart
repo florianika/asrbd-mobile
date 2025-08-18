@@ -32,6 +32,7 @@ class LocalizedAl {
     Keys.validateData: 'Valido të Dhënat',
     Keys.startReviewing: 'Fillo Rishikimin',
     Keys.finishReviewing: 'Përfundo Rishikimin',
+    Keys.finishReviewingSuccess: 'Mbyllja e rishikimit perfundoi me sukses',
     Keys.legend: 'Legjenda',
     Keys.legendBuildings: 'Ndertesat',
     Keys.legendEntrances: 'Hyrjet',
@@ -46,5 +47,7 @@ class LocalizedAl {
     Keys.successUpdateBuilding: "Ndertesa u përditësua me sukses.",
     Keys.successAddEntrance: "Hyrja u shtua me sukses.",
     Keys.successUpdateEntrance: "Hyrja u përditësua me sukses.",
+    Keys.startValidationSuccess: "Nisja e validimit u krye me sukses",
+    Keys.startValidationWarning: "Nisja e validimit nuk u krye."
   };
 }

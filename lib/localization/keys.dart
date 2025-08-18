@@ -11,6 +11,8 @@ class Keys {
   static const String outsideMunicipality = 'outsideMunicipality';
   static const String overlapingBuildings = 'overlapingBuildings';
   static const String finishReviewWarning = 'finishReviewWarning';
+  static const String startValidationSuccess='startValidationSuccess';
+  static const String startValidationWarning='startValidationWarning';
   static const String finishValidateWarning = 'finishValidateWarning';
   static const String dwellingUpdated = 'dwellingUpdated';
   static const String dwellingCouldNotUpdated = 'dwellingCouldNotUpdated';
@@ -27,6 +29,8 @@ class Keys {
   static const String validateData = 'validateData';
   static const String startReviewing = 'startReviewing';
   static const String finishReviewing = 'finishReviewing';
+  static const String finishReviewingSuccess = 'finishReviewingSuccess';
+  static const String finishReviewingError = 'finishReviewingError';
   static const String legend = 'legend';
   static const String legendBuildings = 'legendBuildings';
   static const String legendEntrances = 'legendEntrances';

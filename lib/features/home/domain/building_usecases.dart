@@ -81,16 +81,6 @@ class BuildingUseCases {
     return false;
   }
 
-  // List<List<turf.Position>> _toTurfCoords(List<List<LatLng>> coords) {
-  //   return coords
-  //       .map((ring) => ring
-  //           .map((latLng) => turf.Position(
-  //                   latLng.longitude, latLng.latitude) // turf wants [lng, lat]
-  //               )
-  //           .toList())
-  //       .toList();
-  // }
-
   Future<void> _setCentroidCoordinates(BuildingEntity building) async {
     final geodesy = Geodesy();
     final centroid = geodesy.findPolygonCentroid(building.coordinates.first);

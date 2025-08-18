@@ -58,24 +58,6 @@ class EntranceUseCases {
     return await _entranceRepository.deleteEntranceFeature(objectId); //
   }
 
-  //   Future<SaveResult> saveBuilding(
-  //   BuildingEntity building,
-  //   bool offlineMode,
-  // ) async {
-  //   bool isNewBuilding = building.globalId == null;
-  //   building.bldCentroidStatus = DefaultData.fieldData;
-
-  //   await _setCentroidCoordinates(building);
-
-  //   if (isNewBuilding) {
-  //     String globalId = await _createNewBuilding(building, offlineMode);
-  //     return SaveResult(true, Keys.successAddBuilding, globalId);
-  //   } else {
-  //     await _updateExistingBuilding(building);
-  //     return SaveResult(true, Keys.successUpdateBuilding, building.globalId);
-  //   }
-  // }
-
   Future<SaveResult> saveEntrance(
       EntranceEntity entrance, bool offlineMode) async {
     entrance.entPointStatus = DefaultData.fieldData;

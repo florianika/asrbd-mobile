@@ -21,6 +21,7 @@ import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
+import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -134,17 +135,22 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _saveDwelling(DwellingEntity dwelling) async {
     final entranceUseCase = sl<DwellingUseCases>();
     final entranceCubit = sl<EntranceCubit>();
+    final checkUseCase = sl<CheckUseCases>();
     final offlineMode = false;
 
     try {
-      // final currentBuildingGlobalId =
-      //     context.read<AttributesCubit>().currentBuildingGlobalId;
-
       dwelling.dwlEntGlobalID ??= entranceCubit.selectedEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,
         offlineMode,
       );
+      if (mounted) {
+        final currentBuildingGlobalId =
+            context.read<AttributesCubit>().currentBuildingGlobalId;
+
+        await checkUseCase
+            .checkAutomatic(currentBuildingGlobalId.removeCurlyBraces()!);
+      }
 
       if (mounted) {
         NotifierService.showMessage(
@@ -166,11 +172,15 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _saveEntrance(EntranceEntity entrance) async {
     final entranceUseCase = sl<EntranceUseCases>();
+    final checkUseCase = sl<CheckUseCases>();
     final offlineMode = false;
 
     try {
       SaveResult response =
           await entranceUseCase.saveEntrance(entrance, offlineMode);
+
+      await checkUseCase
+          .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
 
       if (mounted) {
         NotifierService.showMessage(
@@ -192,6 +202,7 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _saveBuilding(BuildingEntity building) async {
     final buildingUseCase = sl<BuildingUseCases>();
+    final checkUseCase = sl<CheckUseCases>();
     final buildingCubit = context.read<BuildingCubit>();
     final offlineMode = false;
 
@@ -211,6 +222,8 @@ class _ViewMapState extends State<ViewMap> {
         building,
         offlineMode,
       );
+
+      await checkUseCase.checkAutomatic(building.globalId.removeCurlyBraces()!);
 
       if (mounted) {
         NotifierService.showMessage(
@@ -252,10 +265,36 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _startReviewing(String globalId) async {
     final loadingCubit = context.read<LoadingCubit>();
-    final buildingCubit = context.read<BuildingCubit>();
+    final buildingUseCases = sl<BuildingUseCases>();
     try {
       loadingCubit.show();
-      await buildingCubit.startReviewing(globalId, 4);
+
+      bool startedValidation =
+          await buildingUseCases.startReviewing(globalId, 4);
+
+      if (startedValidation && mounted) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.startValidationSuccess,
+          type: MessageType.success,
+        );
+      } else {
+        if (mounted) {
+          NotifierService.showMessage(
+            context,
+            messageKey: Keys.startValidationWarning,
+            type: MessageType.warning,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message: e.toString(),
+          type: MessageType.warning,
+        );
+      }
     } finally {
       loadingCubit.hide();
     }
@@ -297,8 +336,22 @@ class _ViewMapState extends State<ViewMap> {
 
         await buildingUseCases.updateBuildingFeature(buildingDetails);
       }
+
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.finishReviewingSuccess,
+          type: MessageType.warning,
+        );
+      }
     } catch (e) {
-      debugPrint("Error in _finishReviewing: $e");
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message: e.toString(),
+          type: MessageType.warning,
+        );
+      }
     } finally {
       loadingCubit.hide();
     }

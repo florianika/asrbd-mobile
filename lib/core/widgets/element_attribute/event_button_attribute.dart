@@ -1,6 +1,7 @@
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -57,8 +58,8 @@ class EventButtonAttribute extends StatelessWidget {
 
       try {
         if (buildingCubit.currentBuildingGlobalId != null) {
-          await validateCubit
-              .checkBuildings(buildingCubit.currentBuildingGlobalId!);
+          await validateCubit.checkBuildings(
+              buildingCubit.currentBuildingGlobalId.removeCurlyBraces()!);
         }
       } finally {
         loadingCubit.hide();
@@ -74,7 +75,7 @@ class EventButtonAttribute extends StatelessWidget {
       );
 
       if (confirmed && startReviewingBuilding != null) {
-        startReviewingBuilding!(globalId);
+         startReviewingBuilding!(globalId);
       }
     }
 
