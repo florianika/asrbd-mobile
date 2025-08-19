@@ -79,10 +79,20 @@ class _MapActionEventsState extends State<MapActionEvents> {
   void _addPointToBuilding() {
     final geometryEditor = context.read<GeometryEditorCubit>();
 
-    geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
-    setState(() {
-      counter = geometryEditor.buildingCubit.pointCount;
-    });
+    if (geometryEditor.selectedType == EntityType.building) {
+      geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
+      setState(() {
+        counter = geometryEditor.buildingCubit.pointCount;
+      });
+    } else if (geometryEditor.selectedType == EntityType.entrance) {
+      geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
+      setState(() {
+        counter =
+            geometryEditor.entranceCubit.currentEntrance?.coordinates != null
+                ? 1
+                : 0;
+      });
+    }
   }
 
   Future<void> _saveBuilding() async {
@@ -172,11 +182,6 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             ? buildingState.isMovingPoint
                             : false);
 
-                // final pointCount =
-                //     geometryEditor.selectedType == EntityType.building
-                //         ? geometryEditor.buildingCubit.pointCount
-                // : 1; // Entrance always has 1 point max
-
                 return Stack(
                   children: [
                     // Center crosshair for drawing
@@ -242,7 +247,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           // Done/Finish button
                           FloatingButton(
                             icon: Icons.save,
-                            heroTag: 'done',
+                            heroTag: 'save',
                             onPressed: () {
                               if (geometryEditor.selectedType ==
                                   EntityType.entrance) {
@@ -253,23 +258,23 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               }
                             },
                             isEnabled: (geometryEditor.selectedType ==
-                                    EntityType.entrance) ||
+                                    EntityType.entrance && counter == 1) ||
                                 (geometryEditor.selectedType ==
                                         EntityType.building &&
                                     counter > 2),
                           ),
 
-                          // Add point button (only for buildings)
-                          if (geometryEditor.selectedType ==
-                              EntityType.building) ...[
-                            const SizedBox(height: 20),
-                            FloatingButton(
-                              icon: Icons.add_location_alt_outlined,
-                              heroTag: 'pin',
-                              isEnabled: true,
-                              onPressed: _addPointToBuilding,
-                            ),
-                          ],
+                          const SizedBox(height: 20),
+                          FloatingButton(
+                            icon: Icons.add_location_alt_outlined,
+                            heroTag: 'pin',
+                            isEnabled: (geometryEditor.selectedType ==
+                                    EntityType.building) ||
+                                (geometryEditor.selectedType ==
+                                        EntityType.entrance &&
+                                    counter == 0),
+                            onPressed: _addPointToBuilding,
+                          ),
 
                           const SizedBox(height: 20),
 

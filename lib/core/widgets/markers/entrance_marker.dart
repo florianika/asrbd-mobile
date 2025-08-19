@@ -59,7 +59,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                 entrance.entBldGlobalID == currentBldId;
 
             final fillColor = isSelected
-                ? Colors.red.withOpacity(0.7)
+                ? Colors.red.withValues(alpha: 0.7)
                 : legendService.getColorForValue(
                       LegendType.entrance,
                       widget.attributeLegend,
@@ -78,8 +78,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
               point: entrance.coordinates!,
               child: GestureDetector(
                 onTap: () => widget.onTap(entrance),
-                onLongPress: () =>
-                    widget.onLongPress(entrance),
+                onLongPress: () => widget.onLongPress(entrance),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -96,7 +95,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                         boxShadow: isPolygonMatch
                             ? [
                                 BoxShadow(
-                                  color: Colors.red.withOpacity(0.6),
+                                  color: Colors.red.withValues(alpha: 0.6),
                                   blurRadius: 10,
                                   spreadRadius: 3,
                                 ),
@@ -117,7 +116,7 @@ class _EntranceMarkerState extends State<EntranceMarker> {
                             border: Border.all(color: Colors.black, width: 1),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 4,
                                 offset: const Offset(0, 2),
                               ),

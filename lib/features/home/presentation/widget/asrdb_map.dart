@@ -59,8 +59,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Map<String, List<Legend>> buildingLegends = {};
   List<Legend> entranceLegends = [];
 
-  // Map<String, dynamic> _initialData = {};
-
   List<dynamic> highlightMarkersGlobalId = [];
 
   bool _showLocationMarker = false;
