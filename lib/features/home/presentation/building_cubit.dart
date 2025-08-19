@@ -73,7 +73,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     try {
       final buildings =
           await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
-      _buildings = buildings; // ✅ Store the buildings
+      _buildings = buildings;
       emit(Buildings(buildings));
     } catch (e) {
       emit(BuildingError(e.toString()));

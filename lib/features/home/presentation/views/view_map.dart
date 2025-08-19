@@ -29,7 +29,6 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -99,7 +98,6 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
-    final geometryCubit = context.read<NewGeometryCubit>();
 
     loadingCubit.show();
 
@@ -123,7 +121,7 @@ class _ViewMapState extends State<ViewMap> {
       }
 
       // Clean up after successful save
-      _cleanupAfterSave(geometryCubit);
+      _cleanupAfterSave();
     } catch (e) {
       _handleSaveError(e);
     } finally {
@@ -242,11 +240,7 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  void _cleanupAfterSave(NewGeometryCubit geometryCubit) {
-    geometryCubit.setDrawing(false);
-    geometryCubit.setMovingPoint(false);
-    geometryCubit.clearPoints();
-
+  void _cleanupAfterSave() {
     // Trick to trigger fetch of data again
     mapController.move(
         mapController.camera.center, mapController.camera.zoom + 0.01);
@@ -307,7 +301,7 @@ class _ViewMapState extends State<ViewMap> {
       loadingCubit.show();
       final buildingDetails =
           await buildingUseCases.getBuildingDetails(globalId);
-     
+
       if (buildingDetails.bldQuality == DefaultData.untestedData && mounted) {
         NotifierService.showMessage(
           context,

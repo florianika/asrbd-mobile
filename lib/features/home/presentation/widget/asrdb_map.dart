@@ -5,16 +5,14 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
-import 'package:asrdb/core/models/legend/legend.dart';
-import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
-import 'package:asrdb/core/widgets/markers/building_marker.dart';
-import 'package:asrdb/core/widgets/markers/entrance_marker.dart';
+import 'package:asrdb/core/widgets/markers/buildings_marker.dart';
+import 'package:asrdb/core/widgets/markers/entrances_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
-import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/core/widgets/markers/selected_building_marker.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
@@ -56,26 +54,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
   double zoom = 0;
   String? _selectedGlobalId;
 
-  Map<String, List<Legend>> buildingLegends = {};
-  List<Legend> entranceLegends = [];
-
-  List<dynamic> highlightMarkersGlobalId = [];
-
   bool _showLocationMarker = false;
   bool _entranceOutsideVisibleArea = false;
 
-  String? highlightedBuildingIds;
   LatLng? _userLocation;
-
-  final legendService = sl<LegendService>();
-
-  List<BuildingEntity> buildingsData = [];
-  List<EntranceEntity> entranceData = [];
   String? _selectedBuildingGlobalId;
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
-  LatLng? tappedLocation;
 
   @override
   void dispose() {
@@ -114,7 +100,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       if (_selectedGlobalId == null) return;
 
-      highlightMarkersGlobalId = [];
+      // highlightMarkersGlobalId = [];
 
       final storageResponsitory = sl<StorageRepository>();
       storageResponsitory.saveString(
@@ -142,8 +128,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _checkEntranceVisibility(MapCamera camera) {
-    if (_selectedBuildingGlobalId != null && entranceData.isNotEmpty) {
-      final entrancePoints = entranceData
+    List<EntranceEntity> entrances = context.read<EntranceCubit>().entrances;
+
+    if (_selectedBuildingGlobalId != null && entrances.isNotEmpty) {
+      final entrancePoints = entrances
           .where(
               (e) => e.entBldGlobalID?.toString() == _selectedBuildingGlobalId)
           .map((e) => e.coordinates)
@@ -177,15 +165,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (!hasGesture && !zoomChanged) return;
 
       if (_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 500), () {
+      _debounce = Timer(const Duration(milliseconds: 800), () {
         if (camera.zoom >= AppConfig.buildingMinZoom) {
           context
               .read<BuildingCubit>()
               .getBuildings(camera.visibleBounds, camera.zoom, municipalityId);
         } else {
           setState(() {
-            buildingsData = [];
-            entranceData = [];
             _selectedBuildingGlobalId = null;
           });
           context.read<BuildingCubit>().clearBuildings();
@@ -247,8 +233,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleBuildingOnTap(LatLng position) {
     try {
+      final buildingList = context.read<BuildingCubit>().buildings;
       final buildingFound =
-          PolygonHitDetector.getBuildingByTapLocation(buildingsData, position);
+          PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
 
       if (buildingFound != null) {
         context
@@ -261,7 +248,15 @@ class _AsrdbMapState extends State<AsrdbMap> {
             key: 'currentBuildingGlobalId',
             value: buildingFound.globalId!);
 
-        _selectedBuildingGlobalId = buildingFound.globalId;
+        setState(() {
+          _selectedBuildingGlobalId = buildingFound.globalId;
+
+          NotifierService.showMessage(
+            context,
+            message: _selectedBuildingGlobalId,
+            type: MessageType.info,
+          );
+        });
 
         _checkEntranceVisibility(widget.mapController.camera);
 
@@ -313,9 +308,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
       ),
       children: [
         BlocConsumer<TileCubit, TileState>(listener: (context, state) {
-          setState(() {
-            currentPosition = state.mapCenter ?? currentPosition;
-          });
+          // setState(() {
+          //   currentPosition = state.mapCenter ?? currentPosition;
+          // });
         }, builder: (context, state) {
           return TileLayer(
             key: ValueKey('${state.path}_${state.isOffline}'),
@@ -344,52 +339,18 @@ class _AsrdbMapState extends State<AsrdbMap> {
         Center(
           child: LocationTagMarker(isActive: true),
         ),
-        BlocConsumer<BuildingCubit, BuildingState>(
-          listener: (context, state) {
-            if (state is BuildingError) {
-              NotifierService.showMessage(
-                context,
-                message: state.message,
-                type: MessageType.error,
-              );
-              return;
-            } else if (state is Buildings) {
-              setState(() {
-                buildingsData = state.buildings;
-              });
-              if (state.buildings.isNotEmpty) {
-                context.read<EntranceCubit>().getEntrances(
-                    zoom,
-                    state.buildings
-                        .map((building) => building.globalId)
-                        .whereType<String>()
-                        .toList());
-              }
-            }
-          },
-          builder: (context, state) {
-            return BuildingMarker(
-              buildingsData: buildingsData,
-              attributeLegend: widget.attributeLegend,
-            );
-          },
+        BuildingsMarker(
+          attributeLegend: widget.attributeLegend,
+          mapController: widget.mapController,
         ),
-        BlocConsumer<EntranceCubit, EntranceState>(
-          listener: (context, state) {
-            switch (state) {
-              case Entrances(:final entrances):
-                entranceData = entrances;
-            }
-          },
-          builder: (context, state) {
-            return EntranceMarker(
-              entranceData: entranceData,
-              onTap: _handleEntranceTap,
-              onLongPress: _onLongTapEntrance,
-              attributeLegend: widget.attributeLegend,
-              mapController: widget.mapController,
-            );
-          },
+        SelectedBuildingMarker(
+          selectedBuildingGlobalId: _selectedBuildingGlobalId,
+        ),
+        EntrancesMarker(
+          onTap: _handleEntranceTap,
+          onLongPress: _onLongTapEntrance,
+          attributeLegend: widget.attributeLegend,
+          mapController: widget.mapController,
         ),
         EditBuildingMarker(
           mapKey: mapKey,

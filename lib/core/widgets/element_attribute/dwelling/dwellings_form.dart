@@ -6,7 +6,6 @@ import 'package:asrdb/core/widgets/side_container.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -849,7 +848,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
   void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();
-    context.read<NewGeometryCubit>().setType(ShapeType.noShape);
+    // context.read<NewGeometryCubit>().setType(ShapeType.noShape);
     context.read<AttributesCubit>().showDwellingAttributes(row.objectId);
   }
 
@@ -859,13 +858,12 @@ class _DwellingFormState extends State<DwellingForm> {
 
   void _onAddNewDwelling() {
     context.read<DwellingCubit>().closeDwellings();
-    context.read<NewGeometryCubit>().setType(ShapeType.noShape);
+    // context.read<NewGeometryCubit>().setType(ShapeType.noShape);
     context.read<AttributesCubit>().showDwellingAttributes(null);
   }
 
   Future<void> _onSaveDwelling(
       Map<String, dynamic> attributes, String buildingGlobalId) async {
-   
     if (_isEditMode) {
       //   await context
       //       .read<DwellingCubit>()

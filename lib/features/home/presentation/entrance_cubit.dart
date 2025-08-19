@@ -75,7 +75,7 @@ class EntranceCubit extends Cubit<EntranceState> {
     try {
       final entrances =
           await entranceUseCases.getEntrances(zoom, entBldGlobalIDs);
-      _entrances = entrances; // ✅ Store the entrances
+      _entrances = entrances;
       emit(Entrances(entrances));
     } catch (e) {
       emit(EntranceError(e.toString()));

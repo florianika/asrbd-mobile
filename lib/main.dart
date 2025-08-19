@@ -33,7 +33,6 @@ import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
-import 'package:asrdb/features/home/presentation/new_geometry_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:flutter/material.dart';
@@ -114,8 +113,6 @@ void main() async {
   await sl<SchemaService>().initialize();
   sl.registerFactory<TileCubit>(() => TileCubit());
 
-  sl.registerFactory<NewGeometryCubit>(() => NewGeometryCubit());
-
   sl.registerFactory<EntranceGeometryCubit>(() => EntranceGeometryCubit());
   sl.registerFactory<BuildingGeometryCubit>(() => BuildingGeometryCubit());
   sl.registerFactory<GeometryEditorCubit>(() => GeometryEditorCubit(
@@ -148,7 +145,6 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<EntranceCubit>()),
         BlocProvider(create: (context) => sl<BuildingCubit>()),
         BlocProvider(create: (context) => sl<AttributesCubit>()),
-        BlocProvider(create: (context) => sl<NewGeometryCubit>()),
         BlocProvider(create: (context) => sl<DwellingCubit>()),
         BlocProvider(create: (context) => sl<MunicipalityCubit>()),
         BlocProvider(create: (context) => sl<OutputLogsCubit>()),

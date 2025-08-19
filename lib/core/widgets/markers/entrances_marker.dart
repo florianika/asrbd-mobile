@@ -2,23 +2,21 @@ import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/entrance_helper.dart';
 import 'package:asrdb/core/services/legend_service.dart';
-import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-class EntranceMarker extends StatefulWidget {
-  final List<EntranceEntity> entranceData;
+class EntrancesMarker extends StatefulWidget {
   final String attributeLegend;
   final Function onTap;
   final Function onLongPress;
   final MapController mapController;
 
-  const EntranceMarker({
+  const EntrancesMarker({
     super.key,
-    required this.entranceData,
     required this.onTap,
     required this.onLongPress,
     required this.mapController,
@@ -26,34 +24,33 @@ class EntranceMarker extends StatefulWidget {
   });
 
   @override
-  State<EntranceMarker> createState() => _EntranceMarkerState();
+  State<EntrancesMarker> createState() => _EntrancesMarkerState();
 }
 
-class _EntranceMarkerState extends State<EntranceMarker> {
+class _EntrancesMarkerState extends State<EntrancesMarker> {
   final legendService = sl<LegendService>();
   final double markerSize = 25.0;
 
   @override
   Widget build(BuildContext context) {
-    final entranceData = widget.entranceData;
-    if (entranceData.isEmpty) return const SizedBox();
-
-    return BlocConsumer<AttributesCubit, AttributesState>(
-      listener: (context, state) {
-        if (state is AttributesError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
-        }
-      },
+    return BlocConsumer<EntranceCubit, EntranceState>(
+      listener: (context, state) {},
       builder: (context, state) {
         final attributesCubit = context.read<AttributesCubit>();
         final currentBldId = attributesCubit.currentBuildingGlobalId;
         final currentEntId = attributesCubit.currentEntranceGlobalId;
         final shapeType = attributesCubit.shapeType;
 
+        if (state is! Entrances) {
+          return SizedBox.shrink();
+        }
+
+        if (state.entrances.isEmpty) {
+          return SizedBox.shrink();
+        }
+
         return MarkerLayer(
-          markers: entranceData.map((entrance) {
+          markers: state.entrances.map((entrance) {
             final isSelected = entrance.globalId == currentEntId;
             final isPolygonMatch = shapeType == ShapeType.polygon &&
                 entrance.entBldGlobalID == currentBldId;
