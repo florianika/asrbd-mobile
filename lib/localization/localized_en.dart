@@ -5,6 +5,8 @@ class LocalizedEn {
     Keys.save: 'Save',
     Keys.close: 'Close',
     Keys.login: 'Login',
+    Keys.cancel: 'Cancel',
+    Keys.proceed: 'Proceed',
     Keys.enterMail: 'Enter email',
     Keys.mailPlaceholder: 'Email',
     Keys.passwordPlaceholder: 'Password',
@@ -54,5 +56,8 @@ class LocalizedEn {
     Keys.startValidationSuccess: "Validation started successfully",
     Keys.startValidationWarning: "Validation could not be started.",
     Keys.finishReviewingSuccess: 'Finish reviewing finished successfully',
+    Keys.intersectionDetected: "Intersection detected",
+    Keys.intersectionMessage:
+        "Selected building has an intersection with another one. Do you want to continue and save it?",
   };
 }

@@ -207,12 +207,13 @@ class _ViewMapState extends State<ViewMap> {
       final buildings = (buildingCubit.state as Buildings).buildings;
 
       if (buildingUseCase.intersectsWithOtherBuildings(building, buildings)) {
-        NotifierService.showMessage(
-          context,
-          messageKey: Keys.overlapingBuildings,
-          type: MessageType.warning,
-        );
-        return;
+        // Show dialog asking user to confirm intersection
+        final shouldProceed = await _showIntersectionDialog();
+
+        if (!shouldProceed) {
+          // User cancelled, don't proceed with saving
+          return;
+        }
       }
 
       SaveResult response = await buildingUseCase.saveBuilding(
@@ -238,6 +239,38 @@ class _ViewMapState extends State<ViewMap> {
         type: MessageType.error,
       );
     }
+  }
+
+  Future<bool> _showIntersectionDialog() async {
+    return await showDialog<bool>(
+          context: context,
+          barrierDismissible: false, // Prevent dismissing by tapping outside
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(AppLocalizations.of(context)
+                  .translate(Keys.intersectionDetected)),
+              content: Text(AppLocalizations.of(context)
+                  .translate(Keys.intersectionMessage)),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child:
+                      Text(AppLocalizations.of(context).translate(Keys.cancel)),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: Text(
+                      AppLocalizations.of(context).translate(Keys.proceed)),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default to false if dialog is dismissed
   }
 
   void _cleanupAfterSave() {

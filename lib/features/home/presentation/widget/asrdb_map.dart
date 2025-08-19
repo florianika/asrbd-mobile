@@ -249,13 +249,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
             value: buildingFound.globalId!);
 
         setState(() {
-          _selectedBuildingGlobalId = buildingFound.globalId;
-
-          NotifierService.showMessage(
-            context,
-            message: _selectedBuildingGlobalId,
-            type: MessageType.info,
-          );
+          _selectedBuildingGlobalId = buildingFound.globalId;         
         });
 
         _checkEntranceVisibility(widget.mapController.camera);

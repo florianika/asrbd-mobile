@@ -129,19 +129,20 @@ class BuildingsMarker extends StatelessWidget {
 
     return _polygonCache.putIfAbsent(cacheKey, () {
       try {
-        final fillColor = _legendService.getColorForValue(
-              LegendType.building,
-              attributeLegend,
-              value,
-            ) ??
-            Colors.black;
+        final fillColor = (_legendService.getColorForValue(
+                  LegendType.building,
+                  attributeLegend,
+                  value,
+                ) ??
+                Colors.black)
+            .withValues(alpha: 0.5);
 
         return Polygon(
           hitValue: building.globalId,
           points: building.coordinates.first,
           color: fillColor,
           borderStrokeWidth: 1.0,
-          borderColor: Colors.blue,
+          borderColor: Colors.blue.withValues(alpha: 0.3),
         );
       } catch (e) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

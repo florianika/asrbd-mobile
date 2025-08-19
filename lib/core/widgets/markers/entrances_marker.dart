@@ -57,12 +57,13 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
 
             final fillColor = isSelected
                 ? Colors.red.withValues(alpha: 0.7)
-                : legendService.getColorForValue(
-                      LegendType.entrance,
-                      widget.attributeLegend,
-                      entrance.entQuality ?? 9,
-                    ) ??
-                    Colors.black;
+                : (legendService.getColorForValue(
+                          LegendType.entrance,
+                          widget.attributeLegend,
+                          entrance.entQuality ?? 9,
+                        ) ??
+                        Colors.black)
+                    .withValues(alpha: 0.5);
 
             final label = EntranceHelper.entranceLabel(
               entrance.entBuildingNumber,
@@ -86,13 +87,15 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                         color: fillColor,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isPolygonMatch ? Colors.red : Colors.black,
+                          color: isPolygonMatch
+                              ? Colors.red.withValues(alpha: 0.6)
+                              : Colors.black.withValues(alpha: 0.6),
                           width: isPolygonMatch ? 3 : 1,
                         ),
                         boxShadow: isPolygonMatch
                             ? [
                                 BoxShadow(
-                                  color: Colors.red.withValues(alpha: 0.6),
+                                  color: Colors.red.withValues(alpha: 0.2),
                                   blurRadius: 10,
                                   spreadRadius: 3,
                                 ),

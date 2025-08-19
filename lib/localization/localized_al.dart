@@ -5,6 +5,8 @@ class LocalizedAl {
     Keys.save: 'Ruaj',
     Keys.close: 'Mbyll',
     Keys.login: 'Hyr',
+    Keys.cancel: 'Anullo',
+    Keys.proceed: 'Vijo',
     Keys.enterMail: 'Vendosni email',
     Keys.mailPlaceholder: 'Email',
     Keys.passwordPlaceholder: 'Fjalëkalimi',
@@ -41,13 +43,18 @@ class LocalizedAl {
     Keys.confirmationCancel: 'Anulo',
     Keys.confirmationConfirm: 'Konfirmo',
     Keys.successGeneral: "Të gjitha ndryshimet u aplikuan me sukses.",
-    Keys.finishValidateWarning: "Ju lutem, verifikoni elementët përbërës të ndërtesës.",
-    Keys.invalidShape: "Forma e hedhur nuk është e vlefshme. Ju lutemi, provoni përsëri.",
+    Keys.finishValidateWarning:
+        "Ju lutem, verifikoni elementët përbërës të ndërtesës.",
+    Keys.invalidShape:
+        "Forma e hedhur nuk është e vlefshme. Ju lutemi, provoni përsëri.",
     Keys.successAddBuilding: "Ndertesa u shtua me sukses.",
     Keys.successUpdateBuilding: "Ndertesa u përditësua me sukses.",
     Keys.successAddEntrance: "Hyrja u shtua me sukses.",
     Keys.successUpdateEntrance: "Hyrja u përditësua me sukses.",
     Keys.startValidationSuccess: "Nisja e validimit u krye me sukses",
-    Keys.startValidationWarning: "Nisja e validimit nuk u krye."
+    Keys.startValidationWarning: "Nisja e validimit nuk u krye.",
+    Keys.intersectionDetected: "Mbivendosje ndertesash",
+    Keys.intersectionMessage:
+        "Ndertesa e zgjedhur ka mbivendosje me nje ndertese tjeter. Doni te vijoni me ruajtjen?",
   };
 }

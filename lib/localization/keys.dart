@@ -3,6 +3,8 @@
 class Keys {
   static const String save = 'save';
   static const String close = 'close';
+  static const String cancel = 'cancel';
+  static const String proceed = 'proceed';
   static const String login = 'login';
   static const String enterMail = 'enterMail';
   static const String mailPlaceholder = "Email";
@@ -11,8 +13,8 @@ class Keys {
   static const String outsideMunicipality = 'outsideMunicipality';
   static const String overlapingBuildings = 'overlapingBuildings';
   static const String finishReviewWarning = 'finishReviewWarning';
-  static const String startValidationSuccess='startValidationSuccess';
-  static const String startValidationWarning='startValidationWarning';
+  static const String startValidationSuccess = 'startValidationSuccess';
+  static const String startValidationWarning = 'startValidationWarning';
   static const String finishValidateWarning = 'finishValidateWarning';
   static const String dwellingUpdated = 'dwellingUpdated';
   static const String dwellingCouldNotUpdated = 'dwellingCouldNotUpdated';
@@ -44,4 +46,6 @@ class Keys {
   static const String successAddEntrance = 'successAddEntrance';
   static const String successUpdateEntrance = 'successUpdateEntrance';
   static const String invalidShape = 'invalidShape';
+  static const String intersectionDetected = 'intersectionDetected';
+  static const String intersectionMessage = 'intersectionMessage';
 }
