@@ -30,7 +30,6 @@ class MapActionEvents extends StatefulWidget {
 }
 
 class _MapActionEventsState extends State<MapActionEvents> {
-  int counter = 0;
   Future<void> _saveEntrance() async {
     final geometryEditor = context.read<GeometryEditorCubit>();
     final loadingCubit = context.read<LoadingCubit>();
@@ -81,17 +80,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
     if (geometryEditor.selectedType == EntityType.building) {
       geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
-      setState(() {
-        counter = geometryEditor.buildingCubit.pointCount;
-      });
     } else if (geometryEditor.selectedType == EntityType.entrance) {
       geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
-      setState(() {
-        counter =
-            geometryEditor.entranceCubit.currentEntrance?.coordinates != null
-                ? 1
-                : 0;
-      });
     }
   }
 
@@ -193,7 +183,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             height: 40,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               border: Border.all(
                                 color: geometryEditor.selectedType ==
                                         EntityType.entrance
@@ -257,23 +247,14 @@ class _MapActionEventsState extends State<MapActionEvents> {
                                 _saveBuilding();
                               }
                             },
-                            isEnabled: (geometryEditor.selectedType ==
-                                        EntityType.entrance &&
-                                    counter == 1) ||
-                                (geometryEditor.selectedType ==
-                                        EntityType.building &&
-                                    counter > 2),
+                            isEnabled: geometryEditor.canSave,
                           ),
 
                           const SizedBox(height: 20),
                           FloatingButton(
                             icon: Icons.add_location_alt_outlined,
                             heroTag: 'pin',
-                            isEnabled: (geometryEditor.selectedType ==
-                                    EntityType.building) ||
-                                (geometryEditor.selectedType ==
-                                        EntityType.entrance &&
-                                    counter == 0),
+                            isEnabled: geometryEditor.canAddPoint,
                             onPressed: _addPointToBuilding,
                           ),
 
@@ -281,8 +262,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
                           // Delete/Clear button
                           FloatingButton(
-                            icon: Icons.delete,
-                            heroTag: 'delete',
+                            icon: Icons.close,
+                            heroTag: 'close',
                             isEnabled: true,
                             onPressed: _clearCurrentGeometry,
                           ),
@@ -298,7 +279,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                         child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
+                            color: Colors.black.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(

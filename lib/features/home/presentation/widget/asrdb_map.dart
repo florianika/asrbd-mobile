@@ -225,8 +225,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  void _hanldeOnLongPress(LatLng position) {
+  void _onLongTapBuilding(LatLng position) {
     context.read<DwellingCubit>().closeDwellings();
+    context.read<AttributesCubit>().toggleAttributesVisibility(false);
     final buildingsState = context.read<BuildingCubit>().state;
 
     final buildings =
@@ -289,6 +290,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _onLongTapEntrance(EntranceEntity entrance) {
     context.read<DwellingCubit>().closeDwellings();
+    context.read<AttributesCubit>().toggleAttributesVisibility(false);
     final geometryCubit = context.read<GeometryEditorCubit>();
     geometryCubit.onEntranceLongPress(entrance);
   }
@@ -300,7 +302,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       key: mapKey,
       mapController: widget.mapController,
       options: MapOptions(
-        onLongPress: (tapPosition, point) => _hanldeOnLongPress(point),
+        onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
         initialCenter: currentPosition,
         initialZoom: AppConfig.initZoom,
         onTap: (TapPosition position, LatLng latlng) =>

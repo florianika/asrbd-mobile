@@ -249,8 +249,9 @@ class EditBuildingMarker extends StatelessWidget {
                           MarkerLayer(markers: _buildMarkers(points, context)),
 
                           // Midpoint markers for adding new points (only if more than 2 points)
-                          if (points.length >= 3 &&
-                              !geometryEditor.buildingCubit.isMovingPoint)
+                          // if (points.length >= 3 &&
+                          //     !geometryEditor.buildingCubit.isMovingPoint)
+                          if (points.length >= 3)
                             MarkerLayer(
                                 markers:
                                     _buildMidpointMarkers(points, context)),

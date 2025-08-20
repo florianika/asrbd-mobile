@@ -8,6 +8,8 @@ import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class BuildingsMarker extends StatelessWidget {
   final String attributeLegend;
@@ -70,6 +72,7 @@ class BuildingsMarker extends StatelessWidget {
           // Only rebuild if:
           // 1. Number of buildings changed significantly
           // 2. Building IDs actually changed (not just reordered)
+          // 3. Building coordinates or attributes changed
           if ((previous.buildings.length - current.buildings.length).abs() >
               2) {
             return true;
@@ -79,8 +82,24 @@ class BuildingsMarker extends StatelessWidget {
           final prevIds = previous.buildings.map((b) => b.globalId).toSet();
           final currIds = current.buildings.map((b) => b.globalId).toSet();
 
-          return prevIds.length != currIds.length ||
-              !prevIds.containsAll(currIds);
+          if (prevIds.length != currIds.length ||
+              !prevIds.containsAll(currIds)) {
+            return true;
+          }
+
+          // Check if any building data actually changed (coordinates, quality, review)
+          for (final currentBuilding in current.buildings) {
+            final prevBuilding = previous.buildings.firstWhere(
+              (b) => b.globalId == currentBuilding.globalId,
+              orElse: () => currentBuilding, // If not found, assume it changed
+            );
+
+            if (_buildingDataChanged(prevBuilding, currentBuilding)) {
+              return true;
+            }
+          }
+
+          return false;
         }
 
         // Only rebuild when going from empty to data or vice versa
@@ -115,7 +134,48 @@ class BuildingsMarker extends StatelessWidget {
     );
   }
 
-  // ✅ Cached polygon creation
+  // ✅ Check if building data that affects rendering has changed
+  bool _buildingDataChanged(dynamic prevBuilding, dynamic currentBuilding) {
+    // Check if coordinates changed
+    if (prevBuilding.coordinates.length != currentBuilding.coordinates.length) {
+      return true;
+    }
+
+    if (prevBuilding.coordinates.isNotEmpty &&
+        currentBuilding.coordinates.isNotEmpty &&
+        prevBuilding.coordinates.first.length !=
+            currentBuilding.coordinates.first.length) {
+      return true;
+    }
+
+    // Check if quality or review values changed
+    if (prevBuilding.bldQuality != currentBuilding.bldQuality ||
+        prevBuilding.bldReview != currentBuilding.bldReview) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // ✅ Generate hash of coordinates for cache key
+  String _generateCoordinateHash(List<dynamic> coordinates) {
+    if (coordinates.isEmpty || coordinates.first.isEmpty) {
+      return 'empty';
+    }
+
+    // Create a string representation of coordinates
+    final coordString = coordinates.first
+        .map((point) =>
+            '${point.latitude.toStringAsFixed(6)},${point.longitude.toStringAsFixed(6)}')
+        .join('|');
+
+    // Generate hash to keep cache key manageable
+    final bytes = utf8.encode(coordString);
+    final digest = sha256.convert(bytes);
+    return digest.toString().substring(0, 16); // Use first 16 chars
+  }
+
+  // ✅ Cached polygon creation with coordinate-aware cache key
   Polygon _getCachedPolygon(dynamic building, BuildContext context) {
     final value =
         attributeLegend == 'quality' ? building.bldQuality : building.bldReview;
@@ -124,8 +184,10 @@ class BuildingsMarker extends StatelessWidget {
       return Polygon(points: []);
     }
 
-    // ✅ Create cache key that includes both building and attribute legend
-    final cacheKey = '${building.globalId}_${attributeLegend}_$value';
+    // ✅ Create cache key that includes building ID, attribute legend, value, AND coordinates hash
+    final coordinateHash = _generateCoordinateHash(building.coordinates);
+    final cacheKey =
+        '${building.globalId}_${attributeLegend}_${value}_$coordinateHash';
 
     return _polygonCache.putIfAbsent(cacheKey, () {
       try {
@@ -174,5 +236,10 @@ class BuildingsMarker extends StatelessWidget {
   static void clearCache() {
     _polygonCache.clear();
     _lastBuildingIds = null;
+  }
+
+  // ✅ Method to clear cache for specific building (useful when updating coordinates)
+  static void clearBuildingCache(String buildingGlobalId) {
+    _polygonCache.removeWhere((key, value) => key.startsWith(buildingGlobalId));
   }
 }

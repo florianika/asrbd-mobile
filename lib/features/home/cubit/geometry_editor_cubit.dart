@@ -163,6 +163,44 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     }
   }
 
+  // Add these methods to your existing GeometryEditorCubit class:
+
+  // ✅ Counter getter - dynamic calculation based on current state
+  int get currentCounter {
+    if (_selectedType == EntityType.entrance) {
+      return entranceCubit.hasPoint ? 1 : 0;
+    } else if (_selectedType == EntityType.building) {
+      return buildingCubit.pointCount;
+    }
+    return 0;
+  }
+
+  // ✅ Save button enabled state
+  bool get canSave {
+    if (_selectedType == EntityType.entrance) {
+      return currentCounter == 1;
+    } else if (_selectedType == EntityType.building) {
+      return currentCounter > 2;
+    }
+    return false;
+  }
+
+  // ✅ Pin/Add point button enabled state
+  bool get canAddPoint {
+    if (_selectedType == EntityType.building) {
+      return true; // Can always add points to building
+    } else if (_selectedType == EntityType.entrance) {
+      return currentCounter == 0; // Can only add point if no point exists
+    }
+    return false;
+  }
+
+  // ✅ Alternative getter if you prefer explicit entrance counter
+  int get entranceCounter => entranceCubit.hasPoint ? 1 : 0;
+
+  // ✅ Alternative getter if you prefer explicit building counter
+  int get buildingCounter => buildingCubit.pointCount;
+
   void setBuildingMoving(bool isMoving) {
     if (_selectedType == EntityType.building) {
       buildingCubit.setMovingPoint(isMoving);
