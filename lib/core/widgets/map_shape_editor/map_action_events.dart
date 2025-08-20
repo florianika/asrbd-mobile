@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
@@ -11,6 +12,7 @@ import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
+import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +105,27 @@ class _MapActionEventsState extends State<MapActionEvents> {
           type: MessageType.warning,
         );
         return;
+      }
+
+      final municipalityState =
+          context.read<MunicipalityCubit>().state as Municipality;
+
+      if (municipalityState.municipality != null) {
+        bool isBuildingWithinMunicipality =
+            GeometryHelper.isPolygonWithinMultiPolygon(
+                building.coordinates.first,
+                municipalityState.municipality!.coordinates);
+
+        if (!isBuildingWithinMunicipality) {
+          loadingCubit.hide();
+          NotifierService.showMessage(
+            context,
+            message:
+                'Please make sure that the building is within the municipality that you are authorized',
+            type: MessageType.warning,
+          );
+          return;
+        }
       }
 
       SaveResult response = await buildingUseCase.saveBuilding(

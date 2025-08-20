@@ -1,12 +1,10 @@
 import 'package:asrdb/core/enums/service_mode.dart';
-import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class MunicipalityMarker extends StatefulWidget {
   const MunicipalityMarker({
@@ -40,47 +38,37 @@ class _MunicipalityMarkerState extends State<MunicipalityMarker> {
       },
       builder: (context, state) {
         if (state is! Municipality) return const SizedBox();
+        final polygons = <Polygon>[];
 
-        final features =
-            List<Map<String, dynamic>>.from(state.municipality!['features']);
+        if (state.municipality == null) {
+          return SizedBox.shrink();
+        }
 
-        return PolygonLayer(
-          polygons: features.expand((feature) {
-            final geometry = feature['geometry'];
-            final type = geometry['type'];
-            final polygons = <Polygon>[];
+        if (state.municipality!.geometryType == 'Polygon') {
+          polygons.add(
+            Polygon(
+              points: state.municipality!.coordinates.first.first,
+              color: Colors.transparent,
+              borderColor: Colors.red,
+              borderStrokeWidth: 2.0,
+            ),
+          );
+        } else if (state.municipality!.geometryType == 'MultiPolygon') {
+          for (final polygon in state.municipality!.coordinates) {
+            final outerRing = polygon.first;
 
-            if (type == 'Polygon') {
-              final points = GeometryHelper.parseCoordinates(geometry);
-              polygons.add(
-                Polygon(
-                  points: points,
-                  color: Colors.transparent,
-                  borderColor: Colors.red,
-                  borderStrokeWidth: 2.0,
-                ),
-              );
-            } else if (type == 'MultiPolygon') {
-              final multiCoords = geometry['coordinates'] as List;
-              for (final polygon in multiCoords) {
-                final outerRing = polygon.first;
-                final points = outerRing
-                    .map<LatLng>((coord) => LatLng(coord[1], coord[0]))
-                    .toList();
-                polygons.add(
-                  Polygon(
-                    points: points,
-                    color: Colors.transparent,
-                    borderColor: Colors.red,
-                    borderStrokeWidth: 2.0,
-                  ),
-                );
-              }
-            }
+            polygons.add(
+              Polygon(
+                points: outerRing,
+                color: Colors.transparent,
+                borderColor: Colors.red,
+                borderStrokeWidth: 2.0,
+              ),
+            );
+          }
+        }
 
-            return polygons;
-          }).toList(),
-        );
+        return PolygonLayer(polygons: polygons);
       },
     );
   }

@@ -4387,6 +4387,363 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   }
 }
 
+class $MunicipalitiesTable extends Municipalities
+    with TableInfo<$MunicipalitiesTable, Municipality> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MunicipalitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'download_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _objectIdMeta =
+      const VerificationMeta('objectId');
+  @override
+  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
+      'object_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _municipalityIdMeta =
+      const VerificationMeta('municipalityId');
+  @override
+  late final GeneratedColumn<String> municipalityId = GeneratedColumn<String>(
+      'municipality_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _municipalityNameMeta =
+      const VerificationMeta('municipalityName');
+  @override
+  late final GeneratedColumn<String> municipalityName = GeneratedColumn<String>(
+      'municipality_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coordinatesMeta =
+      const VerificationMeta('coordinates');
+  @override
+  late final GeneratedColumn<String> coordinates = GeneratedColumn<String>(
+      'coordinates', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [downloadId, id, objectId, municipalityId, municipalityName, coordinates];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'municipalities';
+  @override
+  VerificationContext validateIntegrity(Insertable<Municipality> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('download_id')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['download_id']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('object_id')) {
+      context.handle(_objectIdMeta,
+          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+    } else if (isInserting) {
+      context.missing(_objectIdMeta);
+    }
+    if (data.containsKey('municipality_id')) {
+      context.handle(
+          _municipalityIdMeta,
+          municipalityId.isAcceptableOrUnknown(
+              data['municipality_id']!, _municipalityIdMeta));
+    } else if (isInserting) {
+      context.missing(_municipalityIdMeta);
+    }
+    if (data.containsKey('municipality_name')) {
+      context.handle(
+          _municipalityNameMeta,
+          municipalityName.isAcceptableOrUnknown(
+              data['municipality_name']!, _municipalityNameMeta));
+    }
+    if (data.containsKey('coordinates')) {
+      context.handle(
+          _coordinatesMeta,
+          coordinates.isAcceptableOrUnknown(
+              data['coordinates']!, _coordinatesMeta));
+    } else if (isInserting) {
+      context.missing(_coordinatesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Municipality map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Municipality(
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      objectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
+      municipalityId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}municipality_id'])!,
+      municipalityName: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}municipality_name']),
+      coordinates: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
+    );
+  }
+
+  @override
+  $MunicipalitiesTable createAlias(String alias) {
+    return $MunicipalitiesTable(attachedDatabase, alias);
+  }
+}
+
+class Municipality extends DataClass implements Insertable<Municipality> {
+  final int downloadId;
+  final int id;
+  final int objectId;
+  final String municipalityId;
+  final String? municipalityName;
+  final String coordinates;
+  const Municipality(
+      {required this.downloadId,
+      required this.id,
+      required this.objectId,
+      required this.municipalityId,
+      this.municipalityName,
+      required this.coordinates});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['download_id'] = Variable<int>(downloadId);
+    map['id'] = Variable<int>(id);
+    map['object_id'] = Variable<int>(objectId);
+    map['municipality_id'] = Variable<String>(municipalityId);
+    if (!nullToAbsent || municipalityName != null) {
+      map['municipality_name'] = Variable<String>(municipalityName);
+    }
+    map['coordinates'] = Variable<String>(coordinates);
+    return map;
+  }
+
+  MunicipalitiesCompanion toCompanion(bool nullToAbsent) {
+    return MunicipalitiesCompanion(
+      downloadId: Value(downloadId),
+      id: Value(id),
+      objectId: Value(objectId),
+      municipalityId: Value(municipalityId),
+      municipalityName: municipalityName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(municipalityName),
+      coordinates: Value(coordinates),
+    );
+  }
+
+  factory Municipality.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Municipality(
+      downloadId: serializer.fromJson<int>(json['downloadId']),
+      id: serializer.fromJson<int>(json['id']),
+      objectId: serializer.fromJson<int>(json['objectId']),
+      municipalityId: serializer.fromJson<String>(json['municipalityId']),
+      municipalityName: serializer.fromJson<String?>(json['municipalityName']),
+      coordinates: serializer.fromJson<String>(json['coordinates']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'downloadId': serializer.toJson<int>(downloadId),
+      'id': serializer.toJson<int>(id),
+      'objectId': serializer.toJson<int>(objectId),
+      'municipalityId': serializer.toJson<String>(municipalityId),
+      'municipalityName': serializer.toJson<String?>(municipalityName),
+      'coordinates': serializer.toJson<String>(coordinates),
+    };
+  }
+
+  Municipality copyWith(
+          {int? downloadId,
+          int? id,
+          int? objectId,
+          String? municipalityId,
+          Value<String?> municipalityName = const Value.absent(),
+          String? coordinates}) =>
+      Municipality(
+        downloadId: downloadId ?? this.downloadId,
+        id: id ?? this.id,
+        objectId: objectId ?? this.objectId,
+        municipalityId: municipalityId ?? this.municipalityId,
+        municipalityName: municipalityName.present
+            ? municipalityName.value
+            : this.municipalityName,
+        coordinates: coordinates ?? this.coordinates,
+      );
+  Municipality copyWithCompanion(MunicipalitiesCompanion data) {
+    return Municipality(
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
+      id: data.id.present ? data.id.value : this.id,
+      objectId: data.objectId.present ? data.objectId.value : this.objectId,
+      municipalityId: data.municipalityId.present
+          ? data.municipalityId.value
+          : this.municipalityId,
+      municipalityName: data.municipalityName.present
+          ? data.municipalityName.value
+          : this.municipalityName,
+      coordinates:
+          data.coordinates.present ? data.coordinates.value : this.coordinates,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Municipality(')
+          ..write('downloadId: $downloadId, ')
+          ..write('id: $id, ')
+          ..write('objectId: $objectId, ')
+          ..write('municipalityId: $municipalityId, ')
+          ..write('municipalityName: $municipalityName, ')
+          ..write('coordinates: $coordinates')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      downloadId, id, objectId, municipalityId, municipalityName, coordinates);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Municipality &&
+          other.downloadId == this.downloadId &&
+          other.id == this.id &&
+          other.objectId == this.objectId &&
+          other.municipalityId == this.municipalityId &&
+          other.municipalityName == this.municipalityName &&
+          other.coordinates == this.coordinates);
+}
+
+class MunicipalitiesCompanion extends UpdateCompanion<Municipality> {
+  final Value<int> downloadId;
+  final Value<int> id;
+  final Value<int> objectId;
+  final Value<String> municipalityId;
+  final Value<String?> municipalityName;
+  final Value<String> coordinates;
+  const MunicipalitiesCompanion({
+    this.downloadId = const Value.absent(),
+    this.id = const Value.absent(),
+    this.objectId = const Value.absent(),
+    this.municipalityId = const Value.absent(),
+    this.municipalityName = const Value.absent(),
+    this.coordinates = const Value.absent(),
+  });
+  MunicipalitiesCompanion.insert({
+    required int downloadId,
+    this.id = const Value.absent(),
+    required int objectId,
+    required String municipalityId,
+    this.municipalityName = const Value.absent(),
+    required String coordinates,
+  })  : downloadId = Value(downloadId),
+        objectId = Value(objectId),
+        municipalityId = Value(municipalityId),
+        coordinates = Value(coordinates);
+  static Insertable<Municipality> custom({
+    Expression<int>? downloadId,
+    Expression<int>? id,
+    Expression<int>? objectId,
+    Expression<String>? municipalityId,
+    Expression<String>? municipalityName,
+    Expression<String>? coordinates,
+  }) {
+    return RawValuesInsertable({
+      if (downloadId != null) 'download_id': downloadId,
+      if (id != null) 'id': id,
+      if (objectId != null) 'object_id': objectId,
+      if (municipalityId != null) 'municipality_id': municipalityId,
+      if (municipalityName != null) 'municipality_name': municipalityName,
+      if (coordinates != null) 'coordinates': coordinates,
+    });
+  }
+
+  MunicipalitiesCompanion copyWith(
+      {Value<int>? downloadId,
+      Value<int>? id,
+      Value<int>? objectId,
+      Value<String>? municipalityId,
+      Value<String?>? municipalityName,
+      Value<String>? coordinates}) {
+    return MunicipalitiesCompanion(
+      downloadId: downloadId ?? this.downloadId,
+      id: id ?? this.id,
+      objectId: objectId ?? this.objectId,
+      municipalityId: municipalityId ?? this.municipalityId,
+      municipalityName: municipalityName ?? this.municipalityName,
+      coordinates: coordinates ?? this.coordinates,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (downloadId.present) {
+      map['download_id'] = Variable<int>(downloadId.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (objectId.present) {
+      map['object_id'] = Variable<int>(objectId.value);
+    }
+    if (municipalityId.present) {
+      map['municipality_id'] = Variable<String>(municipalityId.value);
+    }
+    if (municipalityName.present) {
+      map['municipality_name'] = Variable<String>(municipalityName.value);
+    }
+    if (coordinates.present) {
+      map['coordinates'] = Variable<String>(coordinates.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MunicipalitiesCompanion(')
+          ..write('downloadId: $downloadId, ')
+          ..write('id: $id, ')
+          ..write('objectId: $objectId, ')
+          ..write('municipalityId: $municipalityId, ')
+          ..write('municipalityName: $municipalityName, ')
+          ..write('coordinates: $coordinates')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4394,6 +4751,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BuildingsTable buildings = $BuildingsTable(this);
   late final $EntrancesTable entrances = $EntrancesTable(this);
   late final $DwellingsTable dwellings = $DwellingsTable(this);
+  late final $MunicipalitiesTable municipalities = $MunicipalitiesTable(this);
   late final DownloadsDao downloadsDao = DownloadsDao(this as AppDatabase);
   late final BuildingDao buildingDao = BuildingDao(this as AppDatabase);
   late final EntrancesDao entrancesDao = EntrancesDao(this as AppDatabase);
@@ -4403,7 +4761,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [downloads, buildings, entrances, dwellings];
+      [downloads, buildings, entrances, dwellings, municipalities];
 }
 
 typedef $$DownloadsTableCreateCompanionBuilder = DownloadsCompanion Function({
@@ -4460,6 +4818,21 @@ final class $$DownloadsTableReferences
         .filter((f) => f.downloadId.id.sqlEquals($_itemColumn<int>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_dwellingsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$MunicipalitiesTable, List<Municipality>>
+      _municipalitiesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.municipalities,
+              aliasName: $_aliasNameGenerator(
+                  db.downloads.id, db.municipalities.downloadId));
+
+  $$MunicipalitiesTableProcessedTableManager get municipalitiesRefs {
+    final manager = $$MunicipalitiesTableTableManager($_db, $_db.municipalities)
+        .filter((f) => f.downloadId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_municipalitiesRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -4535,6 +4908,27 @@ class $$DownloadsTableFilterComposer
             $$DwellingsTableFilterComposer(
               $db: $db,
               $table: $db.dwellings,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> municipalitiesRefs(
+      Expression<bool> Function($$MunicipalitiesTableFilterComposer f) f) {
+    final $$MunicipalitiesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.municipalities,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MunicipalitiesTableFilterComposer(
+              $db: $db,
+              $table: $db.municipalities,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -4637,6 +5031,27 @@ class $$DownloadsTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> municipalitiesRefs<T extends Object>(
+      Expression<T> Function($$MunicipalitiesTableAnnotationComposer a) f) {
+    final $$MunicipalitiesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.municipalities,
+        getReferencedColumn: (t) => t.downloadId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$MunicipalitiesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.municipalities,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$DownloadsTableTableManager extends RootTableManager<
@@ -4651,7 +5066,10 @@ class $$DownloadsTableTableManager extends RootTableManager<
     (Download, $$DownloadsTableReferences),
     Download,
     PrefetchHooks Function(
-        {bool buildingsRefs, bool entrancesRefs, bool dwellingsRefs})> {
+        {bool buildingsRefs,
+        bool entrancesRefs,
+        bool dwellingsRefs,
+        bool municipalitiesRefs})> {
   $$DownloadsTableTableManager(_$AppDatabase db, $DownloadsTable table)
       : super(TableManagerState(
           db: db,
@@ -4687,13 +5105,15 @@ class $$DownloadsTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {buildingsRefs = false,
               entrancesRefs = false,
-              dwellingsRefs = false}) {
+              dwellingsRefs = false,
+              municipalitiesRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (buildingsRefs) db.buildings,
                 if (entrancesRefs) db.entrances,
-                if (dwellingsRefs) db.dwellings
+                if (dwellingsRefs) db.dwellings,
+                if (municipalitiesRefs) db.municipalities
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4736,6 +5156,19 @@ class $$DownloadsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.downloadId == item.id),
+                        typedResults: items),
+                  if (municipalitiesRefs)
+                    await $_getPrefetchedData<Download, $DownloadsTable,
+                            Municipality>(
+                        currentTable: table,
+                        referencedTable: $$DownloadsTableReferences
+                            ._municipalitiesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$DownloadsTableReferences(db, table, p0)
+                                .municipalitiesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.downloadId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4756,7 +5189,10 @@ typedef $$DownloadsTableProcessedTableManager = ProcessedTableManager<
     (Download, $$DownloadsTableReferences),
     Download,
     PrefetchHooks Function(
-        {bool buildingsRefs, bool entrancesRefs, bool dwellingsRefs})>;
+        {bool buildingsRefs,
+        bool entrancesRefs,
+        bool dwellingsRefs,
+        bool municipalitiesRefs})>;
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   required int downloadId,
   Value<int> id,
@@ -7000,6 +7436,296 @@ typedef $$DwellingsTableProcessedTableManager = ProcessedTableManager<
     (Dwelling, $$DwellingsTableReferences),
     Dwelling,
     PrefetchHooks Function({bool downloadId, bool dwlEntGlobalId})>;
+typedef $$MunicipalitiesTableCreateCompanionBuilder = MunicipalitiesCompanion
+    Function({
+  required int downloadId,
+  Value<int> id,
+  required int objectId,
+  required String municipalityId,
+  Value<String?> municipalityName,
+  required String coordinates,
+});
+typedef $$MunicipalitiesTableUpdateCompanionBuilder = MunicipalitiesCompanion
+    Function({
+  Value<int> downloadId,
+  Value<int> id,
+  Value<int> objectId,
+  Value<String> municipalityId,
+  Value<String?> municipalityName,
+  Value<String> coordinates,
+});
+
+final class $$MunicipalitiesTableReferences
+    extends BaseReferences<_$AppDatabase, $MunicipalitiesTable, Municipality> {
+  $$MunicipalitiesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $DownloadsTable _downloadIdTable(_$AppDatabase db) =>
+      db.downloads.createAlias(
+          $_aliasNameGenerator(db.municipalities.downloadId, db.downloads.id));
+
+  $$DownloadsTableProcessedTableManager get downloadId {
+    final $_column = $_itemColumn<int>('download_id')!;
+
+    final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_downloadIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$MunicipalitiesTableFilterComposer
+    extends Composer<_$AppDatabase, $MunicipalitiesTable> {
+  $$MunicipalitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get municipalityId => $composableBuilder(
+      column: $table.municipalityId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get municipalityName => $composableBuilder(
+      column: $table.municipalityName,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnFilters(column));
+
+  $$DownloadsTableFilterComposer get downloadId {
+    final $$DownloadsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableFilterComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$MunicipalitiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MunicipalitiesTable> {
+  $$MunicipalitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get municipalityId => $composableBuilder(
+      column: $table.municipalityId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get municipalityName => $composableBuilder(
+      column: $table.municipalityName,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => ColumnOrderings(column));
+
+  $$DownloadsTableOrderingComposer get downloadId {
+    final $$DownloadsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableOrderingComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$MunicipalitiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MunicipalitiesTable> {
+  $$MunicipalitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get objectId =>
+      $composableBuilder(column: $table.objectId, builder: (column) => column);
+
+  GeneratedColumn<String> get municipalityId => $composableBuilder(
+      column: $table.municipalityId, builder: (column) => column);
+
+  GeneratedColumn<String> get municipalityName => $composableBuilder(
+      column: $table.municipalityName, builder: (column) => column);
+
+  GeneratedColumn<String> get coordinates => $composableBuilder(
+      column: $table.coordinates, builder: (column) => column);
+
+  $$DownloadsTableAnnotationComposer get downloadId {
+    final $$DownloadsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.downloadId,
+        referencedTable: $db.downloads,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$DownloadsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.downloads,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$MunicipalitiesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $MunicipalitiesTable,
+    Municipality,
+    $$MunicipalitiesTableFilterComposer,
+    $$MunicipalitiesTableOrderingComposer,
+    $$MunicipalitiesTableAnnotationComposer,
+    $$MunicipalitiesTableCreateCompanionBuilder,
+    $$MunicipalitiesTableUpdateCompanionBuilder,
+    (Municipality, $$MunicipalitiesTableReferences),
+    Municipality,
+    PrefetchHooks Function({bool downloadId})> {
+  $$MunicipalitiesTableTableManager(
+      _$AppDatabase db, $MunicipalitiesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MunicipalitiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MunicipalitiesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MunicipalitiesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> downloadId = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<int> objectId = const Value.absent(),
+            Value<String> municipalityId = const Value.absent(),
+            Value<String?> municipalityName = const Value.absent(),
+            Value<String> coordinates = const Value.absent(),
+          }) =>
+              MunicipalitiesCompanion(
+            downloadId: downloadId,
+            id: id,
+            objectId: objectId,
+            municipalityId: municipalityId,
+            municipalityName: municipalityName,
+            coordinates: coordinates,
+          ),
+          createCompanionCallback: ({
+            required int downloadId,
+            Value<int> id = const Value.absent(),
+            required int objectId,
+            required String municipalityId,
+            Value<String?> municipalityName = const Value.absent(),
+            required String coordinates,
+          }) =>
+              MunicipalitiesCompanion.insert(
+            downloadId: downloadId,
+            id: id,
+            objectId: objectId,
+            municipalityId: municipalityId,
+            municipalityName: municipalityName,
+            coordinates: coordinates,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$MunicipalitiesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({downloadId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (downloadId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.downloadId,
+                    referencedTable:
+                        $$MunicipalitiesTableReferences._downloadIdTable(db),
+                    referencedColumn:
+                        $$MunicipalitiesTableReferences._downloadIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$MunicipalitiesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $MunicipalitiesTable,
+    Municipality,
+    $$MunicipalitiesTableFilterComposer,
+    $$MunicipalitiesTableOrderingComposer,
+    $$MunicipalitiesTableAnnotationComposer,
+    $$MunicipalitiesTableCreateCompanionBuilder,
+    $$MunicipalitiesTableUpdateCompanionBuilder,
+    (Municipality, $$MunicipalitiesTableReferences),
+    Municipality,
+    PrefetchHooks Function({bool downloadId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7012,4 +7738,6 @@ class $AppDatabaseManager {
       $$EntrancesTableTableManager(_db, _db.entrances);
   $$DwellingsTableTableManager get dwellings =>
       $$DwellingsTableTableManager(_db, _db.dwellings);
+  $$MunicipalitiesTableTableManager get municipalities =>
+      $$MunicipalitiesTableTableManager(_db, _db.municipalities);
 }

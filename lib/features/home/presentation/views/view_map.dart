@@ -3,6 +3,7 @@ import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/legend/legend.dart';
 import 'package:asrdb/core/services/legend_service.dart';
@@ -29,6 +30,7 @@ import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
+import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -208,6 +210,26 @@ class _ViewMapState extends State<ViewMap> {
 
     try {
       final buildings = (buildingCubit.state as Buildings).buildings;
+
+      final municipalityState =
+          context.read<MunicipalityCubit>().state as Municipality;
+
+      if (municipalityState.municipality != null) {
+        bool isBuildingWithinMunicipality =
+            GeometryHelper.isPolygonWithinMultiPolygon(
+                building.coordinates.first,
+                municipalityState.municipality!.coordinates);
+
+        if (!isBuildingWithinMunicipality) {
+          NotifierService.showMessage(
+            context,
+            message:
+                'Please make sure that the building is within the municipality that you are authorized',
+            type: MessageType.warning,
+          );
+          return;
+        }
+      }
 
       if (buildingUseCase.intersectsWithOtherBuildings(building, buildings)) {
         // Show dialog asking user to confirm intersection

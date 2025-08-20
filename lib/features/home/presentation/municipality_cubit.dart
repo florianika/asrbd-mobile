@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/service_mode.dart';
+import 'package:asrdb/domain/entities/municipality_entity.dart';
 import 'package:asrdb/features/home/domain/municipality_usecases.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -9,7 +10,7 @@ class MunicipalityInitial extends MunicipalityState {}
 class MunicipalityLoading extends MunicipalityState {}
 
 class Municipality extends MunicipalityState {
-  final Map<String, dynamic>? municipality;
+  final MunicipalityEntity? municipality;
   Municipality(this.municipality);
 }
 
