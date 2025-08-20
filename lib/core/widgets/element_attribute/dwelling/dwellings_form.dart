@@ -34,7 +34,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
   late Map<String, String> _columnLabels;
   late List<String> _columnOrder;
-  String? buildingGlobalId = '';
+  // String? buildingGlobalId = '';
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
     String? entranceGlobalId =
         context.read<AttributesCubit>().currentEntranceGlobalId;
-    buildingGlobalId = context.read<AttributesCubit>().currentBuildingGlobalId;
+    // buildingGlobalId = context.read<AttributesCubit>().currentBuildingGlobalId;
 
     // final id = widget.entranceGlobalId;
     _initialData['DwlEntGlobalID'] = entranceGlobalId;
@@ -142,8 +142,7 @@ class _DwellingFormState extends State<DwellingForm> {
                                 });
                               },
                               save: (formValues) async {
-                                await _onSaveDwelling(
-                                    formValues, buildingGlobalId!);
+                                await _onSaveDwelling(formValues);
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;
@@ -862,8 +861,7 @@ class _DwellingFormState extends State<DwellingForm> {
     context.read<AttributesCubit>().showDwellingAttributes(null);
   }
 
-  Future<void> _onSaveDwelling(
-      Map<String, dynamic> attributes, String buildingGlobalId) async {
+  Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
     if (_isEditMode) {
       //   await context
       //       .read<DwellingCubit>()

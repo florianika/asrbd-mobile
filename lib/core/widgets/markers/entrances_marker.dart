@@ -33,110 +33,115 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<EntranceCubit, EntranceState>(
-      listener: (context, state) {},
-      builder: (context, state) {
-        final attributesCubit = context.read<AttributesCubit>();
-        final currentBldId = attributesCubit.currentBuildingGlobalId;
-        final currentEntId = attributesCubit.currentEntranceGlobalId;
-        final shapeType = attributesCubit.shapeType;
+    return BlocBuilder<AttributesCubit, AttributesState>(
+      builder: (context, attributesState) {
+        return BlocConsumer<EntranceCubit, EntranceState>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            final attributesCubit = context.read<AttributesCubit>();
+            final currentBldId = attributesCubit.currentBuildingGlobalId;
+            final currentEntId = attributesCubit.currentEntranceGlobalId;
+            final shapeType = attributesCubit.shapeType;
 
-        if (state is! Entrances) {
-          return SizedBox.shrink();
-        }
+            if (state is! Entrances) {
+              return SizedBox.shrink();
+            }
 
-        if (state.entrances.isEmpty) {
-          return SizedBox.shrink();
-        }
+            if (state.entrances.isEmpty) {
+              return SizedBox.shrink();
+            }
 
-        return MarkerLayer(
-          markers: state.entrances.map((entrance) {
-            final isSelected = entrance.globalId == currentEntId;
-            final isPolygonMatch = shapeType == ShapeType.polygon &&
-                entrance.entBldGlobalID == currentBldId;
+            return MarkerLayer(
+              markers: state.entrances.map((entrance) {
+                final isSelected = entrance.globalId == currentEntId;
+                final isPolygonMatch = shapeType == ShapeType.polygon &&
+                    entrance.entBldGlobalID == currentBldId;
 
-            final fillColor = isSelected
-                ? Colors.red.withValues(alpha: 0.7)
-                : (legendService.getColorForValue(
-                          LegendType.entrance,
-                          widget.attributeLegend,
-                          entrance.entQuality ?? 9,
-                        ) ??
-                        Colors.black)
-                    .withValues(alpha: 0.5);
+                final fillColor = isSelected
+                    ? Colors.red.withValues(alpha: 0.7)
+                    : (legendService.getColorForValue(
+                              LegendType.entrance,
+                              widget.attributeLegend,
+                              entrance.entQuality ?? 9,
+                            ) ??
+                            Colors.black)
+                        .withValues(alpha: 0.5);
 
-            final label = EntranceHelper.entranceLabel(
-              entrance.entBuildingNumber,
-              entrance.entEntranceNumber,
-            );
+                final label = EntranceHelper.entranceLabel(
+                  entrance.entBuildingNumber,
+                  entrance.entEntranceNumber,
+                );
 
-            return Marker(
-              width: markerSize,
-              height: markerSize,
-              point: entrance.coordinates!,
-              child: GestureDetector(
-                onTap: () => widget.onTap(entrance),
-                onLongPress: () => widget.onLongPress(entrance),
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: markerSize,
-                      height: markerSize,
-                      decoration: BoxDecoration(
-                        color: fillColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isPolygonMatch
-                              ? Colors.red.withValues(alpha: 0.6)
-                              : Colors.black.withValues(alpha: 0.6),
-                          width: isPolygonMatch ? 3 : 1,
-                        ),
-                        boxShadow: isPolygonMatch
-                            ? [
-                                BoxShadow(
-                                  color: Colors.red.withValues(alpha: 0.2),
-                                  blurRadius: 10,
-                                  spreadRadius: 3,
-                                ),
-                              ]
-                            : null,
-                      ),
-                    ),
-                    if (isPolygonMatch && label != null)
-                      Positioned(
-                        bottom: markerSize + 5,
-                        left: -15,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                return Marker(
+                  width: markerSize,
+                  height: markerSize,
+                  point: entrance.coordinates!,
+                  child: GestureDetector(
+                    onTap: () => widget.onTap(entrance),
+                    onLongPress: () => widget.onLongPress(entrance),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: markerSize,
+                          height: markerSize,
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.black, width: 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            color: fillColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isPolygonMatch
+                                  ? Colors.red.withValues(alpha: 0.6)
+                                  : Colors.black.withValues(alpha: 0.6),
+                              width: isPolygonMatch ? 3 : 1,
+                            ),
+                            boxShadow: isPolygonMatch
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.red.withValues(alpha: 0.2),
+                                      blurRadius: 10,
+                                      spreadRadius: 3,
+                                    ),
+                                  ]
+                                : null,
                           ),
-                          child: Text(
-                            label,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                        ),
+                        if (isPolygonMatch && label != null)
+                          Positioned(
+                            bottom: markerSize + 5,
+                            left: -15,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border:
+                                    Border.all(color: Colors.black, width: 1),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                label,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
             );
-          }).toList(),
+          },
         );
       },
     );

@@ -131,22 +131,25 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _saveDwelling(DwellingEntity dwelling) async {
     final entranceUseCase = sl<DwellingUseCases>();
-    final entranceCubit = sl<EntranceCubit>();
+    final attributeCubit = sl<AttributesCubit>();
     final checkUseCase = sl<CheckUseCases>();
     final offlineMode = false;
 
     try {
-      dwelling.dwlEntGlobalID ??= entranceCubit.selectedEntranceGlobalId;
+      NotifierService.showMessage(
+        context,
+        message: attributeCubit.currentEntranceGlobalId.toString(),
+        type: MessageType.info,
+      );
+      dwelling.dwlEntGlobalID ??= attributeCubit.currentEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,
         offlineMode,
       );
       if (mounted) {
-        final currentBuildingGlobalId =
-            context.read<AttributesCubit>().currentBuildingGlobalId;
-
-        await checkUseCase
-            .checkAutomatic(currentBuildingGlobalId.removeCurlyBraces()!);
+        await checkUseCase.checkAutomatic(attributeCubit
+            .currentEntrance!.entBldGlobalID
+            .removeCurlyBraces()!);
       }
 
       if (mounted) {

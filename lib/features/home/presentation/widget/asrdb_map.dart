@@ -19,6 +19,7 @@ import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_building_marker.dart';
@@ -59,6 +60,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   LatLng? _userLocation;
   String? _selectedBuildingGlobalId;
+  String? _highlightBuildingGlobalId;
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
@@ -94,13 +96,18 @@ class _AsrdbMapState extends State<AsrdbMap> {
     });
   }
 
-  void _handleEntranceTap(EntranceEntity entrance) {
+  Future<void> _handleEntranceTap(EntranceEntity entrance) async {
     try {
+      context.read<DwellingCubit>().closeDwellings();
       _selectedGlobalId = entrance.globalId;
+      context.read<AttributesCubit>().clearSelections();
+
+      setState(() {
+        _selectedBuildingGlobalId = null;
+        _highlightBuildingGlobalId = entrance.entBldGlobalID;
+      });
 
       if (_selectedGlobalId == null) return;
-
-      // highlightMarkersGlobalId = [];
 
       final storageResponsitory = sl<StorageRepository>();
       storageResponsitory.saveString(
@@ -111,19 +118,23 @@ class _AsrdbMapState extends State<AsrdbMap> {
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
 
-      context
+      await context
           .read<AttributesCubit>()
           .showEntranceAttributes(entrance.globalId, buildingGlobalId);
 
-      context
-          .read<OutputLogsCubit>()
-          .outputLogsBuildings(entrance.entBldGlobalID.removeCurlyBraces()!);
+      if (mounted) {
+        await context
+            .read<OutputLogsCubit>()
+            .outputLogsBuildings(entrance.entBldGlobalID.removeCurlyBraces()!);
+      }
     } catch (e) {
-      NotifierService.showMessage(
-        context,
-        message: e.toString(),
-        type: MessageType.error,
-      );
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message: e.toString(),
+          type: MessageType.error,
+        );
+      }
     }
   }
 
@@ -215,6 +226,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _hanldeOnLongPress(LatLng position) {
+    context.read<DwellingCubit>().closeDwellings();
     final buildingsState = context.read<BuildingCubit>().state;
 
     final buildings =
@@ -233,6 +245,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _handleBuildingOnTap(LatLng position) {
     try {
+      context.read<DwellingCubit>().closeDwellings();
+      context.read<AttributesCubit>().clearSelections();
       final buildingList = context.read<BuildingCubit>().buildings;
       final buildingFound =
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
@@ -249,14 +263,20 @@ class _AsrdbMapState extends State<AsrdbMap> {
             value: buildingFound.globalId!);
 
         setState(() {
-          _selectedBuildingGlobalId = buildingFound.globalId;         
+          _selectedBuildingGlobalId = buildingFound.globalId;
+          _highlightBuildingGlobalId = null;
         });
 
         _checkEntranceVisibility(widget.mapController.camera);
 
         final center =
             GeometryHelper.getPolygonCentroid(buildingFound.coordinates.first);
-        widget.mapController.move(center, 20.5);
+
+        widget.mapController.move(
+            center,
+            (widget.mapController.camera.zoom +
+                    widget.mapController.camera.zoom * 0.1)
+                .clamp(0.0, 20.5));
       }
     } catch (e) {
       NotifierService.showMessage(
@@ -268,6 +288,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _onLongTapEntrance(EntranceEntity entrance) {
+    context.read<DwellingCubit>().closeDwellings();
     final geometryCubit = context.read<GeometryEditorCubit>();
     geometryCubit.onEntranceLongPress(entrance);
   }
@@ -339,6 +360,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         ),
         SelectedBuildingMarker(
           selectedBuildingGlobalId: _selectedBuildingGlobalId,
+          highlightBuildingGlobalId: _highlightBuildingGlobalId,
         ),
         EntrancesMarker(
           onTap: _handleEntranceTap,

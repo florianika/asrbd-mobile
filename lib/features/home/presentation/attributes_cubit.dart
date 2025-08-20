@@ -91,6 +91,11 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   bool showLoading = true;
 
+  // Permanent storage fields - these persist regardless of state
+  EntranceEntity? _persistentEntrance;
+  BuildingEntity? _persistentBuilding;
+  DwellingEntity? _persistentDwelling;
+
   AttributesCubit(
     this.entranceUseCases,
     this.buildingUseCases,
@@ -127,6 +132,9 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (dwellingObjectID == null) {
+        // Clear persistent dwelling when showing attributes for new dwelling
+        _persistentDwelling = null;
+
         emit(Attributes(
           schema,
           const {},
@@ -142,9 +150,10 @@ class AttributesCubit extends Cubit<AttributesState> {
 
       final dwelling =
           await dwellingUseCases.getDwellingDetails(dwellingObjectID);
-      // final features = data[GeneralFields.features] ?? [];
-      // final props =
-      //     features.isNotEmpty ? features[0][GeneralFields.properties] : {};
+
+      // Store permanently
+      _persistentDwelling = dwelling;
+
       emit(Attributes(
         schema,
         dwelling.toMap(),
@@ -166,6 +175,9 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
       if (entranceGlobalID == null) {
+        // Clear persistent entrance when showing attributes for new entrance
+        _persistentEntrance = null;
+
         emit(Attributes(
           schema,
           {EntranceFields.entBldGlobalID: buildingGlobalID},
@@ -180,6 +192,9 @@ class AttributesCubit extends Cubit<AttributesState> {
 
       final entrance =
           await entranceUseCases.getEntranceDetails(entranceGlobalID);
+
+      // Store permanently
+      _persistentEntrance = entrance;
 
       emit(Attributes(
         schema,
@@ -200,6 +215,9 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
       if (buildingGlobalID == null) {
+        // Clear persistent building when showing attributes for new building
+        _persistentBuilding = null;
+
         emit(Attributes(
           schema,
           const {},
@@ -214,6 +232,9 @@ class AttributesCubit extends Cubit<AttributesState> {
 
       final building =
           await buildingUseCases.getBuildingDetails(buildingGlobalID);
+
+      // Store permanently
+      _persistentBuilding = building;
 
       emit(Attributes(
         schema,
@@ -288,7 +309,7 @@ class AttributesCubit extends Cubit<AttributesState> {
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
 
-      // Create a new BuildingEntity with defaults
+      // Create a new EntranceEntity with defaults
       final newEntrance = EntranceEntity(
           objectId: 0,
           coordinates: coordinates,
@@ -308,17 +329,10 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  Future<void> updateEntrance(
-      LatLng coordinates) async {
+  Future<void> updateEntrance(LatLng coordinates) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
-
-      // Create a new BuildingEntity with defaults
-      // final newBuilding = EntranceEntity(
-      //     objectId: 0,
-      //     coordinates: coordinates,
-      //     entBldGlobalID: buildingGlobalId);
 
       final updatedEntrance =
           EntranceEntity.fromMap((state as Attributes).initialData);
@@ -338,14 +352,15 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  String? get currentBuildingGlobalId =>
-      state is Attributes ? (state as Attributes).buildingGlobalId : null;
+  // Modified getters - now return persistent entities regardless of state
+  BuildingEntity? get currentBuilding => _persistentBuilding;
+  EntranceEntity? get currentEntrance => _persistentEntrance;
+  DwellingEntity? get currentDwelling => _persistentDwelling;
 
-  String? get currentEntranceGlobalId =>
-      state is Attributes ? (state as Attributes).entranceGlobalId : null;
-
-  int? get currentDwellingObjectId =>
-      state is Attributes ? (state as Attributes).dwellingObjectId : null;
+  // Convenience getters for IDs (if still needed)
+  String? get currentBuildingGlobalId => _persistentBuilding?.globalId;
+  String? get currentEntranceGlobalId => _persistentEntrance?.globalId;
+  int? get currentDwellingObjectId => _persistentDwelling?.objectId;
 
   ShapeType get shapeType =>
       state is Attributes ? (state as Attributes).shapeType : ShapeType.point;
@@ -355,5 +370,26 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   void clearSelections() {
     toggleAttributesVisibility(false);
+  }
+
+  // Optional: method to clear persistent values
+  void clearPersistentSelections() {
+    _persistentEntrance = null;
+    _persistentBuilding = null;
+    _persistentDwelling = null;
+    toggleAttributesVisibility(false);
+  }
+
+  // Optional: methods to manually set persistent values
+  void setPersistentEntrance(EntranceEntity? entrance) {
+    _persistentEntrance = entrance;
+  }
+
+  void setPersistentBuilding(BuildingEntity? building) {
+    _persistentBuilding = building;
+  }
+
+  void setPersistentDwelling(DwellingEntity? dwelling) {
+    _persistentDwelling = dwelling;
   }
 }
