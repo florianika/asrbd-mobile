@@ -54,7 +54,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       loadingCubit.hide();
 
-      await attributeCubit.showEntranceAttributes(entrance.globalId, null);
+      await attributeCubit.showEntranceAttributes(response.data, null);
       if (mounted) {
         NotifierService.showMessage(
           context,
@@ -125,7 +125,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       loadingCubit.hide();
 
-      await attributeCubit.showBuildingAttributes(building.globalId);
+      await attributeCubit.showBuildingAttributes(response.data);
 
       if (mounted) {
         NotifierService.showMessage(
@@ -258,7 +258,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
                               }
                             },
                             isEnabled: (geometryEditor.selectedType ==
-                                    EntityType.entrance && counter == 1) ||
+                                        EntityType.entrance &&
+                                    counter == 1) ||
                                 (geometryEditor.selectedType ==
                                         EntityType.building &&
                                     counter > 2),
