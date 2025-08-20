@@ -75,7 +75,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
     }
   }
 
-  void _addPointToBuilding() {
+  void _addPoint() {
     final geometryEditor = context.read<GeometryEditorCubit>();
 
     if (geometryEditor.selectedType == EntityType.building) {
@@ -139,7 +139,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
   void _clearCurrentGeometry() {
     final geometryEditor = context.read<GeometryEditorCubit>();
-    geometryEditor.cancelOperation();
+    geometryEditor.deleteSelected();
   }
 
   @override
@@ -255,7 +255,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             icon: Icons.add_location_alt_outlined,
                             heroTag: 'pin',
                             isEnabled: geometryEditor.canAddPoint,
-                            onPressed: _addPointToBuilding,
+                            onPressed: _addPoint,
                           ),
 
                           const SizedBox(height: 20),

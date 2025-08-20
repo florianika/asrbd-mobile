@@ -112,7 +112,7 @@ class EditEntranceMarker extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<GeometryEditorCubit, GeometryEditorState>(
       builder: (context, editorState) {
-        final geometryEditor = context.read<GeometryEditorCubit>();
+        final geometryEditor = context.watch<GeometryEditorCubit>();
 
         // Only show entrance editing when entrance is selected
         if (geometryEditor.selectedType != EntityType.entrance) {

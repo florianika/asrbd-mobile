@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
@@ -32,10 +34,33 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
   final EntranceGeometryCubit entranceCubit;
   final BuildingGeometryCubit buildingCubit;
 
+  late final StreamSubscription _entranceSubscription;
+  late final StreamSubscription _buildingSubscription;
+
   GeometryEditorCubit({
     required this.entranceCubit,
     required this.buildingCubit,
-  }) : super(GeometryEditorIdle());
+  }) : super(GeometryEditorIdle()) {
+    // Listen to entrance cubit changes
+    _entranceSubscription = entranceCubit.stream.listen((_) {
+      if (_selectedType == EntityType.entrance) {
+        _emitCurrentState();
+      }
+    });
+
+    _buildingSubscription = buildingCubit.stream.listen((_) {
+      if (_selectedType == EntityType.building) {
+        _emitCurrentState();
+      }
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _entranceSubscription.cancel();
+    _buildingSubscription.cancel();
+    return super.close();
+  }
 
   EntityType _selectedType = EntityType.none;
   EditorMode _mode = EditorMode.view;
@@ -162,8 +187,6 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
       entranceCubit.setMovingPoint(isMoving);
     }
   }
-
-  // Add these methods to your existing GeometryEditorCubit class:
 
   // ✅ Counter getter - dynamic calculation based on current state
   int get currentCounter {

@@ -23,8 +23,6 @@ class DwellingUseCases {
 
   Future<String> _addDwellingFeatureOnline(DwellingEntity dwelling) async {
     String response = await _dwellingRepository.addDwellingFeature(dwelling);
-    // await _checkUseCases.checkAutomatic(
-    //     buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return response;
   }
 
@@ -67,11 +65,6 @@ class DwellingUseCases {
 
     if (!offlineMode) {
       return await dwellingUseCases._addDwellingFeatureOnline(dwelling);
-      // await outputLogsCubit.checkAutomatic(
-      //     attributes[EntranceFields.entBldGlobalID]
-      //         .toString()
-      //         .replaceAll('{', '')
-      //         .replaceAll('}', ''));
     } else {
       return await dwellingUseCases._addDwellingFeatureOffline(dwelling);
     }
@@ -81,12 +74,6 @@ class DwellingUseCases {
       DwellingEntity dwelling, bool offlineMode) async {
     final userService = sl<UserService>();
     final DwellingUseCases dwellingUseCases = sl<DwellingUseCases>();
-    // DwellingCubit dwellingCubit,
-
-    // attributes[GeneralFields.externalEditor] =
-    //     '{${userService.userInfo?.nameId}}';
-    // attributes[GeneralFields.externalEditorDate] =
-    //     DateTime.now().millisecondsSinceEpoch;
 
     dwelling.externalEditor = '{${userService.userInfo?.nameId}}';
     dwelling.externalEditorDate = DateTime.now();
@@ -94,11 +81,6 @@ class DwellingUseCases {
     if (!offlineMode) {
       await dwellingUseCases._updateDwellingFeatureOnline(
           dwelling, dwelling.dwlEntGlobalID!);
-      // await outputLogsCubit.checkAutomatic(
-      //     attributes[EntranceFields.entBldGlobalID]
-      //         .toString()
-      //         .replaceAll('{', '')
-      //         .replaceAll('}', ''));
     } else {
       await dwellingUseCases._updateDwellingFeatureOffline(
           dwelling, dwelling.dwlEntGlobalID!);
@@ -110,12 +92,11 @@ class DwellingUseCases {
     bool isNewEntrance = dwelling.globalId == null;
 
     if (isNewEntrance) {
-      
       String globalId = await _createNewDwelling(dwelling, offlineMode);
-      return SaveResult(true, Keys.successAddEntrance, globalId);
+      return SaveResult(true, Keys.successAddDwelling, globalId);
     } else {
       await _updateExistingDwelling(dwelling, offlineMode);
-      return SaveResult(true, Keys.successUpdateEntrance, dwelling.globalId);
+      return SaveResult(true, Keys.successUpdateDwelling, dwelling.globalId);
     }
   }
 }

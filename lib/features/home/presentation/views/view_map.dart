@@ -451,57 +451,57 @@ class _ViewMapState extends State<ViewMap> {
                     ],
                   ),
                 ),
-                BlocListener<EntranceCubit, EntranceState>(
-                  listener: (context, state) {
-                    if (state is EntranceError) {
-                      NotifierService.showMessage(
-                        context,
-                        message: state.message,
-                        type: MessageType.error,
-                      );
-                    } else if (state is EntranceAddResponse ||
-                        state is EntranceUpdateResponse) {
-                      final id = StringHelper.removeCurlyBracesFromString(
-                          (state as EntranceAddResponse).buildingGlboalId);
-                      context
-                          .read<AttributesCubit>()
-                          .showBuildingAttributes(id);
-                    }
-                  },
-                  child: const SizedBox.shrink(),
-                ),
-                BlocListener<DwellingCubit, DwellingState>(
-                  listener: (context, state) {
-                    if (state is DwellingError) {
-                      NotifierService.showMessage(
-                        context,
-                        message: state.message,
-                        type: MessageType.error,
-                      );
-                    } else if (state is DwellingUpdateResponse) {
-                      NotifierService.showMessage(
-                        context,
-                        messageKey: state.isAdded
-                            ? Keys.dwellingUpdated
-                            : Keys.dwellingCouldNotUpdated,
-                        type: state.isAdded
-                            ? MessageType.success
-                            : MessageType.warning,
-                      );
-                    } else if (state is DwellingAddResponse) {
-                      NotifierService.showMessage(
-                        context,
-                        messageKey: state.isAdded
-                            ? Keys.dwellingAdded
-                            : Keys.dwellingCouldNotAdd,
-                        type: state.isAdded
-                            ? MessageType.success
-                            : MessageType.warning,
-                      );
-                    }
-                  },
-                  child: const SizedBox.shrink(),
-                ),
+                // BlocListener<EntranceCubit, EntranceState>(
+                //   listener: (context, state) {
+                //     if (state is EntranceError) {
+                //       NotifierService.showMessage(
+                //         context,
+                //         message: state.message,
+                //         type: MessageType.error,
+                //       );
+                //     } else if (state is EntranceAddResponse ||
+                //         state is EntranceUpdateResponse) {
+                //       final id = StringHelper.removeCurlyBracesFromString(
+                //           (state as EntranceAddResponse).buildingGlboalId);
+                //       context
+                //           .read<AttributesCubit>()
+                //           .showBuildingAttributes(id);
+                //     }
+                //   },
+                //   child: const SizedBox.shrink(),
+                // ),
+                // BlocListener<DwellingCubit, DwellingState>(
+                //   listener: (context, state) {
+                //     if (state is DwellingError) {
+                //       NotifierService.showMessage(
+                //         context,
+                //         message: state.message,
+                //         type: MessageType.error,
+                //       );
+                //     } else if (state is DwellingUpdateResponse) {
+                //       NotifierService.showMessage(
+                //         context,
+                //         messageKey: state.isAdded
+                //             ? Keys.dwellingUpdated
+                //             : Keys.dwellingCouldNotUpdated,
+                //         type: state.isAdded
+                //             ? MessageType.success
+                //             : MessageType.warning,
+                //       );
+                //     } else if (state is DwellingAddResponse) {
+                //       NotifierService.showMessage(
+                //         context,
+                //         messageKey: state.isAdded
+                //             ? Keys.dwellingAdded
+                //             : Keys.dwellingCouldNotAdd,
+                //         type: state.isAdded
+                //             ? MessageType.success
+                //             : MessageType.warning,
+                //       );
+                //     }
+                //   },
+                //   child: const SizedBox.shrink(),
+                // ),
                 DwellingForm(onSave: _onSave),
                 BlocConsumer<AttributesCubit, AttributesState>(
                   listener: (context, state) {

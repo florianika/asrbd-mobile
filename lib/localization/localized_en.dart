@@ -53,6 +53,8 @@ class LocalizedEn {
     Keys.successUpdateBuilding: "Building was successfully updated.",
     Keys.successAddEntrance: "Entrance was successfully added.",
     Keys.successUpdateEntrance: "Entrance was successfully updated.",
+    Keys.successAddDwelling: "Dwelling was successfully added.",
+    Keys.successUpdateDwelling: "Dwelling was successfully updated.",
     Keys.startValidationSuccess: "Validation started successfully",
     Keys.startValidationWarning: "Validation could not be started.",
     Keys.finishReviewingSuccess: 'Finish reviewing finished successfully',
