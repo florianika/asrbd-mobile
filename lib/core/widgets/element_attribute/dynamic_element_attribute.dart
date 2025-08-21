@@ -7,6 +7,7 @@ import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -90,6 +91,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         final streetInfo = await StreetDatabase.getStreetByGlobalId(rawValue);
         final text = streetInfo?.strNameCore ?? '';
         _updateOrCreateController(key, text);
+      } else if (key == 'EntTown' && rawValue != null) {
+        // Find the town name from coded values
+        final townName = _getTownNameFromCode(field, rawValue);
+        _updateOrCreateController(key, townName);
       } else {
         _updateOrCreateController(key, value);
       }
@@ -104,6 +109,17 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     } else {
       _controllers[key] = TextEditingController(text: value);
     }
+  }
+
+  String _getTownNameFromCode(FieldSchema field, dynamic code) {
+    if (field.codedValues == null) return code.toString();
+
+    final townOption = field.codedValues!.firstWhere(
+      (option) => option['code'] == code,
+      orElse: () => {'name': code.toString()},
+    );
+
+    return townOption['name'].toString();
   }
 
   @override
@@ -576,6 +592,251 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
+  Widget _buildTownTypeAhead(dynamic attribute, dynamic elementFound) {
+    final validationResult = _getValidationResult(elementFound.name);
+
+    // Get the coded values for towns from the field schema
+    final allTownOptions = elementFound.codedValues ?? [];
+
+    // Filter towns based on municipality
+    final userService = sl<UserService>();
+    final municipalityId = userService.userInfo?.municipality;
+
+    final townOptions = municipalityId != null
+        ? allTownOptions.where((town) {
+            final townCode = town['code'] as int?;
+            if (townCode == null) return false;
+
+            // Filter based on: municipalityId*10000 <= code < (municipalityId+1)*10000
+            final minCode = municipalityId * 10000;
+            final maxCode = (municipalityId + 1) * 10000;
+            return townCode >= minCode && townCode < maxCode;
+          }).toList()
+        : allTownOptions;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TypeAheadField<Map<String, dynamic>>(
+          key: ValueKey(elementFound.name),
+          controller: _controllers[elementFound.name],
+          builder: (context, controller, focusNode) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              readOnly:
+                  widget.readOnly || attribute.display.enumerator == "read",
+              enabled: !widget.readOnly && elementFound.editable,
+              decoration: _getInputDecoration(attribute, elementFound).copyWith(
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (validationResult != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Icon(
+                          Icons.priority_high,
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          size: 16,
+                        ),
+                      ),
+                    if (controller.text.isNotEmpty && !widget.readOnly)
+                      IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey[600]),
+                        onPressed: () {
+                          controller.clear();
+                          formValues[elementFound.name] = null;
+                          focusNode.requestFocus();
+                        },
+                      )
+                    else
+                      Icon(Icons.location_city, color: Colors.grey[600]),
+                  ],
+                ),
+              ),
+              style: const TextStyle(color: Colors.black87, fontSize: 14),
+            );
+          },
+          suggestionsCallback: (pattern) async {
+            if (pattern.length < 1) return townOptions;
+
+            // Filter towns based on the search pattern
+            return townOptions.where((town) {
+              final townName = town['name'].toString().toLowerCase();
+              final searchPattern = pattern.toLowerCase();
+              return townName.contains(searchPattern);
+            }).toList();
+          },
+          itemBuilder: (context, town) {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey[200]!),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.location_city_outlined,
+                    color: Colors.grey[600],
+                    size: 18,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      town['name'].toString(),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Colors.grey[400],
+                    size: 14,
+                  ),
+                ],
+              ),
+            );
+          },
+          onSelected: (town) {
+            formValues[elementFound.name] = town['code'];
+            _controllers[elementFound.name]!.text = town['name'].toString();
+            setState(() {
+              validationErrors.remove(elementFound.name);
+            });
+          },
+          constraints: const BoxConstraints(maxHeight: 250),
+          offset: const Offset(0, 5),
+          animationDuration: const Duration(milliseconds: 300),
+          hideOnEmpty: false,
+          hideOnError: true,
+          hideOnLoading: false,
+          debounceDuration: const Duration(milliseconds: 300),
+          errorBuilder: (context, error) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline, color: Colors.red[600], size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Error loading towns',
+                      style: TextStyle(
+                        color: Colors.red[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          loadingBuilder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Loading towns...',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          emptyBuilder: (context) {
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, color: Colors.grey[500], size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'No towns found',
+                    style: TextStyle(
+                      color: Colors.grey[500],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          decorationBuilder: (context, child) {
+            return Material(
+              elevation: 4,
+              borderRadius: BorderRadius.circular(8),
+              shadowColor: Colors.black.withOpacity(0.1),
+              child: child,
+            );
+          },
+        ),
+        if (validationResult != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 12),
+            child: Row(
+              children: [
+                Icon(
+                  validationResult.level == ValidationLevel.error
+                      ? Icons.error_outline
+                      : Icons.warning_amber_outlined,
+                  color: validationResult.level == ValidationLevel.error
+                      ? Colors.red
+                      : Colors.orange,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    validationResult.message,
+                    style: TextStyle(
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildFormField(
       dynamic attribute, dynamic elementFound, String sectionName) {
     final validationResult = _getValidationResult(elementFound.name);
@@ -666,6 +927,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
     if (elementFound.name == 'EntStrGlobalID') {
       return _buildStreetTypeAhead(attribute, elementFound);
+    }
+
+    if (elementFound.name == 'EntTown') {
+      return _buildTownTypeAhead(attribute, elementFound);
     }
 
     final inputDecoration = _getInputDecoration(attribute, elementFound);
