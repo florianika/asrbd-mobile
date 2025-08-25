@@ -1,3 +1,4 @@
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:flutter/material.dart';
@@ -82,17 +83,16 @@ class _NotesWidgetState extends State<NotesWidget>
       return;
     }
     final rawId = context.read<AttributesCubit>();
-    final buildingGlobalId = rawId.currentBuildingGlobalId!;
-    if (buildingGlobalId == '') {
+    final buildingGlobalId = rawId.currentBuildingGlobalId;
+    if (buildingGlobalId == '' || buildingGlobalId == null) {
       _showSnackBar('No building selected!');
       return;
     }
     _sendButtonAnimationController
         .forward()
         .then((_) => _sendButtonAnimationController.reverse());
-    context
-        .read<NoteCubit>()
-        .postNote(buildingGlobalId, text, userName, userId);
+    context.read<NoteCubit>().postNote(
+        buildingGlobalId.removeCurlyBraces()!, text, userName, userId);
     _controller.clear();
   }
 
@@ -148,7 +148,8 @@ class _NotesWidgetState extends State<NotesWidget>
             const SizedBox(height: 20),
             _buildInputCard(colorScheme, context),
             const SizedBox(height: 15),
-            Divider(height: 1, color: colorScheme.outline.withOpacity(0.5)),
+            Divider(
+                height: 1, color: colorScheme.outline.withValues(alpha: 0.5)),
             const SizedBox(height: 10),
             SizedBox(
               height: 450,
@@ -160,7 +161,7 @@ class _NotesWidgetState extends State<NotesWidget>
                             color: colorScheme.primary));
                   } else if (state is NoteLoaded) {
                     if (state.notes.isEmpty) {
-                      return  _buildEmptyState(colorScheme);
+                      return _buildEmptyState(colorScheme);
                     }
                     final now = DateTime.now();
                     final todayNotes = state.notes
@@ -230,7 +231,7 @@ class _NotesWidgetState extends State<NotesWidget>
                 decoration: InputDecoration(
                   hintText: 'Shkruaj një shënim rreth kësaj ndërtesë...',
                   hintStyle: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 15),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
@@ -239,8 +240,8 @@ class _NotesWidgetState extends State<NotesWidget>
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor:
-                      colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                  fillColor: colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.3),
                 ),
                 style: TextStyle(color: colorScheme.onSurface, fontSize: 16),
               ),
@@ -267,11 +268,12 @@ class _NotesWidgetState extends State<NotesWidget>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.notes,
-              size: 60, color: colorScheme.primary.withOpacity(0.4)),
+              size: 60, color: colorScheme.primary.withValues(alpha: 0.4)),
           const SizedBox(height: 10),
           Text('Nuk ka shenime per kete ndertese!',
               style: TextStyle(
-                  fontSize: 16, color: colorScheme.onSurface.withOpacity(0.7))),
+                  fontSize: 16,
+                  color: colorScheme.onSurface.withValues(alpha: 0.7))),
         ],
       ),
     );
@@ -316,7 +318,7 @@ class NoteCard extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurface.withOpacity(0.7))),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7))),
             )
           ],
         ),
