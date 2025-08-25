@@ -137,11 +137,11 @@ class _ViewMapState extends State<ViewMap> {
     final offlineMode = false;
 
     try {
-      NotifierService.showMessage(
-        context,
-        message: attributeCubit.currentEntranceGlobalId.toString(),
-        type: MessageType.info,
-      );
+      // NotifierService.showMessage(
+      //   context,
+      //   message: attributeCubit.currentEntranceGlobalId.toString(),
+      //   type: MessageType.info,
+      // );
       dwelling.dwlEntGlobalID ??= attributeCubit.currentEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,

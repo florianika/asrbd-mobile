@@ -36,6 +36,8 @@ class LocalizedEn {
         'Are you sure you want to finish reviewing this building?',
     Keys.manageDwellings: 'Manage Dwellings',
     Keys.validateData: 'Validate Data',
+    Keys.validateDataUntestedData:
+        'Validation cannot be performed. The data is untested (BldQuality != 9).',
     Keys.startReviewing: 'Start Reviewing',
     Keys.finishReviewing: 'Finish Reviewing',
     Keys.legend: 'Legend',
@@ -48,7 +50,7 @@ class LocalizedEn {
     Keys.successGeneral: "All changes were applied successfully.",
     Keys.finishValidateWarning:
         "Please verify the structural components of the building.",
-        Keys.finishValidateSuccess:
+    Keys.finishValidateSuccess:
         "Validation completed successfully. The building’s component elements do not require further checks.",
     Keys.invalidShape: "The drawn shape is not valid. Please try again.",
     Keys.successAddBuilding: "Building was successfully added.",
@@ -63,5 +65,10 @@ class LocalizedEn {
     Keys.intersectionDetected: "Intersection detected",
     Keys.intersectionMessage:
         "Selected building has an intersection with another one. Do you want to continue and save it?",
+    Keys.fieldWorkNotOpened: "Field work not started yet.",
+    Keys.blReviewWarning:
+        "The selected building does not require review or has a reopened review (BldReview != 6 && BldReview != 5).",
+    Keys.blReviewNoPending:
+        "The selected building does not have the review status pending. (BldReview = 4)"
   };
 }

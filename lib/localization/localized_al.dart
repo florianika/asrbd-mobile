@@ -32,6 +32,8 @@ class LocalizedAl {
         'Jeni i sigurt që doni të përfundoni rishikimin e kësaj ndërtese?',
     Keys.manageDwellings: 'Menaxho Banesat',
     Keys.validateData: 'Valido të Dhënat',
+    Keys.validateDataUntestedData:
+        'Validimi nuk mund te kryhet. Te dhenat jane te pa testuara (BldQuality != 9).',
     Keys.startReviewing: 'Fillo Rishikimin',
     Keys.finishReviewing: 'Përfundo Rishikimin',
     Keys.finishReviewingSuccess: 'Mbyllja e rishikimit perfundoi me sukses',
@@ -60,5 +62,8 @@ class LocalizedAl {
     Keys.intersectionDetected: "Mbivendosje ndertesash",
     Keys.intersectionMessage:
         "Ndertesa e zgjedhur ka mbivendosje me nje ndertese tjeter. Doni te vijoni me ruajtjen?",
+    Keys.fieldWorkNotOpened: "Puna ne terrent nuk eshte nisur.",
+    Keys.blReviewWarning :"Per ndertesen e zgjedhur nuk kerkohet rishikim ose ka nje rishikim te rihapur (BldReview != 6 && BldReview!=5).",
+    Keys.blReviewNoPending : "Ndertesa e zgjedhur nuk ka statusin e rishikimit ne pritje. (BldReview = 4)"
   };
 }

@@ -30,6 +30,7 @@ class Keys {
   static const String finishReviewingContent = 'finishReviewingContent';
   static const String manageDwellings = 'manageDwellings';
   static const String validateData = 'validateData';
+  static const String validateDataUntestedData = 'validateDataUntestedData';
   static const String startReviewing = 'startReviewing';
   static const String finishReviewing = 'finishReviewing';
   static const String finishReviewingSuccess = 'finishReviewingSuccess';
@@ -51,4 +52,7 @@ class Keys {
   static const String invalidShape = 'invalidShape';
   static const String intersectionDetected = 'intersectionDetected';
   static const String intersectionMessage = 'intersectionMessage';
+  static const String fieldWorkNotOpened = 'fieldWorkNotOpened';
+  static const String blReviewWarning = 'blReviewWarning';
+  static const String blReviewNoPending = 'blReviewNoPending';
 }

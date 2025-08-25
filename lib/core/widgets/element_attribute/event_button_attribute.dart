@@ -1,8 +1,10 @@
 import 'package:asrdb/core/constants/default_data.dart';
+import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
@@ -50,6 +52,16 @@ class EventButtonAttribute extends StatelessWidget {
     final bldQuality = attributes['BldQuality'];
 
     Future<void> validateData() async {
+      if (bldQuality != DefaultData.untestedData) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.validateDataUntestedData,
+          type: MessageType.warning,
+        );
+
+        return;
+      }
+
       var loadingCubit = context.read<LoadingCubit>();
 
       loadingCubit.show();
@@ -66,7 +78,27 @@ class EventButtonAttribute extends StatelessWidget {
       }
     }
 
-    Future<void> startReviewing() async {
+    Future<void> startReviewing(bool isFieldworkTime) async {
+      if (!isFieldworkTime) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.fieldWorkNotOpened,
+          type: MessageType.warning,
+        );
+
+        return;
+      }
+
+      if (bldReview != DefaultData.reviewRequired &&
+          bldReview != DefaultData.reviewReopened) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.blReviewWarning,
+          type: MessageType.warning,
+        );
+        return;
+      }
+
       final confirmed = await showConfirmationDialog(
         context: context,
         title: AppLocalizations.of(context).translate(Keys.startReviewingTitle),
@@ -75,11 +107,20 @@ class EventButtonAttribute extends StatelessWidget {
       );
 
       if (confirmed && startReviewingBuilding != null) {
-         startReviewingBuilding!(globalId);
+        startReviewingBuilding!(globalId);
       }
     }
 
     Future<void> finishReviewing() async {
+      if (bldReview != DefaultData.pendingReview) {
+        NotifierService.showMessage(
+          context,
+          messageKey: Keys.blReviewNoPending,
+          type: MessageType.warning,
+        );
+        return;
+      }
+
       final confirmed = await showConfirmationDialog(
         context: context,
         title:
@@ -163,7 +204,7 @@ class EventButtonAttribute extends StatelessWidget {
                       ),
                       onTap: () => openDwelling(),
                     ),
-                  if (bldQuality == 9)
+                  if (selectedShapeType == ShapeType.polygon)
                     SpeedDialChild(
                       child: const Icon(Icons.check_circle),
                       backgroundColor: Colors.orange,
@@ -178,10 +219,7 @@ class EventButtonAttribute extends StatelessWidget {
                       ),
                       onTap: () => validateData(),
                     ),
-                  if (selectedShapeType == ShapeType.polygon &&
-                      (bldReview == DefaultData.reviewRequired ||
-                          bldReview == DefaultData.reviewReopened) &&
-                      fieldWorkStatus.isFieldworkTime)
+                  if (selectedShapeType == ShapeType.polygon)
                     SpeedDialChild(
                       child: const Icon(Icons.start),
                       backgroundColor: Colors.orange,
@@ -194,9 +232,10 @@ class EventButtonAttribute extends StatelessWidget {
                         color: Colors.black87,
                         fontSize: 14,
                       ),
-                      onTap: () => startReviewing(),
+                      onTap: () =>
+                          startReviewing(fieldWorkStatus.isFieldworkTime),
                     ),
-                  if (selectedShapeType == ShapeType.polygon && bldReview == 4)
+                  if (selectedShapeType == ShapeType.polygon)
                     SpeedDialChild(
                       child: const Icon(Icons.stop),
                       backgroundColor: Colors.orange,
