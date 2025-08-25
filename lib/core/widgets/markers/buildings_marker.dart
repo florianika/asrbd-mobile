@@ -177,8 +177,17 @@ class BuildingsMarker extends StatelessWidget {
 
   // ✅ Cached polygon creation with coordinate-aware cache key
   Polygon _getCachedPolygon(dynamic building, BuildContext context) {
-    final value =
-        attributeLegend == 'quality' ? building.bldQuality : building.bldReview;
+    int? value;
+
+    if (attributeLegend == 'quality') {
+      value = building.bldQuality;
+    } else if (attributeLegend == 'review') {
+      value = building.bldReview;
+    } else if (attributeLegend == 'status') {
+      value = building.bldStatus;
+    } else if (attributeLegend == 'centroidStatus') {
+      value = building.bldCentroidStatus;
+    }
 
     if (value == null) {
       return Polygon(points: []);
@@ -194,7 +203,7 @@ class BuildingsMarker extends StatelessWidget {
         final fillColor = (_legendService.getColorForValue(
                   LegendType.building,
                   attributeLegend,
-                  value,
+                  value!,
                 ) ??
                 Colors.black)
             .withValues(alpha: 0.5);
