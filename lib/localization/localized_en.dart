@@ -48,6 +48,8 @@ class LocalizedEn {
     Keys.successGeneral: "All changes were applied successfully.",
     Keys.finishValidateWarning:
         "Please verify the structural components of the building.",
+        Keys.finishValidateSuccess:
+        "Validation completed successfully. The building’s component elements do not require further checks.",
     Keys.invalidShape: "The drawn shape is not valid. Please try again.",
     Keys.successAddBuilding: "Building was successfully added.",
     Keys.successUpdateBuilding: "Building was successfully updated.",

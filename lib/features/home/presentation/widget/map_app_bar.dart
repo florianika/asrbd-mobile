@@ -20,7 +20,7 @@ class MapAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _MapAppBarState extends State<MapAppBar> {
   bool? _previousFieldWorkStatus;
-  bool _showBadge = false;
+  // bool _showBadge = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,35 +31,43 @@ class _MapAppBarState extends State<MapAppBar> {
         // Detect change in field work status
         if (_previousFieldWorkStatus != null &&
             _previousFieldWorkStatus != isActive) {
-          _showBadge = true;
+          // _showBadge = true;
         }
         _previousFieldWorkStatus = isActive;
 
-        final hasStatusUpdate = _showBadge;
+        // final hasStatusUpdate = _showBadge;
 
         return AppBar(
           title: BlocBuilder<AttributesCubit, AttributesState>(
             builder: (context, state) {
               return Text(
-                'ASRDB - ${widget.msg}',
+                'ASRDB ${widget.msg}',
                 style: const TextStyle(fontSize: 12),
               );
             },
           ),
           actions: [
             Badge(
-              isLabelVisible: hasStatusUpdate,
-              label: const Text('1'),
+              // isLabelVisible: hasStatusUpdate,
+              // label: const Text('1'),
               child: IconButton(
                 icon: Icon(
-                  isActive ? Icons.check_circle : Icons.cancel,
+                  fieldWorkStatus.inError
+                      ? Icons.warning
+                      : isActive
+                          ? Icons.check_circle
+                          : Icons.cancel,
                   size: 25,
-                  color: isActive ? Colors.green : Colors.red,
+                  color: fieldWorkStatus.inError
+                      ? Colors.orange
+                      : isActive
+                          ? Colors.green
+                          : Colors.red,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _showBadge = false;
-                  });
+                  // setState(() {
+                  //   _showBadge = false;
+                  // });
                   _showFieldWorkStatusModal(context, fieldWorkStatus);
                 },
               ),
@@ -127,46 +135,61 @@ class _MapAppBarState extends State<MapAppBar> {
           title: Row(
             children: [
               Icon(
-                fieldWorkStatus.isFieldworkTime
-                    ? Icons.check_circle
-                    : Icons.cancel,
-                color:
-                    fieldWorkStatus.isFieldworkTime ? Colors.green : Colors.red,
+                fieldWorkStatus.inError
+                    ? Icons.warning
+                    : fieldWorkStatus.isFieldworkTime
+                        ? Icons.check_circle
+                        : Icons.cancel,
+                color: fieldWorkStatus.inError
+                    ? Colors.orange
+                    : fieldWorkStatus.isFieldworkTime
+                        ? Colors.green
+                        : Colors.red,
+                //fieldWorkStatus.isFieldworkTime ? Colors.green : Colors.red,
               ),
               const SizedBox(width: 8),
               Text(
-                fieldWorkStatus.isFieldworkTime
-                    ? 'Field Work Active'
-                    : 'Field Work Inactive',
+                fieldWorkStatus.inError
+                    ? 'Ka ndodhur nje problem'
+                    : fieldWorkStatus.isFieldworkTime
+                        ? 'Field Work Active'
+                        : 'Field Work Inactive',
                 style: TextStyle(
-                  color: fieldWorkStatus.isFieldworkTime
-                      ? Colors.green
-                      : Colors.red,
+                  color: fieldWorkStatus.inError
+                      ? Colors.orange
+                      : fieldWorkStatus.isFieldworkTime
+                          ? Colors.green
+                          : Colors.red,
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ],
           ),
-          content: fieldWorkStatus.isFieldworkTime
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildDetailRow(
-                        'ID:', fieldWorkStatus.fieldworkId.toString()),
-                    const SizedBox(height: 8),
-                    _buildDetailRow('Status:', 'Active'),
-                    const SizedBox(height: 8),
-                    _buildDetailRow(
-                        'Started:', fieldWorkStatus.startTime ?? 'N/A'),
-                    // const SizedBox(height: 8),
-                    // _buildDetailRow('Location:', fieldWorkStatus.location ?? 'N/A'),
-                  ],
-                )
-              : const Text(
-                  'Field work is not opened yet. Please start a field work session to view details.',
+          content: fieldWorkStatus.inError
+              ? Text(
+                  fieldWorkStatus.msg!,
                   style: TextStyle(fontSize: 16),
-                ),
+                )
+              : fieldWorkStatus.isFieldworkTime
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildDetailRow(
+                            'ID:', fieldWorkStatus.fieldworkId.toString()),
+                        const SizedBox(height: 8),
+                        _buildDetailRow('Status:', 'Active'),
+                        const SizedBox(height: 8),
+                        _buildDetailRow(
+                            'Started:', fieldWorkStatus.startTime ?? 'N/A'),
+                        // const SizedBox(height: 8),
+                        // _buildDetailRow('Location:', fieldWorkStatus.location ?? 'N/A'),
+                      ],
+                    )
+                  : const Text(
+                      'Field work is not opened yet. Please start a field work session to view details.',
+                      style: TextStyle(fontSize: 16),
+                    ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

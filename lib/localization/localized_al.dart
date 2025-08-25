@@ -45,6 +45,8 @@ class LocalizedAl {
     Keys.successGeneral: "Të gjitha ndryshimet u aplikuan me sukses.",
     Keys.finishValidateWarning:
         "Ju lutem, verifikoni elementët përbërës të ndërtesës.",
+    Keys.finishValidateSuccess:
+        "Validimi perfundoi me sukses. Komponentet perberes te nderteses nuk kane nevoje per kontroll.",
     Keys.invalidShape:
         "Forma e hedhur nuk është e vlefshme. Ju lutemi, provoni përsëri.",
     Keys.successAddBuilding: "Ndertesa u shtua me sukses.",

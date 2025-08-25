@@ -2,12 +2,14 @@ class FieldWorkStatus {
   final bool isFieldworkTime;
   final String? startTime;
   final int? fieldworkId;
-  final String? msg;
+  bool inError;
+  String? msg;
 
   FieldWorkStatus({
     required this.isFieldworkTime,
     required this.startTime,
     required this.fieldworkId,
+    this.inError = false,
     this.msg,
   });
 

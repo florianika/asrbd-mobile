@@ -9,6 +9,8 @@ import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.d
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -84,9 +86,10 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                               final hasIssues = state.hasErrorOrWarning!;
                               NotifierService.showMessage(
                                 context,
-                                message: hasIssues
-                                    ? 'Errors or warnings found.'
-                                    : 'No errors or warnings found.',
+                                message: AppLocalizations.of(context).translate(
+                                    hasIssues
+                                        ? Keys.finishValidateWarning
+                                        : Keys.finishValidateSuccess),
                                 type: hasIssues
                                     ? MessageType.warning
                                     : MessageType.success,

@@ -16,6 +16,7 @@ class Keys {
   static const String startValidationSuccess = 'startValidationSuccess';
   static const String startValidationWarning = 'startValidationWarning';
   static const String finishValidateWarning = 'finishValidateWarning';
+  static const String finishValidateSuccess = 'finishValidateSuccess';
   static const String dwellingUpdated = 'dwellingUpdated';
   static const String dwellingCouldNotUpdated = 'dwellingCouldNotUpdated';
   static const String dwellingAdded = 'dwellingAdded';
