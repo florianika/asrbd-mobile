@@ -13,6 +13,7 @@ class DwellingService {
 
   final StorageService _storage = StorageService();
 
+//
   Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     try {
       String? esriToken =
@@ -22,6 +23,43 @@ class DwellingService {
 
       final response =
           await dwellingApi.getDwellings(esriToken, entranceGlobalId);
+      if (response.statusCode == 200) {
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception(
+              'Error fetching dwellings: ${mapData['error']['message']}');
+        } else {
+          final data = response.data as Map<String, dynamic>;
+          final features = data['features'] as List<dynamic>? ?? [];
+
+          final List<DwellingDto> dwellingDtos = features
+              .map((feature) => DwellingDto.fromGeoJsonFeature(
+                  feature as Map<String, dynamic>))
+              .toList();
+
+          final dwellingEntities =
+              dwellingDtos.map((dto) => dto.toEntity()).toList();
+
+          return dwellingEntities;
+        }
+      } else {
+        throw Exception('Get dwellings error');
+      }
+    } catch (e) {
+      throw Exception('Get dwellings: $e');
+    }
+  }
+
+  Future<List<DwellingEntity>> getDwellingsByEntrancesList(
+      List<String> entranceGlobalIds) async {
+    try {
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
+
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response = await dwellingApi.getDwellingsFromEntrancesList(
+          esriToken, entranceGlobalIds);
       if (response.statusCode == 200) {
         var mapData = response.data as Map<String, dynamic>;
         if (mapData.keys.contains('error')) {

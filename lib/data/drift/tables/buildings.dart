@@ -3,113 +3,142 @@ import 'package:drift/drift.dart';
 
 class Buildings extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get objectId => integer()();
 
-  late final downloadId = integer().references(Downloads, #id)();
+  IntColumn get objectId => integer().named('objectid')();
 
-  TextColumn get globalId => text().withLength(min: 1, max: 38)();
+  IntColumn get downloadId =>
+      integer().named('downloadid').references(Downloads, #id)();
+
+  TextColumn get globalId =>
+      text().named('globalid').withLength(min: 1, max: 38)();
 
   TextColumn get bldAddressID =>
-      text().nullable().withLength(min: 1, max: 38)();
+      text().named('bldaddressid').nullable().withLength(min: 1, max: 38)();
 
   IntColumn get bldQuality =>
-      integer().nullable().withDefault(const Constant(9))();
+      integer().named('bldquality').nullable().withDefault(const Constant(9))();
 
-  IntColumn get bldMunicipality => integer().nullable()();
+  IntColumn get bldMunicipality =>
+      integer().named('bldmunicipality').nullable()();
 
-  TextColumn get bldEnumArea => text().withLength(min: 1, max: 8).nullable()();
+  TextColumn get bldEnumArea =>
+      text().named('bldenumarea').withLength(min: 1, max: 8).nullable()();
 
-  RealColumn get bldLatitude => real().nullable()();
+  RealColumn get bldLatitude => real().named('bldlatitude').nullable()();
 
-  RealColumn get bldLongitude => real().nullable()();
+  RealColumn get bldLongitude => real().named('bldlongitude').nullable()();
 
-  IntColumn get bldCadastralZone => integer().nullable()();
+  IntColumn get bldCadastralZone =>
+      integer().named('bldcadastralzone').nullable()();
 
   TextColumn get bldProperty =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().named('bldproperty').withLength(min: 1, max: 255).nullable()();
 
   TextColumn get bldPermitNumber =>
-      text().withLength(min: 1, max: 25).nullable()();
+      text().named('bldpermitnumber').withLength(min: 1, max: 25).nullable()();
 
-  DateTimeColumn get bldPermitDate => dateTime().nullable()();
+  DateTimeColumn get bldPermitDate =>
+      dateTime().named('bldpermitdate').nullable()();
 
   IntColumn get bldStatus =>
-      integer().nullable().withDefault(const Constant(4))();
+      integer().named('bldstatus').nullable().withDefault(const Constant(4))();
 
-  IntColumn get bldYearConstruction => integer().nullable()();
+  IntColumn get bldYearConstruction =>
+      integer().named('bldyearconstruction').nullable()();
 
-  IntColumn get bldYearDemolition => integer().nullable()();
+  IntColumn get bldYearDemolition =>
+      integer().named('bldyeardemolition').nullable()();
 
   IntColumn get bldType =>
-      integer().nullable().withDefault(const Constant(9))();
+      integer().named('bldtype').nullable().withDefault(const Constant(9))();
 
   IntColumn get bldClass =>
-      integer().nullable().withDefault(const Constant(999))();
+      integer().named('bldclass').nullable().withDefault(const Constant(999))();
 
-  TextColumn get bldCensus2023 => text().nullable()();
+  TextColumn get bldCensus2023 => text().named('bldcensus2023').nullable()();
 
-  RealColumn get bldArea => real().nullable()();
+  RealColumn get bldArea => real().named('bldarea').nullable()();
 
-  RealColumn get shapeLength => real().nullable()();
+  RealColumn get shapeLength => real().named('shapelength').nullable()();
 
-  RealColumn get shapeArea => real().nullable()();
+  RealColumn get shapeArea => real().named('shapearea').nullable()();
 
-  IntColumn get bldFloorsAbove => integer().nullable()();
+  IntColumn get bldFloorsAbove =>
+      integer().named('bldfloorsabove').nullable()();
 
-  RealColumn get bldHeight => real().nullable()();
+  RealColumn get bldHeight => real().named('bldheight').nullable()();
 
-  RealColumn get bldVolume => real().nullable()();
+  RealColumn get bldVolume => real().named('bldvolume').nullable()();
 
-  IntColumn get bldWasteWater =>
-      integer().nullable().withDefault(const Constant(9))();
+  IntColumn get bldWasteWater => integer()
+      .named('bldwastewater')
+      .nullable()
+      .withDefault(const Constant(9))();
 
-  IntColumn get bldElectricity =>
-      integer().nullable().withDefault(const Constant(9))();
+  IntColumn get bldElectricity => integer()
+      .named('bldelectricity')
+      .nullable()
+      .withDefault(const Constant(9))();
 
-  IntColumn get bldPipedGas =>
-      integer().nullable().withDefault(const Constant(9))();
+  IntColumn get bldPipedGas => integer()
+      .named('bldpipedgas')
+      .nullable()
+      .withDefault(const Constant(9))();
 
-  IntColumn get bldElevator =>
-      integer().nullable().withDefault(const Constant(9))();
+  IntColumn get bldElevator => integer()
+      .named('bldelevator')
+      .nullable()
+      .withDefault(const Constant(9))();
 
   TextColumn get createdUser =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().named('createduser').withLength(min: 1, max: 255).nullable()();
 
-  DateTimeColumn get createdDate => dateTime().nullable()();
+  DateTimeColumn get createdDate =>
+      dateTime().named('createddate').nullable()();
 
   TextColumn get lastEditedUser =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().named('lastediteduser').withLength(min: 1, max: 255).nullable()();
 
-  DateTimeColumn get lastEditedDate => dateTime().nullable()();
+  DateTimeColumn get lastEditedDate =>
+      dateTime().named('lastediteddate').nullable()();
 
-  IntColumn get bldCentroidStatus =>
-      integer().nullable().withDefault(const Constant(1))();
+  IntColumn get bldCentroidStatus => integer()
+      .named('bldcentroidstatus')
+      .nullable()
+      .withDefault(const Constant(1))();
 
-  IntColumn get bldDwellingRecs => integer().nullable()();
+  IntColumn get bldDwellingRecs =>
+      integer().named('blddwellingrecs').nullable()();
 
-  IntColumn get bldEntranceRecs => integer().nullable()();
+  IntColumn get bldEntranceRecs =>
+      integer().named('bldentrancerecs').nullable()();
 
-  TextColumn get bldAddressId => text().withLength(min: 1, max: 6).nullable()();
+  TextColumn get bldAddressId =>
+      text().named('bldaddressid').withLength(min: 1, max: 6).nullable()();
 
   TextColumn get externalCreator =>
-      text().withLength(min: 1, max: 38).nullable()();
+      text().named('externalcreator').withLength(min: 1, max: 38).nullable()();
 
   TextColumn get externalEditor =>
-      text().withLength(min: 1, max: 38).nullable()();
+      text().named('externaleditor').withLength(min: 1, max: 38).nullable()();
 
   IntColumn get bldReview =>
-      integer().nullable().withDefault(const Constant(1))();
+      integer().named('bldreview').nullable().withDefault(const Constant(1))();
 
-  IntColumn get bldWaterSupply =>
-      integer().nullable().withDefault(const Constant(99))();
+  IntColumn get bldWaterSupply => integer()
+      .named('bldwatersupply')
+      .nullable()
+      .withDefault(const Constant(99))();
 
-  DateTimeColumn get externalCreatorDate => dateTime().nullable()();
+  DateTimeColumn get externalCreatorDate =>
+      dateTime().named('externalcreatordate').nullable()();
 
-  DateTimeColumn get externalEditorDate => dateTime().nullable()();
+  DateTimeColumn get externalEditorDate =>
+      dateTime().named('externaleditordate').nullable()();
 
   // Custom fields not in ESRI schema
   TextColumn get geometryType =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().named('geometrytype').withLength(min: 1, max: 255).nullable()();
 
-  TextColumn get coordinates => text()();
+  TextColumn get coordinates => text().named('coordinates')();
 }

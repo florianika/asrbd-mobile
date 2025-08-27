@@ -3,11 +3,16 @@ import 'package:drift/drift.dart';
 
 class Municipalities extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get objectId => integer()();
-  TextColumn get municipalityId => text()();
 
-  late final downloadId = integer().references(Downloads, #id)();
+  IntColumn get objectId => integer().named('objectid')();
 
-  TextColumn get municipalityName => text().nullable()();
-  TextColumn get coordinates => text()();
+  TextColumn get municipalityId => text().named('municipalityid')();
+
+  IntColumn get downloadId =>
+      integer().named('downloadid').references(Downloads, #id)();
+
+  TextColumn get municipalityName =>
+      text().named('municipalityname').nullable()();
+
+  TextColumn get coordinates => text().named('coordinates')();
 }

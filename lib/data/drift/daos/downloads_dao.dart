@@ -13,8 +13,8 @@ class DownloadsDao extends DatabaseAccessor<AppDatabase>
     return select(downloads).get();
   }
 
-  Future<Download> insertDownload() {
-    return into(downloads).insertReturning(const DownloadsCompanion());
+  Future<Download> insertDownload() async {
+    return await into(downloads).insertReturning(DownloadsCompanion.insert());
   }
 
   Future<void> deleteDownloads(Download download) async {

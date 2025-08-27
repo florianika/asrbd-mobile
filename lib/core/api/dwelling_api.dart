@@ -16,6 +16,12 @@ class DwellingApi {
         '${ApiEndpoints.getEsriDwellings(entranceGlobalId)}&token=$esriToken');
   }
 
+  Future<Response> getDwellingsFromEntrancesList(
+      String esriToken, List<String> entrancesGlobalId) async {
+    return await _apiClient.get(
+        '${ApiEndpoints.getEsriDwellingsByEntranceList(entrancesGlobalId)}&token=$esriToken');
+  }
+
   Future<Response> getDwellingAttributes(String esriToken) async {
     return await _apiClient.get(
         '${ApiEndpoints.esriBaseUri.toString()}/2?f=json&token=$esriToken');

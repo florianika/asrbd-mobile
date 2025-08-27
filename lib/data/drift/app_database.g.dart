@@ -22,7 +22,7 @@ class $DownloadsTable extends Downloads
       const VerificationMeta('createdDate');
   @override
   late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
-      'created_date', aliasedName, false,
+      'createddate', aliasedName, false,
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
@@ -41,11 +41,11 @@ class $DownloadsTable extends Downloads
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('created_date')) {
+    if (data.containsKey('createddate')) {
       context.handle(
           _createdDateMeta,
           createdDate.isAcceptableOrUnknown(
-              data['created_date']!, _createdDateMeta));
+              data['createddate']!, _createdDateMeta));
     }
     return context;
   }
@@ -59,7 +59,7 @@ class $DownloadsTable extends Downloads
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       createdDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date'])!,
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}createddate'])!,
     );
   }
 
@@ -77,7 +77,7 @@ class Download extends DataClass implements Insertable<Download> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['created_date'] = Variable<DateTime>(createdDate);
+    map['createddate'] = Variable<DateTime>(createdDate);
     return map;
   }
 
@@ -153,7 +153,7 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (createdDate != null) 'created_date': createdDate,
+      if (createdDate != null) 'createddate': createdDate,
     });
   }
 
@@ -171,7 +171,7 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
       map['id'] = Variable<int>(id.value);
     }
     if (createdDate.present) {
-      map['created_date'] = Variable<DateTime>(createdDate.value);
+      map['createddate'] = Variable<DateTime>(createdDate.value);
     }
     return map;
   }
@@ -192,15 +192,6 @@ class $BuildingsTable extends Buildings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $BuildingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _downloadIdMeta =
-      const VerificationMeta('downloadId');
-  @override
-  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
-      'download_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -214,13 +205,22 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('objectId');
   @override
   late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+      'objectid', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'downloadid', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
   late final GeneratedColumn<String> globalId = GeneratedColumn<String>(
-      'global_id', aliasedName, false,
+      'globalid', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
@@ -229,7 +229,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldAddressID');
   @override
   late final GeneratedColumn<String> bldAddressID = GeneratedColumn<String>(
-      'bld_address_i_d', aliasedName, true,
+      'bldaddressid', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
@@ -238,7 +238,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldQuality');
   @override
   late final GeneratedColumn<int> bldQuality = GeneratedColumn<int>(
-      'bld_quality', aliasedName, true,
+      'bldquality', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -246,13 +246,13 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldMunicipality');
   @override
   late final GeneratedColumn<int> bldMunicipality = GeneratedColumn<int>(
-      'bld_municipality', aliasedName, true,
+      'bldmunicipality', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldEnumAreaMeta =
       const VerificationMeta('bldEnumArea');
   @override
   late final GeneratedColumn<String> bldEnumArea = GeneratedColumn<String>(
-      'bld_enum_area', aliasedName, true,
+      'bldenumarea', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 8),
       type: DriftSqlType.string,
@@ -261,25 +261,25 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldLatitude');
   @override
   late final GeneratedColumn<double> bldLatitude = GeneratedColumn<double>(
-      'bld_latitude', aliasedName, true,
+      'bldlatitude', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldLongitudeMeta =
       const VerificationMeta('bldLongitude');
   @override
   late final GeneratedColumn<double> bldLongitude = GeneratedColumn<double>(
-      'bld_longitude', aliasedName, true,
+      'bldlongitude', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldCadastralZoneMeta =
       const VerificationMeta('bldCadastralZone');
   @override
   late final GeneratedColumn<int> bldCadastralZone = GeneratedColumn<int>(
-      'bld_cadastral_zone', aliasedName, true,
+      'bldcadastralzone', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldPropertyMeta =
       const VerificationMeta('bldProperty');
   @override
   late final GeneratedColumn<String> bldProperty = GeneratedColumn<String>(
-      'bld_property', aliasedName, true,
+      'bldproperty', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
@@ -288,7 +288,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldPermitNumber');
   @override
   late final GeneratedColumn<String> bldPermitNumber = GeneratedColumn<String>(
-      'bld_permit_number', aliasedName, true,
+      'bldpermitnumber', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 25),
       type: DriftSqlType.string,
@@ -297,13 +297,13 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldPermitDate');
   @override
   late final GeneratedColumn<DateTime> bldPermitDate =
-      GeneratedColumn<DateTime>('bld_permit_date', aliasedName, true,
+      GeneratedColumn<DateTime>('bldpermitdate', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _bldStatusMeta =
       const VerificationMeta('bldStatus');
   @override
   late final GeneratedColumn<int> bldStatus = GeneratedColumn<int>(
-      'bld_status', aliasedName, true,
+      'bldstatus', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(4));
@@ -311,19 +311,19 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldYearConstruction');
   @override
   late final GeneratedColumn<int> bldYearConstruction = GeneratedColumn<int>(
-      'bld_year_construction', aliasedName, true,
+      'bldyearconstruction', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldYearDemolitionMeta =
       const VerificationMeta('bldYearDemolition');
   @override
   late final GeneratedColumn<int> bldYearDemolition = GeneratedColumn<int>(
-      'bld_year_demolition', aliasedName, true,
+      'bldyeardemolition', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldTypeMeta =
       const VerificationMeta('bldType');
   @override
   late final GeneratedColumn<int> bldType = GeneratedColumn<int>(
-      'bld_type', aliasedName, true,
+      'bldtype', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -331,7 +331,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldClass');
   @override
   late final GeneratedColumn<int> bldClass = GeneratedColumn<int>(
-      'bld_class', aliasedName, true,
+      'bldclass', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(999));
@@ -339,49 +339,49 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldCensus2023');
   @override
   late final GeneratedColumn<String> bldCensus2023 = GeneratedColumn<String>(
-      'bld_census2023', aliasedName, true,
+      'bldcensus2023', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _bldAreaMeta =
       const VerificationMeta('bldArea');
   @override
   late final GeneratedColumn<double> bldArea = GeneratedColumn<double>(
-      'bld_area', aliasedName, true,
+      'bldarea', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _shapeLengthMeta =
       const VerificationMeta('shapeLength');
   @override
   late final GeneratedColumn<double> shapeLength = GeneratedColumn<double>(
-      'shape_length', aliasedName, true,
+      'shapelength', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _shapeAreaMeta =
       const VerificationMeta('shapeArea');
   @override
   late final GeneratedColumn<double> shapeArea = GeneratedColumn<double>(
-      'shape_area', aliasedName, true,
+      'shapearea', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldFloorsAboveMeta =
       const VerificationMeta('bldFloorsAbove');
   @override
   late final GeneratedColumn<int> bldFloorsAbove = GeneratedColumn<int>(
-      'bld_floors_above', aliasedName, true,
+      'bldfloorsabove', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldHeightMeta =
       const VerificationMeta('bldHeight');
   @override
   late final GeneratedColumn<double> bldHeight = GeneratedColumn<double>(
-      'bld_height', aliasedName, true,
+      'bldheight', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldVolumeMeta =
       const VerificationMeta('bldVolume');
   @override
   late final GeneratedColumn<double> bldVolume = GeneratedColumn<double>(
-      'bld_volume', aliasedName, true,
+      'bldvolume', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _bldWasteWaterMeta =
       const VerificationMeta('bldWasteWater');
   @override
   late final GeneratedColumn<int> bldWasteWater = GeneratedColumn<int>(
-      'bld_waste_water', aliasedName, true,
+      'bldwastewater', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -389,7 +389,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldElectricity');
   @override
   late final GeneratedColumn<int> bldElectricity = GeneratedColumn<int>(
-      'bld_electricity', aliasedName, true,
+      'bldelectricity', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -397,7 +397,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldPipedGas');
   @override
   late final GeneratedColumn<int> bldPipedGas = GeneratedColumn<int>(
-      'bld_piped_gas', aliasedName, true,
+      'bldpipedgas', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -405,7 +405,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldElevator');
   @override
   late final GeneratedColumn<int> bldElevator = GeneratedColumn<int>(
-      'bld_elevator', aliasedName, true,
+      'bldelevator', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -413,7 +413,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('createdUser');
   @override
   late final GeneratedColumn<String> createdUser = GeneratedColumn<String>(
-      'created_user', aliasedName, true,
+      'createduser', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
@@ -422,13 +422,13 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('createdDate');
   @override
   late final GeneratedColumn<DateTime> createdDate = GeneratedColumn<DateTime>(
-      'created_date', aliasedName, true,
+      'createddate', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _lastEditedUserMeta =
       const VerificationMeta('lastEditedUser');
   @override
   late final GeneratedColumn<String> lastEditedUser = GeneratedColumn<String>(
-      'last_edited_user', aliasedName, true,
+      'lastediteduser', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
@@ -437,13 +437,13 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('lastEditedDate');
   @override
   late final GeneratedColumn<DateTime> lastEditedDate =
-      GeneratedColumn<DateTime>('last_edited_date', aliasedName, true,
+      GeneratedColumn<DateTime>('lastediteddate', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _bldCentroidStatusMeta =
       const VerificationMeta('bldCentroidStatus');
   @override
   late final GeneratedColumn<int> bldCentroidStatus = GeneratedColumn<int>(
-      'bld_centroid_status', aliasedName, true,
+      'bldcentroidstatus', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(1));
@@ -451,19 +451,19 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldDwellingRecs');
   @override
   late final GeneratedColumn<int> bldDwellingRecs = GeneratedColumn<int>(
-      'bld_dwelling_recs', aliasedName, true,
+      'blddwellingrecs', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldEntranceRecsMeta =
       const VerificationMeta('bldEntranceRecs');
   @override
   late final GeneratedColumn<int> bldEntranceRecs = GeneratedColumn<int>(
-      'bld_entrance_recs', aliasedName, true,
+      'bldentrancerecs', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _bldAddressIdMeta =
       const VerificationMeta('bldAddressId');
   @override
   late final GeneratedColumn<String> bldAddressId = GeneratedColumn<String>(
-      'bld_address_id', aliasedName, true,
+      'bldaddressid', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 6),
       type: DriftSqlType.string,
@@ -472,7 +472,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('externalCreator');
   @override
   late final GeneratedColumn<String> externalCreator = GeneratedColumn<String>(
-      'external_creator', aliasedName, true,
+      'externalcreator', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
@@ -481,7 +481,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('externalEditor');
   @override
   late final GeneratedColumn<String> externalEditor = GeneratedColumn<String>(
-      'external_editor', aliasedName, true,
+      'externaleditor', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
@@ -490,7 +490,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldReview');
   @override
   late final GeneratedColumn<int> bldReview = GeneratedColumn<int>(
-      'bld_review', aliasedName, true,
+      'bldreview', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(1));
@@ -498,7 +498,7 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('bldWaterSupply');
   @override
   late final GeneratedColumn<int> bldWaterSupply = GeneratedColumn<int>(
-      'bld_water_supply', aliasedName, true,
+      'bldwatersupply', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -506,19 +506,19 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('externalCreatorDate');
   @override
   late final GeneratedColumn<DateTime> externalCreatorDate =
-      GeneratedColumn<DateTime>('external_creator_date', aliasedName, true,
+      GeneratedColumn<DateTime>('externalcreatordate', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _externalEditorDateMeta =
       const VerificationMeta('externalEditorDate');
   @override
   late final GeneratedColumn<DateTime> externalEditorDate =
-      GeneratedColumn<DateTime>('external_editor_date', aliasedName, true,
+      GeneratedColumn<DateTime>('externaleditordate', aliasedName, true,
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _geometryTypeMeta =
       const VerificationMeta('geometryType');
   @override
   late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
-      'geometry_type', aliasedName, true,
+      'geometrytype', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
@@ -531,9 +531,9 @@ class $BuildingsTable extends Buildings
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-        downloadId,
         id,
         objectId,
+        downloadId,
         globalId,
         bldAddressID,
         bldQuality,
@@ -588,258 +588,258 @@ class $BuildingsTable extends Buildings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('download_id')) {
-      context.handle(
-          _downloadIdMeta,
-          downloadId.isAcceptableOrUnknown(
-              data['download_id']!, _downloadIdMeta));
-    } else if (isInserting) {
-      context.missing(_downloadIdMeta);
-    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('object_id')) {
+    if (data.containsKey('objectid')) {
       context.handle(_objectIdMeta,
-          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+          objectId.isAcceptableOrUnknown(data['objectid']!, _objectIdMeta));
     } else if (isInserting) {
       context.missing(_objectIdMeta);
     }
-    if (data.containsKey('global_id')) {
+    if (data.containsKey('downloadid')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['downloadid']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('globalid')) {
       context.handle(_globalIdMeta,
-          globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
+          globalId.isAcceptableOrUnknown(data['globalid']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
     }
-    if (data.containsKey('bld_address_i_d')) {
+    if (data.containsKey('bldaddressid')) {
       context.handle(
           _bldAddressIDMeta,
           bldAddressID.isAcceptableOrUnknown(
-              data['bld_address_i_d']!, _bldAddressIDMeta));
+              data['bldaddressid']!, _bldAddressIDMeta));
     }
-    if (data.containsKey('bld_quality')) {
+    if (data.containsKey('bldquality')) {
       context.handle(
           _bldQualityMeta,
           bldQuality.isAcceptableOrUnknown(
-              data['bld_quality']!, _bldQualityMeta));
+              data['bldquality']!, _bldQualityMeta));
     }
-    if (data.containsKey('bld_municipality')) {
+    if (data.containsKey('bldmunicipality')) {
       context.handle(
           _bldMunicipalityMeta,
           bldMunicipality.isAcceptableOrUnknown(
-              data['bld_municipality']!, _bldMunicipalityMeta));
+              data['bldmunicipality']!, _bldMunicipalityMeta));
     }
-    if (data.containsKey('bld_enum_area')) {
+    if (data.containsKey('bldenumarea')) {
       context.handle(
           _bldEnumAreaMeta,
           bldEnumArea.isAcceptableOrUnknown(
-              data['bld_enum_area']!, _bldEnumAreaMeta));
+              data['bldenumarea']!, _bldEnumAreaMeta));
     }
-    if (data.containsKey('bld_latitude')) {
+    if (data.containsKey('bldlatitude')) {
       context.handle(
           _bldLatitudeMeta,
           bldLatitude.isAcceptableOrUnknown(
-              data['bld_latitude']!, _bldLatitudeMeta));
+              data['bldlatitude']!, _bldLatitudeMeta));
     }
-    if (data.containsKey('bld_longitude')) {
+    if (data.containsKey('bldlongitude')) {
       context.handle(
           _bldLongitudeMeta,
           bldLongitude.isAcceptableOrUnknown(
-              data['bld_longitude']!, _bldLongitudeMeta));
+              data['bldlongitude']!, _bldLongitudeMeta));
     }
-    if (data.containsKey('bld_cadastral_zone')) {
+    if (data.containsKey('bldcadastralzone')) {
       context.handle(
           _bldCadastralZoneMeta,
           bldCadastralZone.isAcceptableOrUnknown(
-              data['bld_cadastral_zone']!, _bldCadastralZoneMeta));
+              data['bldcadastralzone']!, _bldCadastralZoneMeta));
     }
-    if (data.containsKey('bld_property')) {
+    if (data.containsKey('bldproperty')) {
       context.handle(
           _bldPropertyMeta,
           bldProperty.isAcceptableOrUnknown(
-              data['bld_property']!, _bldPropertyMeta));
+              data['bldproperty']!, _bldPropertyMeta));
     }
-    if (data.containsKey('bld_permit_number')) {
+    if (data.containsKey('bldpermitnumber')) {
       context.handle(
           _bldPermitNumberMeta,
           bldPermitNumber.isAcceptableOrUnknown(
-              data['bld_permit_number']!, _bldPermitNumberMeta));
+              data['bldpermitnumber']!, _bldPermitNumberMeta));
     }
-    if (data.containsKey('bld_permit_date')) {
+    if (data.containsKey('bldpermitdate')) {
       context.handle(
           _bldPermitDateMeta,
           bldPermitDate.isAcceptableOrUnknown(
-              data['bld_permit_date']!, _bldPermitDateMeta));
+              data['bldpermitdate']!, _bldPermitDateMeta));
     }
-    if (data.containsKey('bld_status')) {
+    if (data.containsKey('bldstatus')) {
       context.handle(_bldStatusMeta,
-          bldStatus.isAcceptableOrUnknown(data['bld_status']!, _bldStatusMeta));
+          bldStatus.isAcceptableOrUnknown(data['bldstatus']!, _bldStatusMeta));
     }
-    if (data.containsKey('bld_year_construction')) {
+    if (data.containsKey('bldyearconstruction')) {
       context.handle(
           _bldYearConstructionMeta,
           bldYearConstruction.isAcceptableOrUnknown(
-              data['bld_year_construction']!, _bldYearConstructionMeta));
+              data['bldyearconstruction']!, _bldYearConstructionMeta));
     }
-    if (data.containsKey('bld_year_demolition')) {
+    if (data.containsKey('bldyeardemolition')) {
       context.handle(
           _bldYearDemolitionMeta,
           bldYearDemolition.isAcceptableOrUnknown(
-              data['bld_year_demolition']!, _bldYearDemolitionMeta));
+              data['bldyeardemolition']!, _bldYearDemolitionMeta));
     }
-    if (data.containsKey('bld_type')) {
+    if (data.containsKey('bldtype')) {
       context.handle(_bldTypeMeta,
-          bldType.isAcceptableOrUnknown(data['bld_type']!, _bldTypeMeta));
+          bldType.isAcceptableOrUnknown(data['bldtype']!, _bldTypeMeta));
     }
-    if (data.containsKey('bld_class')) {
+    if (data.containsKey('bldclass')) {
       context.handle(_bldClassMeta,
-          bldClass.isAcceptableOrUnknown(data['bld_class']!, _bldClassMeta));
+          bldClass.isAcceptableOrUnknown(data['bldclass']!, _bldClassMeta));
     }
-    if (data.containsKey('bld_census2023')) {
+    if (data.containsKey('bldcensus2023')) {
       context.handle(
           _bldCensus2023Meta,
           bldCensus2023.isAcceptableOrUnknown(
-              data['bld_census2023']!, _bldCensus2023Meta));
+              data['bldcensus2023']!, _bldCensus2023Meta));
     }
-    if (data.containsKey('bld_area')) {
+    if (data.containsKey('bldarea')) {
       context.handle(_bldAreaMeta,
-          bldArea.isAcceptableOrUnknown(data['bld_area']!, _bldAreaMeta));
+          bldArea.isAcceptableOrUnknown(data['bldarea']!, _bldAreaMeta));
     }
-    if (data.containsKey('shape_length')) {
+    if (data.containsKey('shapelength')) {
       context.handle(
           _shapeLengthMeta,
           shapeLength.isAcceptableOrUnknown(
-              data['shape_length']!, _shapeLengthMeta));
+              data['shapelength']!, _shapeLengthMeta));
     }
-    if (data.containsKey('shape_area')) {
+    if (data.containsKey('shapearea')) {
       context.handle(_shapeAreaMeta,
-          shapeArea.isAcceptableOrUnknown(data['shape_area']!, _shapeAreaMeta));
+          shapeArea.isAcceptableOrUnknown(data['shapearea']!, _shapeAreaMeta));
     }
-    if (data.containsKey('bld_floors_above')) {
+    if (data.containsKey('bldfloorsabove')) {
       context.handle(
           _bldFloorsAboveMeta,
           bldFloorsAbove.isAcceptableOrUnknown(
-              data['bld_floors_above']!, _bldFloorsAboveMeta));
+              data['bldfloorsabove']!, _bldFloorsAboveMeta));
     }
-    if (data.containsKey('bld_height')) {
+    if (data.containsKey('bldheight')) {
       context.handle(_bldHeightMeta,
-          bldHeight.isAcceptableOrUnknown(data['bld_height']!, _bldHeightMeta));
+          bldHeight.isAcceptableOrUnknown(data['bldheight']!, _bldHeightMeta));
     }
-    if (data.containsKey('bld_volume')) {
+    if (data.containsKey('bldvolume')) {
       context.handle(_bldVolumeMeta,
-          bldVolume.isAcceptableOrUnknown(data['bld_volume']!, _bldVolumeMeta));
+          bldVolume.isAcceptableOrUnknown(data['bldvolume']!, _bldVolumeMeta));
     }
-    if (data.containsKey('bld_waste_water')) {
+    if (data.containsKey('bldwastewater')) {
       context.handle(
           _bldWasteWaterMeta,
           bldWasteWater.isAcceptableOrUnknown(
-              data['bld_waste_water']!, _bldWasteWaterMeta));
+              data['bldwastewater']!, _bldWasteWaterMeta));
     }
-    if (data.containsKey('bld_electricity')) {
+    if (data.containsKey('bldelectricity')) {
       context.handle(
           _bldElectricityMeta,
           bldElectricity.isAcceptableOrUnknown(
-              data['bld_electricity']!, _bldElectricityMeta));
+              data['bldelectricity']!, _bldElectricityMeta));
     }
-    if (data.containsKey('bld_piped_gas')) {
+    if (data.containsKey('bldpipedgas')) {
       context.handle(
           _bldPipedGasMeta,
           bldPipedGas.isAcceptableOrUnknown(
-              data['bld_piped_gas']!, _bldPipedGasMeta));
+              data['bldpipedgas']!, _bldPipedGasMeta));
     }
-    if (data.containsKey('bld_elevator')) {
+    if (data.containsKey('bldelevator')) {
       context.handle(
           _bldElevatorMeta,
           bldElevator.isAcceptableOrUnknown(
-              data['bld_elevator']!, _bldElevatorMeta));
+              data['bldelevator']!, _bldElevatorMeta));
     }
-    if (data.containsKey('created_user')) {
+    if (data.containsKey('createduser')) {
       context.handle(
           _createdUserMeta,
           createdUser.isAcceptableOrUnknown(
-              data['created_user']!, _createdUserMeta));
+              data['createduser']!, _createdUserMeta));
     }
-    if (data.containsKey('created_date')) {
+    if (data.containsKey('createddate')) {
       context.handle(
           _createdDateMeta,
           createdDate.isAcceptableOrUnknown(
-              data['created_date']!, _createdDateMeta));
+              data['createddate']!, _createdDateMeta));
     }
-    if (data.containsKey('last_edited_user')) {
+    if (data.containsKey('lastediteduser')) {
       context.handle(
           _lastEditedUserMeta,
           lastEditedUser.isAcceptableOrUnknown(
-              data['last_edited_user']!, _lastEditedUserMeta));
+              data['lastediteduser']!, _lastEditedUserMeta));
     }
-    if (data.containsKey('last_edited_date')) {
+    if (data.containsKey('lastediteddate')) {
       context.handle(
           _lastEditedDateMeta,
           lastEditedDate.isAcceptableOrUnknown(
-              data['last_edited_date']!, _lastEditedDateMeta));
+              data['lastediteddate']!, _lastEditedDateMeta));
     }
-    if (data.containsKey('bld_centroid_status')) {
+    if (data.containsKey('bldcentroidstatus')) {
       context.handle(
           _bldCentroidStatusMeta,
           bldCentroidStatus.isAcceptableOrUnknown(
-              data['bld_centroid_status']!, _bldCentroidStatusMeta));
+              data['bldcentroidstatus']!, _bldCentroidStatusMeta));
     }
-    if (data.containsKey('bld_dwelling_recs')) {
+    if (data.containsKey('blddwellingrecs')) {
       context.handle(
           _bldDwellingRecsMeta,
           bldDwellingRecs.isAcceptableOrUnknown(
-              data['bld_dwelling_recs']!, _bldDwellingRecsMeta));
+              data['blddwellingrecs']!, _bldDwellingRecsMeta));
     }
-    if (data.containsKey('bld_entrance_recs')) {
+    if (data.containsKey('bldentrancerecs')) {
       context.handle(
           _bldEntranceRecsMeta,
           bldEntranceRecs.isAcceptableOrUnknown(
-              data['bld_entrance_recs']!, _bldEntranceRecsMeta));
+              data['bldentrancerecs']!, _bldEntranceRecsMeta));
     }
-    if (data.containsKey('bld_address_id')) {
+    if (data.containsKey('bldaddressid')) {
       context.handle(
           _bldAddressIdMeta,
           bldAddressId.isAcceptableOrUnknown(
-              data['bld_address_id']!, _bldAddressIdMeta));
+              data['bldaddressid']!, _bldAddressIdMeta));
     }
-    if (data.containsKey('external_creator')) {
+    if (data.containsKey('externalcreator')) {
       context.handle(
           _externalCreatorMeta,
           externalCreator.isAcceptableOrUnknown(
-              data['external_creator']!, _externalCreatorMeta));
+              data['externalcreator']!, _externalCreatorMeta));
     }
-    if (data.containsKey('external_editor')) {
+    if (data.containsKey('externaleditor')) {
       context.handle(
           _externalEditorMeta,
           externalEditor.isAcceptableOrUnknown(
-              data['external_editor']!, _externalEditorMeta));
+              data['externaleditor']!, _externalEditorMeta));
     }
-    if (data.containsKey('bld_review')) {
+    if (data.containsKey('bldreview')) {
       context.handle(_bldReviewMeta,
-          bldReview.isAcceptableOrUnknown(data['bld_review']!, _bldReviewMeta));
+          bldReview.isAcceptableOrUnknown(data['bldreview']!, _bldReviewMeta));
     }
-    if (data.containsKey('bld_water_supply')) {
+    if (data.containsKey('bldwatersupply')) {
       context.handle(
           _bldWaterSupplyMeta,
           bldWaterSupply.isAcceptableOrUnknown(
-              data['bld_water_supply']!, _bldWaterSupplyMeta));
+              data['bldwatersupply']!, _bldWaterSupplyMeta));
     }
-    if (data.containsKey('external_creator_date')) {
+    if (data.containsKey('externalcreatordate')) {
       context.handle(
           _externalCreatorDateMeta,
           externalCreatorDate.isAcceptableOrUnknown(
-              data['external_creator_date']!, _externalCreatorDateMeta));
+              data['externalcreatordate']!, _externalCreatorDateMeta));
     }
-    if (data.containsKey('external_editor_date')) {
+    if (data.containsKey('externaleditordate')) {
       context.handle(
           _externalEditorDateMeta,
           externalEditorDate.isAcceptableOrUnknown(
-              data['external_editor_date']!, _externalEditorDateMeta));
+              data['externaleditordate']!, _externalEditorDateMeta));
     }
-    if (data.containsKey('geometry_type')) {
+    if (data.containsKey('geometrytype')) {
       context.handle(
           _geometryTypeMeta,
           geometryType.isAcceptableOrUnknown(
-              data['geometry_type']!, _geometryTypeMeta));
+              data['geometrytype']!, _geometryTypeMeta));
     }
     if (data.containsKey('coordinates')) {
       context.handle(
@@ -858,98 +858,96 @@ class $BuildingsTable extends Buildings
   Building map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Building(
-      downloadId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}objectid'])!,
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}downloadid'])!,
       globalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}globalid'])!,
       bldAddressID: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_address_i_d']),
+          .read(DriftSqlType.string, data['${effectivePrefix}bldaddressid']),
       bldQuality: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_quality']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldquality']),
       bldMunicipality: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_municipality']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldmunicipality']),
       bldEnumArea: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_enum_area']),
+          .read(DriftSqlType.string, data['${effectivePrefix}bldenumarea']),
       bldLatitude: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}bld_latitude']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bldlatitude']),
       bldLongitude: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}bld_longitude']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bldlongitude']),
       bldCadastralZone: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_cadastral_zone']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldcadastralzone']),
       bldProperty: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_property']),
-      bldPermitNumber: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}bld_permit_number']),
-      bldPermitDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}bld_permit_date']),
+          .read(DriftSqlType.string, data['${effectivePrefix}bldproperty']),
+      bldPermitNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bldpermitnumber']),
+      bldPermitDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}bldpermitdate']),
       bldStatus: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_status']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldstatus']),
       bldYearConstruction: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}bld_year_construction']),
-      bldYearDemolition: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}bld_year_demolition']),
+          DriftSqlType.int, data['${effectivePrefix}bldyearconstruction']),
+      bldYearDemolition: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}bldyeardemolition']),
       bldType: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_type']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldtype']),
       bldClass: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_class']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldclass']),
       bldCensus2023: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_census2023']),
+          .read(DriftSqlType.string, data['${effectivePrefix}bldcensus2023']),
       bldArea: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}bld_area']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bldarea']),
       shapeLength: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}shape_length']),
+          .read(DriftSqlType.double, data['${effectivePrefix}shapelength']),
       shapeArea: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}shape_area']),
+          .read(DriftSqlType.double, data['${effectivePrefix}shapearea']),
       bldFloorsAbove: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_floors_above']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldfloorsabove']),
       bldHeight: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}bld_height']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bldheight']),
       bldVolume: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}bld_volume']),
+          .read(DriftSqlType.double, data['${effectivePrefix}bldvolume']),
       bldWasteWater: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_waste_water']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldwastewater']),
       bldElectricity: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_electricity']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldelectricity']),
       bldPipedGas: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_piped_gas']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldpipedgas']),
       bldElevator: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_elevator']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldelevator']),
       createdUser: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}created_user']),
+          .read(DriftSqlType.string, data['${effectivePrefix}createduser']),
       createdDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date']),
-      lastEditedUser: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}last_edited_user']),
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}createddate']),
+      lastEditedUser: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lastediteduser']),
       lastEditedDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_edited_date']),
-      bldCentroidStatus: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}bld_centroid_status']),
+          DriftSqlType.dateTime, data['${effectivePrefix}lastediteddate']),
+      bldCentroidStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}bldcentroidstatus']),
       bldDwellingRecs: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_dwelling_recs']),
+          .read(DriftSqlType.int, data['${effectivePrefix}blddwellingrecs']),
       bldEntranceRecs: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_entrance_recs']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldentrancerecs']),
       bldAddressId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bld_address_id']),
-      externalCreator: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}external_creator']),
+          .read(DriftSqlType.string, data['${effectivePrefix}bldaddressid']),
+      externalCreator: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}externalcreator']),
       externalEditor: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}external_editor']),
+          .read(DriftSqlType.string, data['${effectivePrefix}externaleditor']),
       bldReview: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_review']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldreview']),
       bldWaterSupply: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}bld_water_supply']),
+          .read(DriftSqlType.int, data['${effectivePrefix}bldwatersupply']),
       externalCreatorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_creator_date']),
+          DriftSqlType.dateTime, data['${effectivePrefix}externalcreatordate']),
       externalEditorDate: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime,
-          data['${effectivePrefix}external_editor_date']),
+          DriftSqlType.dateTime, data['${effectivePrefix}externaleditordate']),
       geometryType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+          .read(DriftSqlType.string, data['${effectivePrefix}geometrytype']),
       coordinates: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
@@ -962,9 +960,9 @@ class $BuildingsTable extends Buildings
 }
 
 class Building extends DataClass implements Insertable<Building> {
-  final int downloadId;
   final int id;
   final int objectId;
+  final int downloadId;
   final String globalId;
   final String? bldAddressID;
   final int? bldQuality;
@@ -1009,9 +1007,9 @@ class Building extends DataClass implements Insertable<Building> {
   final String? geometryType;
   final String coordinates;
   const Building(
-      {required this.downloadId,
-      required this.id,
+      {required this.id,
       required this.objectId,
+      required this.downloadId,
       required this.globalId,
       this.bldAddressID,
       this.bldQuality,
@@ -1058,132 +1056,132 @@ class Building extends DataClass implements Insertable<Building> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['download_id'] = Variable<int>(downloadId);
     map['id'] = Variable<int>(id);
-    map['object_id'] = Variable<int>(objectId);
-    map['global_id'] = Variable<String>(globalId);
+    map['objectid'] = Variable<int>(objectId);
+    map['downloadid'] = Variable<int>(downloadId);
+    map['globalid'] = Variable<String>(globalId);
     if (!nullToAbsent || bldAddressID != null) {
-      map['bld_address_i_d'] = Variable<String>(bldAddressID);
+      map['bldaddressid'] = Variable<String>(bldAddressID);
     }
     if (!nullToAbsent || bldQuality != null) {
-      map['bld_quality'] = Variable<int>(bldQuality);
+      map['bldquality'] = Variable<int>(bldQuality);
     }
     if (!nullToAbsent || bldMunicipality != null) {
-      map['bld_municipality'] = Variable<int>(bldMunicipality);
+      map['bldmunicipality'] = Variable<int>(bldMunicipality);
     }
     if (!nullToAbsent || bldEnumArea != null) {
-      map['bld_enum_area'] = Variable<String>(bldEnumArea);
+      map['bldenumarea'] = Variable<String>(bldEnumArea);
     }
     if (!nullToAbsent || bldLatitude != null) {
-      map['bld_latitude'] = Variable<double>(bldLatitude);
+      map['bldlatitude'] = Variable<double>(bldLatitude);
     }
     if (!nullToAbsent || bldLongitude != null) {
-      map['bld_longitude'] = Variable<double>(bldLongitude);
+      map['bldlongitude'] = Variable<double>(bldLongitude);
     }
     if (!nullToAbsent || bldCadastralZone != null) {
-      map['bld_cadastral_zone'] = Variable<int>(bldCadastralZone);
+      map['bldcadastralzone'] = Variable<int>(bldCadastralZone);
     }
     if (!nullToAbsent || bldProperty != null) {
-      map['bld_property'] = Variable<String>(bldProperty);
+      map['bldproperty'] = Variable<String>(bldProperty);
     }
     if (!nullToAbsent || bldPermitNumber != null) {
-      map['bld_permit_number'] = Variable<String>(bldPermitNumber);
+      map['bldpermitnumber'] = Variable<String>(bldPermitNumber);
     }
     if (!nullToAbsent || bldPermitDate != null) {
-      map['bld_permit_date'] = Variable<DateTime>(bldPermitDate);
+      map['bldpermitdate'] = Variable<DateTime>(bldPermitDate);
     }
     if (!nullToAbsent || bldStatus != null) {
-      map['bld_status'] = Variable<int>(bldStatus);
+      map['bldstatus'] = Variable<int>(bldStatus);
     }
     if (!nullToAbsent || bldYearConstruction != null) {
-      map['bld_year_construction'] = Variable<int>(bldYearConstruction);
+      map['bldyearconstruction'] = Variable<int>(bldYearConstruction);
     }
     if (!nullToAbsent || bldYearDemolition != null) {
-      map['bld_year_demolition'] = Variable<int>(bldYearDemolition);
+      map['bldyeardemolition'] = Variable<int>(bldYearDemolition);
     }
     if (!nullToAbsent || bldType != null) {
-      map['bld_type'] = Variable<int>(bldType);
+      map['bldtype'] = Variable<int>(bldType);
     }
     if (!nullToAbsent || bldClass != null) {
-      map['bld_class'] = Variable<int>(bldClass);
+      map['bldclass'] = Variable<int>(bldClass);
     }
     if (!nullToAbsent || bldCensus2023 != null) {
-      map['bld_census2023'] = Variable<String>(bldCensus2023);
+      map['bldcensus2023'] = Variable<String>(bldCensus2023);
     }
     if (!nullToAbsent || bldArea != null) {
-      map['bld_area'] = Variable<double>(bldArea);
+      map['bldarea'] = Variable<double>(bldArea);
     }
     if (!nullToAbsent || shapeLength != null) {
-      map['shape_length'] = Variable<double>(shapeLength);
+      map['shapelength'] = Variable<double>(shapeLength);
     }
     if (!nullToAbsent || shapeArea != null) {
-      map['shape_area'] = Variable<double>(shapeArea);
+      map['shapearea'] = Variable<double>(shapeArea);
     }
     if (!nullToAbsent || bldFloorsAbove != null) {
-      map['bld_floors_above'] = Variable<int>(bldFloorsAbove);
+      map['bldfloorsabove'] = Variable<int>(bldFloorsAbove);
     }
     if (!nullToAbsent || bldHeight != null) {
-      map['bld_height'] = Variable<double>(bldHeight);
+      map['bldheight'] = Variable<double>(bldHeight);
     }
     if (!nullToAbsent || bldVolume != null) {
-      map['bld_volume'] = Variable<double>(bldVolume);
+      map['bldvolume'] = Variable<double>(bldVolume);
     }
     if (!nullToAbsent || bldWasteWater != null) {
-      map['bld_waste_water'] = Variable<int>(bldWasteWater);
+      map['bldwastewater'] = Variable<int>(bldWasteWater);
     }
     if (!nullToAbsent || bldElectricity != null) {
-      map['bld_electricity'] = Variable<int>(bldElectricity);
+      map['bldelectricity'] = Variable<int>(bldElectricity);
     }
     if (!nullToAbsent || bldPipedGas != null) {
-      map['bld_piped_gas'] = Variable<int>(bldPipedGas);
+      map['bldpipedgas'] = Variable<int>(bldPipedGas);
     }
     if (!nullToAbsent || bldElevator != null) {
-      map['bld_elevator'] = Variable<int>(bldElevator);
+      map['bldelevator'] = Variable<int>(bldElevator);
     }
     if (!nullToAbsent || createdUser != null) {
-      map['created_user'] = Variable<String>(createdUser);
+      map['createduser'] = Variable<String>(createdUser);
     }
     if (!nullToAbsent || createdDate != null) {
-      map['created_date'] = Variable<DateTime>(createdDate);
+      map['createddate'] = Variable<DateTime>(createdDate);
     }
     if (!nullToAbsent || lastEditedUser != null) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser);
+      map['lastediteduser'] = Variable<String>(lastEditedUser);
     }
     if (!nullToAbsent || lastEditedDate != null) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate);
+      map['lastediteddate'] = Variable<DateTime>(lastEditedDate);
     }
     if (!nullToAbsent || bldCentroidStatus != null) {
-      map['bld_centroid_status'] = Variable<int>(bldCentroidStatus);
+      map['bldcentroidstatus'] = Variable<int>(bldCentroidStatus);
     }
     if (!nullToAbsent || bldDwellingRecs != null) {
-      map['bld_dwelling_recs'] = Variable<int>(bldDwellingRecs);
+      map['blddwellingrecs'] = Variable<int>(bldDwellingRecs);
     }
     if (!nullToAbsent || bldEntranceRecs != null) {
-      map['bld_entrance_recs'] = Variable<int>(bldEntranceRecs);
+      map['bldentrancerecs'] = Variable<int>(bldEntranceRecs);
     }
     if (!nullToAbsent || bldAddressId != null) {
-      map['bld_address_id'] = Variable<String>(bldAddressId);
+      map['bldaddressid'] = Variable<String>(bldAddressId);
     }
     if (!nullToAbsent || externalCreator != null) {
-      map['external_creator'] = Variable<String>(externalCreator);
+      map['externalcreator'] = Variable<String>(externalCreator);
     }
     if (!nullToAbsent || externalEditor != null) {
-      map['external_editor'] = Variable<String>(externalEditor);
+      map['externaleditor'] = Variable<String>(externalEditor);
     }
     if (!nullToAbsent || bldReview != null) {
-      map['bld_review'] = Variable<int>(bldReview);
+      map['bldreview'] = Variable<int>(bldReview);
     }
     if (!nullToAbsent || bldWaterSupply != null) {
-      map['bld_water_supply'] = Variable<int>(bldWaterSupply);
+      map['bldwatersupply'] = Variable<int>(bldWaterSupply);
     }
     if (!nullToAbsent || externalCreatorDate != null) {
-      map['external_creator_date'] = Variable<DateTime>(externalCreatorDate);
+      map['externalcreatordate'] = Variable<DateTime>(externalCreatorDate);
     }
     if (!nullToAbsent || externalEditorDate != null) {
-      map['external_editor_date'] = Variable<DateTime>(externalEditorDate);
+      map['externaleditordate'] = Variable<DateTime>(externalEditorDate);
     }
     if (!nullToAbsent || geometryType != null) {
-      map['geometry_type'] = Variable<String>(geometryType);
+      map['geometrytype'] = Variable<String>(geometryType);
     }
     map['coordinates'] = Variable<String>(coordinates);
     return map;
@@ -1191,9 +1189,9 @@ class Building extends DataClass implements Insertable<Building> {
 
   BuildingsCompanion toCompanion(bool nullToAbsent) {
     return BuildingsCompanion(
-      downloadId: Value(downloadId),
       id: Value(id),
       objectId: Value(objectId),
+      downloadId: Value(downloadId),
       globalId: Value(globalId),
       bldAddressID: bldAddressID == null && nullToAbsent
           ? const Value.absent()
@@ -1326,9 +1324,9 @@ class Building extends DataClass implements Insertable<Building> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Building(
-      downloadId: serializer.fromJson<int>(json['downloadId']),
       id: serializer.fromJson<int>(json['id']),
       objectId: serializer.fromJson<int>(json['objectId']),
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       globalId: serializer.fromJson<String>(json['globalId']),
       bldAddressID: serializer.fromJson<String?>(json['bldAddressID']),
       bldQuality: serializer.fromJson<int?>(json['bldQuality']),
@@ -1381,9 +1379,9 @@ class Building extends DataClass implements Insertable<Building> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'downloadId': serializer.toJson<int>(downloadId),
       'id': serializer.toJson<int>(id),
       'objectId': serializer.toJson<int>(objectId),
+      'downloadId': serializer.toJson<int>(downloadId),
       'globalId': serializer.toJson<String>(globalId),
       'bldAddressID': serializer.toJson<String?>(bldAddressID),
       'bldQuality': serializer.toJson<int?>(bldQuality),
@@ -1431,9 +1429,9 @@ class Building extends DataClass implements Insertable<Building> {
   }
 
   Building copyWith(
-          {int? downloadId,
-          int? id,
+          {int? id,
           int? objectId,
+          int? downloadId,
           String? globalId,
           Value<String?> bldAddressID = const Value.absent(),
           Value<int?> bldQuality = const Value.absent(),
@@ -1478,9 +1476,9 @@ class Building extends DataClass implements Insertable<Building> {
           Value<String?> geometryType = const Value.absent(),
           String? coordinates}) =>
       Building(
-        downloadId: downloadId ?? this.downloadId,
         id: id ?? this.id,
         objectId: objectId ?? this.objectId,
+        downloadId: downloadId ?? this.downloadId,
         globalId: globalId ?? this.globalId,
         bldAddressID:
             bldAddressID.present ? bldAddressID.value : this.bldAddressID,
@@ -1562,10 +1560,10 @@ class Building extends DataClass implements Insertable<Building> {
       );
   Building copyWithCompanion(BuildingsCompanion data) {
     return Building(
-      downloadId:
-          data.downloadId.present ? data.downloadId.value : this.downloadId,
       id: data.id.present ? data.id.value : this.id,
       objectId: data.objectId.present ? data.objectId.value : this.objectId,
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
       bldAddressID: data.bldAddressID.present
           ? data.bldAddressID.value
@@ -1673,9 +1671,9 @@ class Building extends DataClass implements Insertable<Building> {
   @override
   String toString() {
     return (StringBuffer('Building(')
-          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
           ..write('bldAddressID: $bldAddressID, ')
           ..write('bldQuality: $bldQuality, ')
@@ -1725,9 +1723,9 @@ class Building extends DataClass implements Insertable<Building> {
 
   @override
   int get hashCode => Object.hashAll([
-        downloadId,
         id,
         objectId,
+        downloadId,
         globalId,
         bldAddressID,
         bldQuality,
@@ -1776,9 +1774,9 @@ class Building extends DataClass implements Insertable<Building> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Building &&
-          other.downloadId == this.downloadId &&
           other.id == this.id &&
           other.objectId == this.objectId &&
+          other.downloadId == this.downloadId &&
           other.globalId == this.globalId &&
           other.bldAddressID == this.bldAddressID &&
           other.bldQuality == this.bldQuality &&
@@ -1825,9 +1823,9 @@ class Building extends DataClass implements Insertable<Building> {
 }
 
 class BuildingsCompanion extends UpdateCompanion<Building> {
-  final Value<int> downloadId;
   final Value<int> id;
   final Value<int> objectId;
+  final Value<int> downloadId;
   final Value<String> globalId;
   final Value<String?> bldAddressID;
   final Value<int?> bldQuality;
@@ -1872,9 +1870,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<String?> geometryType;
   final Value<String> coordinates;
   const BuildingsCompanion({
-    this.downloadId = const Value.absent(),
     this.id = const Value.absent(),
     this.objectId = const Value.absent(),
+    this.downloadId = const Value.absent(),
     this.globalId = const Value.absent(),
     this.bldAddressID = const Value.absent(),
     this.bldQuality = const Value.absent(),
@@ -1920,9 +1918,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.coordinates = const Value.absent(),
   });
   BuildingsCompanion.insert({
-    required int downloadId,
     this.id = const Value.absent(),
     required int objectId,
+    required int downloadId,
     required String globalId,
     this.bldAddressID = const Value.absent(),
     this.bldQuality = const Value.absent(),
@@ -1966,14 +1964,14 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.externalEditorDate = const Value.absent(),
     this.geometryType = const Value.absent(),
     required String coordinates,
-  })  : downloadId = Value(downloadId),
-        objectId = Value(objectId),
+  })  : objectId = Value(objectId),
+        downloadId = Value(downloadId),
         globalId = Value(globalId),
         coordinates = Value(coordinates);
   static Insertable<Building> custom({
-    Expression<int>? downloadId,
     Expression<int>? id,
     Expression<int>? objectId,
+    Expression<int>? downloadId,
     Expression<String>? globalId,
     Expression<String>? bldAddressID,
     Expression<int>? bldQuality,
@@ -2019,62 +2017,61 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
-      if (downloadId != null) 'download_id': downloadId,
       if (id != null) 'id': id,
-      if (objectId != null) 'object_id': objectId,
-      if (globalId != null) 'global_id': globalId,
-      if (bldAddressID != null) 'bld_address_i_d': bldAddressID,
-      if (bldQuality != null) 'bld_quality': bldQuality,
-      if (bldMunicipality != null) 'bld_municipality': bldMunicipality,
-      if (bldEnumArea != null) 'bld_enum_area': bldEnumArea,
-      if (bldLatitude != null) 'bld_latitude': bldLatitude,
-      if (bldLongitude != null) 'bld_longitude': bldLongitude,
-      if (bldCadastralZone != null) 'bld_cadastral_zone': bldCadastralZone,
-      if (bldProperty != null) 'bld_property': bldProperty,
-      if (bldPermitNumber != null) 'bld_permit_number': bldPermitNumber,
-      if (bldPermitDate != null) 'bld_permit_date': bldPermitDate,
-      if (bldStatus != null) 'bld_status': bldStatus,
+      if (objectId != null) 'objectid': objectId,
+      if (downloadId != null) 'downloadid': downloadId,
+      if (globalId != null) 'globalid': globalId,
+      if (bldAddressID != null) 'bldaddressid': bldAddressID,
+      if (bldQuality != null) 'bldquality': bldQuality,
+      if (bldMunicipality != null) 'bldmunicipality': bldMunicipality,
+      if (bldEnumArea != null) 'bldenumarea': bldEnumArea,
+      if (bldLatitude != null) 'bldlatitude': bldLatitude,
+      if (bldLongitude != null) 'bldlongitude': bldLongitude,
+      if (bldCadastralZone != null) 'bldcadastralzone': bldCadastralZone,
+      if (bldProperty != null) 'bldproperty': bldProperty,
+      if (bldPermitNumber != null) 'bldpermitnumber': bldPermitNumber,
+      if (bldPermitDate != null) 'bldpermitdate': bldPermitDate,
+      if (bldStatus != null) 'bldstatus': bldStatus,
       if (bldYearConstruction != null)
-        'bld_year_construction': bldYearConstruction,
-      if (bldYearDemolition != null) 'bld_year_demolition': bldYearDemolition,
-      if (bldType != null) 'bld_type': bldType,
-      if (bldClass != null) 'bld_class': bldClass,
-      if (bldCensus2023 != null) 'bld_census2023': bldCensus2023,
-      if (bldArea != null) 'bld_area': bldArea,
-      if (shapeLength != null) 'shape_length': shapeLength,
-      if (shapeArea != null) 'shape_area': shapeArea,
-      if (bldFloorsAbove != null) 'bld_floors_above': bldFloorsAbove,
-      if (bldHeight != null) 'bld_height': bldHeight,
-      if (bldVolume != null) 'bld_volume': bldVolume,
-      if (bldWasteWater != null) 'bld_waste_water': bldWasteWater,
-      if (bldElectricity != null) 'bld_electricity': bldElectricity,
-      if (bldPipedGas != null) 'bld_piped_gas': bldPipedGas,
-      if (bldElevator != null) 'bld_elevator': bldElevator,
-      if (createdUser != null) 'created_user': createdUser,
-      if (createdDate != null) 'created_date': createdDate,
-      if (lastEditedUser != null) 'last_edited_user': lastEditedUser,
-      if (lastEditedDate != null) 'last_edited_date': lastEditedDate,
-      if (bldCentroidStatus != null) 'bld_centroid_status': bldCentroidStatus,
-      if (bldDwellingRecs != null) 'bld_dwelling_recs': bldDwellingRecs,
-      if (bldEntranceRecs != null) 'bld_entrance_recs': bldEntranceRecs,
-      if (bldAddressId != null) 'bld_address_id': bldAddressId,
-      if (externalCreator != null) 'external_creator': externalCreator,
-      if (externalEditor != null) 'external_editor': externalEditor,
-      if (bldReview != null) 'bld_review': bldReview,
-      if (bldWaterSupply != null) 'bld_water_supply': bldWaterSupply,
+        'bldyearconstruction': bldYearConstruction,
+      if (bldYearDemolition != null) 'bldyeardemolition': bldYearDemolition,
+      if (bldType != null) 'bldtype': bldType,
+      if (bldClass != null) 'bldclass': bldClass,
+      if (bldCensus2023 != null) 'bldcensus2023': bldCensus2023,
+      if (bldArea != null) 'bldarea': bldArea,
+      if (shapeLength != null) 'shapelength': shapeLength,
+      if (shapeArea != null) 'shapearea': shapeArea,
+      if (bldFloorsAbove != null) 'bldfloorsabove': bldFloorsAbove,
+      if (bldHeight != null) 'bldheight': bldHeight,
+      if (bldVolume != null) 'bldvolume': bldVolume,
+      if (bldWasteWater != null) 'bldwastewater': bldWasteWater,
+      if (bldElectricity != null) 'bldelectricity': bldElectricity,
+      if (bldPipedGas != null) 'bldpipedgas': bldPipedGas,
+      if (bldElevator != null) 'bldelevator': bldElevator,
+      if (createdUser != null) 'createduser': createdUser,
+      if (createdDate != null) 'createddate': createdDate,
+      if (lastEditedUser != null) 'lastediteduser': lastEditedUser,
+      if (lastEditedDate != null) 'lastediteddate': lastEditedDate,
+      if (bldCentroidStatus != null) 'bldcentroidstatus': bldCentroidStatus,
+      if (bldDwellingRecs != null) 'blddwellingrecs': bldDwellingRecs,
+      if (bldEntranceRecs != null) 'bldentrancerecs': bldEntranceRecs,
+      if (bldAddressId != null) 'bldaddressid': bldAddressId,
+      if (externalCreator != null) 'externalcreator': externalCreator,
+      if (externalEditor != null) 'externaleditor': externalEditor,
+      if (bldReview != null) 'bldreview': bldReview,
+      if (bldWaterSupply != null) 'bldwatersupply': bldWaterSupply,
       if (externalCreatorDate != null)
-        'external_creator_date': externalCreatorDate,
-      if (externalEditorDate != null)
-        'external_editor_date': externalEditorDate,
-      if (geometryType != null) 'geometry_type': geometryType,
+        'externalcreatordate': externalCreatorDate,
+      if (externalEditorDate != null) 'externaleditordate': externalEditorDate,
+      if (geometryType != null) 'geometrytype': geometryType,
       if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
   BuildingsCompanion copyWith(
-      {Value<int>? downloadId,
-      Value<int>? id,
+      {Value<int>? id,
       Value<int>? objectId,
+      Value<int>? downloadId,
       Value<String>? globalId,
       Value<String?>? bldAddressID,
       Value<int?>? bldQuality,
@@ -2119,9 +2116,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<String?>? geometryType,
       Value<String>? coordinates}) {
     return BuildingsCompanion(
-      downloadId: downloadId ?? this.downloadId,
       id: id ?? this.id,
       objectId: objectId ?? this.objectId,
+      downloadId: downloadId ?? this.downloadId,
       globalId: globalId ?? this.globalId,
       bldAddressID: bldAddressID ?? this.bldAddressID,
       bldQuality: bldQuality ?? this.bldQuality,
@@ -2171,142 +2168,141 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (downloadId.present) {
-      map['download_id'] = Variable<int>(downloadId.value);
-    }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
     if (objectId.present) {
-      map['object_id'] = Variable<int>(objectId.value);
+      map['objectid'] = Variable<int>(objectId.value);
+    }
+    if (downloadId.present) {
+      map['downloadid'] = Variable<int>(downloadId.value);
     }
     if (globalId.present) {
-      map['global_id'] = Variable<String>(globalId.value);
+      map['globalid'] = Variable<String>(globalId.value);
     }
     if (bldAddressID.present) {
-      map['bld_address_i_d'] = Variable<String>(bldAddressID.value);
+      map['bldaddressid'] = Variable<String>(bldAddressID.value);
     }
     if (bldQuality.present) {
-      map['bld_quality'] = Variable<int>(bldQuality.value);
+      map['bldquality'] = Variable<int>(bldQuality.value);
     }
     if (bldMunicipality.present) {
-      map['bld_municipality'] = Variable<int>(bldMunicipality.value);
+      map['bldmunicipality'] = Variable<int>(bldMunicipality.value);
     }
     if (bldEnumArea.present) {
-      map['bld_enum_area'] = Variable<String>(bldEnumArea.value);
+      map['bldenumarea'] = Variable<String>(bldEnumArea.value);
     }
     if (bldLatitude.present) {
-      map['bld_latitude'] = Variable<double>(bldLatitude.value);
+      map['bldlatitude'] = Variable<double>(bldLatitude.value);
     }
     if (bldLongitude.present) {
-      map['bld_longitude'] = Variable<double>(bldLongitude.value);
+      map['bldlongitude'] = Variable<double>(bldLongitude.value);
     }
     if (bldCadastralZone.present) {
-      map['bld_cadastral_zone'] = Variable<int>(bldCadastralZone.value);
+      map['bldcadastralzone'] = Variable<int>(bldCadastralZone.value);
     }
     if (bldProperty.present) {
-      map['bld_property'] = Variable<String>(bldProperty.value);
+      map['bldproperty'] = Variable<String>(bldProperty.value);
     }
     if (bldPermitNumber.present) {
-      map['bld_permit_number'] = Variable<String>(bldPermitNumber.value);
+      map['bldpermitnumber'] = Variable<String>(bldPermitNumber.value);
     }
     if (bldPermitDate.present) {
-      map['bld_permit_date'] = Variable<DateTime>(bldPermitDate.value);
+      map['bldpermitdate'] = Variable<DateTime>(bldPermitDate.value);
     }
     if (bldStatus.present) {
-      map['bld_status'] = Variable<int>(bldStatus.value);
+      map['bldstatus'] = Variable<int>(bldStatus.value);
     }
     if (bldYearConstruction.present) {
-      map['bld_year_construction'] = Variable<int>(bldYearConstruction.value);
+      map['bldyearconstruction'] = Variable<int>(bldYearConstruction.value);
     }
     if (bldYearDemolition.present) {
-      map['bld_year_demolition'] = Variable<int>(bldYearDemolition.value);
+      map['bldyeardemolition'] = Variable<int>(bldYearDemolition.value);
     }
     if (bldType.present) {
-      map['bld_type'] = Variable<int>(bldType.value);
+      map['bldtype'] = Variable<int>(bldType.value);
     }
     if (bldClass.present) {
-      map['bld_class'] = Variable<int>(bldClass.value);
+      map['bldclass'] = Variable<int>(bldClass.value);
     }
     if (bldCensus2023.present) {
-      map['bld_census2023'] = Variable<String>(bldCensus2023.value);
+      map['bldcensus2023'] = Variable<String>(bldCensus2023.value);
     }
     if (bldArea.present) {
-      map['bld_area'] = Variable<double>(bldArea.value);
+      map['bldarea'] = Variable<double>(bldArea.value);
     }
     if (shapeLength.present) {
-      map['shape_length'] = Variable<double>(shapeLength.value);
+      map['shapelength'] = Variable<double>(shapeLength.value);
     }
     if (shapeArea.present) {
-      map['shape_area'] = Variable<double>(shapeArea.value);
+      map['shapearea'] = Variable<double>(shapeArea.value);
     }
     if (bldFloorsAbove.present) {
-      map['bld_floors_above'] = Variable<int>(bldFloorsAbove.value);
+      map['bldfloorsabove'] = Variable<int>(bldFloorsAbove.value);
     }
     if (bldHeight.present) {
-      map['bld_height'] = Variable<double>(bldHeight.value);
+      map['bldheight'] = Variable<double>(bldHeight.value);
     }
     if (bldVolume.present) {
-      map['bld_volume'] = Variable<double>(bldVolume.value);
+      map['bldvolume'] = Variable<double>(bldVolume.value);
     }
     if (bldWasteWater.present) {
-      map['bld_waste_water'] = Variable<int>(bldWasteWater.value);
+      map['bldwastewater'] = Variable<int>(bldWasteWater.value);
     }
     if (bldElectricity.present) {
-      map['bld_electricity'] = Variable<int>(bldElectricity.value);
+      map['bldelectricity'] = Variable<int>(bldElectricity.value);
     }
     if (bldPipedGas.present) {
-      map['bld_piped_gas'] = Variable<int>(bldPipedGas.value);
+      map['bldpipedgas'] = Variable<int>(bldPipedGas.value);
     }
     if (bldElevator.present) {
-      map['bld_elevator'] = Variable<int>(bldElevator.value);
+      map['bldelevator'] = Variable<int>(bldElevator.value);
     }
     if (createdUser.present) {
-      map['created_user'] = Variable<String>(createdUser.value);
+      map['createduser'] = Variable<String>(createdUser.value);
     }
     if (createdDate.present) {
-      map['created_date'] = Variable<DateTime>(createdDate.value);
+      map['createddate'] = Variable<DateTime>(createdDate.value);
     }
     if (lastEditedUser.present) {
-      map['last_edited_user'] = Variable<String>(lastEditedUser.value);
+      map['lastediteduser'] = Variable<String>(lastEditedUser.value);
     }
     if (lastEditedDate.present) {
-      map['last_edited_date'] = Variable<DateTime>(lastEditedDate.value);
+      map['lastediteddate'] = Variable<DateTime>(lastEditedDate.value);
     }
     if (bldCentroidStatus.present) {
-      map['bld_centroid_status'] = Variable<int>(bldCentroidStatus.value);
+      map['bldcentroidstatus'] = Variable<int>(bldCentroidStatus.value);
     }
     if (bldDwellingRecs.present) {
-      map['bld_dwelling_recs'] = Variable<int>(bldDwellingRecs.value);
+      map['blddwellingrecs'] = Variable<int>(bldDwellingRecs.value);
     }
     if (bldEntranceRecs.present) {
-      map['bld_entrance_recs'] = Variable<int>(bldEntranceRecs.value);
+      map['bldentrancerecs'] = Variable<int>(bldEntranceRecs.value);
     }
     if (bldAddressId.present) {
-      map['bld_address_id'] = Variable<String>(bldAddressId.value);
+      map['bldaddressid'] = Variable<String>(bldAddressId.value);
     }
     if (externalCreator.present) {
-      map['external_creator'] = Variable<String>(externalCreator.value);
+      map['externalcreator'] = Variable<String>(externalCreator.value);
     }
     if (externalEditor.present) {
-      map['external_editor'] = Variable<String>(externalEditor.value);
+      map['externaleditor'] = Variable<String>(externalEditor.value);
     }
     if (bldReview.present) {
-      map['bld_review'] = Variable<int>(bldReview.value);
+      map['bldreview'] = Variable<int>(bldReview.value);
     }
     if (bldWaterSupply.present) {
-      map['bld_water_supply'] = Variable<int>(bldWaterSupply.value);
+      map['bldwatersupply'] = Variable<int>(bldWaterSupply.value);
     }
     if (externalCreatorDate.present) {
-      map['external_creator_date'] =
+      map['externalcreatordate'] =
           Variable<DateTime>(externalCreatorDate.value);
     }
     if (externalEditorDate.present) {
-      map['external_editor_date'] =
-          Variable<DateTime>(externalEditorDate.value);
+      map['externaleditordate'] = Variable<DateTime>(externalEditorDate.value);
     }
     if (geometryType.present) {
-      map['geometry_type'] = Variable<String>(geometryType.value);
+      map['geometrytype'] = Variable<String>(geometryType.value);
     }
     if (coordinates.present) {
       map['coordinates'] = Variable<String>(coordinates.value);
@@ -2317,9 +2313,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   @override
   String toString() {
     return (StringBuffer('BuildingsCompanion(')
-          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
           ..write('bldAddressID: $bldAddressID, ')
           ..write('bldQuality: $bldQuality, ')
@@ -2374,26 +2370,6 @@ class $EntrancesTable extends Entrances
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $EntrancesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _downloadIdMeta =
-      const VerificationMeta('downloadId');
-  @override
-  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
-      'download_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
-  static const VerificationMeta _entBldGlobalIdMeta =
-      const VerificationMeta('entBldGlobalId');
-  @override
-  late final GeneratedColumn<String> entBldGlobalId = GeneratedColumn<String>(
-      'ent_bld_global_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES buildings (global_id)'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -2403,20 +2379,40 @@ class $EntrancesTable extends Entrances
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'downloadid', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
   late final GeneratedColumn<String> globalId = GeneratedColumn<String>(
-      'global_id', aliasedName, false,
+      'globalid', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _entBldGlobalIdMeta =
+      const VerificationMeta('entBldGlobalId');
+  @override
+  late final GeneratedColumn<String> entBldGlobalId = GeneratedColumn<String>(
+      'entbldglobalid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES buildings (globalid)'));
   static const VerificationMeta _entAddressIdMeta =
       const VerificationMeta('entAddressId');
   @override
   late final GeneratedColumn<String> entAddressId = GeneratedColumn<String>(
-      'ent_address_id', aliasedName, true,
+      'entaddressid', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 10),
       type: DriftSqlType.string,
@@ -2425,7 +2421,7 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entQuality');
   @override
   late final GeneratedColumn<int> entQuality = GeneratedColumn<int>(
-      'ent_quality', aliasedName, false,
+      'entquality', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -2433,19 +2429,19 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entLatitude');
   @override
   late final GeneratedColumn<double> entLatitude = GeneratedColumn<double>(
-      'ent_latitude', aliasedName, false,
+      'entlatitude', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _entLongitudeMeta =
       const VerificationMeta('entLongitude');
   @override
   late final GeneratedColumn<double> entLongitude = GeneratedColumn<double>(
-      'ent_longitude', aliasedName, false,
+      'entlongitude', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _entPointStatusMeta =
       const VerificationMeta('entPointStatus');
   @override
   late final GeneratedColumn<int> entPointStatus = GeneratedColumn<int>(
-      'ent_point_status', aliasedName, false,
+      'entpointstatus', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(1));
@@ -2453,7 +2449,7 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entStrGlobalId');
   @override
   late final GeneratedColumn<String> entStrGlobalId = GeneratedColumn<String>(
-      'ent_str_global_id', aliasedName, true,
+      'entstrglobalid', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
@@ -2462,7 +2458,7 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entBuildingNumber');
   @override
   late final GeneratedColumn<String> entBuildingNumber =
-      GeneratedColumn<String>('ent_building_number', aliasedName, true,
+      GeneratedColumn<String>('entbuildingnumber', aliasedName, true,
           additionalChecks: GeneratedColumn.checkTextLength(
               minTextLength: 1, maxTextLength: 5),
           type: DriftSqlType.string,
@@ -2471,7 +2467,7 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entEntranceNumber');
   @override
   late final GeneratedColumn<String> entEntranceNumber =
-      GeneratedColumn<String>('ent_entrance_number', aliasedName, true,
+      GeneratedColumn<String>('ententrancenumber', aliasedName, true,
           additionalChecks: GeneratedColumn.checkTextLength(
               minTextLength: 1, maxTextLength: 4),
           type: DriftSqlType.string,
@@ -2480,31 +2476,31 @@ class $EntrancesTable extends Entrances
       const VerificationMeta('entTown');
   @override
   late final GeneratedColumn<int> entTown = GeneratedColumn<int>(
-      'ent_town', aliasedName, true,
+      'enttown', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _entZipCodeMeta =
       const VerificationMeta('entZipCode');
   @override
   late final GeneratedColumn<int> entZipCode = GeneratedColumn<int>(
-      'ent_zip_code', aliasedName, true,
+      'entzpcode', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _entDwellingRecsMeta =
       const VerificationMeta('entDwellingRecs');
   @override
   late final GeneratedColumn<int> entDwellingRecs = GeneratedColumn<int>(
-      'ent_dwelling_recs', aliasedName, true,
+      'entdwellingrecs', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _entDwellingExpecMeta =
       const VerificationMeta('entDwellingExpec');
   @override
   late final GeneratedColumn<int> entDwellingExpec = GeneratedColumn<int>(
-      'ent_dwelling_expec', aliasedName, true,
+      'entdwellingexpec', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _geometryTypeMeta =
       const VerificationMeta('geometryType');
   @override
   late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
-      'geometry_type', aliasedName, true,
+      'geometrytype', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
@@ -2517,10 +2513,10 @@ class $EntrancesTable extends Entrances
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-        downloadId,
-        entBldGlobalId,
         id,
+        downloadId,
         globalId,
+        entBldGlobalId,
         entAddressId,
         entQuality,
         entLatitude,
@@ -2546,110 +2542,110 @@ class $EntrancesTable extends Entrances
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('download_id')) {
-      context.handle(
-          _downloadIdMeta,
-          downloadId.isAcceptableOrUnknown(
-              data['download_id']!, _downloadIdMeta));
-    } else if (isInserting) {
-      context.missing(_downloadIdMeta);
-    }
-    if (data.containsKey('ent_bld_global_id')) {
-      context.handle(
-          _entBldGlobalIdMeta,
-          entBldGlobalId.isAcceptableOrUnknown(
-              data['ent_bld_global_id']!, _entBldGlobalIdMeta));
-    } else if (isInserting) {
-      context.missing(_entBldGlobalIdMeta);
-    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('global_id')) {
+    if (data.containsKey('downloadid')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['downloadid']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('globalid')) {
       context.handle(_globalIdMeta,
-          globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
+          globalId.isAcceptableOrUnknown(data['globalid']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
     }
-    if (data.containsKey('ent_address_id')) {
+    if (data.containsKey('entbldglobalid')) {
+      context.handle(
+          _entBldGlobalIdMeta,
+          entBldGlobalId.isAcceptableOrUnknown(
+              data['entbldglobalid']!, _entBldGlobalIdMeta));
+    } else if (isInserting) {
+      context.missing(_entBldGlobalIdMeta);
+    }
+    if (data.containsKey('entaddressid')) {
       context.handle(
           _entAddressIdMeta,
           entAddressId.isAcceptableOrUnknown(
-              data['ent_address_id']!, _entAddressIdMeta));
+              data['entaddressid']!, _entAddressIdMeta));
     }
-    if (data.containsKey('ent_quality')) {
+    if (data.containsKey('entquality')) {
       context.handle(
           _entQualityMeta,
           entQuality.isAcceptableOrUnknown(
-              data['ent_quality']!, _entQualityMeta));
+              data['entquality']!, _entQualityMeta));
     }
-    if (data.containsKey('ent_latitude')) {
+    if (data.containsKey('entlatitude')) {
       context.handle(
           _entLatitudeMeta,
           entLatitude.isAcceptableOrUnknown(
-              data['ent_latitude']!, _entLatitudeMeta));
+              data['entlatitude']!, _entLatitudeMeta));
     } else if (isInserting) {
       context.missing(_entLatitudeMeta);
     }
-    if (data.containsKey('ent_longitude')) {
+    if (data.containsKey('entlongitude')) {
       context.handle(
           _entLongitudeMeta,
           entLongitude.isAcceptableOrUnknown(
-              data['ent_longitude']!, _entLongitudeMeta));
+              data['entlongitude']!, _entLongitudeMeta));
     } else if (isInserting) {
       context.missing(_entLongitudeMeta);
     }
-    if (data.containsKey('ent_point_status')) {
+    if (data.containsKey('entpointstatus')) {
       context.handle(
           _entPointStatusMeta,
           entPointStatus.isAcceptableOrUnknown(
-              data['ent_point_status']!, _entPointStatusMeta));
+              data['entpointstatus']!, _entPointStatusMeta));
     }
-    if (data.containsKey('ent_str_global_id')) {
+    if (data.containsKey('entstrglobalid')) {
       context.handle(
           _entStrGlobalIdMeta,
           entStrGlobalId.isAcceptableOrUnknown(
-              data['ent_str_global_id']!, _entStrGlobalIdMeta));
+              data['entstrglobalid']!, _entStrGlobalIdMeta));
     }
-    if (data.containsKey('ent_building_number')) {
+    if (data.containsKey('entbuildingnumber')) {
       context.handle(
           _entBuildingNumberMeta,
           entBuildingNumber.isAcceptableOrUnknown(
-              data['ent_building_number']!, _entBuildingNumberMeta));
+              data['entbuildingnumber']!, _entBuildingNumberMeta));
     }
-    if (data.containsKey('ent_entrance_number')) {
+    if (data.containsKey('ententrancenumber')) {
       context.handle(
           _entEntranceNumberMeta,
           entEntranceNumber.isAcceptableOrUnknown(
-              data['ent_entrance_number']!, _entEntranceNumberMeta));
+              data['ententrancenumber']!, _entEntranceNumberMeta));
     }
-    if (data.containsKey('ent_town')) {
+    if (data.containsKey('enttown')) {
       context.handle(_entTownMeta,
-          entTown.isAcceptableOrUnknown(data['ent_town']!, _entTownMeta));
+          entTown.isAcceptableOrUnknown(data['enttown']!, _entTownMeta));
     }
-    if (data.containsKey('ent_zip_code')) {
+    if (data.containsKey('entzpcode')) {
       context.handle(
           _entZipCodeMeta,
           entZipCode.isAcceptableOrUnknown(
-              data['ent_zip_code']!, _entZipCodeMeta));
+              data['entzpcode']!, _entZipCodeMeta));
     }
-    if (data.containsKey('ent_dwelling_recs')) {
+    if (data.containsKey('entdwellingrecs')) {
       context.handle(
           _entDwellingRecsMeta,
           entDwellingRecs.isAcceptableOrUnknown(
-              data['ent_dwelling_recs']!, _entDwellingRecsMeta));
+              data['entdwellingrecs']!, _entDwellingRecsMeta));
     }
-    if (data.containsKey('ent_dwelling_expec')) {
+    if (data.containsKey('entdwellingexpec')) {
       context.handle(
           _entDwellingExpecMeta,
           entDwellingExpec.isAcceptableOrUnknown(
-              data['ent_dwelling_expec']!, _entDwellingExpecMeta));
+              data['entdwellingexpec']!, _entDwellingExpecMeta));
     }
-    if (data.containsKey('geometry_type')) {
+    if (data.containsKey('geometrytype')) {
       context.handle(
           _geometryTypeMeta,
           geometryType.isAcceptableOrUnknown(
-              data['geometry_type']!, _geometryTypeMeta));
+              data['geometrytype']!, _geometryTypeMeta));
     }
     if (data.containsKey('coordinates')) {
       context.handle(
@@ -2668,40 +2664,40 @@ class $EntrancesTable extends Entrances
   Entrance map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Entrance(
-      downloadId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
-      entBldGlobalId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}ent_bld_global_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}downloadid'])!,
       globalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}globalid'])!,
+      entBldGlobalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entbldglobalid'])!,
       entAddressId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}ent_address_id']),
+          .read(DriftSqlType.string, data['${effectivePrefix}entaddressid']),
       entQuality: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_quality'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}entquality'])!,
       entLatitude: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}ent_latitude'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}entlatitude'])!,
       entLongitude: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}ent_longitude'])!,
+          .read(DriftSqlType.double, data['${effectivePrefix}entlongitude'])!,
       entPointStatus: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_point_status'])!,
-      entStrGlobalId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}ent_str_global_id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}entpointstatus'])!,
+      entStrGlobalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entstrglobalid']),
       entBuildingNumber: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}ent_building_number']),
+          DriftSqlType.string, data['${effectivePrefix}entbuildingnumber']),
       entEntranceNumber: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}ent_entrance_number']),
+          DriftSqlType.string, data['${effectivePrefix}ententrancenumber']),
       entTown: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_town']),
+          .read(DriftSqlType.int, data['${effectivePrefix}enttown']),
       entZipCode: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_zip_code']),
+          .read(DriftSqlType.int, data['${effectivePrefix}entzpcode']),
       entDwellingRecs: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_recs']),
+          .read(DriftSqlType.int, data['${effectivePrefix}entdwellingrecs']),
       entDwellingExpec: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}ent_dwelling_expec']),
+          .read(DriftSqlType.int, data['${effectivePrefix}entdwellingexpec']),
       geometryType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+          .read(DriftSqlType.string, data['${effectivePrefix}geometrytype']),
       coordinates: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
@@ -2714,10 +2710,10 @@ class $EntrancesTable extends Entrances
 }
 
 class Entrance extends DataClass implements Insertable<Entrance> {
-  final int downloadId;
-  final String entBldGlobalId;
   final int id;
+  final int downloadId;
   final String globalId;
+  final String entBldGlobalId;
   final String? entAddressId;
   final int entQuality;
   final double entLatitude;
@@ -2733,10 +2729,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   final String? geometryType;
   final String coordinates;
   const Entrance(
-      {required this.downloadId,
-      required this.entBldGlobalId,
-      required this.id,
+      {required this.id,
+      required this.downloadId,
       required this.globalId,
+      required this.entBldGlobalId,
       this.entAddressId,
       required this.entQuality,
       required this.entLatitude,
@@ -2754,40 +2750,40 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['download_id'] = Variable<int>(downloadId);
-    map['ent_bld_global_id'] = Variable<String>(entBldGlobalId);
     map['id'] = Variable<int>(id);
-    map['global_id'] = Variable<String>(globalId);
+    map['downloadid'] = Variable<int>(downloadId);
+    map['globalid'] = Variable<String>(globalId);
+    map['entbldglobalid'] = Variable<String>(entBldGlobalId);
     if (!nullToAbsent || entAddressId != null) {
-      map['ent_address_id'] = Variable<String>(entAddressId);
+      map['entaddressid'] = Variable<String>(entAddressId);
     }
-    map['ent_quality'] = Variable<int>(entQuality);
-    map['ent_latitude'] = Variable<double>(entLatitude);
-    map['ent_longitude'] = Variable<double>(entLongitude);
-    map['ent_point_status'] = Variable<int>(entPointStatus);
+    map['entquality'] = Variable<int>(entQuality);
+    map['entlatitude'] = Variable<double>(entLatitude);
+    map['entlongitude'] = Variable<double>(entLongitude);
+    map['entpointstatus'] = Variable<int>(entPointStatus);
     if (!nullToAbsent || entStrGlobalId != null) {
-      map['ent_str_global_id'] = Variable<String>(entStrGlobalId);
+      map['entstrglobalid'] = Variable<String>(entStrGlobalId);
     }
     if (!nullToAbsent || entBuildingNumber != null) {
-      map['ent_building_number'] = Variable<String>(entBuildingNumber);
+      map['entbuildingnumber'] = Variable<String>(entBuildingNumber);
     }
     if (!nullToAbsent || entEntranceNumber != null) {
-      map['ent_entrance_number'] = Variable<String>(entEntranceNumber);
+      map['ententrancenumber'] = Variable<String>(entEntranceNumber);
     }
     if (!nullToAbsent || entTown != null) {
-      map['ent_town'] = Variable<int>(entTown);
+      map['enttown'] = Variable<int>(entTown);
     }
     if (!nullToAbsent || entZipCode != null) {
-      map['ent_zip_code'] = Variable<int>(entZipCode);
+      map['entzpcode'] = Variable<int>(entZipCode);
     }
     if (!nullToAbsent || entDwellingRecs != null) {
-      map['ent_dwelling_recs'] = Variable<int>(entDwellingRecs);
+      map['entdwellingrecs'] = Variable<int>(entDwellingRecs);
     }
     if (!nullToAbsent || entDwellingExpec != null) {
-      map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec);
+      map['entdwellingexpec'] = Variable<int>(entDwellingExpec);
     }
     if (!nullToAbsent || geometryType != null) {
-      map['geometry_type'] = Variable<String>(geometryType);
+      map['geometrytype'] = Variable<String>(geometryType);
     }
     map['coordinates'] = Variable<String>(coordinates);
     return map;
@@ -2795,10 +2791,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 
   EntrancesCompanion toCompanion(bool nullToAbsent) {
     return EntrancesCompanion(
-      downloadId: Value(downloadId),
-      entBldGlobalId: Value(entBldGlobalId),
       id: Value(id),
+      downloadId: Value(downloadId),
       globalId: Value(globalId),
+      entBldGlobalId: Value(entBldGlobalId),
       entAddressId: entAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(entAddressId),
@@ -2838,10 +2834,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Entrance(
-      downloadId: serializer.fromJson<int>(json['downloadId']),
-      entBldGlobalId: serializer.fromJson<String>(json['entBldGlobalId']),
       id: serializer.fromJson<int>(json['id']),
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       globalId: serializer.fromJson<String>(json['globalId']),
+      entBldGlobalId: serializer.fromJson<String>(json['entBldGlobalId']),
       entAddressId: serializer.fromJson<String?>(json['entAddressId']),
       entQuality: serializer.fromJson<int>(json['entQuality']),
       entLatitude: serializer.fromJson<double>(json['entLatitude']),
@@ -2864,10 +2860,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'downloadId': serializer.toJson<int>(downloadId),
-      'entBldGlobalId': serializer.toJson<String>(entBldGlobalId),
       'id': serializer.toJson<int>(id),
+      'downloadId': serializer.toJson<int>(downloadId),
       'globalId': serializer.toJson<String>(globalId),
+      'entBldGlobalId': serializer.toJson<String>(entBldGlobalId),
       'entAddressId': serializer.toJson<String?>(entAddressId),
       'entQuality': serializer.toJson<int>(entQuality),
       'entLatitude': serializer.toJson<double>(entLatitude),
@@ -2886,10 +2882,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   }
 
   Entrance copyWith(
-          {int? downloadId,
-          String? entBldGlobalId,
-          int? id,
+          {int? id,
+          int? downloadId,
           String? globalId,
+          String? entBldGlobalId,
           Value<String?> entAddressId = const Value.absent(),
           int? entQuality,
           double? entLatitude,
@@ -2905,10 +2901,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           Value<String?> geometryType = const Value.absent(),
           String? coordinates}) =>
       Entrance(
-        downloadId: downloadId ?? this.downloadId,
-        entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
         id: id ?? this.id,
+        downloadId: downloadId ?? this.downloadId,
         globalId: globalId ?? this.globalId,
+        entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
         entAddressId:
             entAddressId.present ? entAddressId.value : this.entAddressId,
         entQuality: entQuality ?? this.entQuality,
@@ -2937,13 +2933,13 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       );
   Entrance copyWithCompanion(EntrancesCompanion data) {
     return Entrance(
+      id: data.id.present ? data.id.value : this.id,
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
+      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       entBldGlobalId: data.entBldGlobalId.present
           ? data.entBldGlobalId.value
           : this.entBldGlobalId,
-      id: data.id.present ? data.id.value : this.id,
-      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       entAddressId: data.entAddressId.present
           ? data.entAddressId.value
           : this.entAddressId,
@@ -2986,10 +2982,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   @override
   String toString() {
     return (StringBuffer('Entrance(')
-          ..write('downloadId: $downloadId, ')
-          ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('id: $id, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
           ..write('entLatitude: $entLatitude, ')
@@ -3010,10 +3006,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 
   @override
   int get hashCode => Object.hash(
-      downloadId,
-      entBldGlobalId,
       id,
+      downloadId,
       globalId,
+      entBldGlobalId,
       entAddressId,
       entQuality,
       entLatitude,
@@ -3032,10 +3028,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Entrance &&
-          other.downloadId == this.downloadId &&
-          other.entBldGlobalId == this.entBldGlobalId &&
           other.id == this.id &&
+          other.downloadId == this.downloadId &&
           other.globalId == this.globalId &&
+          other.entBldGlobalId == this.entBldGlobalId &&
           other.entAddressId == this.entAddressId &&
           other.entQuality == this.entQuality &&
           other.entLatitude == this.entLatitude &&
@@ -3053,10 +3049,10 @@ class Entrance extends DataClass implements Insertable<Entrance> {
 }
 
 class EntrancesCompanion extends UpdateCompanion<Entrance> {
-  final Value<int> downloadId;
-  final Value<String> entBldGlobalId;
   final Value<int> id;
+  final Value<int> downloadId;
   final Value<String> globalId;
+  final Value<String> entBldGlobalId;
   final Value<String?> entAddressId;
   final Value<int> entQuality;
   final Value<double> entLatitude;
@@ -3072,10 +3068,10 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   final Value<String?> geometryType;
   final Value<String> coordinates;
   const EntrancesCompanion({
-    this.downloadId = const Value.absent(),
-    this.entBldGlobalId = const Value.absent(),
     this.id = const Value.absent(),
+    this.downloadId = const Value.absent(),
     this.globalId = const Value.absent(),
+    this.entBldGlobalId = const Value.absent(),
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
     this.entLatitude = const Value.absent(),
@@ -3092,10 +3088,10 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.coordinates = const Value.absent(),
   });
   EntrancesCompanion.insert({
-    required int downloadId,
-    required String entBldGlobalId,
     this.id = const Value.absent(),
+    required int downloadId,
     required String globalId,
+    required String entBldGlobalId,
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
     required double entLatitude,
@@ -3111,16 +3107,16 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.geometryType = const Value.absent(),
     required String coordinates,
   })  : downloadId = Value(downloadId),
-        entBldGlobalId = Value(entBldGlobalId),
         globalId = Value(globalId),
+        entBldGlobalId = Value(entBldGlobalId),
         entLatitude = Value(entLatitude),
         entLongitude = Value(entLongitude),
         coordinates = Value(coordinates);
   static Insertable<Entrance> custom({
-    Expression<int>? downloadId,
-    Expression<String>? entBldGlobalId,
     Expression<int>? id,
+    Expression<int>? downloadId,
     Expression<String>? globalId,
+    Expression<String>? entBldGlobalId,
     Expression<String>? entAddressId,
     Expression<int>? entQuality,
     Expression<double>? entLatitude,
@@ -3137,32 +3133,32 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
-      if (downloadId != null) 'download_id': downloadId,
-      if (entBldGlobalId != null) 'ent_bld_global_id': entBldGlobalId,
       if (id != null) 'id': id,
-      if (globalId != null) 'global_id': globalId,
-      if (entAddressId != null) 'ent_address_id': entAddressId,
-      if (entQuality != null) 'ent_quality': entQuality,
-      if (entLatitude != null) 'ent_latitude': entLatitude,
-      if (entLongitude != null) 'ent_longitude': entLongitude,
-      if (entPointStatus != null) 'ent_point_status': entPointStatus,
-      if (entStrGlobalId != null) 'ent_str_global_id': entStrGlobalId,
-      if (entBuildingNumber != null) 'ent_building_number': entBuildingNumber,
-      if (entEntranceNumber != null) 'ent_entrance_number': entEntranceNumber,
-      if (entTown != null) 'ent_town': entTown,
-      if (entZipCode != null) 'ent_zip_code': entZipCode,
-      if (entDwellingRecs != null) 'ent_dwelling_recs': entDwellingRecs,
-      if (entDwellingExpec != null) 'ent_dwelling_expec': entDwellingExpec,
-      if (geometryType != null) 'geometry_type': geometryType,
+      if (downloadId != null) 'downloadid': downloadId,
+      if (globalId != null) 'globalid': globalId,
+      if (entBldGlobalId != null) 'entbldglobalid': entBldGlobalId,
+      if (entAddressId != null) 'entaddressid': entAddressId,
+      if (entQuality != null) 'entquality': entQuality,
+      if (entLatitude != null) 'entlatitude': entLatitude,
+      if (entLongitude != null) 'entlongitude': entLongitude,
+      if (entPointStatus != null) 'entpointstatus': entPointStatus,
+      if (entStrGlobalId != null) 'entstrglobalid': entStrGlobalId,
+      if (entBuildingNumber != null) 'entbuildingnumber': entBuildingNumber,
+      if (entEntranceNumber != null) 'ententrancenumber': entEntranceNumber,
+      if (entTown != null) 'enttown': entTown,
+      if (entZipCode != null) 'entzpcode': entZipCode,
+      if (entDwellingRecs != null) 'entdwellingrecs': entDwellingRecs,
+      if (entDwellingExpec != null) 'entdwellingexpec': entDwellingExpec,
+      if (geometryType != null) 'geometrytype': geometryType,
       if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
   EntrancesCompanion copyWith(
-      {Value<int>? downloadId,
-      Value<String>? entBldGlobalId,
-      Value<int>? id,
+      {Value<int>? id,
+      Value<int>? downloadId,
       Value<String>? globalId,
+      Value<String>? entBldGlobalId,
       Value<String?>? entAddressId,
       Value<int>? entQuality,
       Value<double>? entLatitude,
@@ -3178,10 +3174,10 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       Value<String?>? geometryType,
       Value<String>? coordinates}) {
     return EntrancesCompanion(
-      downloadId: downloadId ?? this.downloadId,
-      entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
       id: id ?? this.id,
+      downloadId: downloadId ?? this.downloadId,
       globalId: globalId ?? this.globalId,
+      entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
       entAddressId: entAddressId ?? this.entAddressId,
       entQuality: entQuality ?? this.entQuality,
       entLatitude: entLatitude ?? this.entLatitude,
@@ -3202,56 +3198,56 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (downloadId.present) {
-      map['download_id'] = Variable<int>(downloadId.value);
-    }
-    if (entBldGlobalId.present) {
-      map['ent_bld_global_id'] = Variable<String>(entBldGlobalId.value);
-    }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (downloadId.present) {
+      map['downloadid'] = Variable<int>(downloadId.value);
+    }
     if (globalId.present) {
-      map['global_id'] = Variable<String>(globalId.value);
+      map['globalid'] = Variable<String>(globalId.value);
+    }
+    if (entBldGlobalId.present) {
+      map['entbldglobalid'] = Variable<String>(entBldGlobalId.value);
     }
     if (entAddressId.present) {
-      map['ent_address_id'] = Variable<String>(entAddressId.value);
+      map['entaddressid'] = Variable<String>(entAddressId.value);
     }
     if (entQuality.present) {
-      map['ent_quality'] = Variable<int>(entQuality.value);
+      map['entquality'] = Variable<int>(entQuality.value);
     }
     if (entLatitude.present) {
-      map['ent_latitude'] = Variable<double>(entLatitude.value);
+      map['entlatitude'] = Variable<double>(entLatitude.value);
     }
     if (entLongitude.present) {
-      map['ent_longitude'] = Variable<double>(entLongitude.value);
+      map['entlongitude'] = Variable<double>(entLongitude.value);
     }
     if (entPointStatus.present) {
-      map['ent_point_status'] = Variable<int>(entPointStatus.value);
+      map['entpointstatus'] = Variable<int>(entPointStatus.value);
     }
     if (entStrGlobalId.present) {
-      map['ent_str_global_id'] = Variable<String>(entStrGlobalId.value);
+      map['entstrglobalid'] = Variable<String>(entStrGlobalId.value);
     }
     if (entBuildingNumber.present) {
-      map['ent_building_number'] = Variable<String>(entBuildingNumber.value);
+      map['entbuildingnumber'] = Variable<String>(entBuildingNumber.value);
     }
     if (entEntranceNumber.present) {
-      map['ent_entrance_number'] = Variable<String>(entEntranceNumber.value);
+      map['ententrancenumber'] = Variable<String>(entEntranceNumber.value);
     }
     if (entTown.present) {
-      map['ent_town'] = Variable<int>(entTown.value);
+      map['enttown'] = Variable<int>(entTown.value);
     }
     if (entZipCode.present) {
-      map['ent_zip_code'] = Variable<int>(entZipCode.value);
+      map['entzpcode'] = Variable<int>(entZipCode.value);
     }
     if (entDwellingRecs.present) {
-      map['ent_dwelling_recs'] = Variable<int>(entDwellingRecs.value);
+      map['entdwellingrecs'] = Variable<int>(entDwellingRecs.value);
     }
     if (entDwellingExpec.present) {
-      map['ent_dwelling_expec'] = Variable<int>(entDwellingExpec.value);
+      map['entdwellingexpec'] = Variable<int>(entDwellingExpec.value);
     }
     if (geometryType.present) {
-      map['geometry_type'] = Variable<String>(geometryType.value);
+      map['geometrytype'] = Variable<String>(geometryType.value);
     }
     if (coordinates.present) {
       map['coordinates'] = Variable<String>(coordinates.value);
@@ -3262,10 +3258,10 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   @override
   String toString() {
     return (StringBuffer('EntrancesCompanion(')
-          ..write('downloadId: $downloadId, ')
-          ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('id: $id, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
           ..write('entLatitude: $entLatitude, ')
@@ -3291,26 +3287,6 @@ class $DwellingsTable extends Dwellings
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $DwellingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _downloadIdMeta =
-      const VerificationMeta('downloadId');
-  @override
-  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
-      'download_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
-  static const VerificationMeta _dwlEntGlobalIdMeta =
-      const VerificationMeta('dwlEntGlobalId');
-  @override
-  late final GeneratedColumn<String> dwlEntGlobalId = GeneratedColumn<String>(
-      'dwl_ent_global_id', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES entrances (global_id)'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -3320,20 +3296,40 @@ class $DwellingsTable extends Dwellings
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'downloadid', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
   late final GeneratedColumn<String> globalId = GeneratedColumn<String>(
-      'global_id', aliasedName, false,
+      'globalid', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _dwlEntGlobalIdMeta =
+      const VerificationMeta('dwlEntGlobalId');
+  @override
+  late final GeneratedColumn<String> dwlEntGlobalId = GeneratedColumn<String>(
+      'dwlentglobalid', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES entrances (globalid)'));
   static const VerificationMeta _dwlAddressIdMeta =
       const VerificationMeta('dwlAddressId');
   @override
   late final GeneratedColumn<String> dwlAddressId = GeneratedColumn<String>(
-      'dwl_address_id', aliasedName, true,
+      'dwladdressid', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 16),
       type: DriftSqlType.string,
@@ -3342,7 +3338,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlQuality');
   @override
   late final GeneratedColumn<int> dwlQuality = GeneratedColumn<int>(
-      'dwl_quality', aliasedName, false,
+      'dwlquality', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -3350,13 +3346,13 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlFloor');
   @override
   late final GeneratedColumn<int> dwlFloor = GeneratedColumn<int>(
-      'dwl_floor', aliasedName, true,
+      'dwlfloor', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dwlApartNumberMeta =
       const VerificationMeta('dwlApartNumber');
   @override
   late final GeneratedColumn<String> dwlApartNumber = GeneratedColumn<String>(
-      'dwl_apart_number', aliasedName, true,
+      'dwlapartnumber', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 5),
       type: DriftSqlType.string,
@@ -3365,7 +3361,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlStatus');
   @override
   late final GeneratedColumn<int> dwlStatus = GeneratedColumn<int>(
-      'dwl_status', aliasedName, false,
+      'dwlstatus', aliasedName, false,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(4));
@@ -3373,19 +3369,19 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlYearConstruction');
   @override
   late final GeneratedColumn<int> dwlYearConstruction = GeneratedColumn<int>(
-      'dwl_year_construction', aliasedName, true,
+      'dwlyearconstruction', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dwlYearEliminationMeta =
       const VerificationMeta('dwlYearElimination');
   @override
   late final GeneratedColumn<int> dwlYearElimination = GeneratedColumn<int>(
-      'dwl_year_elimination', aliasedName, true,
+      'dwlyearelimination', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dwlTypeMeta =
       const VerificationMeta('dwlType');
   @override
   late final GeneratedColumn<int> dwlType = GeneratedColumn<int>(
-      'dwl_type', aliasedName, true,
+      'dwltype', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -3393,7 +3389,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlOwnership');
   @override
   late final GeneratedColumn<int> dwlOwnership = GeneratedColumn<int>(
-      'dwl_ownership', aliasedName, true,
+      'dwlownership', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -3401,7 +3397,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlOccupancy');
   @override
   late final GeneratedColumn<int> dwlOccupancy = GeneratedColumn<int>(
-      'dwl_occupancy', aliasedName, true,
+      'dwloccupancy', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -3409,13 +3405,13 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlSurface');
   @override
   late final GeneratedColumn<int> dwlSurface = GeneratedColumn<int>(
-      'dwl_surface', aliasedName, true,
+      'dwlsurface', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dwlToiletMeta =
       const VerificationMeta('dwlToilet');
   @override
   late final GeneratedColumn<int> dwlToilet = GeneratedColumn<int>(
-      'dwl_toilet', aliasedName, true,
+      'dwltoilet', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -3423,7 +3419,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlBath');
   @override
   late final GeneratedColumn<int> dwlBath = GeneratedColumn<int>(
-      'dwl_bath', aliasedName, true,
+      'dwlbath', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -3431,7 +3427,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlHeatingFacility');
   @override
   late final GeneratedColumn<int> dwlHeatingFacility = GeneratedColumn<int>(
-      'dwl_heating_facility', aliasedName, true,
+      'dwlheatingfacility', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -3439,7 +3435,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlHeatingEnergy');
   @override
   late final GeneratedColumn<int> dwlHeatingEnergy = GeneratedColumn<int>(
-      'dwl_heating_energy', aliasedName, true,
+      'dwlheatingenergy', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(99));
@@ -3447,7 +3443,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlAirConditioner');
   @override
   late final GeneratedColumn<int> dwlAirConditioner = GeneratedColumn<int>(
-      'dwl_air_conditioner', aliasedName, true,
+      'dwlairconditioner', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -3455,7 +3451,7 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('dwlSolarPanel');
   @override
   late final GeneratedColumn<int> dwlSolarPanel = GeneratedColumn<int>(
-      'dwl_solar_panel', aliasedName, true,
+      'dwlsolarpanel', aliasedName, true,
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(9));
@@ -3463,17 +3459,17 @@ class $DwellingsTable extends Dwellings
       const VerificationMeta('geometryType');
   @override
   late final GeneratedColumn<String> geometryType = GeneratedColumn<String>(
-      'geometry_type', aliasedName, true,
+      'geometrytype', aliasedName, true,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 255),
       type: DriftSqlType.string,
       requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
-        downloadId,
-        dwlEntGlobalId,
         id,
+        downloadId,
         globalId,
+        dwlEntGlobalId,
         dwlAddressId,
         dwlQuality,
         dwlFloor,
@@ -3503,128 +3499,128 @@ class $DwellingsTable extends Dwellings
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('download_id')) {
-      context.handle(
-          _downloadIdMeta,
-          downloadId.isAcceptableOrUnknown(
-              data['download_id']!, _downloadIdMeta));
-    } else if (isInserting) {
-      context.missing(_downloadIdMeta);
-    }
-    if (data.containsKey('dwl_ent_global_id')) {
-      context.handle(
-          _dwlEntGlobalIdMeta,
-          dwlEntGlobalId.isAcceptableOrUnknown(
-              data['dwl_ent_global_id']!, _dwlEntGlobalIdMeta));
-    } else if (isInserting) {
-      context.missing(_dwlEntGlobalIdMeta);
-    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('global_id')) {
+    if (data.containsKey('downloadid')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['downloadid']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('globalid')) {
       context.handle(_globalIdMeta,
-          globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
+          globalId.isAcceptableOrUnknown(data['globalid']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
     }
-    if (data.containsKey('dwl_address_id')) {
+    if (data.containsKey('dwlentglobalid')) {
+      context.handle(
+          _dwlEntGlobalIdMeta,
+          dwlEntGlobalId.isAcceptableOrUnknown(
+              data['dwlentglobalid']!, _dwlEntGlobalIdMeta));
+    } else if (isInserting) {
+      context.missing(_dwlEntGlobalIdMeta);
+    }
+    if (data.containsKey('dwladdressid')) {
       context.handle(
           _dwlAddressIdMeta,
           dwlAddressId.isAcceptableOrUnknown(
-              data['dwl_address_id']!, _dwlAddressIdMeta));
+              data['dwladdressid']!, _dwlAddressIdMeta));
     }
-    if (data.containsKey('dwl_quality')) {
+    if (data.containsKey('dwlquality')) {
       context.handle(
           _dwlQualityMeta,
           dwlQuality.isAcceptableOrUnknown(
-              data['dwl_quality']!, _dwlQualityMeta));
+              data['dwlquality']!, _dwlQualityMeta));
     }
-    if (data.containsKey('dwl_floor')) {
+    if (data.containsKey('dwlfloor')) {
       context.handle(_dwlFloorMeta,
-          dwlFloor.isAcceptableOrUnknown(data['dwl_floor']!, _dwlFloorMeta));
+          dwlFloor.isAcceptableOrUnknown(data['dwlfloor']!, _dwlFloorMeta));
     }
-    if (data.containsKey('dwl_apart_number')) {
+    if (data.containsKey('dwlapartnumber')) {
       context.handle(
           _dwlApartNumberMeta,
           dwlApartNumber.isAcceptableOrUnknown(
-              data['dwl_apart_number']!, _dwlApartNumberMeta));
+              data['dwlapartnumber']!, _dwlApartNumberMeta));
     }
-    if (data.containsKey('dwl_status')) {
+    if (data.containsKey('dwlstatus')) {
       context.handle(_dwlStatusMeta,
-          dwlStatus.isAcceptableOrUnknown(data['dwl_status']!, _dwlStatusMeta));
+          dwlStatus.isAcceptableOrUnknown(data['dwlstatus']!, _dwlStatusMeta));
     }
-    if (data.containsKey('dwl_year_construction')) {
+    if (data.containsKey('dwlyearconstruction')) {
       context.handle(
           _dwlYearConstructionMeta,
           dwlYearConstruction.isAcceptableOrUnknown(
-              data['dwl_year_construction']!, _dwlYearConstructionMeta));
+              data['dwlyearconstruction']!, _dwlYearConstructionMeta));
     }
-    if (data.containsKey('dwl_year_elimination')) {
+    if (data.containsKey('dwlyearelimination')) {
       context.handle(
           _dwlYearEliminationMeta,
           dwlYearElimination.isAcceptableOrUnknown(
-              data['dwl_year_elimination']!, _dwlYearEliminationMeta));
+              data['dwlyearelimination']!, _dwlYearEliminationMeta));
     }
-    if (data.containsKey('dwl_type')) {
+    if (data.containsKey('dwltype')) {
       context.handle(_dwlTypeMeta,
-          dwlType.isAcceptableOrUnknown(data['dwl_type']!, _dwlTypeMeta));
+          dwlType.isAcceptableOrUnknown(data['dwltype']!, _dwlTypeMeta));
     }
-    if (data.containsKey('dwl_ownership')) {
+    if (data.containsKey('dwlownership')) {
       context.handle(
           _dwlOwnershipMeta,
           dwlOwnership.isAcceptableOrUnknown(
-              data['dwl_ownership']!, _dwlOwnershipMeta));
+              data['dwlownership']!, _dwlOwnershipMeta));
     }
-    if (data.containsKey('dwl_occupancy')) {
+    if (data.containsKey('dwloccupancy')) {
       context.handle(
           _dwlOccupancyMeta,
           dwlOccupancy.isAcceptableOrUnknown(
-              data['dwl_occupancy']!, _dwlOccupancyMeta));
+              data['dwloccupancy']!, _dwlOccupancyMeta));
     }
-    if (data.containsKey('dwl_surface')) {
+    if (data.containsKey('dwlsurface')) {
       context.handle(
           _dwlSurfaceMeta,
           dwlSurface.isAcceptableOrUnknown(
-              data['dwl_surface']!, _dwlSurfaceMeta));
+              data['dwlsurface']!, _dwlSurfaceMeta));
     }
-    if (data.containsKey('dwl_toilet')) {
+    if (data.containsKey('dwltoilet')) {
       context.handle(_dwlToiletMeta,
-          dwlToilet.isAcceptableOrUnknown(data['dwl_toilet']!, _dwlToiletMeta));
+          dwlToilet.isAcceptableOrUnknown(data['dwltoilet']!, _dwlToiletMeta));
     }
-    if (data.containsKey('dwl_bath')) {
+    if (data.containsKey('dwlbath')) {
       context.handle(_dwlBathMeta,
-          dwlBath.isAcceptableOrUnknown(data['dwl_bath']!, _dwlBathMeta));
+          dwlBath.isAcceptableOrUnknown(data['dwlbath']!, _dwlBathMeta));
     }
-    if (data.containsKey('dwl_heating_facility')) {
+    if (data.containsKey('dwlheatingfacility')) {
       context.handle(
           _dwlHeatingFacilityMeta,
           dwlHeatingFacility.isAcceptableOrUnknown(
-              data['dwl_heating_facility']!, _dwlHeatingFacilityMeta));
+              data['dwlheatingfacility']!, _dwlHeatingFacilityMeta));
     }
-    if (data.containsKey('dwl_heating_energy')) {
+    if (data.containsKey('dwlheatingenergy')) {
       context.handle(
           _dwlHeatingEnergyMeta,
           dwlHeatingEnergy.isAcceptableOrUnknown(
-              data['dwl_heating_energy']!, _dwlHeatingEnergyMeta));
+              data['dwlheatingenergy']!, _dwlHeatingEnergyMeta));
     }
-    if (data.containsKey('dwl_air_conditioner')) {
+    if (data.containsKey('dwlairconditioner')) {
       context.handle(
           _dwlAirConditionerMeta,
           dwlAirConditioner.isAcceptableOrUnknown(
-              data['dwl_air_conditioner']!, _dwlAirConditionerMeta));
+              data['dwlairconditioner']!, _dwlAirConditionerMeta));
     }
-    if (data.containsKey('dwl_solar_panel')) {
+    if (data.containsKey('dwlsolarpanel')) {
       context.handle(
           _dwlSolarPanelMeta,
           dwlSolarPanel.isAcceptableOrUnknown(
-              data['dwl_solar_panel']!, _dwlSolarPanelMeta));
+              data['dwlsolarpanel']!, _dwlSolarPanelMeta));
     }
-    if (data.containsKey('geometry_type')) {
+    if (data.containsKey('geometrytype')) {
       context.handle(
           _geometryTypeMeta,
           geometryType.isAcceptableOrUnknown(
-              data['geometry_type']!, _geometryTypeMeta));
+              data['geometrytype']!, _geometryTypeMeta));
     }
     return context;
   }
@@ -3635,50 +3631,50 @@ class $DwellingsTable extends Dwellings
   Dwelling map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Dwelling(
-      downloadId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
-      dwlEntGlobalId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}dwl_ent_global_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}downloadid'])!,
       globalId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}globalid'])!,
+      dwlEntGlobalId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dwlentglobalid'])!,
       dwlAddressId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}dwl_address_id']),
+          .read(DriftSqlType.string, data['${effectivePrefix}dwladdressid']),
       dwlQuality: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_quality'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlquality'])!,
       dwlFloor: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_floor']),
-      dwlApartNumber: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}dwl_apart_number']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlfloor']),
+      dwlApartNumber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}dwlapartnumber']),
       dwlStatus: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_status'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlstatus'])!,
       dwlYearConstruction: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}dwl_year_construction']),
-      dwlYearElimination: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}dwl_year_elimination']),
+          DriftSqlType.int, data['${effectivePrefix}dwlyearconstruction']),
+      dwlYearElimination: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlyearelimination']),
       dwlType: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_type']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwltype']),
       dwlOwnership: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_ownership']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlownership']),
       dwlOccupancy: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_occupancy']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwloccupancy']),
       dwlSurface: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_surface']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlsurface']),
       dwlToilet: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_toilet']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwltoilet']),
       dwlBath: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_bath']),
-      dwlHeatingFacility: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}dwl_heating_facility']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlbath']),
+      dwlHeatingFacility: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlheatingfacility']),
       dwlHeatingEnergy: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_heating_energy']),
-      dwlAirConditioner: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}dwl_air_conditioner']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlheatingenergy']),
+      dwlAirConditioner: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlairconditioner']),
       dwlSolarPanel: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}dwl_solar_panel']),
+          .read(DriftSqlType.int, data['${effectivePrefix}dwlsolarpanel']),
       geometryType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}geometry_type']),
+          .read(DriftSqlType.string, data['${effectivePrefix}geometrytype']),
     );
   }
 
@@ -3689,10 +3685,10 @@ class $DwellingsTable extends Dwellings
 }
 
 class Dwelling extends DataClass implements Insertable<Dwelling> {
-  final int downloadId;
-  final String dwlEntGlobalId;
   final int id;
+  final int downloadId;
   final String globalId;
+  final String dwlEntGlobalId;
   final String? dwlAddressId;
   final int dwlQuality;
   final int? dwlFloor;
@@ -3712,10 +3708,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int? dwlSolarPanel;
   final String? geometryType;
   const Dwelling(
-      {required this.downloadId,
-      required this.dwlEntGlobalId,
-      required this.id,
+      {required this.id,
+      required this.downloadId,
       required this.globalId,
+      required this.dwlEntGlobalId,
       this.dwlAddressId,
       required this.dwlQuality,
       this.dwlFloor,
@@ -3737,69 +3733,69 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['download_id'] = Variable<int>(downloadId);
-    map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId);
     map['id'] = Variable<int>(id);
-    map['global_id'] = Variable<String>(globalId);
+    map['downloadid'] = Variable<int>(downloadId);
+    map['globalid'] = Variable<String>(globalId);
+    map['dwlentglobalid'] = Variable<String>(dwlEntGlobalId);
     if (!nullToAbsent || dwlAddressId != null) {
-      map['dwl_address_id'] = Variable<String>(dwlAddressId);
+      map['dwladdressid'] = Variable<String>(dwlAddressId);
     }
-    map['dwl_quality'] = Variable<int>(dwlQuality);
+    map['dwlquality'] = Variable<int>(dwlQuality);
     if (!nullToAbsent || dwlFloor != null) {
-      map['dwl_floor'] = Variable<int>(dwlFloor);
+      map['dwlfloor'] = Variable<int>(dwlFloor);
     }
     if (!nullToAbsent || dwlApartNumber != null) {
-      map['dwl_apart_number'] = Variable<String>(dwlApartNumber);
+      map['dwlapartnumber'] = Variable<String>(dwlApartNumber);
     }
-    map['dwl_status'] = Variable<int>(dwlStatus);
+    map['dwlstatus'] = Variable<int>(dwlStatus);
     if (!nullToAbsent || dwlYearConstruction != null) {
-      map['dwl_year_construction'] = Variable<int>(dwlYearConstruction);
+      map['dwlyearconstruction'] = Variable<int>(dwlYearConstruction);
     }
     if (!nullToAbsent || dwlYearElimination != null) {
-      map['dwl_year_elimination'] = Variable<int>(dwlYearElimination);
+      map['dwlyearelimination'] = Variable<int>(dwlYearElimination);
     }
     if (!nullToAbsent || dwlType != null) {
-      map['dwl_type'] = Variable<int>(dwlType);
+      map['dwltype'] = Variable<int>(dwlType);
     }
     if (!nullToAbsent || dwlOwnership != null) {
-      map['dwl_ownership'] = Variable<int>(dwlOwnership);
+      map['dwlownership'] = Variable<int>(dwlOwnership);
     }
     if (!nullToAbsent || dwlOccupancy != null) {
-      map['dwl_occupancy'] = Variable<int>(dwlOccupancy);
+      map['dwloccupancy'] = Variable<int>(dwlOccupancy);
     }
     if (!nullToAbsent || dwlSurface != null) {
-      map['dwl_surface'] = Variable<int>(dwlSurface);
+      map['dwlsurface'] = Variable<int>(dwlSurface);
     }
     if (!nullToAbsent || dwlToilet != null) {
-      map['dwl_toilet'] = Variable<int>(dwlToilet);
+      map['dwltoilet'] = Variable<int>(dwlToilet);
     }
     if (!nullToAbsent || dwlBath != null) {
-      map['dwl_bath'] = Variable<int>(dwlBath);
+      map['dwlbath'] = Variable<int>(dwlBath);
     }
     if (!nullToAbsent || dwlHeatingFacility != null) {
-      map['dwl_heating_facility'] = Variable<int>(dwlHeatingFacility);
+      map['dwlheatingfacility'] = Variable<int>(dwlHeatingFacility);
     }
     if (!nullToAbsent || dwlHeatingEnergy != null) {
-      map['dwl_heating_energy'] = Variable<int>(dwlHeatingEnergy);
+      map['dwlheatingenergy'] = Variable<int>(dwlHeatingEnergy);
     }
     if (!nullToAbsent || dwlAirConditioner != null) {
-      map['dwl_air_conditioner'] = Variable<int>(dwlAirConditioner);
+      map['dwlairconditioner'] = Variable<int>(dwlAirConditioner);
     }
     if (!nullToAbsent || dwlSolarPanel != null) {
-      map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel);
+      map['dwlsolarpanel'] = Variable<int>(dwlSolarPanel);
     }
     if (!nullToAbsent || geometryType != null) {
-      map['geometry_type'] = Variable<String>(geometryType);
+      map['geometrytype'] = Variable<String>(geometryType);
     }
     return map;
   }
 
   DwellingsCompanion toCompanion(bool nullToAbsent) {
     return DwellingsCompanion(
-      downloadId: Value(downloadId),
-      dwlEntGlobalId: Value(dwlEntGlobalId),
       id: Value(id),
+      downloadId: Value(downloadId),
       globalId: Value(globalId),
+      dwlEntGlobalId: Value(dwlEntGlobalId),
       dwlAddressId: dwlAddressId == null && nullToAbsent
           ? const Value.absent()
           : Value(dwlAddressId),
@@ -3857,10 +3853,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Dwelling(
-      downloadId: serializer.fromJson<int>(json['downloadId']),
-      dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
       id: serializer.fromJson<int>(json['id']),
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       globalId: serializer.fromJson<String>(json['globalId']),
+      dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
       dwlAddressId: serializer.fromJson<String?>(json['dwlAddressId']),
       dwlQuality: serializer.fromJson<int>(json['dwlQuality']),
       dwlFloor: serializer.fromJson<int?>(json['dwlFloor']),
@@ -3886,10 +3882,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'downloadId': serializer.toJson<int>(downloadId),
-      'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
       'id': serializer.toJson<int>(id),
+      'downloadId': serializer.toJson<int>(downloadId),
       'globalId': serializer.toJson<String>(globalId),
+      'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
       'dwlAddressId': serializer.toJson<String?>(dwlAddressId),
       'dwlQuality': serializer.toJson<int>(dwlQuality),
       'dwlFloor': serializer.toJson<int?>(dwlFloor),
@@ -3912,10 +3908,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   }
 
   Dwelling copyWith(
-          {int? downloadId,
-          String? dwlEntGlobalId,
-          int? id,
+          {int? id,
+          int? downloadId,
           String? globalId,
+          String? dwlEntGlobalId,
           Value<String?> dwlAddressId = const Value.absent(),
           int? dwlQuality,
           Value<int?> dwlFloor = const Value.absent(),
@@ -3935,10 +3931,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           Value<int?> dwlSolarPanel = const Value.absent(),
           Value<String?> geometryType = const Value.absent()}) =>
       Dwelling(
-        downloadId: downloadId ?? this.downloadId,
-        dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
         id: id ?? this.id,
+        downloadId: downloadId ?? this.downloadId,
         globalId: globalId ?? this.globalId,
+        dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
         dwlAddressId:
             dwlAddressId.present ? dwlAddressId.value : this.dwlAddressId,
         dwlQuality: dwlQuality ?? this.dwlQuality,
@@ -3976,13 +3972,13 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       );
   Dwelling copyWithCompanion(DwellingsCompanion data) {
     return Dwelling(
+      id: data.id.present ? data.id.value : this.id,
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
+      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       dwlEntGlobalId: data.dwlEntGlobalId.present
           ? data.dwlEntGlobalId.value
           : this.dwlEntGlobalId,
-      id: data.id.present ? data.id.value : this.id,
-      globalId: data.globalId.present ? data.globalId.value : this.globalId,
       dwlAddressId: data.dwlAddressId.present
           ? data.dwlAddressId.value
           : this.dwlAddressId,
@@ -4031,10 +4027,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   @override
   String toString() {
     return (StringBuffer('Dwelling(')
-          ..write('downloadId: $downloadId, ')
-          ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('id: $id, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
           ..write('dwlFloor: $dwlFloor, ')
@@ -4059,10 +4055,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
 
   @override
   int get hashCode => Object.hashAll([
-        downloadId,
-        dwlEntGlobalId,
         id,
+        downloadId,
         globalId,
+        dwlEntGlobalId,
         dwlAddressId,
         dwlQuality,
         dwlFloor,
@@ -4086,10 +4082,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Dwelling &&
-          other.downloadId == this.downloadId &&
-          other.dwlEntGlobalId == this.dwlEntGlobalId &&
           other.id == this.id &&
+          other.downloadId == this.downloadId &&
           other.globalId == this.globalId &&
+          other.dwlEntGlobalId == this.dwlEntGlobalId &&
           other.dwlAddressId == this.dwlAddressId &&
           other.dwlQuality == this.dwlQuality &&
           other.dwlFloor == this.dwlFloor &&
@@ -4111,10 +4107,10 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
 }
 
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
-  final Value<int> downloadId;
-  final Value<String> dwlEntGlobalId;
   final Value<int> id;
+  final Value<int> downloadId;
   final Value<String> globalId;
+  final Value<String> dwlEntGlobalId;
   final Value<String?> dwlAddressId;
   final Value<int> dwlQuality;
   final Value<int?> dwlFloor;
@@ -4134,10 +4130,10 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int?> dwlSolarPanel;
   final Value<String?> geometryType;
   const DwellingsCompanion({
-    this.downloadId = const Value.absent(),
-    this.dwlEntGlobalId = const Value.absent(),
     this.id = const Value.absent(),
+    this.downloadId = const Value.absent(),
     this.globalId = const Value.absent(),
+    this.dwlEntGlobalId = const Value.absent(),
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
     this.dwlFloor = const Value.absent(),
@@ -4158,10 +4154,10 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.geometryType = const Value.absent(),
   });
   DwellingsCompanion.insert({
-    required int downloadId,
-    required String dwlEntGlobalId,
     this.id = const Value.absent(),
+    required int downloadId,
     required String globalId,
+    required String dwlEntGlobalId,
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
     this.dwlFloor = const Value.absent(),
@@ -4181,13 +4177,13 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlSolarPanel = const Value.absent(),
     this.geometryType = const Value.absent(),
   })  : downloadId = Value(downloadId),
-        dwlEntGlobalId = Value(dwlEntGlobalId),
-        globalId = Value(globalId);
+        globalId = Value(globalId),
+        dwlEntGlobalId = Value(dwlEntGlobalId);
   static Insertable<Dwelling> custom({
-    Expression<int>? downloadId,
-    Expression<String>? dwlEntGlobalId,
     Expression<int>? id,
+    Expression<int>? downloadId,
     Expression<String>? globalId,
+    Expression<String>? dwlEntGlobalId,
     Expression<String>? dwlAddressId,
     Expression<int>? dwlQuality,
     Expression<int>? dwlFloor,
@@ -4208,39 +4204,37 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     Expression<String>? geometryType,
   }) {
     return RawValuesInsertable({
-      if (downloadId != null) 'download_id': downloadId,
-      if (dwlEntGlobalId != null) 'dwl_ent_global_id': dwlEntGlobalId,
       if (id != null) 'id': id,
-      if (globalId != null) 'global_id': globalId,
-      if (dwlAddressId != null) 'dwl_address_id': dwlAddressId,
-      if (dwlQuality != null) 'dwl_quality': dwlQuality,
-      if (dwlFloor != null) 'dwl_floor': dwlFloor,
-      if (dwlApartNumber != null) 'dwl_apart_number': dwlApartNumber,
-      if (dwlStatus != null) 'dwl_status': dwlStatus,
+      if (downloadId != null) 'downloadid': downloadId,
+      if (globalId != null) 'globalid': globalId,
+      if (dwlEntGlobalId != null) 'dwlentglobalid': dwlEntGlobalId,
+      if (dwlAddressId != null) 'dwladdressid': dwlAddressId,
+      if (dwlQuality != null) 'dwlquality': dwlQuality,
+      if (dwlFloor != null) 'dwlfloor': dwlFloor,
+      if (dwlApartNumber != null) 'dwlapartnumber': dwlApartNumber,
+      if (dwlStatus != null) 'dwlstatus': dwlStatus,
       if (dwlYearConstruction != null)
-        'dwl_year_construction': dwlYearConstruction,
-      if (dwlYearElimination != null)
-        'dwl_year_elimination': dwlYearElimination,
-      if (dwlType != null) 'dwl_type': dwlType,
-      if (dwlOwnership != null) 'dwl_ownership': dwlOwnership,
-      if (dwlOccupancy != null) 'dwl_occupancy': dwlOccupancy,
-      if (dwlSurface != null) 'dwl_surface': dwlSurface,
-      if (dwlToilet != null) 'dwl_toilet': dwlToilet,
-      if (dwlBath != null) 'dwl_bath': dwlBath,
-      if (dwlHeatingFacility != null)
-        'dwl_heating_facility': dwlHeatingFacility,
-      if (dwlHeatingEnergy != null) 'dwl_heating_energy': dwlHeatingEnergy,
-      if (dwlAirConditioner != null) 'dwl_air_conditioner': dwlAirConditioner,
-      if (dwlSolarPanel != null) 'dwl_solar_panel': dwlSolarPanel,
-      if (geometryType != null) 'geometry_type': geometryType,
+        'dwlyearconstruction': dwlYearConstruction,
+      if (dwlYearElimination != null) 'dwlyearelimination': dwlYearElimination,
+      if (dwlType != null) 'dwltype': dwlType,
+      if (dwlOwnership != null) 'dwlownership': dwlOwnership,
+      if (dwlOccupancy != null) 'dwloccupancy': dwlOccupancy,
+      if (dwlSurface != null) 'dwlsurface': dwlSurface,
+      if (dwlToilet != null) 'dwltoilet': dwlToilet,
+      if (dwlBath != null) 'dwlbath': dwlBath,
+      if (dwlHeatingFacility != null) 'dwlheatingfacility': dwlHeatingFacility,
+      if (dwlHeatingEnergy != null) 'dwlheatingenergy': dwlHeatingEnergy,
+      if (dwlAirConditioner != null) 'dwlairconditioner': dwlAirConditioner,
+      if (dwlSolarPanel != null) 'dwlsolarpanel': dwlSolarPanel,
+      if (geometryType != null) 'geometrytype': geometryType,
     });
   }
 
   DwellingsCompanion copyWith(
-      {Value<int>? downloadId,
-      Value<String>? dwlEntGlobalId,
-      Value<int>? id,
+      {Value<int>? id,
+      Value<int>? downloadId,
       Value<String>? globalId,
+      Value<String>? dwlEntGlobalId,
       Value<String?>? dwlAddressId,
       Value<int>? dwlQuality,
       Value<int?>? dwlFloor,
@@ -4260,10 +4254,10 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int?>? dwlSolarPanel,
       Value<String?>? geometryType}) {
     return DwellingsCompanion(
-      downloadId: downloadId ?? this.downloadId,
-      dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
       id: id ?? this.id,
+      downloadId: downloadId ?? this.downloadId,
       globalId: globalId ?? this.globalId,
+      dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
       dwlAddressId: dwlAddressId ?? this.dwlAddressId,
       dwlQuality: dwlQuality ?? this.dwlQuality,
       dwlFloor: dwlFloor ?? this.dwlFloor,
@@ -4288,71 +4282,71 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (downloadId.present) {
-      map['download_id'] = Variable<int>(downloadId.value);
-    }
-    if (dwlEntGlobalId.present) {
-      map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId.value);
-    }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
+    if (downloadId.present) {
+      map['downloadid'] = Variable<int>(downloadId.value);
+    }
     if (globalId.present) {
-      map['global_id'] = Variable<String>(globalId.value);
+      map['globalid'] = Variable<String>(globalId.value);
+    }
+    if (dwlEntGlobalId.present) {
+      map['dwlentglobalid'] = Variable<String>(dwlEntGlobalId.value);
     }
     if (dwlAddressId.present) {
-      map['dwl_address_id'] = Variable<String>(dwlAddressId.value);
+      map['dwladdressid'] = Variable<String>(dwlAddressId.value);
     }
     if (dwlQuality.present) {
-      map['dwl_quality'] = Variable<int>(dwlQuality.value);
+      map['dwlquality'] = Variable<int>(dwlQuality.value);
     }
     if (dwlFloor.present) {
-      map['dwl_floor'] = Variable<int>(dwlFloor.value);
+      map['dwlfloor'] = Variable<int>(dwlFloor.value);
     }
     if (dwlApartNumber.present) {
-      map['dwl_apart_number'] = Variable<String>(dwlApartNumber.value);
+      map['dwlapartnumber'] = Variable<String>(dwlApartNumber.value);
     }
     if (dwlStatus.present) {
-      map['dwl_status'] = Variable<int>(dwlStatus.value);
+      map['dwlstatus'] = Variable<int>(dwlStatus.value);
     }
     if (dwlYearConstruction.present) {
-      map['dwl_year_construction'] = Variable<int>(dwlYearConstruction.value);
+      map['dwlyearconstruction'] = Variable<int>(dwlYearConstruction.value);
     }
     if (dwlYearElimination.present) {
-      map['dwl_year_elimination'] = Variable<int>(dwlYearElimination.value);
+      map['dwlyearelimination'] = Variable<int>(dwlYearElimination.value);
     }
     if (dwlType.present) {
-      map['dwl_type'] = Variable<int>(dwlType.value);
+      map['dwltype'] = Variable<int>(dwlType.value);
     }
     if (dwlOwnership.present) {
-      map['dwl_ownership'] = Variable<int>(dwlOwnership.value);
+      map['dwlownership'] = Variable<int>(dwlOwnership.value);
     }
     if (dwlOccupancy.present) {
-      map['dwl_occupancy'] = Variable<int>(dwlOccupancy.value);
+      map['dwloccupancy'] = Variable<int>(dwlOccupancy.value);
     }
     if (dwlSurface.present) {
-      map['dwl_surface'] = Variable<int>(dwlSurface.value);
+      map['dwlsurface'] = Variable<int>(dwlSurface.value);
     }
     if (dwlToilet.present) {
-      map['dwl_toilet'] = Variable<int>(dwlToilet.value);
+      map['dwltoilet'] = Variable<int>(dwlToilet.value);
     }
     if (dwlBath.present) {
-      map['dwl_bath'] = Variable<int>(dwlBath.value);
+      map['dwlbath'] = Variable<int>(dwlBath.value);
     }
     if (dwlHeatingFacility.present) {
-      map['dwl_heating_facility'] = Variable<int>(dwlHeatingFacility.value);
+      map['dwlheatingfacility'] = Variable<int>(dwlHeatingFacility.value);
     }
     if (dwlHeatingEnergy.present) {
-      map['dwl_heating_energy'] = Variable<int>(dwlHeatingEnergy.value);
+      map['dwlheatingenergy'] = Variable<int>(dwlHeatingEnergy.value);
     }
     if (dwlAirConditioner.present) {
-      map['dwl_air_conditioner'] = Variable<int>(dwlAirConditioner.value);
+      map['dwlairconditioner'] = Variable<int>(dwlAirConditioner.value);
     }
     if (dwlSolarPanel.present) {
-      map['dwl_solar_panel'] = Variable<int>(dwlSolarPanel.value);
+      map['dwlsolarpanel'] = Variable<int>(dwlSolarPanel.value);
     }
     if (geometryType.present) {
-      map['geometry_type'] = Variable<String>(geometryType.value);
+      map['geometrytype'] = Variable<String>(geometryType.value);
     }
     return map;
   }
@@ -4360,10 +4354,10 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   @override
   String toString() {
     return (StringBuffer('DwellingsCompanion(')
-          ..write('downloadId: $downloadId, ')
-          ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('id: $id, ')
+          ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
           ..write('dwlFloor: $dwlFloor, ')
@@ -4393,15 +4387,6 @@ class $MunicipalitiesTable extends Municipalities
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $MunicipalitiesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _downloadIdMeta =
-      const VerificationMeta('downloadId');
-  @override
-  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
-      'download_id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -4415,19 +4400,28 @@ class $MunicipalitiesTable extends Municipalities
       const VerificationMeta('objectId');
   @override
   late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+      'objectid', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _municipalityIdMeta =
       const VerificationMeta('municipalityId');
   @override
   late final GeneratedColumn<String> municipalityId = GeneratedColumn<String>(
-      'municipality_id', aliasedName, false,
+      'municipalityid', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadIdMeta =
+      const VerificationMeta('downloadId');
+  @override
+  late final GeneratedColumn<int> downloadId = GeneratedColumn<int>(
+      'downloadid', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
   static const VerificationMeta _municipalityNameMeta =
       const VerificationMeta('municipalityName');
   @override
   late final GeneratedColumn<String> municipalityName = GeneratedColumn<String>(
-      'municipality_name', aliasedName, true,
+      'municipalityname', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _coordinatesMeta =
       const VerificationMeta('coordinates');
@@ -4437,7 +4431,7 @@ class $MunicipalitiesTable extends Municipalities
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [downloadId, id, objectId, municipalityId, municipalityName, coordinates];
+      [id, objectId, municipalityId, downloadId, municipalityName, coordinates];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4448,36 +4442,36 @@ class $MunicipalitiesTable extends Municipalities
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('download_id')) {
-      context.handle(
-          _downloadIdMeta,
-          downloadId.isAcceptableOrUnknown(
-              data['download_id']!, _downloadIdMeta));
-    } else if (isInserting) {
-      context.missing(_downloadIdMeta);
-    }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('object_id')) {
+    if (data.containsKey('objectid')) {
       context.handle(_objectIdMeta,
-          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+          objectId.isAcceptableOrUnknown(data['objectid']!, _objectIdMeta));
     } else if (isInserting) {
       context.missing(_objectIdMeta);
     }
-    if (data.containsKey('municipality_id')) {
+    if (data.containsKey('municipalityid')) {
       context.handle(
           _municipalityIdMeta,
           municipalityId.isAcceptableOrUnknown(
-              data['municipality_id']!, _municipalityIdMeta));
+              data['municipalityid']!, _municipalityIdMeta));
     } else if (isInserting) {
       context.missing(_municipalityIdMeta);
     }
-    if (data.containsKey('municipality_name')) {
+    if (data.containsKey('downloadid')) {
+      context.handle(
+          _downloadIdMeta,
+          downloadId.isAcceptableOrUnknown(
+              data['downloadid']!, _downloadIdMeta));
+    } else if (isInserting) {
+      context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('municipalityname')) {
       context.handle(
           _municipalityNameMeta,
           municipalityName.isAcceptableOrUnknown(
-              data['municipality_name']!, _municipalityNameMeta));
+              data['municipalityname']!, _municipalityNameMeta));
     }
     if (data.containsKey('coordinates')) {
       context.handle(
@@ -4496,16 +4490,16 @@ class $MunicipalitiesTable extends Municipalities
   Municipality map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Municipality(
-      downloadId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
-      municipalityId: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}municipality_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}objectid'])!,
+      municipalityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}municipalityid'])!,
+      downloadId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}downloadid'])!,
       municipalityName: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}municipality_name']),
+          DriftSqlType.string, data['${effectivePrefix}municipalityname']),
       coordinates: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}coordinates'])!,
     );
@@ -4518,28 +4512,28 @@ class $MunicipalitiesTable extends Municipalities
 }
 
 class Municipality extends DataClass implements Insertable<Municipality> {
-  final int downloadId;
   final int id;
   final int objectId;
   final String municipalityId;
+  final int downloadId;
   final String? municipalityName;
   final String coordinates;
   const Municipality(
-      {required this.downloadId,
-      required this.id,
+      {required this.id,
       required this.objectId,
       required this.municipalityId,
+      required this.downloadId,
       this.municipalityName,
       required this.coordinates});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['download_id'] = Variable<int>(downloadId);
     map['id'] = Variable<int>(id);
-    map['object_id'] = Variable<int>(objectId);
-    map['municipality_id'] = Variable<String>(municipalityId);
+    map['objectid'] = Variable<int>(objectId);
+    map['municipalityid'] = Variable<String>(municipalityId);
+    map['downloadid'] = Variable<int>(downloadId);
     if (!nullToAbsent || municipalityName != null) {
-      map['municipality_name'] = Variable<String>(municipalityName);
+      map['municipalityname'] = Variable<String>(municipalityName);
     }
     map['coordinates'] = Variable<String>(coordinates);
     return map;
@@ -4547,10 +4541,10 @@ class Municipality extends DataClass implements Insertable<Municipality> {
 
   MunicipalitiesCompanion toCompanion(bool nullToAbsent) {
     return MunicipalitiesCompanion(
-      downloadId: Value(downloadId),
       id: Value(id),
       objectId: Value(objectId),
       municipalityId: Value(municipalityId),
+      downloadId: Value(downloadId),
       municipalityName: municipalityName == null && nullToAbsent
           ? const Value.absent()
           : Value(municipalityName),
@@ -4562,10 +4556,10 @@ class Municipality extends DataClass implements Insertable<Municipality> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Municipality(
-      downloadId: serializer.fromJson<int>(json['downloadId']),
       id: serializer.fromJson<int>(json['id']),
       objectId: serializer.fromJson<int>(json['objectId']),
       municipalityId: serializer.fromJson<String>(json['municipalityId']),
+      downloadId: serializer.fromJson<int>(json['downloadId']),
       municipalityName: serializer.fromJson<String?>(json['municipalityName']),
       coordinates: serializer.fromJson<String>(json['coordinates']),
     );
@@ -4574,27 +4568,27 @@ class Municipality extends DataClass implements Insertable<Municipality> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'downloadId': serializer.toJson<int>(downloadId),
       'id': serializer.toJson<int>(id),
       'objectId': serializer.toJson<int>(objectId),
       'municipalityId': serializer.toJson<String>(municipalityId),
+      'downloadId': serializer.toJson<int>(downloadId),
       'municipalityName': serializer.toJson<String?>(municipalityName),
       'coordinates': serializer.toJson<String>(coordinates),
     };
   }
 
   Municipality copyWith(
-          {int? downloadId,
-          int? id,
+          {int? id,
           int? objectId,
           String? municipalityId,
+          int? downloadId,
           Value<String?> municipalityName = const Value.absent(),
           String? coordinates}) =>
       Municipality(
-        downloadId: downloadId ?? this.downloadId,
         id: id ?? this.id,
         objectId: objectId ?? this.objectId,
         municipalityId: municipalityId ?? this.municipalityId,
+        downloadId: downloadId ?? this.downloadId,
         municipalityName: municipalityName.present
             ? municipalityName.value
             : this.municipalityName,
@@ -4602,13 +4596,13 @@ class Municipality extends DataClass implements Insertable<Municipality> {
       );
   Municipality copyWithCompanion(MunicipalitiesCompanion data) {
     return Municipality(
-      downloadId:
-          data.downloadId.present ? data.downloadId.value : this.downloadId,
       id: data.id.present ? data.id.value : this.id,
       objectId: data.objectId.present ? data.objectId.value : this.objectId,
       municipalityId: data.municipalityId.present
           ? data.municipalityId.value
           : this.municipalityId,
+      downloadId:
+          data.downloadId.present ? data.downloadId.value : this.downloadId,
       municipalityName: data.municipalityName.present
           ? data.municipalityName.value
           : this.municipalityName,
@@ -4620,10 +4614,10 @@ class Municipality extends DataClass implements Insertable<Municipality> {
   @override
   String toString() {
     return (StringBuffer('Municipality(')
-          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
           ..write('municipalityId: $municipalityId, ')
+          ..write('downloadId: $downloadId, ')
           ..write('municipalityName: $municipalityName, ')
           ..write('coordinates: $coordinates')
           ..write(')'))
@@ -4632,75 +4626,75 @@ class Municipality extends DataClass implements Insertable<Municipality> {
 
   @override
   int get hashCode => Object.hash(
-      downloadId, id, objectId, municipalityId, municipalityName, coordinates);
+      id, objectId, municipalityId, downloadId, municipalityName, coordinates);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Municipality &&
-          other.downloadId == this.downloadId &&
           other.id == this.id &&
           other.objectId == this.objectId &&
           other.municipalityId == this.municipalityId &&
+          other.downloadId == this.downloadId &&
           other.municipalityName == this.municipalityName &&
           other.coordinates == this.coordinates);
 }
 
 class MunicipalitiesCompanion extends UpdateCompanion<Municipality> {
-  final Value<int> downloadId;
   final Value<int> id;
   final Value<int> objectId;
   final Value<String> municipalityId;
+  final Value<int> downloadId;
   final Value<String?> municipalityName;
   final Value<String> coordinates;
   const MunicipalitiesCompanion({
-    this.downloadId = const Value.absent(),
     this.id = const Value.absent(),
     this.objectId = const Value.absent(),
     this.municipalityId = const Value.absent(),
+    this.downloadId = const Value.absent(),
     this.municipalityName = const Value.absent(),
     this.coordinates = const Value.absent(),
   });
   MunicipalitiesCompanion.insert({
-    required int downloadId,
     this.id = const Value.absent(),
     required int objectId,
     required String municipalityId,
+    required int downloadId,
     this.municipalityName = const Value.absent(),
     required String coordinates,
-  })  : downloadId = Value(downloadId),
-        objectId = Value(objectId),
+  })  : objectId = Value(objectId),
         municipalityId = Value(municipalityId),
+        downloadId = Value(downloadId),
         coordinates = Value(coordinates);
   static Insertable<Municipality> custom({
-    Expression<int>? downloadId,
     Expression<int>? id,
     Expression<int>? objectId,
     Expression<String>? municipalityId,
+    Expression<int>? downloadId,
     Expression<String>? municipalityName,
     Expression<String>? coordinates,
   }) {
     return RawValuesInsertable({
-      if (downloadId != null) 'download_id': downloadId,
       if (id != null) 'id': id,
-      if (objectId != null) 'object_id': objectId,
-      if (municipalityId != null) 'municipality_id': municipalityId,
-      if (municipalityName != null) 'municipality_name': municipalityName,
+      if (objectId != null) 'objectid': objectId,
+      if (municipalityId != null) 'municipalityid': municipalityId,
+      if (downloadId != null) 'downloadid': downloadId,
+      if (municipalityName != null) 'municipalityname': municipalityName,
       if (coordinates != null) 'coordinates': coordinates,
     });
   }
 
   MunicipalitiesCompanion copyWith(
-      {Value<int>? downloadId,
-      Value<int>? id,
+      {Value<int>? id,
       Value<int>? objectId,
       Value<String>? municipalityId,
+      Value<int>? downloadId,
       Value<String?>? municipalityName,
       Value<String>? coordinates}) {
     return MunicipalitiesCompanion(
-      downloadId: downloadId ?? this.downloadId,
       id: id ?? this.id,
       objectId: objectId ?? this.objectId,
       municipalityId: municipalityId ?? this.municipalityId,
+      downloadId: downloadId ?? this.downloadId,
       municipalityName: municipalityName ?? this.municipalityName,
       coordinates: coordinates ?? this.coordinates,
     );
@@ -4709,20 +4703,20 @@ class MunicipalitiesCompanion extends UpdateCompanion<Municipality> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (downloadId.present) {
-      map['download_id'] = Variable<int>(downloadId.value);
-    }
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
     if (objectId.present) {
-      map['object_id'] = Variable<int>(objectId.value);
+      map['objectid'] = Variable<int>(objectId.value);
     }
     if (municipalityId.present) {
-      map['municipality_id'] = Variable<String>(municipalityId.value);
+      map['municipalityid'] = Variable<String>(municipalityId.value);
+    }
+    if (downloadId.present) {
+      map['downloadid'] = Variable<int>(downloadId.value);
     }
     if (municipalityName.present) {
-      map['municipality_name'] = Variable<String>(municipalityName.value);
+      map['municipalityname'] = Variable<String>(municipalityName.value);
     }
     if (coordinates.present) {
       map['coordinates'] = Variable<String>(coordinates.value);
@@ -4733,10 +4727,10 @@ class MunicipalitiesCompanion extends UpdateCompanion<Municipality> {
   @override
   String toString() {
     return (StringBuffer('MunicipalitiesCompanion(')
-          ..write('downloadId: $downloadId, ')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
           ..write('municipalityId: $municipalityId, ')
+          ..write('downloadId: $downloadId, ')
           ..write('municipalityName: $municipalityName, ')
           ..write('coordinates: $coordinates')
           ..write(')'))
@@ -5194,9 +5188,9 @@ typedef $$DownloadsTableProcessedTableManager = ProcessedTableManager<
         bool dwellingsRefs,
         bool municipalitiesRefs})>;
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
-  required int downloadId,
   Value<int> id,
   required int objectId,
+  required int downloadId,
   required String globalId,
   Value<String?> bldAddressID,
   Value<int?> bldQuality,
@@ -5242,9 +5236,9 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   required String coordinates,
 });
 typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
-  Value<int> downloadId,
   Value<int> id,
   Value<int> objectId,
+  Value<int> downloadId,
   Value<String> globalId,
   Value<String?> bldAddressID,
   Value<int?> bldQuality,
@@ -5299,7 +5293,7 @@ final class $$BuildingsTableReferences
           $_aliasNameGenerator(db.buildings.downloadId, db.downloads.id));
 
   $$DownloadsTableProcessedTableManager get downloadId {
-    final $_column = $_itemColumn<int>('download_id')!;
+    final $_column = $_itemColumn<int>('downloadid')!;
 
     final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
         .filter((f) => f.id.sqlEquals($_column));
@@ -5318,7 +5312,7 @@ final class $$BuildingsTableReferences
   $$EntrancesTableProcessedTableManager get entrancesRefs {
     final manager = $$EntrancesTableTableManager($_db, $_db.entrances).filter(
         (f) => f.entBldGlobalId.globalId
-            .sqlEquals($_itemColumn<String>('global_id')!));
+            .sqlEquals($_itemColumn<String>('globalid')!));
 
     final cache = $_typedResult.readTableOrNull(_entrancesRefsTable($_db));
     return ProcessedTableManager(
@@ -5927,9 +5921,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$BuildingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> downloadId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<int> objectId = const Value.absent(),
+            Value<int> downloadId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
             Value<String?> bldAddressID = const Value.absent(),
             Value<int?> bldQuality = const Value.absent(),
@@ -5975,9 +5969,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<String> coordinates = const Value.absent(),
           }) =>
               BuildingsCompanion(
-            downloadId: downloadId,
             id: id,
             objectId: objectId,
+            downloadId: downloadId,
             globalId: globalId,
             bldAddressID: bldAddressID,
             bldQuality: bldQuality,
@@ -6023,9 +6017,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
             coordinates: coordinates,
           ),
           createCompanionCallback: ({
-            required int downloadId,
             Value<int> id = const Value.absent(),
             required int objectId,
+            required int downloadId,
             required String globalId,
             Value<String?> bldAddressID = const Value.absent(),
             Value<int?> bldQuality = const Value.absent(),
@@ -6071,9 +6065,9 @@ class $$BuildingsTableTableManager extends RootTableManager<
             required String coordinates,
           }) =>
               BuildingsCompanion.insert(
-            downloadId: downloadId,
             id: id,
             objectId: objectId,
+            downloadId: downloadId,
             globalId: globalId,
             bldAddressID: bldAddressID,
             bldQuality: bldQuality,
@@ -6189,10 +6183,10 @@ typedef $$BuildingsTableProcessedTableManager = ProcessedTableManager<
     Building,
     PrefetchHooks Function({bool downloadId, bool entrancesRefs})>;
 typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
-  required int downloadId,
-  required String entBldGlobalId,
   Value<int> id,
+  required int downloadId,
   required String globalId,
+  required String entBldGlobalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
   required double entLatitude,
@@ -6209,10 +6203,10 @@ typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
   required String coordinates,
 });
 typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
-  Value<int> downloadId,
-  Value<String> entBldGlobalId,
   Value<int> id,
+  Value<int> downloadId,
   Value<String> globalId,
+  Value<String> entBldGlobalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
   Value<double> entLatitude,
@@ -6238,7 +6232,7 @@ final class $$EntrancesTableReferences
           $_aliasNameGenerator(db.entrances.downloadId, db.downloads.id));
 
   $$DownloadsTableProcessedTableManager get downloadId {
-    final $_column = $_itemColumn<int>('download_id')!;
+    final $_column = $_itemColumn<int>('downloadid')!;
 
     final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
         .filter((f) => f.id.sqlEquals($_column));
@@ -6253,7 +6247,7 @@ final class $$EntrancesTableReferences
           db.entrances.entBldGlobalId, db.buildings.globalId));
 
   $$BuildingsTableProcessedTableManager get entBldGlobalId {
-    final $_column = $_itemColumn<String>('ent_bld_global_id')!;
+    final $_column = $_itemColumn<String>('entbldglobalid')!;
 
     final manager = $$BuildingsTableTableManager($_db, $_db.buildings)
         .filter((f) => f.globalId.sqlEquals($_column));
@@ -6272,7 +6266,7 @@ final class $$EntrancesTableReferences
   $$DwellingsTableProcessedTableManager get dwellingsRefs {
     final manager = $$DwellingsTableTableManager($_db, $_db.dwellings).filter(
         (f) => f.dwlEntGlobalId.globalId
-            .sqlEquals($_itemColumn<String>('global_id')!));
+            .sqlEquals($_itemColumn<String>('globalid')!));
 
     final cache = $_typedResult.readTableOrNull(_dwellingsRefsTable($_db));
     return ProcessedTableManager(
@@ -6655,10 +6649,10 @@ class $$EntrancesTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$EntrancesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> downloadId = const Value.absent(),
-            Value<String> entBldGlobalId = const Value.absent(),
             Value<int> id = const Value.absent(),
+            Value<int> downloadId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
+            Value<String> entBldGlobalId = const Value.absent(),
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
             Value<double> entLatitude = const Value.absent(),
@@ -6675,10 +6669,10 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<String> coordinates = const Value.absent(),
           }) =>
               EntrancesCompanion(
-            downloadId: downloadId,
-            entBldGlobalId: entBldGlobalId,
             id: id,
+            downloadId: downloadId,
             globalId: globalId,
+            entBldGlobalId: entBldGlobalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
             entLatitude: entLatitude,
@@ -6695,10 +6689,10 @@ class $$EntrancesTableTableManager extends RootTableManager<
             coordinates: coordinates,
           ),
           createCompanionCallback: ({
-            required int downloadId,
-            required String entBldGlobalId,
             Value<int> id = const Value.absent(),
+            required int downloadId,
             required String globalId,
+            required String entBldGlobalId,
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
             required double entLatitude,
@@ -6715,10 +6709,10 @@ class $$EntrancesTableTableManager extends RootTableManager<
             required String coordinates,
           }) =>
               EntrancesCompanion.insert(
-            downloadId: downloadId,
-            entBldGlobalId: entBldGlobalId,
             id: id,
+            downloadId: downloadId,
             globalId: globalId,
+            entBldGlobalId: entBldGlobalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
             entLatitude: entLatitude,
@@ -6820,10 +6814,10 @@ typedef $$EntrancesTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function(
         {bool downloadId, bool entBldGlobalId, bool dwellingsRefs})>;
 typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
-  required int downloadId,
-  required String dwlEntGlobalId,
   Value<int> id,
+  required int downloadId,
   required String globalId,
+  required String dwlEntGlobalId,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
   Value<int?> dwlFloor,
@@ -6844,10 +6838,10 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<String?> geometryType,
 });
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
-  Value<int> downloadId,
-  Value<String> dwlEntGlobalId,
   Value<int> id,
+  Value<int> downloadId,
   Value<String> globalId,
+  Value<String> dwlEntGlobalId,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
   Value<int?> dwlFloor,
@@ -6877,7 +6871,7 @@ final class $$DwellingsTableReferences
           $_aliasNameGenerator(db.dwellings.downloadId, db.downloads.id));
 
   $$DownloadsTableProcessedTableManager get downloadId {
-    final $_column = $_itemColumn<int>('download_id')!;
+    final $_column = $_itemColumn<int>('downloadid')!;
 
     final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
         .filter((f) => f.id.sqlEquals($_column));
@@ -6892,7 +6886,7 @@ final class $$DwellingsTableReferences
           db.dwellings.dwlEntGlobalId, db.entrances.globalId));
 
   $$EntrancesTableProcessedTableManager get dwlEntGlobalId {
-    final $_column = $_itemColumn<String>('dwl_ent_global_id')!;
+    final $_column = $_itemColumn<String>('dwlentglobalid')!;
 
     final manager = $$EntrancesTableTableManager($_db, $_db.entrances)
         .filter((f) => f.globalId.sqlEquals($_column));
@@ -7273,10 +7267,10 @@ class $$DwellingsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$DwellingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> downloadId = const Value.absent(),
-            Value<String> dwlEntGlobalId = const Value.absent(),
             Value<int> id = const Value.absent(),
+            Value<int> downloadId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
+            Value<String> dwlEntGlobalId = const Value.absent(),
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
             Value<int?> dwlFloor = const Value.absent(),
@@ -7297,10 +7291,10 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<String?> geometryType = const Value.absent(),
           }) =>
               DwellingsCompanion(
-            downloadId: downloadId,
-            dwlEntGlobalId: dwlEntGlobalId,
             id: id,
+            downloadId: downloadId,
             globalId: globalId,
+            dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,
             dwlFloor: dwlFloor,
@@ -7321,10 +7315,10 @@ class $$DwellingsTableTableManager extends RootTableManager<
             geometryType: geometryType,
           ),
           createCompanionCallback: ({
-            required int downloadId,
-            required String dwlEntGlobalId,
             Value<int> id = const Value.absent(),
+            required int downloadId,
             required String globalId,
+            required String dwlEntGlobalId,
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
             Value<int?> dwlFloor = const Value.absent(),
@@ -7345,10 +7339,10 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<String?> geometryType = const Value.absent(),
           }) =>
               DwellingsCompanion.insert(
-            downloadId: downloadId,
-            dwlEntGlobalId: dwlEntGlobalId,
             id: id,
+            downloadId: downloadId,
             globalId: globalId,
+            dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,
             dwlFloor: dwlFloor,
@@ -7438,19 +7432,19 @@ typedef $$DwellingsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool downloadId, bool dwlEntGlobalId})>;
 typedef $$MunicipalitiesTableCreateCompanionBuilder = MunicipalitiesCompanion
     Function({
-  required int downloadId,
   Value<int> id,
   required int objectId,
   required String municipalityId,
+  required int downloadId,
   Value<String?> municipalityName,
   required String coordinates,
 });
 typedef $$MunicipalitiesTableUpdateCompanionBuilder = MunicipalitiesCompanion
     Function({
-  Value<int> downloadId,
   Value<int> id,
   Value<int> objectId,
   Value<String> municipalityId,
+  Value<int> downloadId,
   Value<String?> municipalityName,
   Value<String> coordinates,
 });
@@ -7465,7 +7459,7 @@ final class $$MunicipalitiesTableReferences
           $_aliasNameGenerator(db.municipalities.downloadId, db.downloads.id));
 
   $$DownloadsTableProcessedTableManager get downloadId {
-    final $_column = $_itemColumn<int>('download_id')!;
+    final $_column = $_itemColumn<int>('downloadid')!;
 
     final manager = $$DownloadsTableTableManager($_db, $_db.downloads)
         .filter((f) => f.id.sqlEquals($_column));
@@ -7639,34 +7633,34 @@ class $$MunicipalitiesTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$MunicipalitiesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> downloadId = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<int> objectId = const Value.absent(),
             Value<String> municipalityId = const Value.absent(),
+            Value<int> downloadId = const Value.absent(),
             Value<String?> municipalityName = const Value.absent(),
             Value<String> coordinates = const Value.absent(),
           }) =>
               MunicipalitiesCompanion(
-            downloadId: downloadId,
             id: id,
             objectId: objectId,
             municipalityId: municipalityId,
+            downloadId: downloadId,
             municipalityName: municipalityName,
             coordinates: coordinates,
           ),
           createCompanionCallback: ({
-            required int downloadId,
             Value<int> id = const Value.absent(),
             required int objectId,
             required String municipalityId,
+            required int downloadId,
             Value<String?> municipalityName = const Value.absent(),
             required String coordinates,
           }) =>
               MunicipalitiesCompanion.insert(
-            downloadId: downloadId,
             id: id,
             objectId: objectId,
             municipalityId: municipalityId,
+            downloadId: downloadId,
             municipalityName: municipalityName,
             coordinates: coordinates,
           ),

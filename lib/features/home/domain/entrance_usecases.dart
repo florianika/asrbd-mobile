@@ -22,7 +22,7 @@ class EntranceUseCases {
 
     if (entBldGlobalID.isEmpty) return [];
 
-    return await _entranceRepository.getEntrances(zoom, entBldGlobalID);
+    return await _entranceRepository.getEntrances(entBldGlobalID);
   }
 
   Future<EntranceEntity> getEntranceDetails(String globalId) async {

@@ -102,3 +102,9 @@ extension EntranceRowToEntity on Entrance {
     );
   }
 }
+
+extension EntranceEntityListToDrift on List<EntranceEntity> {
+  List<Entrance> toDriftEntranceList(int downloadId) {
+    return map((entity) => entity.toDriftEntrance(downloadId)).toList();
+  }
+}

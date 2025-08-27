@@ -194,6 +194,8 @@ class EntranceEntity {
   }
 }
 
+
+
 extension EntranceEntityMapper on EntranceEntity {
   Map<String, dynamic> toMap() {
     return {
@@ -227,5 +229,7 @@ extension EntranceEntityMapper on EntranceEntity {
       'external_creator': externalCreator,
       'external_editor': externalEditor,
     };
-  }
+  }  
+  
+  
 }

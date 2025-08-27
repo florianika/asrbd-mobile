@@ -112,6 +112,13 @@ extension BuildingEntityToDrift on BuildingEntity {
   }
 }
 
+// Extension for List<BuildingEntity> to convert to List<Building>
+extension BuildingEntityListToDrift on List<BuildingEntity> {
+  List<Building> toDriftBuildingList(int downloadId) {
+    return map((entity) => entity.toDriftBuilding(downloadId)).toList();
+  }
+}
+
 // Drift row -> Domain entity
 extension BuildingRowToEntity on Building {
   BuildingEntity toEntity() {

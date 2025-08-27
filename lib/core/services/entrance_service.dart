@@ -13,7 +13,7 @@ class EntranceService {
   final StorageService _storage = StorageService();
   // Login method
   Future<List<EntranceEntity>> getEntrances(
-      double zoom, List<String> entBldGlobalID) async {
+      List<String> entBldGlobalID) async {
     try {
       String? esriToken =
           await _storage.getString(key: StorageKeys.esriAccessToken);

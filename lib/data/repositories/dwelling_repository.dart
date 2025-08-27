@@ -54,6 +54,11 @@ class DwellingRepository implements IDwellingRepository {
     return await dwellingService.getDwellings(entranceGlobalId);
   }
 
+  Future<List<DwellingEntity>> getDwellingsByEntrancesList(
+      List<String> entranceGlobalIds) async {
+    return await dwellingService.getDwellingsByEntrancesList(entranceGlobalIds);
+  }
+
   Future<List<FieldSchema>> getDwellingAttributes() async {
     return await dwellingService.getDwellingAttributes();
   }

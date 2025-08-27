@@ -4,46 +4,79 @@ import 'package:drift/drift.dart';
 
 class Dwellings extends Table {
   IntColumn get id => integer().autoIncrement()();
-  late final downloadId = integer().references(Downloads, #id)();
-  TextColumn get globalId => text().withLength(min: 1, max: 38)();
-  late final dwlEntGlobalId =
-      text().withLength(min: 1, max: 38).references(Entrances, #globalId)();
+
+  IntColumn get downloadId =>
+      integer().named('downloadid').references(Downloads, #id)();
+
+  TextColumn get globalId =>
+      text().named('globalid').withLength(min: 1, max: 38)();
+
+  TextColumn get dwlEntGlobalId => text()
+      .named('dwlentglobalid')
+      .withLength(min: 1, max: 38)
+      .references(Entrances, #globalId)();
 
   TextColumn get dwlAddressId =>
-      text().withLength(min: 1, max: 16).nullable()();
+      text().named('dwladdressid').withLength(min: 1, max: 16).nullable()();
 
-  IntColumn get dwlQuality => integer().withDefault(const Constant(9))();
-  IntColumn get dwlFloor => integer().nullable()();
+  IntColumn get dwlQuality =>
+      integer().named('dwlquality').withDefault(const Constant(9))();
+
+  IntColumn get dwlFloor => integer().named('dwlfloor').nullable()();
+
   TextColumn get dwlApartNumber =>
-      text().withLength(min: 1, max: 5).nullable()();
+      text().named('dwlapartnumber').withLength(min: 1, max: 5).nullable()();
 
-  IntColumn get dwlStatus => integer().withDefault(const Constant(4))();
-  IntColumn get dwlYearConstruction => integer().nullable()();
-  IntColumn get dwlYearElimination => integer().nullable()();
+  IntColumn get dwlStatus =>
+      integer().named('dwlstatus').withDefault(const Constant(4))();
+
+  IntColumn get dwlYearConstruction =>
+      integer().named('dwlyearconstruction').nullable()();
+
+  IntColumn get dwlYearElimination =>
+      integer().named('dwlyearelimination').nullable()();
 
   IntColumn get dwlType =>
-      integer().nullable().withDefault(const Constant(9))();
-  IntColumn get dwlOwnership =>
-      integer().nullable().withDefault(const Constant(99))();
-  IntColumn get dwlOccupancy =>
-      integer().nullable().withDefault(const Constant(99))();
+      integer().named('dwltype').nullable().withDefault(const Constant(9))();
 
-  IntColumn get dwlSurface => integer().nullable()();
+  IntColumn get dwlOwnership => integer()
+      .named('dwlownership')
+      .nullable()
+      .withDefault(const Constant(99))();
+
+  IntColumn get dwlOccupancy => integer()
+      .named('dwloccupancy')
+      .nullable()
+      .withDefault(const Constant(99))();
+
+  IntColumn get dwlSurface => integer().named('dwlsurface').nullable()();
+
   IntColumn get dwlToilet =>
-      integer().nullable().withDefault(const Constant(99))();
+      integer().named('dwltoilet').nullable().withDefault(const Constant(99))();
+
   IntColumn get dwlBath =>
-      integer().nullable().withDefault(const Constant(9))();
+      integer().named('dwlbath').nullable().withDefault(const Constant(9))();
 
-  IntColumn get dwlHeatingFacility =>
-      integer().nullable().withDefault(const Constant(99))();
-  IntColumn get dwlHeatingEnergy =>
-      integer().nullable().withDefault(const Constant(99))();
+  IntColumn get dwlHeatingFacility => integer()
+      .named('dwlheatingfacility')
+      .nullable()
+      .withDefault(const Constant(99))();
 
-  IntColumn get dwlAirConditioner =>
-      integer().nullable().withDefault(const Constant(9))();
-  IntColumn get dwlSolarPanel =>
-      integer().nullable().withDefault(const Constant(9))();
+  IntColumn get dwlHeatingEnergy => integer()
+      .named('dwlheatingenergy')
+      .nullable()
+      .withDefault(const Constant(99))();
+
+  IntColumn get dwlAirConditioner => integer()
+      .named('dwlairconditioner')
+      .nullable()
+      .withDefault(const Constant(9))();
+
+  IntColumn get dwlSolarPanel => integer()
+      .named('dwlsolarpanel')
+      .nullable()
+      .withDefault(const Constant(9))();
 
   TextColumn get geometryType =>
-      text().withLength(min: 1, max: 255).nullable()();
+      text().named('geometrytype').withLength(min: 1, max: 255).nullable()();
 }

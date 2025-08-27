@@ -154,22 +154,21 @@ class ApiEndpoints {
   }
 
   static String getEsriBuildingByGlobalId(String globalId) {
-  return Uri(
-    scheme: esriBaseUri.scheme,
-    host: esriBaseUri.host,
-    path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
-    queryParameters: {
-      'where': "GlobalID='$globalId'",
-      'outFields': '*',
-      'returnGeometry': 'true',
-      'f': 'geojson',
-      'inSR': '4326',
-      'outSR': '4326',
-      'spatialRel': 'esriSpatialRelIntersects',
-    },
-  ).toString();
-}
-
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
+      queryParameters: {
+        'where': "GlobalID='$globalId'",
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'f': 'geojson',
+        'inSR': '4326',
+        'outSR': '4326',
+        'spatialRel': 'esriSpatialRelIntersects',
+      },
+    ).toString();
+  }
 
   static String getEsriEntrance(List<String> entBldGlobalIDs) {
     String whereCondition =
@@ -336,6 +335,58 @@ class ApiEndpoints {
       path: '${esriBaseUri.path}/${AppConfig.dwellingLayerId}/query',
       queryParameters: {
         'where': 'DwlEntGlobalID =\'$entranceGlobalId\'',
+        'objectIds': '',
+        'time': '',
+        'geometry': '',
+        'geometryType': 'esriGeometryEnvelope',
+        'inSR': '',
+        'defaultSR': '',
+        'spatialRel': 'esriSpatialRelIntersects',
+        'distance': '',
+        'units': 'esriSRUnit_Foot',
+        'relationParam': '',
+        'outFields': '*',
+        'returnGeometry': 'true',
+        'maxAllowableOffset': '',
+        'geometryPrecision': '',
+        'outSR': '',
+        'havingClause': '',
+        'gdbVersion': '',
+        'historicMoment': '',
+        'returnDistinctValues': 'false',
+        'returnIdsOnly': 'false',
+        'returnCountOnly': 'false',
+        'returnExtentOnly': 'false',
+        'orderByFields': '',
+        'groupByFieldsForStatistics': '',
+        'outStatistics': '',
+        'returnZ': 'false',
+        'returnM': 'false',
+        'multipatchOption': 'xyFootprint',
+        'resultOffset': '',
+        'resultRecordCount': '',
+        'returnTrueCurves': 'false',
+        'returnCentroid': 'false',
+        'timeReferenceUnknownClient': 'false',
+        'maxRecordCountFactor': '',
+        'sqlFormat': 'none',
+        'resultType': '',
+        'featureEncoding': 'esriDefault',
+        'datumTransformation': '',
+        'f': 'geojson',
+      },
+    ).toString();
+  }
+
+  static String getEsriDwellingsByEntranceList(List<String> entranceGlobalId) {
+    String whereCondition = EsriConditionHelper.buildWhereClause(
+        'DwlEntGlobalID', entranceGlobalId);
+    return Uri(
+      scheme: esriBaseUri.scheme,
+      host: esriBaseUri.host,
+      path: '${esriBaseUri.path}/${AppConfig.dwellingLayerId}/query',
+      queryParameters: {
+        'where': whereCondition,
         'objectIds': '',
         'time': '',
         'geometry': '',

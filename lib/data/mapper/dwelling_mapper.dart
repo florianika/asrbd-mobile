@@ -93,3 +93,9 @@ extension DwellingRowToEntity on Dwelling {
     );
   }
 }
+
+extension DwellingEntityListToDrift on List<DwellingEntity> {
+  List<Dwelling> toDriftDwellingList(int downloadId) {
+    return map((entity) => entity.toDriftDwelling(downloadId)).toList();
+  }
+}

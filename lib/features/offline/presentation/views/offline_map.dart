@@ -4,7 +4,15 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/mapper/building_mappers.dart';
+import 'package:asrdb/data/mapper/dwelling_mapper.dart';
+import 'package:asrdb/data/mapper/entrance_mapper.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
+import 'package:asrdb/data/repositories/download_repository.dart';
+import 'package:asrdb/data/repositories/dwelling_repository.dart';
+import 'package:asrdb/data/repositories/entrance_repository.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +105,69 @@ class _OfflineMapState extends State<OfflineMap> {
     return ''; // Return null if we can't determine the relative path
   }
 
+  Future<void> _downloadAll(int downloadId) async {
+    final buildingRepository = sl<BuildingRepository>();
+    final entranceRepository = sl<EntranceRepository>();
+    final dwellingRepository = sl<DwellingRepository>();
+
+    final userService = sl<UserService>();
+
+    // var download = await downloadRepository.insertDownload();
+
+    // if (!mounted) return;
+
+    NotifierService.showMessage(context,
+        message: downloadId.toString(), type: MessageType.info);
+
+    var buildings = await buildingRepository.getBuildings(
+      _downloadBounds!,
+      AppConfig.minZoomDownload,
+      userService.userInfo!.municipality,
+    );
+
+    List<String> buildingIds =
+        buildings.map((entity) => entity.globalId!).toList();
+
+    List<EntranceEntity> entrances =
+        await entranceRepository.getEntrances(buildingIds);
+
+    var buildingsDao = buildings.toDriftBuildingList(downloadId);
+    await buildingRepository.insertBuildings(buildingsDao);
+
+    var entrancesDao = entrances.toDriftEntranceList(downloadId);
+    await entranceRepository.insertEntrances(entrancesDao);
+
+    List<String> entrancesIds =
+        entrances.map((entity) => entity.globalId!).toList();
+
+    List<DwellingEntity> dwellings =
+        await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
+
+    var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
+    await dwellingRepository.insertDwellings(dwellingsDao);
+  }
+
   Future<void> _downloadOfflineTiles() async {
+    final downloadUseCase = sl<DownloadRepository>();
+
+    NotifierService.showMessage(
+      context,
+      message: 'downloading',
+      type: MessageType.warning,
+    );
+
+    final response = await downloadUseCase.insertDownload();
+
+    // if (!mounted) return;
+
+    NotifierService.showMessage(
+      context,
+      message: response == null ? 'response is null' : response.id.toString(),
+      type: MessageType.warning,
+    );
+  }
+
+  Future<void> _downloadOfflineTiles1() async {
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
@@ -107,6 +177,23 @@ class _OfflineMapState extends State<OfflineMap> {
       if (_downloadBounds == null) {
         throw Exception('Download bounds not calculated');
       }
+      final downloadUseCase = sl<DownloadRepository>();
+      NotifierService.showMessage(
+        context,
+        message: downloadUseCase == null
+            ? 'downloadUseCase is null'
+            : 'downloadUseCase is not null',
+        type: MessageType.warning,
+      );
+      final response = await downloadUseCase.insertDownload();
+
+      if (!mounted) return;
+
+      NotifierService.showMessage(
+        context,
+        message: response == null ? 'response is null' : response.id.toString(),
+        type: MessageType.warning,
+      );
 
       final buildingRepository = sl<BuildingRepository>();
       final userService = sl<UserService>();
@@ -125,14 +212,13 @@ class _OfflineMapState extends State<OfflineMap> {
         );
         return;
       }
-      final downloadUseCase = sl<DownloadUsecases>();
 
       // Get the application documents directory
       final Directory appDocDir = await getApplicationDocumentsDirectory();
 
       // Create unique folder for this download session
       // final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-      final response = await downloadUseCase.insertDownload();
+
       // response.id
       final String sessionId = 'map_${response.id}';
       final String offlineMapPath = '${appDocDir.path}/offline_maps/$sessionId';
@@ -170,15 +256,15 @@ class _OfflineMapState extends State<OfflineMap> {
 
             try {
               // Download tile
-              await Dio().download(
-                tileUrl,
-                tilePath,
-                options: Options(
-                  headers: {
-                    'User-Agent': '${AppConfig.appName}/${AppConfig.version}'
-                  },
-                ),
-              );
+              // await Dio().download(
+              //   tileUrl,
+              //   tilePath,
+              //   options: Options(
+              //     headers: {
+              //       'User-Agent': '${AppConfig.appName}/${AppConfig.version}'
+              //     },
+              //   ),
+              // );
 
               // Save first tile from zoom 13 as preview (or any if 13 not available)
               if (previewTilePath == null || zoom == 13) {
@@ -190,6 +276,8 @@ class _OfflineMapState extends State<OfflineMap> {
               setState(() {
                 _downloadProgress = downloadedTiles / totalTiles;
               });
+
+              await _downloadAll(response.id);
             } catch (e) {
               print('Failed to download tile $zoom/$x/$y: $e');
               // Continue with other tiles even if one fails
@@ -197,16 +285,6 @@ class _OfflineMapState extends State<OfflineMap> {
           }
         }
       }
-
-      var buildings = await buildingRepository.getBuildings(
-        _downloadBounds!,
-        AppConfig.minZoomDownload,
-        userService.userInfo!.municipality,
-      );
-
-      
-
-      // buildingRepository.insertBuildings(buildings);
 
       // Save metadata for this download session
       final metadata = {

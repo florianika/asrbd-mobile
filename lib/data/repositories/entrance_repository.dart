@@ -4,7 +4,6 @@ import 'package:asrdb/core/services/entrance_service.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/repositories/entrance_repository.dart';
-import 'package:latlong2/latlong.dart';
 
 class EntranceRepository implements IEntranceRepository {
   final EntranceService entranceService;
@@ -13,8 +12,8 @@ class EntranceRepository implements IEntranceRepository {
   EntranceRepository(this._dao, this.entranceService);
 
   Future<List<EntranceEntity>> getEntrances(
-      double zoom, List<String> entBldGlobalID) async {
-    return await entranceService.getEntrances(zoom, entBldGlobalID);
+      List<String> entBldGlobalID) async {
+    return await entranceService.getEntrances(entBldGlobalID);
   }
 
   Future<EntranceEntity> getEntranceDetails(String globalId) async {
