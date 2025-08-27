@@ -113,8 +113,8 @@ class Buildings extends Table {
   IntColumn get bldEntranceRecs =>
       integer().named('bldentrancerecs').nullable()();
 
-  TextColumn get bldAddressId =>
-      text().named('bldaddressid').withLength(min: 1, max: 6).nullable()();
+  // TextColumn get bldAddressId =>
+  //     text().named('bldaddressid').withLength(min: 1, max: 6).nullable()();
 
   TextColumn get externalCreator =>
       text().named('externalcreator').withLength(min: 1, max: 38).nullable()();

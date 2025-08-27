@@ -459,15 +459,6 @@ class $BuildingsTable extends Buildings
   late final GeneratedColumn<int> bldEntranceRecs = GeneratedColumn<int>(
       'bldentrancerecs', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _bldAddressIdMeta =
-      const VerificationMeta('bldAddressId');
-  @override
-  late final GeneratedColumn<String> bldAddressId = GeneratedColumn<String>(
-      'bldaddressid', aliasedName, true,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 6),
-      type: DriftSqlType.string,
-      requiredDuringInsert: false);
   static const VerificationMeta _externalCreatorMeta =
       const VerificationMeta('externalCreator');
   @override
@@ -568,7 +559,6 @@ class $BuildingsTable extends Buildings
         bldCentroidStatus,
         bldDwellingRecs,
         bldEntranceRecs,
-        bldAddressId,
         externalCreator,
         externalEditor,
         bldReview,
@@ -795,12 +785,6 @@ class $BuildingsTable extends Buildings
           bldEntranceRecs.isAcceptableOrUnknown(
               data['bldentrancerecs']!, _bldEntranceRecsMeta));
     }
-    if (data.containsKey('bldaddressid')) {
-      context.handle(
-          _bldAddressIdMeta,
-          bldAddressId.isAcceptableOrUnknown(
-              data['bldaddressid']!, _bldAddressIdMeta));
-    }
     if (data.containsKey('externalcreator')) {
       context.handle(
           _externalCreatorMeta,
@@ -932,8 +916,6 @@ class $BuildingsTable extends Buildings
           .read(DriftSqlType.int, data['${effectivePrefix}blddwellingrecs']),
       bldEntranceRecs: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bldentrancerecs']),
-      bldAddressId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}bldaddressid']),
       externalCreator: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}externalcreator']),
       externalEditor: attachedDatabase.typeMapping
@@ -997,7 +979,6 @@ class Building extends DataClass implements Insertable<Building> {
   final int? bldCentroidStatus;
   final int? bldDwellingRecs;
   final int? bldEntranceRecs;
-  final String? bldAddressId;
   final String? externalCreator;
   final String? externalEditor;
   final int? bldReview;
@@ -1044,7 +1025,6 @@ class Building extends DataClass implements Insertable<Building> {
       this.bldCentroidStatus,
       this.bldDwellingRecs,
       this.bldEntranceRecs,
-      this.bldAddressId,
       this.externalCreator,
       this.externalEditor,
       this.bldReview,
@@ -1158,9 +1138,6 @@ class Building extends DataClass implements Insertable<Building> {
     }
     if (!nullToAbsent || bldEntranceRecs != null) {
       map['bldentrancerecs'] = Variable<int>(bldEntranceRecs);
-    }
-    if (!nullToAbsent || bldAddressId != null) {
-      map['bldaddressid'] = Variable<String>(bldAddressId);
     }
     if (!nullToAbsent || externalCreator != null) {
       map['externalcreator'] = Variable<String>(externalCreator);
@@ -1292,9 +1269,6 @@ class Building extends DataClass implements Insertable<Building> {
       bldEntranceRecs: bldEntranceRecs == null && nullToAbsent
           ? const Value.absent()
           : Value(bldEntranceRecs),
-      bldAddressId: bldAddressId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(bldAddressId),
       externalCreator: externalCreator == null && nullToAbsent
           ? const Value.absent()
           : Value(externalCreator),
@@ -1362,7 +1336,6 @@ class Building extends DataClass implements Insertable<Building> {
       bldCentroidStatus: serializer.fromJson<int?>(json['bldCentroidStatus']),
       bldDwellingRecs: serializer.fromJson<int?>(json['bldDwellingRecs']),
       bldEntranceRecs: serializer.fromJson<int?>(json['bldEntranceRecs']),
-      bldAddressId: serializer.fromJson<String?>(json['bldAddressId']),
       externalCreator: serializer.fromJson<String?>(json['externalCreator']),
       externalEditor: serializer.fromJson<String?>(json['externalEditor']),
       bldReview: serializer.fromJson<int?>(json['bldReview']),
@@ -1416,7 +1389,6 @@ class Building extends DataClass implements Insertable<Building> {
       'bldCentroidStatus': serializer.toJson<int?>(bldCentroidStatus),
       'bldDwellingRecs': serializer.toJson<int?>(bldDwellingRecs),
       'bldEntranceRecs': serializer.toJson<int?>(bldEntranceRecs),
-      'bldAddressId': serializer.toJson<String?>(bldAddressId),
       'externalCreator': serializer.toJson<String?>(externalCreator),
       'externalEditor': serializer.toJson<String?>(externalEditor),
       'bldReview': serializer.toJson<int?>(bldReview),
@@ -1466,7 +1438,6 @@ class Building extends DataClass implements Insertable<Building> {
           Value<int?> bldCentroidStatus = const Value.absent(),
           Value<int?> bldDwellingRecs = const Value.absent(),
           Value<int?> bldEntranceRecs = const Value.absent(),
-          Value<String?> bldAddressId = const Value.absent(),
           Value<String?> externalCreator = const Value.absent(),
           Value<String?> externalEditor = const Value.absent(),
           Value<int?> bldReview = const Value.absent(),
@@ -1538,8 +1509,6 @@ class Building extends DataClass implements Insertable<Building> {
         bldEntranceRecs: bldEntranceRecs.present
             ? bldEntranceRecs.value
             : this.bldEntranceRecs,
-        bldAddressId:
-            bldAddressId.present ? bldAddressId.value : this.bldAddressId,
         externalCreator: externalCreator.present
             ? externalCreator.value
             : this.externalCreator,
@@ -1641,9 +1610,6 @@ class Building extends DataClass implements Insertable<Building> {
       bldEntranceRecs: data.bldEntranceRecs.present
           ? data.bldEntranceRecs.value
           : this.bldEntranceRecs,
-      bldAddressId: data.bldAddressId.present
-          ? data.bldAddressId.value
-          : this.bldAddressId,
       externalCreator: data.externalCreator.present
           ? data.externalCreator.value
           : this.externalCreator,
@@ -1708,7 +1674,6 @@ class Building extends DataClass implements Insertable<Building> {
           ..write('bldCentroidStatus: $bldCentroidStatus, ')
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
-          ..write('bldAddressId: $bldAddressId, ')
           ..write('externalCreator: $externalCreator, ')
           ..write('externalEditor: $externalEditor, ')
           ..write('bldReview: $bldReview, ')
@@ -1760,7 +1725,6 @@ class Building extends DataClass implements Insertable<Building> {
         bldCentroidStatus,
         bldDwellingRecs,
         bldEntranceRecs,
-        bldAddressId,
         externalCreator,
         externalEditor,
         bldReview,
@@ -1811,7 +1775,6 @@ class Building extends DataClass implements Insertable<Building> {
           other.bldCentroidStatus == this.bldCentroidStatus &&
           other.bldDwellingRecs == this.bldDwellingRecs &&
           other.bldEntranceRecs == this.bldEntranceRecs &&
-          other.bldAddressId == this.bldAddressId &&
           other.externalCreator == this.externalCreator &&
           other.externalEditor == this.externalEditor &&
           other.bldReview == this.bldReview &&
@@ -1860,7 +1823,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int?> bldCentroidStatus;
   final Value<int?> bldDwellingRecs;
   final Value<int?> bldEntranceRecs;
-  final Value<String?> bldAddressId;
   final Value<String?> externalCreator;
   final Value<String?> externalEditor;
   final Value<int?> bldReview;
@@ -1907,7 +1869,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldCentroidStatus = const Value.absent(),
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
-    this.bldAddressId = const Value.absent(),
     this.externalCreator = const Value.absent(),
     this.externalEditor = const Value.absent(),
     this.bldReview = const Value.absent(),
@@ -1955,7 +1916,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.bldCentroidStatus = const Value.absent(),
     this.bldDwellingRecs = const Value.absent(),
     this.bldEntranceRecs = const Value.absent(),
-    this.bldAddressId = const Value.absent(),
     this.externalCreator = const Value.absent(),
     this.externalEditor = const Value.absent(),
     this.bldReview = const Value.absent(),
@@ -2006,7 +1966,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     Expression<int>? bldCentroidStatus,
     Expression<int>? bldDwellingRecs,
     Expression<int>? bldEntranceRecs,
-    Expression<String>? bldAddressId,
     Expression<String>? externalCreator,
     Expression<String>? externalEditor,
     Expression<int>? bldReview,
@@ -2055,7 +2014,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       if (bldCentroidStatus != null) 'bldcentroidstatus': bldCentroidStatus,
       if (bldDwellingRecs != null) 'blddwellingrecs': bldDwellingRecs,
       if (bldEntranceRecs != null) 'bldentrancerecs': bldEntranceRecs,
-      if (bldAddressId != null) 'bldaddressid': bldAddressId,
       if (externalCreator != null) 'externalcreator': externalCreator,
       if (externalEditor != null) 'externaleditor': externalEditor,
       if (bldReview != null) 'bldreview': bldReview,
@@ -2106,7 +2064,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       Value<int?>? bldCentroidStatus,
       Value<int?>? bldDwellingRecs,
       Value<int?>? bldEntranceRecs,
-      Value<String?>? bldAddressId,
       Value<String?>? externalCreator,
       Value<String?>? externalEditor,
       Value<int?>? bldReview,
@@ -2153,7 +2110,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
       bldCentroidStatus: bldCentroidStatus ?? this.bldCentroidStatus,
       bldDwellingRecs: bldDwellingRecs ?? this.bldDwellingRecs,
       bldEntranceRecs: bldEntranceRecs ?? this.bldEntranceRecs,
-      bldAddressId: bldAddressId ?? this.bldAddressId,
       externalCreator: externalCreator ?? this.externalCreator,
       externalEditor: externalEditor ?? this.externalEditor,
       bldReview: bldReview ?? this.bldReview,
@@ -2279,9 +2235,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     if (bldEntranceRecs.present) {
       map['bldentrancerecs'] = Variable<int>(bldEntranceRecs.value);
     }
-    if (bldAddressId.present) {
-      map['bldaddressid'] = Variable<String>(bldAddressId.value);
-    }
     if (externalCreator.present) {
       map['externalcreator'] = Variable<String>(externalCreator.value);
     }
@@ -2350,7 +2303,6 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
           ..write('bldCentroidStatus: $bldCentroidStatus, ')
           ..write('bldDwellingRecs: $bldDwellingRecs, ')
           ..write('bldEntranceRecs: $bldEntranceRecs, ')
-          ..write('bldAddressId: $bldAddressId, ')
           ..write('externalCreator: $externalCreator, ')
           ..write('externalEditor: $externalEditor, ')
           ..write('bldReview: $bldReview, ')
@@ -5225,7 +5177,6 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldCentroidStatus,
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
-  Value<String?> bldAddressId,
   Value<String?> externalCreator,
   Value<String?> externalEditor,
   Value<int?> bldReview,
@@ -5273,7 +5224,6 @@ typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int?> bldCentroidStatus,
   Value<int?> bldDwellingRecs,
   Value<int?> bldEntranceRecs,
-  Value<String?> bldAddressId,
   Value<String?> externalCreator,
   Value<String?> externalEditor,
   Value<int?> bldReview,
@@ -5448,9 +5398,6 @@ class $$BuildingsTableFilterComposer
   ColumnFilters<int> get bldEntranceRecs => $composableBuilder(
       column: $table.bldEntranceRecs,
       builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get bldAddressId => $composableBuilder(
-      column: $table.bldAddressId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get externalCreator => $composableBuilder(
       column: $table.externalCreator,
@@ -5657,10 +5604,6 @@ class $$BuildingsTableOrderingComposer
       column: $table.bldEntranceRecs,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get bldAddressId => $composableBuilder(
-      column: $table.bldAddressId,
-      builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<String> get externalCreator => $composableBuilder(
       column: $table.externalCreator,
       builder: (column) => ColumnOrderings(column));
@@ -5829,9 +5772,6 @@ class $$BuildingsTableAnnotationComposer
   GeneratedColumn<int> get bldEntranceRecs => $composableBuilder(
       column: $table.bldEntranceRecs, builder: (column) => column);
 
-  GeneratedColumn<String> get bldAddressId => $composableBuilder(
-      column: $table.bldAddressId, builder: (column) => column);
-
   GeneratedColumn<String> get externalCreator => $composableBuilder(
       column: $table.externalCreator, builder: (column) => column);
 
@@ -5958,7 +5898,6 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldCentroidStatus = const Value.absent(),
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
-            Value<String?> bldAddressId = const Value.absent(),
             Value<String?> externalCreator = const Value.absent(),
             Value<String?> externalEditor = const Value.absent(),
             Value<int?> bldReview = const Value.absent(),
@@ -6006,7 +5945,6 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldCentroidStatus: bldCentroidStatus,
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
-            bldAddressId: bldAddressId,
             externalCreator: externalCreator,
             externalEditor: externalEditor,
             bldReview: bldReview,
@@ -6054,7 +5992,6 @@ class $$BuildingsTableTableManager extends RootTableManager<
             Value<int?> bldCentroidStatus = const Value.absent(),
             Value<int?> bldDwellingRecs = const Value.absent(),
             Value<int?> bldEntranceRecs = const Value.absent(),
-            Value<String?> bldAddressId = const Value.absent(),
             Value<String?> externalCreator = const Value.absent(),
             Value<String?> externalEditor = const Value.absent(),
             Value<int?> bldReview = const Value.absent(),
@@ -6102,7 +6039,6 @@ class $$BuildingsTableTableManager extends RootTableManager<
             bldCentroidStatus: bldCentroidStatus,
             bldDwellingRecs: bldDwellingRecs,
             bldEntranceRecs: bldEntranceRecs,
-            bldAddressId: bldAddressId,
             externalCreator: externalCreator,
             externalEditor: externalEditor,
             bldReview: bldReview,
