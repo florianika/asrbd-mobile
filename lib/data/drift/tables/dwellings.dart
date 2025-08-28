@@ -6,77 +6,79 @@ class Dwellings extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   IntColumn get downloadId =>
-      integer().named('downloadid').references(Downloads, #id)();
+      integer().named('download_id').references(Downloads, #id)();
 
   TextColumn get globalId =>
-      text().named('globalid').withLength(min: 1, max: 38)();
+      text().named('global_id').withLength(min: 1, max: 38)();
 
   TextColumn get dwlEntGlobalId => text()
-      .named('dwlentglobalid')
+      .named('dwl_ent_global_id')
       .withLength(min: 1, max: 38)
       .references(Entrances, #globalId)();
 
   TextColumn get dwlAddressId =>
-      text().named('dwladdressid').withLength(min: 1, max: 16).nullable()();
+      text().named('dwl_address_id').withLength(min: 1, max: 16).nullable()();
 
   IntColumn get dwlQuality =>
-      integer().named('dwlquality').withDefault(const Constant(9))();
+      integer().named('dwl_quality').withDefault(const Constant(9))();
 
-  IntColumn get dwlFloor => integer().named('dwlfloor').nullable()();
+  IntColumn get dwlFloor => integer().named('dwl_floor').nullable()();
 
   TextColumn get dwlApartNumber =>
-      text().named('dwlapartnumber').withLength(min: 1, max: 5).nullable()();
+      text().named('dwl_apart_number').withLength(min: 1, max: 5).nullable()();
 
   IntColumn get dwlStatus =>
-      integer().named('dwlstatus').withDefault(const Constant(4))();
+      integer().named('dwl_status').withDefault(const Constant(4))();
 
   IntColumn get dwlYearConstruction =>
-      integer().named('dwlyearconstruction').nullable()();
+      integer().named('dwl_year_construction').nullable()();
 
   IntColumn get dwlYearElimination =>
-      integer().named('dwlyearelimination').nullable()();
+      integer().named('dwl_year_elimination').nullable()();
 
   IntColumn get dwlType =>
-      integer().named('dwltype').nullable().withDefault(const Constant(9))();
+      integer().named('dwl_type').nullable().withDefault(const Constant(9))();
 
   IntColumn get dwlOwnership => integer()
-      .named('dwlownership')
+      .named('dwl_ownership')
       .nullable()
       .withDefault(const Constant(99))();
 
   IntColumn get dwlOccupancy => integer()
-      .named('dwloccupancy')
+      .named('dwl_occupancy')
       .nullable()
       .withDefault(const Constant(99))();
 
-  IntColumn get dwlSurface => integer().named('dwlsurface').nullable()();
+  IntColumn get dwlSurface => integer().named('dwl_surface').nullable()();
 
-  IntColumn get dwlToilet =>
-      integer().named('dwltoilet').nullable().withDefault(const Constant(99))();
+  IntColumn get dwlToilet => integer()
+      .named('dwl_toilet')
+      .nullable()
+      .withDefault(const Constant(99))();
 
   IntColumn get dwlBath =>
-      integer().named('dwlbath').nullable().withDefault(const Constant(9))();
+      integer().named('dwl_bath').nullable().withDefault(const Constant(9))();
 
   IntColumn get dwlHeatingFacility => integer()
-      .named('dwlheatingfacility')
+      .named('dwl_heating_facility')
       .nullable()
       .withDefault(const Constant(99))();
 
   IntColumn get dwlHeatingEnergy => integer()
-      .named('dwlheatingenergy')
+      .named('dwl_heating_energy')
       .nullable()
       .withDefault(const Constant(99))();
 
   IntColumn get dwlAirConditioner => integer()
-      .named('dwlairconditioner')
+      .named('dwl_air_conditioner')
       .nullable()
       .withDefault(const Constant(9))();
 
   IntColumn get dwlSolarPanel => integer()
-      .named('dwlsolarpanel')
+      .named('dwl_solar_panel')
       .nullable()
       .withDefault(const Constant(9))();
 
   TextColumn get geometryType =>
-      text().named('geometrytype').withLength(min: 1, max: 255).nullable()();
+      text().named('geometry_type').withLength(min: 1, max: 255).nullable()();
 }

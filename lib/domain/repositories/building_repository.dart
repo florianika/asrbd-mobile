@@ -7,6 +7,8 @@ abstract class IBuildingRepository {
   /// Local DB Operations
   Future<List<Building>> getAllBuildings();
 
+  Future<List<Building>> getBuildingsByDownloadId(int downloadId);
+
   Future<void> insertBuilding(Building building);
 
   Future<void> insertBuildings(List<Building> buildings);
@@ -20,7 +22,7 @@ abstract class IBuildingRepository {
   Future<void> updateBuildingGlobalId(int objectId, String newGlobalId);
 
   Future<List<BuildingEntity>> getBuildings(
-      LatLngBounds bounds, double zoom, int municipalityId);
+      LatLngBounds bounds, double zoom, int municipalityId, bool isOffline);
 
   Future<BuildingEntity> getBuildingDetails(String globalId);
 

@@ -67,12 +67,17 @@ class BuildingCubit extends Cubit<BuildingState> {
   ) : super(BuildingInitial());
 
   /// Get buildings by bounds
-  Future<void> getBuildings(
-      LatLngBounds? bounds, double zoom, int municipalityId) async {
+  Future<void> getBuildings(LatLngBounds? bounds, double zoom,
+      int municipalityId, bool isOffline, int? downloadId) async {
     emit(BuildingLoading());
     try {
-      final buildings =
-          await buildingUseCases.getBuildings(bounds, zoom, municipalityId);
+      final buildings = await buildingUseCases.getBuildings(
+        bounds,
+        zoom,
+        municipalityId,
+        isOffline,
+        downloadId
+      );
       _buildings = buildings;
       emit(Buildings(buildings));
     } catch (e) {

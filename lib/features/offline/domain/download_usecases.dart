@@ -6,7 +6,7 @@ class DownloadUsecases {
 
   DownloadUsecases(this._downloadRepository);
 
-  Future<Download> insertDownload() async {
+  Future<int> insertDownload() async {
     return await _downloadRepository.insertDownload();
   }
 }

@@ -6,50 +6,50 @@ class Entrances extends Table {
   IntColumn get id => integer().autoIncrement()();
 
   IntColumn get downloadId =>
-      integer().named('downloadid').references(Downloads, #id)();
+      integer().named('download_id').references(Downloads, #id)();
 
   TextColumn get globalId =>
-      text().named('globalid').withLength(min: 1, max: 38)();
+      text().named('global_id').withLength(min: 1, max: 38)();
 
   TextColumn get entBldGlobalId => text()
-      .named('entbldglobalid')
+      .named('ent_bld_global_id')
       .withLength(min: 1, max: 38)
       .references(Buildings, #globalId)();
 
   TextColumn get entAddressId =>
-      text().named('entaddressid').withLength(min: 1, max: 10).nullable()();
+      text().named('ent_address_id').withLength(min: 1, max: 10).nullable()();
 
   IntColumn get entQuality =>
-      integer().named('entquality').withDefault(const Constant(9))();
+      integer().named('ent_quality').withDefault(const Constant(9))();
 
-  RealColumn get entLatitude => real().named('entlatitude')();
+  RealColumn get entLatitude => real().named('ent_latitude')();
 
-  RealColumn get entLongitude => real().named('entlongitude')();
+  RealColumn get entLongitude => real().named('ent_longitude')();
 
   IntColumn get entPointStatus =>
-      integer().named('entpointstatus').withDefault(const Constant(1))();
+      integer().named('ent_point_status').withDefault(const Constant(1))();
 
   TextColumn get entStrGlobalId =>
-      text().named('entstrglobalid').withLength(min: 1, max: 38).nullable()();
+      text().named('ent_str_global_id').withLength(min: 1, max: 38).nullable()();
 
   TextColumn get entBuildingNumber =>
-      text().named('entbuildingnumber').withLength(min: 1, max: 5).nullable()();
+      text().named('ent_building_number').withLength(min: 1, max: 5).nullable()();
 
   TextColumn get entEntranceNumber =>
-      text().named('ententrancenumber').withLength(min: 1, max: 4).nullable()();
+      text().named('ent_entrance_number').withLength(min: 1, max: 4).nullable()();
 
-  IntColumn get entTown => integer().named('enttown').nullable()();
+  IntColumn get entTown => integer().named('ent_town').nullable()();
 
-  IntColumn get entZipCode => integer().named('entzpcode').nullable()();
+  IntColumn get entZipCode => integer().named('ent_zip_code').nullable()();
 
   IntColumn get entDwellingRecs =>
-      integer().named('entdwellingrecs').nullable()();
+      integer().named('ent_dwelling_recs').nullable()();
 
   IntColumn get entDwellingExpec =>
-      integer().named('entdwellingexpec').nullable()();
+      integer().named('ent_dwelling_expec').nullable()();
 
   TextColumn get geometryType =>
-      text().named('geometrytype').withLength(min: 1, max: 255).nullable()();
+      text().named('geometry_type').withLength(min: 1, max: 255).nullable()();
 
   TextColumn get coordinates => text().named('coordinates')();
 }

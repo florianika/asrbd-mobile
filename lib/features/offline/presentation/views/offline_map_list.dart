@@ -1,4 +1,6 @@
 import 'package:asrdb/core/db/hive_boxes.dart';
+import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -80,7 +82,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               }
 
               final map = DownloadedMap(
-                sessionId: metadata['sessionId'],
+                sessionId: metadata['sessionId'].toString(),
                 name: metadata['name'],
                 location: metadata['location'],
                 totalTiles: metadata['totalTiles'],
@@ -108,16 +110,16 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               );
 
               maps.add(map);
-            } else {
-              // Handle legacy downloads without metadata (from old structure)
-              final legacyMap = await _analyzeLegacyMapData(sessionEntity);
-              if (legacyMap != null) {
-                maps.add(legacyMap);
-              }
             }
           } catch (e) {
             print('Error loading map session ${sessionEntity.path}: $e');
             // Continue with other sessions
+
+            NotifierService.showMessage(
+              context,
+              message: 'Error loading map session ${sessionEntity.path}: $e',
+              type: MessageType.error,
+            );
           }
         }
       }

@@ -5,7 +5,8 @@ import '../tables/buildings.dart';
 part 'building_dao.g.dart';
 
 @DriftAccessor(tables: [Buildings])
-class BuildingDao extends DatabaseAccessor<AppDatabase> with _$BuildingDaoMixin {
+class BuildingDao extends DatabaseAccessor<AppDatabase>
+    with _$BuildingDaoMixin {
   BuildingDao(AppDatabase db) : super(db);
 
   // 1. Get all buildings
@@ -13,9 +14,16 @@ class BuildingDao extends DatabaseAccessor<AppDatabase> with _$BuildingDaoMixin 
     return select(buildings).get();
   }
 
+  Future<List<Building>> getBuildingsByDownloadId(int downloadId) {
+    return (select(buildings)
+          ..where((tbl) => tbl.downloadId.equals(downloadId)))
+        .get();
+  }
+
   // 2. Get building by id
   Future<Building?> getBuildingById(String globalId) {
-    return (select(buildings)..where((tbl) => tbl.globalId.equals(globalId))).getSingleOrNull();
+    return (select(buildings)..where((tbl) => tbl.globalId.equals(globalId)))
+        .getSingleOrNull();
   }
 
   // 3. Insert or update a single building
@@ -45,12 +53,10 @@ class BuildingDao extends DatabaseAccessor<AppDatabase> with _$BuildingDaoMixin 
     required int id,
     required String globalId,
   }) async {
-    await (update(buildings)..where((tbl) => tbl.id.equals(id)))
-        .write(
+    await (update(buildings)..where((tbl) => tbl.id.equals(id))).write(
       BuildingsCompanion(
         globalId: Value(globalId),
       ),
     );
   }
 }
-

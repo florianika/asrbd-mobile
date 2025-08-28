@@ -37,18 +37,17 @@ class _OfflineMapState extends State<OfflineMap> {
   final double squareSize = 200;
   final int _minZoom = 19;
   final int _maxZoom = 22;
-  double _currentZoom = 19; // initial zoom
+  double _currentZoom = 19;
 
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
 
   LatLngBounds? _downloadBounds;
+  LatLngBounds? _actualTileAlignedBounds;
 
-  void _calculateDownloadBounds() {
-    // Get the camera from the map controller
+  /// Calculate the initial desired download bounds from the visual square
+  void _calculateInitialDownloadBounds() {
     final camera = _mapController.camera;
-
-    // Get the size of the map widget
     final mapSize = MediaQuery.of(context).size;
     final center = Offset(mapSize.width / 2, mapSize.height / 2);
 
@@ -61,40 +60,247 @@ class _OfflineMapState extends State<OfflineMap> {
     final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
     final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
 
-    setState(() {
-      _downloadBounds = LatLngBounds.fromPoints([nw, se]);
-    });
+    _downloadBounds = LatLngBounds.fromPoints([nw, se]);
+  }
+
+  /// Calculate tile-aligned bounds that represent what will actually be downloaded
+  void _calculateTileAlignedBounds() {
+    if (_downloadBounds == null) return;
+
+    // Use a middle zoom level for alignment reference
+    final referenceZoom = (_minZoom + _maxZoom) ~/ 2;
+
+    // Get tile bounds for the reference zoom
+    final tileBounds = _calculateTileBounds(_downloadBounds!, referenceZoom);
+
+    // Convert tile bounds back to geographic bounds
+    _actualTileAlignedBounds = _tileIndexToBounds(tileBounds, referenceZoom);
+
+    // Debug output
+    _debugPrintBounds();
+  }
+
+  /// Hyperbolic sine function (not available in dart:math)
+  double _sinh(double x) {
+    return (math.exp(x) - math.exp(-x)) / 2.0;
+  }
+
+  /// Convert tile indices back to LatLng bounds
+  LatLngBounds _tileIndexToBounds(Map<String, int> tileBounds, int zoom) {
+    final double minXTile = tileBounds['minX']!.toDouble();
+    final double maxXTile = (tileBounds['maxX']! + 1).toDouble();
+    final double minYTile = tileBounds['minY']!.toDouble();
+    final double maxYTile = (tileBounds['maxY']! + 1).toDouble();
+
+    // Convert tile coordinates to lat/lng
+    final double westLng = minXTile / math.pow(2.0, zoom) * 360.0 - 180.0;
+    final double eastLng = maxXTile / math.pow(2.0, zoom) * 360.0 - 180.0;
+
+    final double northRad =
+        math.pi - 2.0 * math.pi * minYTile / math.pow(2.0, zoom);
+    final double southRad =
+        math.pi - 2.0 * math.pi * maxYTile / math.pow(2.0, zoom);
+
+    final double northLat = math.atan(_sinh(northRad)) * 180.0 / math.pi;
+    final double southLat = math.atan(_sinh(southRad)) * 180.0 / math.pi;
+
+    return LatLngBounds.fromPoints([
+      LatLng(northLat, westLng),
+      LatLng(southLat, eastLng),
+    ]);
+  }
+
+  /// Calculate and display the actual download bounds
+  void _calculateActualDownloadBounds() {
+    _calculateInitialDownloadBounds();
+    _calculateTileAlignedBounds();
+
+    // Use the tile-aligned bounds as the actual download bounds
+    if (_actualTileAlignedBounds != null) {
+      setState(() {
+        _downloadBounds = _actualTileAlignedBounds;
+      });
+    }
+  }
+
+  /// Debug function to print bounds information
+  void _debugPrintBounds() {
+    if (_downloadBounds != null && _actualTileAlignedBounds != null) {
+      print('=== BOUNDS DEBUG INFO ===');
+      print('Original visual bounds:');
+      print('  North: ${_downloadBounds!.north}');
+      print('  South: ${_downloadBounds!.south}');
+      print('  West: ${_downloadBounds!.west}');
+      print('  East: ${_downloadBounds!.east}');
+
+      print('Tile-aligned bounds:');
+      print('  North: ${_actualTileAlignedBounds!.north}');
+      print('  South: ${_actualTileAlignedBounds!.south}');
+      print('  West: ${_actualTileAlignedBounds!.west}');
+      print('  East: ${_actualTileAlignedBounds!.east}');
+
+      // Calculate the difference
+      final latDiff =
+          (_actualTileAlignedBounds!.north - _actualTileAlignedBounds!.south) -
+              (_downloadBounds!.north - _downloadBounds!.south);
+      final lngDiff =
+          (_actualTileAlignedBounds!.east - _actualTileAlignedBounds!.west) -
+              (_downloadBounds!.east - _downloadBounds!.west);
+
+      print('Area difference:');
+      print('  Lat expansion: ${latDiff.toStringAsFixed(6)}°');
+      print('  Lng expansion: ${lngDiff.toStringAsFixed(6)}°');
+
+      // Show tile counts for each zoom level
+      print('Tile counts by zoom level:');
+      for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
+        final tileBounds = _calculateTileBounds(_downloadBounds!, zoom);
+        final tileCount = (tileBounds['maxX']! - tileBounds['minX']! + 1) *
+            (tileBounds['maxY']! - tileBounds['minY']! + 1);
+        print(
+            '  Zoom $zoom: X(${tileBounds['minX']}-${tileBounds['maxX']}) Y(${tileBounds['minY']}-${tileBounds['maxY']}) = $tileCount tiles');
+      }
+      print('========================');
+    }
   }
 
   void _downloadArea() async {
-    _calculateDownloadBounds();
+    // Calculate the actual tile-aligned bounds
+    _calculateActualDownloadBounds();
 
     if (_downloadBounds != null) {
-      await _downloadOfflineTiles();
+      // IMPORTANT: Ensure we're using tile-aligned bounds for building count check
+      // This must be the SAME bounds used for tile download and building download
+      final finalBounds = _downloadBounds!; // This is now tile-aligned
+
+      final buildingRepository = sl<BuildingRepository>();
+      final userService = sl<UserService>();
+
+      try {
+        print('=== DOWNLOAD AREA DEBUG ===');
+        print('Final bounds for all operations: $finalBounds');
+        print('Bounds coordinates:');
+        print('  North: ${finalBounds.north}');
+        print('  South: ${finalBounds.south}');
+        print('  West: ${finalBounds.west}');
+        print('  East: ${finalBounds.east}');
+
+        // Check building count using the exact same bounds that will be used for download
+        final noBuildings = await buildingRepository.buildingService
+            .getBuildingsCount(finalBounds, userService.userInfo!.municipality);
+
+        print('Building count in final bounds: $noBuildings');
+
+        if (noBuildings > AppConfig.maxNoBuildings) {
+          if (!mounted) return;
+          NotifierService.showMessage(
+            context,
+            message:
+                'You cannot download an area with more than ${AppConfig.maxNoBuildings} buildings. Actual number is $noBuildings',
+            type: MessageType.warning,
+          );
+          return;
+        }
+
+        // Show confirmation dialog with actual bounds info
+        final shouldProceed = await _showDownloadConfirmation(noBuildings);
+        if (!shouldProceed) return;
+
+        print('Proceeding with download using bounds: $finalBounds');
+        await _downloadOfflineTiles();
+      } catch (e) {
+        print('Error in download area: $e');
+        if (!mounted) return;
+        NotifierService.showMessage(
+          context,
+          message: 'Error checking building count: $e',
+          type: MessageType.error,
+        );
+      }
+    } else {
+      print('ERROR: Download bounds is null!');
+      NotifierService.showMessage(
+        context,
+        message: 'Error: Could not calculate download bounds',
+        type: MessageType.error,
+      );
     }
   }
 
-  String _getRelativePreviewPath(String fullPath, String basePath) {
-    // Extract the relative path from the full path
-    // Example: if fullPath is "/path/to/offline_maps/session/tiles/13/4185/2862.png"
-    // and basePath is "/path/to/offline_maps/session"
-    // return "13/4185/2862.png" (relative to tiles folder)
+  /// Show confirmation dialog with download details
+  Future<bool> _showDownloadConfirmation(int buildingCount) async {
+    if (!mounted) return false;
 
+    // Calculate total tiles
+    int totalTiles = 0;
+    for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
+      final bounds = _calculateTileBounds(_downloadBounds!, zoom);
+      totalTiles += (bounds['maxX']! - bounds['minX']! + 1) *
+          (bounds['maxY']! - bounds['minY']! + 1);
+    }
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Download'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Download Details:'),
+            const SizedBox(height: 8),
+            Text('• Buildings: $buildingCount'),
+            Text('• Total tiles: $totalTiles'),
+            Text('• Zoom levels: $_minZoom - $_maxZoom'),
+            const SizedBox(height: 12),
+            if (_actualTileAlignedBounds != null) ...[
+              Text('Actual coverage area:'),
+              Text(
+                  '• North: ${_actualTileAlignedBounds!.north.toStringAsFixed(6)}'),
+              Text(
+                  '• South: ${_actualTileAlignedBounds!.south.toStringAsFixed(6)}'),
+              Text(
+                  '• West: ${_actualTileAlignedBounds!.west.toStringAsFixed(6)}'),
+              Text(
+                  '• East: ${_actualTileAlignedBounds!.east.toStringAsFixed(6)}'),
+              const SizedBox(height: 8),
+              const Text(
+                'Note: The actual download area is aligned to tile boundaries and may be slightly larger than the visual selection.',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Download'),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
+
+  String _getRelativePreviewPath(String fullPath, String basePath) {
     if (fullPath.contains('/tiles/')) {
       final parts = fullPath.split('/tiles/');
       if (parts.length > 1) {
-        return parts[1]; // Return everything after "/tiles/"
+        return parts[1];
       }
     }
 
-    // Fallback: try to extract zoom/x/y.png pattern
     final pathParts = fullPath.split('/');
     if (pathParts.length >= 3) {
       final fileName = pathParts.last;
       final xFolder = pathParts[pathParts.length - 2];
       final zoomFolder = pathParts[pathParts.length - 3];
 
-      // Check if this looks like a tile path (zoom/x/file.png)
       if (int.tryParse(zoomFolder) != null &&
           int.tryParse(xFolder) != null &&
           fileName.endsWith('.png')) {
@@ -102,72 +308,106 @@ class _OfflineMapState extends State<OfflineMap> {
       }
     }
 
-    return ''; // Return null if we can't determine the relative path
+    return '';
   }
 
   Future<void> _downloadAll(int downloadId) async {
     final buildingRepository = sl<BuildingRepository>();
     final entranceRepository = sl<EntranceRepository>();
     final dwellingRepository = sl<DwellingRepository>();
-
     final userService = sl<UserService>();
 
-    // var download = await downloadRepository.insertDownload();
-
-    // if (!mounted) return;
-
-    NotifierService.showMessage(context,
-        message: downloadId.toString(), type: MessageType.info);
-
-    var buildings = await buildingRepository.getBuildings(
-      _downloadBounds!,
-      AppConfig.minZoomDownload,
-      userService.userInfo!.municipality,
+    NotifierService.showMessage(
+      context,
+      message: 'Building download started with exact tile bounds',
+      type: MessageType.info,
     );
 
-    List<String> buildingIds =
-        buildings.map((entity) => entity.globalId!).toList();
+    try {
+      // CRITICAL: Use the exact same bounds that are used for tile downloading
+      // This ensures perfect consistency between map tiles and building data
 
-    List<EntranceEntity> entrances =
-        await entranceRepository.getEntrances(buildingIds);
+      print('=== BUILDING DOWNLOAD DEBUG ===');
+      print('Using bounds: $_downloadBounds');
+      print('North: ${_downloadBounds!.north}');
+      print('South: ${_downloadBounds!.south}');
+      print('West: ${_downloadBounds!.west}');
+      print('East: ${_downloadBounds!.east}');
 
-    var buildingsDao = buildings.toDriftBuildingList(downloadId);
-    await buildingRepository.insertBuildings(buildingsDao);
+      // Verify these are the tile-aligned bounds
+      if (_actualTileAlignedBounds != null) {
+        final boundsMatch =
+            _downloadBounds!.north == _actualTileAlignedBounds!.north &&
+                _downloadBounds!.south == _actualTileAlignedBounds!.south &&
+                _downloadBounds!.west == _actualTileAlignedBounds!.west &&
+                _downloadBounds!.east == _actualTileAlignedBounds!.east;
+        print('Bounds match tile-aligned bounds: $boundsMatch');
+      }
 
-    var entrancesDao = entrances.toDriftEntranceList(downloadId);
-    await entranceRepository.insertEntrances(entrancesDao);
+      var buildings = await buildingRepository.getBuildings(
+        _downloadBounds!,
+        AppConfig.minZoomDownload,
+        userService.userInfo!.municipality,
+        true,
+      );
 
-    List<String> entrancesIds =
-        entrances.map((entity) => entity.globalId!).toList();
+      print('Buildings found: ${buildings.length}');
 
-    List<DwellingEntity> dwellings =
-        await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
+      // Log some building coordinates for verification
+      if (buildings.isNotEmpty) {
+        for (int i = 0; i < math.min(3, buildings.length); i++) {
+          print('Building ${i + 1} location: ${buildings[i].toString()}');
+        }
+      }
 
-    var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
-    await dwellingRepository.insertDwellings(dwellingsDao);
+      var buildingsDao = buildings.toDriftBuildingList(downloadId);
+      await buildingRepository.insertBuildings(buildingsDao);
+
+      List<String> buildingIds =
+          buildings.map((entity) => entity.globalId!).toList();
+
+      NotifierService.showMessage(
+        context,
+        message: 'Buildings inserted: ${buildings.length}',
+        type: MessageType.info,
+      );
+
+      List<EntranceEntity> entrances =
+          await entranceRepository.getEntrances(buildingIds);
+      print('Entrances found: ${entrances.length}');
+
+      var entrancesDao = entrances.toDriftEntranceList(downloadId);
+      await entranceRepository.insertEntrances(entrancesDao);
+
+      List<String> entrancesIds =
+          entrances.map((entity) => entity.globalId!).toList();
+      List<DwellingEntity> dwellings =
+          await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
+      print('Dwellings found: ${dwellings.length}');
+
+      var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
+      await dwellingRepository.insertDwellings(dwellingsDao);
+
+      NotifierService.showMessage(
+        context,
+        message:
+            'Data download complete - Buildings: ${buildings.length}, Entrances: ${entrances.length}, Dwellings: ${dwellings.length}',
+        type: MessageType.success,
+      );
+
+      print('=== BUILDING DOWNLOAD COMPLETE ===');
+    } catch (e, stack) {
+      print('Building download error: $e');
+      print('Stack trace: $stack');
+      NotifierService.showMessage(
+        context,
+        message: "Building download error: $e",
+        type: MessageType.error,
+      );
+    }
   }
 
   Future<void> _downloadOfflineTiles() async {
-    final downloadUseCase = sl<DownloadRepository>();
-
-    NotifierService.showMessage(
-      context,
-      message: 'downloading',
-      type: MessageType.warning,
-    );
-
-    final response = await downloadUseCase.insertDownload();
-
-    // if (!mounted) return;
-
-    NotifierService.showMessage(
-      context,
-      message: response == null ? 'response is null' : response.id.toString(),
-      type: MessageType.warning,
-    );
-  }
-
-  Future<void> _downloadOfflineTiles1() async {
     setState(() {
       _isDownloading = true;
       _downloadProgress = 0.0;
@@ -177,122 +417,89 @@ class _OfflineMapState extends State<OfflineMap> {
       if (_downloadBounds == null) {
         throw Exception('Download bounds not calculated');
       }
+
       final downloadUseCase = sl<DownloadRepository>();
-      NotifierService.showMessage(
-        context,
-        message: downloadUseCase == null
-            ? 'downloadUseCase is null'
-            : 'downloadUseCase is not null',
-        type: MessageType.warning,
-      );
-      final response = await downloadUseCase.insertDownload();
+      final downloadId = await downloadUseCase.insertDownload();
 
       if (!mounted) return;
 
       NotifierService.showMessage(
         context,
-        message: response == null ? 'response is null' : response.id.toString(),
-        type: MessageType.warning,
+        message: "Download ID: $downloadId",
+        type: MessageType.info,
       );
 
-      final buildingRepository = sl<BuildingRepository>();
-      final userService = sl<UserService>();
+      await _downloadAll(downloadId);
 
-      final noBuildings = await buildingRepository.buildingService
-          .getBuildingsCount(
-              _downloadBounds!, userService.userInfo!.municipality);
-
-      if (noBuildings > AppConfig.maxNoBuildings) {
-        if (!mounted) return;
-        NotifierService.showMessage(
-          context,
-          message:
-              'You cannot download an area with more than ${AppConfig.maxNoBuildings} building. Actual number is $noBuildings',
-          type: MessageType.warning,
-        );
-        return;
-      }
-
-      // Get the application documents directory
       final Directory appDocDir = await getApplicationDocumentsDirectory();
+      final String offlineMapPath =
+          '${appDocDir.path}/offline_maps/$downloadId';
 
-      // Create unique folder for this download session
-      // final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-
-      // response.id
-      final String sessionId = 'map_${response.id}';
-      final String offlineMapPath = '${appDocDir.path}/offline_maps/$sessionId';
-
-      // Create directory if it doesn't exist
       await Directory(offlineMapPath).create(recursive: true);
 
       // Calculate total tiles for progress tracking
       int totalTiles = 0;
-      int downloadedTiles = 0;
+      List<Map<String, dynamic>> allTiles = [];
 
       for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
         final bounds = _calculateTileBounds(_downloadBounds!, zoom);
-        totalTiles += (bounds['maxX']! - bounds['minX']! + 1) *
-            (bounds['maxY']! - bounds['minY']! + 1);
-      }
-
-      String? previewTilePath;
-
-      // Download tiles for each zoom level
-      for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
-        final bounds = _calculateTileBounds(_downloadBounds!, zoom);
-
         for (int x = bounds['minX']!; x <= bounds['maxX']!; x++) {
           for (int y = bounds['minY']!; y <= bounds['maxY']!; y++) {
-            // Construct tile URL (using OpenStreetMap)
-            final tileUrl = 'https://a.tile.openstreetmap.org/$zoom/$x/$y.png';
-
-            // Create tile file path
-            final tilePath = '$offlineMapPath/tiles/$zoom/$x/$y.png';
-
-            // Create nested directories
-            await Directory('$offlineMapPath/tiles/$zoom/$x')
-                .create(recursive: true);
-
-            try {
-              // Download tile
-              // await Dio().download(
-              //   tileUrl,
-              //   tilePath,
-              //   options: Options(
-              //     headers: {
-              //       'User-Agent': '${AppConfig.appName}/${AppConfig.version}'
-              //     },
-              //   ),
-              // );
-
-              // Save first tile from zoom 13 as preview (or any if 13 not available)
-              if (previewTilePath == null || zoom == 13) {
-                previewTilePath = tilePath;
-              }
-
-              // Update progress
-              downloadedTiles++;
-              setState(() {
-                _downloadProgress = downloadedTiles / totalTiles;
-              });
-
-              await _downloadAll(response.id);
-            } catch (e) {
-              print('Failed to download tile $zoom/$x/$y: $e');
-              // Continue with other tiles even if one fails
-            }
+            allTiles.add({
+              'zoom': zoom,
+              'x': x,
+              'y': y,
+              'url': 'https://a.tile.openstreetmap.org/$zoom/$x/$y.png',
+              'path': '$offlineMapPath/tiles/$zoom/$x/$y.png',
+            });
+            totalTiles++;
           }
         }
       }
 
-      // Save metadata for this download session
+      print('=== TILE DOWNLOAD START ===');
+      print('Total tiles to download: $totalTiles');
+      print('Zoom levels: $_minZoom to $_maxZoom');
+
+      String? previewTilePath;
+      int downloadedTiles = 0;
+      int failedTiles = 0;
+
+      // Progress tracking
+      void updateProgress() {
+        setState(() {
+          _downloadProgress = (downloadedTiles + failedTiles) / totalTiles;
+        });
+      }
+
+      // Download tiles in parallel with controlled concurrency
+      await _downloadTilesInParallel(
+        allTiles,
+        onTileDownloaded: (tilePath, isPreview) {
+          downloadedTiles++;
+          if (previewTilePath == null || isPreview) {
+            previewTilePath = tilePath;
+          }
+          updateProgress();
+        },
+        onTileFailed: (tileInfo, error) {
+          failedTiles++;
+          print(
+              'Failed to download tile ${tileInfo['zoom']}/${tileInfo['x']}/${tileInfo['y']}: $error');
+          updateProgress();
+        },
+      );
+
+      print('=== TILE DOWNLOAD COMPLETE ===');
+      print('Successfully downloaded: $downloadedTiles tiles');
+      print('Failed downloads: $failedTiles tiles');
+
+      // Save metadata with actual bounds used
       final metadata = {
-        'sessionId': sessionId,
+        'sessionId': downloadId,
         'name':
             'Map ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-        'location':
-            'Tirana, Albania', // You can make this dynamic based on center coordinates
+        'location': 'Tirana, Albania',
         'downloadDate': DateTime.now().toIso8601String(),
         'bounds': {
           'northWest': {
@@ -304,6 +511,18 @@ class _OfflineMapState extends State<OfflineMap> {
             'lng': _downloadBounds!.southEast.longitude,
           },
         },
+        'actualBounds': _actualTileAlignedBounds != null
+            ? {
+                'northWest': {
+                  'lat': _actualTileAlignedBounds!.northWest.latitude,
+                  'lng': _actualTileAlignedBounds!.northWest.longitude,
+                },
+                'southEast': {
+                  'lat': _actualTileAlignedBounds!.southEast.latitude,
+                  'lng': _actualTileAlignedBounds!.southEast.longitude,
+                },
+              }
+            : null,
         'zoomLevels': {
           'min': _minZoom,
           'max': _maxZoom,
@@ -312,30 +531,39 @@ class _OfflineMapState extends State<OfflineMap> {
           'lat': _mapController.camera.center.latitude,
           'lng': _mapController.camera.center.longitude,
         },
-
         'totalTiles': downloadedTiles,
+        'failedTiles': failedTiles,
         'previewTile': previewTilePath != null
-            ? _getRelativePreviewPath(previewTilePath, offlineMapPath)
+            ? _getRelativePreviewPath(previewTilePath!, offlineMapPath)
             : null,
+        'downloadStats': {
+          'totalRequested': totalTiles,
+          'successful': downloadedTiles,
+          'failed': failedTiles,
+          'successRate': totalTiles > 0
+              ? (downloadedTiles / totalTiles * 100).toStringAsFixed(1)
+              : '0',
+        },
       };
 
-      // Save metadata as JSON file
       final metadataFile = File('$offlineMapPath/metadata.json');
       await metadataFile.writeAsString(jsonEncode(metadata));
 
       if (!mounted) return;
 
-      // final tileCubit = context.read<TileCubit>();
-      // await tileCubit.setPath('$offlineMapPath/tiles', isOffline: true);
-
+      final successRate = totalTiles > 0
+          ? (downloadedTiles / totalTiles * 100).toStringAsFixed(1)
+          : '0';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              'Offline map downloaded successfully! ($downloadedTiles tiles)'),
-          backgroundColor: Colors.green,
+              'Offline map downloaded! $downloadedTiles/$totalTiles tiles ($successRate% success)'),
+          backgroundColor: failedTiles == 0 ? Colors.green : Colors.orange,
+          duration: const Duration(seconds: 5),
         ),
       );
     } catch (e) {
+      print('Tile download error: $e');
       if (mounted) {
         NotifierService.showMessage(
           context,
@@ -351,12 +579,89 @@ class _OfflineMapState extends State<OfflineMap> {
     }
   }
 
-  Map<String, int> _calculateTileBounds(LatLngBounds bounds, int zoom) {
-    // Calculate tile coordinates for the bounding box at given zoom level
-    final double tileSize = 256.0;
-    final double worldSize = tileSize * math.pow(2, zoom);
+  /// Download tiles in parallel with controlled concurrency
+  Future<void> _downloadTilesInParallel(
+    List<Map<String, dynamic>> tiles, {
+    required void Function(String tilePath, bool isPreview) onTileDownloaded,
+    required void Function(Map<String, dynamic> tileInfo, String error)
+        onTileFailed,
+    int maxConcurrency =
+        6, // Limit concurrent downloads to avoid overwhelming the server
+  }) async {
+    // Create Dio instance with optimized settings for parallel downloads
+    final dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 30),
+      headers: {
+        'User-Agent': '${AppConfig.appName}/${AppConfig.version}',
+        'Accept': 'image/png,image/*,*/*',
+        'Accept-Encoding': 'gzip, deflate',
+      },
+    ));
 
-    // Convert lat/lng bounds to tile coordinates
+    // Process tiles in batches to control concurrency
+    for (int i = 0; i < tiles.length; i += maxConcurrency) {
+      final batch = tiles.skip(i).take(maxConcurrency).toList();
+
+      // Download batch in parallel
+      final futures = batch.map((tile) => _downloadSingleTile(dio, tile));
+      final results = await Future.wait(futures, eagerError: false);
+
+      // Process results
+      for (int j = 0; j < results.length; j++) {
+        final tile = batch[j];
+        final result = results[j];
+
+        if (result['success']) {
+          final isPreview = tile['zoom'] == 13 ||
+              (tile['zoom'] == _minZoom && tile['x'] == 0 && tile['y'] == 0);
+          onTileDownloaded(result['path'], isPreview);
+        } else {
+          onTileFailed(tile, result['error']);
+        }
+      }
+
+      // Small delay between batches to be respectful to the server
+      if (i + maxConcurrency < tiles.length) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    }
+
+    dio.close();
+  }
+
+  /// Download a single tile with error handling
+  Future<Map<String, dynamic>> _downloadSingleTile(
+    Dio dio,
+    Map<String, dynamic> tile,
+  ) async {
+    try {
+      final String tilePath = tile['path'];
+      final String tileUrl = tile['url'];
+
+      // Create directory if needed
+      final directory = Directory(tilePath).parent;
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      // Download the tile
+      await dio.download(tileUrl, tilePath);
+
+      return {
+        'success': true,
+        'path': tilePath,
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': e.toString(),
+        'path': tile['path'],
+      };
+    }
+  }
+
+  Map<String, int> _calculateTileBounds(LatLngBounds bounds, int zoom) {
     final double northWestTileX =
         (bounds.northWest.longitude + 180.0) / 360.0 * math.pow(2, zoom);
     final double northWestTileY = (1.0 -
@@ -385,25 +690,166 @@ class _OfflineMapState extends State<OfflineMap> {
     };
   }
 
+  /// Debug method to check what's currently visible and what would be downloaded
+  void _debugCurrentView() async {
+    _calculateActualDownloadBounds();
+
+    final buildingRepository = sl<BuildingRepository>();
+    final userService = sl<UserService>();
+
+    if (_downloadBounds != null) {
+      try {
+        // Test building count with current bounds
+        final buildingCount = await buildingRepository.buildingService
+            .getBuildingsCount(
+                _downloadBounds!, userService.userInfo!.municipality);
+
+        // Test actual building retrieval
+        final buildings = await buildingRepository.getBuildings(
+          _downloadBounds!,
+          AppConfig.minZoomDownload,
+          userService.userInfo!.municipality,
+          true,
+        );
+
+        print('=== DEBUG CURRENT VIEW ===');
+        print('Current zoom: $_currentZoom');
+        print('Download bounds: $_downloadBounds');
+        print('Building count from service: $buildingCount');
+        print('Actual buildings retrieved: ${buildings.length}');
+
+        if (buildings.isNotEmpty) {
+          print('Sample buildings:');
+          for (int i = 0; i < math.min(5, buildings.length); i++) {
+            final building = buildings[i];
+            // Assuming building has latitude/longitude properties
+            print(
+                '  Building $i: ID=${building.globalId}, Location=${building.toString()}');
+          }
+        }
+
+        // Calculate tile information
+        final middleZoom = (_minZoom + _maxZoom) ~/ 2;
+        final tileBounds = _calculateTileBounds(_downloadBounds!, middleZoom);
+        print('Tile bounds at zoom $middleZoom: $tileBounds');
+
+        // Show dialog with debug info
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Debug Info'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Current Zoom: ${_currentZoom.toStringAsFixed(2)}'),
+                    const SizedBox(height: 8),
+                    Text('Download Bounds:'),
+                    Text(
+                        '  North: ${_downloadBounds!.north.toStringAsFixed(6)}'),
+                    Text(
+                        '  South: ${_downloadBounds!.south.toStringAsFixed(6)}'),
+                    Text('  West: ${_downloadBounds!.west.toStringAsFixed(6)}'),
+                    Text('  East: ${_downloadBounds!.east.toStringAsFixed(6)}'),
+                    const SizedBox(height: 8),
+                    Text(
+                        'Buildings: $buildingCount (count) / ${buildings.length} (retrieved)'),
+                    const SizedBox(height: 8),
+                    Text('Tile Bounds (zoom $middleZoom):'),
+                    Text('  X: ${tileBounds['minX']} to ${tileBounds['maxX']}'),
+                    Text('  Y: ${tileBounds['minY']} to ${tileBounds['maxY']}'),
+                    if (buildings.length != buildingCount) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        child: const Text(
+                          'WARNING: Building count mismatch! This suggests an issue with the building query or bounds.',
+                          style: TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      } catch (e) {
+        print('Debug error: $e');
+        if (mounted) {
+          NotifierService.showMessage(
+            context,
+            message: 'Debug error: $e',
+            type: MessageType.error,
+          );
+        }
+      }
+    }
+  }
+
+  /// Get polygon points for the actual download bounds to display on map
+  List<LatLng> _getActualBoundsPolygon() {
+    if (_actualTileAlignedBounds == null) return [];
+
+    return [
+      _actualTileAlignedBounds!.northWest,
+      LatLng(_actualTileAlignedBounds!.north, _actualTileAlignedBounds!.east),
+      _actualTileAlignedBounds!.southEast,
+      LatLng(_actualTileAlignedBounds!.south, _actualTileAlignedBounds!.west),
+      _actualTileAlignedBounds!.northWest, // Close the polygon
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Offline Map Downloader'),
+        title: const Text('Offline Map Downloader'),
         backgroundColor: Colors.blueGrey[800],
         foregroundColor: Colors.white,
+        actions: [
+          // Enhanced action buttons
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              _calculateActualDownloadBounds();
+              _showDownloadConfirmation(0); // Show info dialog
+            },
+            tooltip: 'Show download info',
+          ),
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            onPressed: _debugCurrentView,
+            tooltip: 'Debug current view',
+          ),
+        ],
       ),
       body: Stack(
         children: [
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: LatLng(41.3275, 19.8189),
+              initialCenter: const LatLng(41.3275, 19.8189),
               initialZoom: AppConfig.initZoom,
               onPositionChanged: (position, _) {
                 setState(() {
                   _currentZoom = position.zoom;
                 });
+                // Recalculate bounds when map moves
+                if (_currentZoom >= AppConfig.minZoomDownload) {
+                  _calculateActualDownloadBounds();
+                }
               },
             ),
             children: [
@@ -412,8 +858,23 @@ class _OfflineMapState extends State<OfflineMap> {
                     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 subdomains: const ['a', 'b', 'c'],
               ),
+              // Show actual download bounds as polygon overlay
+              if (_actualTileAlignedBounds != null &&
+                  _currentZoom >= AppConfig.minZoomDownload)
+                PolygonLayer(
+                  polygons: [
+                    Polygon(
+                      points: _getActualBoundsPolygon(),
+                      color: Colors.cyan.withValues(alpha: 0.1),
+                      borderColor: Colors.cyan,
+                      borderStrokeWidth: 2.0,
+                    ),
+                  ],
+                ),
             ],
           ),
+
+          // Zoom level indicator
           Positioned(
             top: 20,
             left: 20,
@@ -434,7 +895,7 @@ class _OfflineMapState extends State<OfflineMap> {
             ),
           ),
 
-          // Fixed download square in center
+          // Fixed visual selection square (reference only)
           if (_currentZoom >= AppConfig.minZoomDownload)
             Center(
               child: IgnorePointer(
@@ -443,59 +904,22 @@ class _OfflineMapState extends State<OfflineMap> {
                   height: squareSize,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.cyan,
-                      width: 3,
+                      color: Colors.orange.withValues(alpha: 0.8),
+                      width: 2,
                     ),
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.cyan.withOpacity(0.1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.cyan.withOpacity(0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ],
+                    color: Colors.orange.withValues(alpha: 0.1),
                   ),
-                  child: Stack(
-                    children: [
-                      // Corner decorations...
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(color: Colors.cyan, width: 3),
-                              left: BorderSide(color: Colors.cyan, width: 3),
-                            ),
-                          ),
-                        ),
+                  child: const Center(
+                    child: Text(
+                      'Visual\nSelection',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.orange,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
-                      // Repeat other corners as before...
-                      Positioned(
-                        bottom: 8,
-                        right: 8,
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(color: Colors.cyan, width: 3),
-                              right: BorderSide(color: Colors.cyan, width: 3),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.cyan,
-                          size: 24,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -503,14 +927,70 @@ class _OfflineMapState extends State<OfflineMap> {
           else
             Center(
               child: Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.black87,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   'Zoom in to level ${AppConfig.minZoomDownload} or higher to download',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ),
+            ),
+
+          // Legend
+          if (_currentZoom >= AppConfig.minZoomDownload)
+            Positioned(
+              top: 70,
+              left: 20,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.orange, width: 2),
+                            color: Colors.orange.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Visual Selection',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.cyan, width: 2),
+                            color: Colors.cyan.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Actual Download Area',
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -524,7 +1004,7 @@ class _OfflineMapState extends State<OfflineMap> {
               children: [
                 if (_isDownloading) ...[
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.black87,
                       borderRadius: BorderRadius.circular(12),
@@ -536,10 +1016,10 @@ class _OfflineMapState extends State<OfflineMap> {
                           color: Colors.cyan,
                           backgroundColor: Colors.grey[600],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           '${(_downloadProgress * 100).toInt()}%',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
@@ -547,7 +1027,7 @@ class _OfflineMapState extends State<OfflineMap> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
                 FloatingActionButton.extended(
                   onPressed: (_isDownloading ||

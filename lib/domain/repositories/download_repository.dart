@@ -3,7 +3,7 @@ import 'package:asrdb/data/drift/app_database.dart';
 abstract class IDownloadRepository {
   Future<List<Download>> getAllDownloads();
 
-  Future<Download> insertDownload();
+  Future<int> insertDownload();
 
   Future<void> deleteDownloads(Download download);
 }

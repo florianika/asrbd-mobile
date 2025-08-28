@@ -13,8 +13,12 @@ class DownloadsDao extends DatabaseAccessor<AppDatabase>
     return select(downloads).get();
   }
 
-  Future<Download> insertDownload() async {
-    return await into(downloads).insertReturning(DownloadsCompanion.insert());
+  Future<int> insertDownload() async {
+    // This will insert a row and return its auto-incremented id
+    final id = await into(downloads).insert(
+      DownloadsCompanion.insert(),
+    );
+    return id;
   }
 
   Future<void> deleteDownloads(Download download) async {

@@ -2,6 +2,7 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
@@ -23,7 +24,12 @@ class BuildingUseCases {
   );
 
   Future<List<BuildingEntity>> getBuildings(
-      LatLngBounds? bounds, double zoom, int municipalityId) async {
+    LatLngBounds? bounds,
+    double zoom,
+    int municipalityId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
     if (bounds == null) {
       return [];
     }
@@ -31,7 +37,15 @@ class BuildingUseCases {
     if (zoom < AppConfig.buildingMinZoom) {
       return [];
     }
-    return await _buildingRepository.getBuildings(bounds, zoom, municipalityId);
+    if (!isOffline) {
+      return await _buildingRepository.getBuildings(
+          bounds, zoom, municipalityId, isOffline);
+    } else {
+      List<Building> buildings =
+          await _buildingRepository.getBuildingsByDownloadId(downloadId!);
+
+      return buildings.toEntityList();
+    }
   }
 
   Future<BuildingEntity> getBuildingDetails(String globalId) async {
@@ -53,7 +67,7 @@ class BuildingUseCases {
     return globalId;
   }
 
-  Future<String> _addBuildingFeatureOffline(BuildingEntity building) async {   
+  Future<String> _addBuildingFeatureOffline(BuildingEntity building) async {
     final globalId =
         await _buildingRepository.insertBuilding(building.toDriftBuilding(123));
 
