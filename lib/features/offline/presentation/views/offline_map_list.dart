@@ -230,7 +230,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     if (!mounted) return;
 
     // Point to the correct tiles folder for this specific downloaded map
-    context.read<TileCubit>().setOfflineSession(map.sessionId, map.center!);
+    context.read<TileCubit>().setOfflineSession(map.sessionId, map.center!, map.bounds);
 
     // Save the correct sessionId
     storageService.saveString(

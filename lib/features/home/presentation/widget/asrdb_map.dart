@@ -167,6 +167,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   double? _previousZoom;
+  // SIMPLE FIX: Just adjust the debounce timing based on offline/online mode
   void _onPositionChanged(MapCamera camera, bool hasGesture, int municipalityId,
       bool isOffline, int? downloadId) {
     try {
@@ -176,7 +177,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (!hasGesture && !zoomChanged) return;
 
       if (_debounce?.isActive ?? false) _debounce!.cancel();
-      _debounce = Timer(const Duration(milliseconds: 800), () {
+
+      // KEY FIX: Use longer debounce for offline mode
+      final debounceMs =
+          isOffline ? 1500 : 800; // Much longer delay for offline
+
+      _debounce = Timer(Duration(milliseconds: debounceMs), () {
         if (camera.zoom >= AppConfig.buildingMinZoom) {
           context.read<BuildingCubit>().getBuildings(camera.visibleBounds,
               camera.zoom, municipalityId, isOffline, downloadId);
@@ -191,30 +197,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       zoom = camera.zoom;
       _checkEntranceVisibility(camera);
-      // visibleBounds = widget.mapController.camera.visibleBounds;
-      // if (_selectedBuildingGlobalId != null && entranceData.isNotEmpty) {
-      //   final entrancePoints = entranceData
-      //       .where((e) =>
-      //           e.entBldGlobalID?.toString() == _selectedBuildingGlobalId)
-      //       .map((e) => e.coordinates)
-      //       .whereType<LatLng>()
-      //       .toList();
-
-      //   if (entrancePoints.isNotEmpty && entrancePoints.isNotEmpty) {
-      //     final isOutside = GeometryHelper.anyPointOutsideBounds(
-      //       entrancePoints,
-      //       camera.visibleBounds,
-      //     );
-
-      //     if (_entranceOutsideVisibleArea != isOutside) {
-      //       setState(() {
-      //         _entranceOutsideVisibleArea = isOutside;
-      //       });
-
-      //       widget.onEntranceVisibilityChange?.call(isOutside);
-      //     }
-      //   }
-      // }
     } on Exception catch (e) {
       NotifierService.showMessage(
         context,
@@ -303,10 +285,17 @@ class _AsrdbMapState extends State<AsrdbMap> {
           return FlutterMap(
             key: mapKey,
             mapController: widget.mapController,
-            options: MapOptions(           
+            options: MapOptions(
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
-              initialCenter: currentPosition,
+              initialCenter: state.isOffline
+                  ? (state.mapCenter != null
+                      ? state.mapCenter!
+                      : currentPosition)
+                  : currentPosition,
               initialZoom: AppConfig.initZoom,
+              cameraConstraint: state.isOffline && state.bounds != null
+                  ? CameraConstraint.contain(bounds: state.bounds!)
+                  : CameraConstraint.unconstrained(),
               onTap: (TapPosition position, LatLng latlng) =>
                   _handleBuildingOnTap(latlng),
               onMapReady: () => {

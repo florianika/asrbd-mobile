@@ -1,6 +1,7 @@
 import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:io';
@@ -12,6 +13,7 @@ class TileState extends Equatable {
   final String? activeSessionId;
   final TileIndexService? indexService;
   final LatLng? mapCenter;
+  final LatLngBounds? bounds;
 
   const TileState({
     required this.path,
@@ -19,6 +21,7 @@ class TileState extends Equatable {
     this.activeSessionId,
     this.indexService,
     this.mapCenter,
+    this.bounds,
   });
 
   @override
@@ -59,13 +62,14 @@ class TileCubit extends Cubit<TileState> {
   }
 
   /// Set offline mode with a specific session
-  Future<void> setOfflineSession(String sessionId, LatLng centerMap) async {
+  Future<void> setOfflineSession(
+      String sessionId, LatLng centerMap, LatLngBounds? bounds) async {
     if (_globalIndexService == null) {
       await _initializeIndexService();
     }
 
     if (_globalIndexService == null) {
-      throw Exception('Failed to initialize TileIndexService');     
+      throw Exception('Failed to initialize TileIndexService');
     }
 
     // Set the active session and preload tiles
@@ -77,11 +81,13 @@ class TileCubit extends Cubit<TileState> {
 
     if (tilesPath != null) {
       emit(TileState(
-          path: tilesPath,
-          isOffline: true,
-          activeSessionId: sessionId,
-          indexService: _globalIndexService,
-          mapCenter: centerMap));
+        path: tilesPath,
+        isOffline: true,
+        activeSessionId: sessionId,
+        indexService: _globalIndexService,
+        mapCenter: centerMap,
+        bounds: bounds,
+      ));
     } else {
       throw Exception('Failed to get tiles path for session: $sessionId');
     }
