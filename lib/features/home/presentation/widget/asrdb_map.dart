@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:asrdb/core/widgets/file_tile_provider.dart' as ft;
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 
 class AsrdbMap extends StatefulWidget {
@@ -279,6 +280,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
+    final tileProvider = FMTCTileProvider(
+      stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
+    );
+
     return BlocConsumer<TileCubit, TileState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -293,9 +298,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       : currentPosition)
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
-              cameraConstraint: state.isOffline && state.bounds != null
-                  ? CameraConstraint.contain(bounds: state.bounds!)
-                  : CameraConstraint.unconstrained(),
+              // cameraConstraint: state.isOffline && state.bounds != null
+              //     ? CameraConstraint.contain(bounds: state.bounds!)
+              //     : CameraConstraint.unconstrained(),
               onTap: (TapPosition position, LatLng latlng) =>
                   _handleBuildingOnTap(latlng),
               onMapReady: () => {
@@ -322,12 +327,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
             ),
             children: [
               TileLayer(
-                key: ValueKey('${state.path}_${state.isOffline}'),
-                tileProvider: ft.IndexedFileTileProvider(
-                  tileIndex: state.indexService,
-                  isOffline: state.isOffline,
-                ),
-              ),
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.asrdb.al',
+                  tileProvider: tileProvider),
               const MunicipalityMarker(),
               if (_showLocationMarker)
                 MarkerLayer(

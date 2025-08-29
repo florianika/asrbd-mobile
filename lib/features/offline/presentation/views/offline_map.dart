@@ -23,6 +23,7 @@ import 'package:dio/dio.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:convert';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class OfflineMap extends StatefulWidget {
   const OfflineMap({super.key});
@@ -449,64 +450,64 @@ class _OfflineMapState extends State<OfflineMap> {
       final String offlineMapPath =
           '${appDocDir.path}/offline_maps/$downloadId';
 
-      await Directory(offlineMapPath).create(recursive: true);
+      // await Directory(offlineMapPath).create(recursive: true);
 
-      // Calculate total tiles for progress tracking
-      int totalTiles = 0;
-      List<Map<String, dynamic>> allTiles = [];
+      // // Calculate total tiles for progress tracking
+      // int totalTiles = 0;
+      // List<Map<String, dynamic>> allTiles = [];
 
-      for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
-        final bounds = _calculateTileBounds(_downloadBounds!, zoom);
-        for (int x = bounds['minX']!; x <= bounds['maxX']!; x++) {
-          for (int y = bounds['minY']!; y <= bounds['maxY']!; y++) {
-            allTiles.add({
-              'zoom': zoom,
-              'x': x,
-              'y': y,
-              'url': 'https://a.tile.openstreetmap.org/$zoom/$x/$y.png',
-              'path': '$offlineMapPath/tiles/$zoom/$x/$y.png',
-            });
-            totalTiles++;
-          }
-        }
-      }
+      // for (int zoom = _minZoom; zoom <= _maxZoom; zoom++) {
+      //   final bounds = _calculateTileBounds(_downloadBounds!, zoom);
+      //   for (int x = bounds['minX']!; x <= bounds['maxX']!; x++) {
+      //     for (int y = bounds['minY']!; y <= bounds['maxY']!; y++) {
+      //       allTiles.add({
+      //         'zoom': zoom,
+      //         'x': x,
+      //         'y': y,
+      //         'url': 'https://a.tile.openstreetmap.org/$zoom/$x/$y.png',
+      //         'path': '$offlineMapPath/tiles/$zoom/$x/$y.png',
+      //       });
+      //       totalTiles++;
+      //     }
+      //   }
+      // }
 
-      print('=== TILE DOWNLOAD START ===');
-      print('Total tiles to download: $totalTiles');
-      print('Zoom levels: $_minZoom to $_maxZoom');
+      // print('=== TILE DOWNLOAD START ===');
+      // print('Total tiles to download: $totalTiles');
+      // print('Zoom levels: $_minZoom to $_maxZoom');
 
-      String? previewTilePath;
-      int downloadedTiles = 0;
-      int failedTiles = 0;
+      // String? previewTilePath;
+      // int downloadedTiles = 0;
+      // int failedTiles = 0;
 
-      // Progress tracking
-      void updateProgress() {
-        setState(() {
-          _downloadProgress = (downloadedTiles + failedTiles) / totalTiles;
-        });
-      }
+      // // Progress tracking
+      // void updateProgress() {
+      //   setState(() {
+      //     _downloadProgress = (downloadedTiles + failedTiles) / totalTiles;
+      //   });
+      // }
 
       // Download tiles in parallel with controlled concurrency
-      await _downloadTilesInParallel(
-        allTiles,
-        onTileDownloaded: (tilePath, isPreview) {
-          downloadedTiles++;
-          if (previewTilePath == null || isPreview) {
-            previewTilePath = tilePath;
-          }
-          updateProgress();
-        },
-        onTileFailed: (tileInfo, error) {
-          failedTiles++;
-          print(
-              'Failed to download tile ${tileInfo['zoom']}/${tileInfo['x']}/${tileInfo['y']}: $error');
-          updateProgress();
-        },
-      );
+      // await _downloadTilesInParallel(
+      //   allTiles,
+      //   onTileDownloaded: (tilePath, isPreview) {
+      //     downloadedTiles++;
+      //     if (previewTilePath == null || isPreview) {
+      //       previewTilePath = tilePath;
+      //     }
+      //     updateProgress();
+      //   },
+      //   onTileFailed: (tileInfo, error) {
+      //     failedTiles++;
+      //     print(
+      //         'Failed to download tile ${tileInfo['zoom']}/${tileInfo['x']}/${tileInfo['y']}: $error');
+      //     updateProgress();
+      //   },
+      // );
 
-      print('=== TILE DOWNLOAD COMPLETE ===');
-      print('Successfully downloaded: $downloadedTiles tiles');
-      print('Failed downloads: $failedTiles tiles');
+      // print('=== TILE DOWNLOAD COMPLETE ===');
+      // print('Successfully downloaded: $downloadedTiles tiles');
+      // print('Failed downloads: $failedTiles tiles');
 
       // Save metadata with actual bounds used
       final metadata = {
@@ -545,37 +546,13 @@ class _OfflineMapState extends State<OfflineMap> {
           'lat': _mapController.camera.center.latitude,
           'lng': _mapController.camera.center.longitude,
         },
-        'totalTiles': downloadedTiles,
-        'failedTiles': failedTiles,
-        'previewTile': previewTilePath != null
-            ? _getRelativePreviewPath(previewTilePath!, offlineMapPath)
-            : null,
-        'downloadStats': {
-          'totalRequested': totalTiles,
-          'successful': downloadedTiles,
-          'failed': failedTiles,
-          'successRate': totalTiles > 0
-              ? (downloadedTiles / totalTiles * 100).toStringAsFixed(1)
-              : '0',
-        },
+        'previewTile': null,
       };
 
       final metadataFile = File('$offlineMapPath/metadata.json');
       await metadataFile.writeAsString(jsonEncode(metadata));
 
       if (!mounted) return;
-
-      final successRate = totalTiles > 0
-          ? (downloadedTiles / totalTiles * 100).toStringAsFixed(1)
-          : '0';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Offline map downloaded! $downloadedTiles/$totalTiles tiles ($successRate% success)'),
-          backgroundColor: failedTiles == 0 ? Colors.green : Colors.orange,
-          duration: const Duration(seconds: 5),
-        ),
-      );
     } catch (e) {
       print('Tile download error: $e');
       if (mounted) {
@@ -713,114 +690,6 @@ class _OfflineMapState extends State<OfflineMap> {
     };
   }
 
-  /// Debug method to check what's currently visible and what would be downloaded
-  void _debugCurrentView() async {
-    _calculateActualDownloadBounds();
-
-    final buildingRepository = sl<BuildingRepository>();
-    final userService = sl<UserService>();
-
-    if (_downloadBounds != null) {
-      try {
-        // Test building count with current bounds
-        final buildingCount = await buildingRepository.buildingService
-            .getBuildingsCount(
-                _downloadBounds!, userService.userInfo!.municipality);
-
-        // Test actual building retrieval
-        final buildings = await buildingRepository.getBuildings(
-          _downloadBounds!,
-          AppConfig.minZoomDownload,
-          userService.userInfo!.municipality,
-          true,
-        );
-
-        print('=== DEBUG CURRENT VIEW ===');
-        print('Current zoom: $_currentZoom');
-        print('Download bounds: $_downloadBounds');
-        print('Building count from service: $buildingCount');
-        print('Actual buildings retrieved: ${buildings.length}');
-
-        if (buildings.isNotEmpty) {
-          print('Sample buildings:');
-          for (int i = 0; i < math.min(5, buildings.length); i++) {
-            final building = buildings[i];
-            // Assuming building has latitude/longitude properties
-            print(
-                '  Building $i: ID=${building.globalId}, Location=${building.toString()}');
-          }
-        }
-
-        // Calculate tile information
-        final middleZoom = (_minZoom + _maxZoom) ~/ 2;
-        final tileBounds = _calculateTileBounds(_downloadBounds!, middleZoom);
-        print('Tile bounds at zoom $middleZoom: $tileBounds');
-
-        // Show dialog with debug info
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Debug Info'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Current Zoom: ${_currentZoom.toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
-                    Text('Download Bounds:'),
-                    Text(
-                        '  North: ${_downloadBounds!.north.toStringAsFixed(6)}'),
-                    Text(
-                        '  South: ${_downloadBounds!.south.toStringAsFixed(6)}'),
-                    Text('  West: ${_downloadBounds!.west.toStringAsFixed(6)}'),
-                    Text('  East: ${_downloadBounds!.east.toStringAsFixed(6)}'),
-                    const SizedBox(height: 8),
-                    Text(
-                        'Buildings: $buildingCount (count) / ${buildings.length} (retrieved)'),
-                    const SizedBox(height: 8),
-                    Text('Tile Bounds (zoom $middleZoom):'),
-                    Text('  X: ${tileBounds['minX']} to ${tileBounds['maxX']}'),
-                    Text('  Y: ${tileBounds['minY']} to ${tileBounds['maxY']}'),
-                    if (buildings.length != buildingCount) ...[
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        color: Colors.orange.withValues(alpha: 0.1),
-                        child: const Text(
-                          'WARNING: Building count mismatch! This suggests an issue with the building query or bounds.',
-                          style: TextStyle(
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        }
-      } catch (e) {
-        print('Debug error: $e');
-        if (mounted) {
-          NotifierService.showMessage(
-            context,
-            message: 'Debug error: $e',
-            type: MessageType.error,
-          );
-        }
-      }
-    }
-  }
-
   /// Get polygon points for the actual download bounds to display on map
   List<LatLng> _getActualBoundsPolygon() {
     if (_actualTileAlignedBounds == null) return [];
@@ -836,6 +705,10 @@ class _OfflineMapState extends State<OfflineMap> {
 
   @override
   Widget build(BuildContext context) {
+    final tileProvider = FMTCTileProvider(
+      stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Offline Map Downloader'),
@@ -850,11 +723,6 @@ class _OfflineMapState extends State<OfflineMap> {
               _showDownloadConfirmation(0); // Show info dialog
             },
             tooltip: 'Show download info',
-          ),
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            onPressed: _debugCurrentView,
-            tooltip: 'Debug current view',
           ),
         ],
       ),
@@ -877,10 +745,9 @@ class _OfflineMapState extends State<OfflineMap> {
             ),
             children: [
               TileLayer(
-                urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
-              ),
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.asrdb.al',
+                  tileProvider: tileProvider),
               // Show actual download bounds as polygon overlay
               if (_actualTileAlignedBounds != null &&
                   _currentZoom >= AppConfig.minZoomDownload)

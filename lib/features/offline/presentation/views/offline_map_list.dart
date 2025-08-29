@@ -4,6 +4,7 @@ import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
+import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -229,8 +230,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (!mounted) return;
 
-    // Point to the correct tiles folder for this specific downloaded map
-    context.read<TileCubit>().setOfflineSession(map.sessionId, map.center!, map.bounds);
+    context
+        .read<TileCubit>()
+        .setOfflineSession(map.sessionId, map.center!, map.bounds);
 
     // Save the correct sessionId
     storageService.saveString(
@@ -238,6 +240,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
       key: "map",
       value: map.sessionId,
     );
+
+    Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
 
   Future<void> _deleteMap(int index) async {

@@ -43,6 +43,7 @@ import 'package:asrdb/features/auth/auth_module.dart';
 import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/features/auth/presentation/lang_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'routing/route_manager.dart';
@@ -56,6 +57,8 @@ final sl = GetIt.instance; // Service locator instance
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FMTCObjectBoxBackend().initialise();
+  await FMTCStore('mapStore').manage.create();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,

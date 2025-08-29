@@ -4,7 +4,8 @@ import 'package:asrdb/features/offline/presentation/views/offline_map_list.dart'
 import 'package:flutter/material.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
 
-class RouteManager {
+class 
+RouteManager {
   static const String homeRoute = '/home';
   static const String loginRoute = '/login';
   static const String profileRoute = '/profile';

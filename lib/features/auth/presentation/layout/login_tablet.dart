@@ -27,12 +27,20 @@ class _LoginTabletState extends State<LoginTablet> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _onLogin(BuildContext context) {
-    if (_formKey.currentState!.validate()) {   
+    if (_formKey.currentState!.validate()) {
       context.read<AuthCubit>().login(
             emailController.text.trim(),
             passwordController.text.trim(),
           );
     }
+  }
+
+  void _onUseOffline(BuildContext context) {
+    // Handle offline mode logic here
+    // You can navigate to offline mode or set offline state
+    // For example:
+    Navigator.pushReplacementNamed(context, RouteManager.downloadedMapList);
+    // Or trigger offline mode in your cubit
   }
 
   @override
@@ -110,15 +118,32 @@ class _LoginTabletState extends State<LoginTablet> {
                                     : null,
                               ),
                               const SizedBox(height: 20),
-                              // Login Button
-                              SizedBox(
-                                width: double.infinity,
-                                height: 50.0,
-                                child: ElevatedButton(
-                                  onPressed: () => _onLogin(context),
-                                  child: Text(AppLocalizations.of(context)
-                                      .translate(Keys.login)),
-                                ),
+                              // Buttons Row
+                              Row(
+                                children: [
+                                  // Use Offline Button
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50.0,
+                                      child: OutlinedButton(
+                                        onPressed: () => _onUseOffline(context),
+                                        child: const Text('Use Offline'),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  // Login Button
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50.0,
+                                      child: ElevatedButton(
+                                        onPressed: () => _onLogin(context),
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate(Keys.login)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
