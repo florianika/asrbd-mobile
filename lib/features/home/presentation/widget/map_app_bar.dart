@@ -1,4 +1,5 @@
 import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
@@ -39,13 +40,19 @@ class _MapAppBarState extends State<MapAppBar> {
 
         return AppBar(
           title: BlocBuilder<AttributesCubit, AttributesState>(
-            builder: (context, state) {
-              return Text(
-                'ASRDB ${widget.msg}',
-                style: const TextStyle(fontSize: 12),
-              );
-            },
-          ),
+              builder: (context, state) {
+            return BlocConsumer<TileCubit, TileState>(
+              listener: (context, state) {},
+              builder: (context, state) {
+                return Text(
+                  'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: state.isOffline ? Colors.red : Colors.green),
+                );
+              },
+            );
+          }),
           actions: [
             Badge(
               // isLabelVisible: hasStatusUpdate,
