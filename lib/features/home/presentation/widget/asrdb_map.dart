@@ -303,7 +303,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
           return FlutterMap(
             key: mapKey,
             mapController: widget.mapController,
-            options: MapOptions(
+            options: MapOptions(           
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
               initialCenter: currentPosition,
               initialZoom: AppConfig.initZoom,

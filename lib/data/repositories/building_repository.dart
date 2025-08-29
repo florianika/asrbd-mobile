@@ -71,7 +71,7 @@ class BuildingRepository implements IBuildingRepository {
   }
 
   @override
-  Future<List<Building>> getBuildingsByDownloadId(int downloadId) {
+  Future<List<Building>> getBuildingsByDownloadId(int? downloadId) {
     return _dao.buildingDao.getBuildingsByDownloadId(downloadId);
   }
 }

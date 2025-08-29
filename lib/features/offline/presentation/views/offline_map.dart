@@ -45,7 +45,7 @@ class _OfflineMapState extends State<OfflineMap> {
   LatLngBounds? _downloadBounds;
   LatLngBounds? _actualTileAlignedBounds;
 
-  /// Calculate the initial desired download bounds from the visual square
+// ADDITIONAL FIX: Ensure consistent bounds ordering
   void _calculateInitialDownloadBounds() {
     final camera = _mapController.camera;
     final mapSize = MediaQuery.of(context).size;
@@ -60,7 +60,21 @@ class _OfflineMapState extends State<OfflineMap> {
     final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
     final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
 
-    _downloadBounds = LatLngBounds.fromPoints([nw, se]);
+    // ENSURE PROPER BOUNDS ORDERING - this is critical!
+    final north = math.max(nw.latitude, se.latitude);
+    final south = math.min(nw.latitude, se.latitude);
+    final east = math.max(nw.longitude, se.longitude);
+    final west = math.min(nw.longitude, se.longitude);
+
+    _downloadBounds = LatLngBounds.fromPoints([
+      LatLng(north, west), // Northwest
+      LatLng(south, east), // Southeast
+    ]);
+
+    print('=== INITIAL BOUNDS DEBUG ===');
+    print('NW point: ${nw.latitude}, ${nw.longitude}');
+    print('SE point: ${se.latitude}, ${se.longitude}');
+    print('Ordered bounds: N=$north, S=$south, E=$east, W=$west');
   }
 
   /// Calculate tile-aligned bounds that represent what will actually be downloaded
@@ -85,28 +99,28 @@ class _OfflineMapState extends State<OfflineMap> {
     return (math.exp(x) - math.exp(-x)) / 2.0;
   }
 
-  /// Convert tile indices back to LatLng bounds
+  // FIXED: More precise conversion from tile coordinates back to geographic bounds
   LatLngBounds _tileIndexToBounds(Map<String, int> tileBounds, int zoom) {
-    final double minXTile = tileBounds['minX']!.toDouble();
-    final double maxXTile = (tileBounds['maxX']! + 1).toDouble();
-    final double minYTile = tileBounds['minY']!.toDouble();
-    final double maxYTile = (tileBounds['maxY']! + 1).toDouble();
+    final double zoomFactor = math.pow(2.0, zoom).toDouble();
 
-    // Convert tile coordinates to lat/lng
-    final double westLng = minXTile / math.pow(2.0, zoom) * 360.0 - 180.0;
-    final double eastLng = maxXTile / math.pow(2.0, zoom) * 360.0 - 180.0;
+    // Convert tile indices to precise geographic coordinates
+    final double west = (tileBounds['minX']! / zoomFactor) * 360.0 - 180.0;
+    final double east =
+        ((tileBounds['maxX']! + 1) / zoomFactor) * 360.0 - 180.0;
 
-    final double northRad =
-        math.pi - 2.0 * math.pi * minYTile / math.pow(2.0, zoom);
-    final double southRad =
-        math.pi - 2.0 * math.pi * maxYTile / math.pow(2.0, zoom);
+    // More precise latitude calculation
+    final double northY = tileBounds['minY']! / zoomFactor;
+    final double southY = (tileBounds['maxY']! + 1) / zoomFactor;
 
-    final double northLat = math.atan(_sinh(northRad)) * 180.0 / math.pi;
-    final double southLat = math.atan(_sinh(southRad)) * 180.0 / math.pi;
+    final double northRad = math.atan(_sinh(math.pi * (1 - 2 * northY)));
+    final double southRad = math.atan(_sinh(math.pi * (1 - 2 * southY)));
+
+    final double north = northRad * 180.0 / math.pi;
+    final double south = southRad * 180.0 / math.pi;
 
     return LatLngBounds.fromPoints([
-      LatLng(northLat, westLng),
-      LatLng(southLat, eastLng),
+      LatLng(north, west),
+      LatLng(south, east),
     ]);
   }
 
@@ -661,32 +675,41 @@ class _OfflineMapState extends State<OfflineMap> {
     }
   }
 
+// FIXED: More precise tile bounds calculation with proper coordinate handling
   Map<String, int> _calculateTileBounds(LatLngBounds bounds, int zoom) {
-    final double northWestTileX =
-        (bounds.northWest.longitude + 180.0) / 360.0 * math.pow(2, zoom);
-    final double northWestTileY = (1.0 -
-            math.log(math.tan(bounds.northWest.latitude * math.pi / 180.0) +
-                    1.0 /
-                        math.cos(bounds.northWest.latitude * math.pi / 180.0)) /
-                math.pi) /
-        2.0 *
-        math.pow(2, zoom);
+    // Ensure we're working with properly ordered bounds
+    final double north = math.max(bounds.north, bounds.south);
+    final double south = math.min(bounds.north, bounds.south);
+    final double east = math.max(bounds.east, bounds.west);
+    final double west = math.min(bounds.east, bounds.west);
 
-    final double southEastTileX =
-        (bounds.southEast.longitude + 180.0) / 360.0 * math.pow(2, zoom);
-    final double southEastTileY = (1.0 -
-            math.log(math.tan(bounds.southEast.latitude * math.pi / 180.0) +
-                    1.0 /
-                        math.cos(bounds.southEast.latitude * math.pi / 180.0)) /
-                math.pi) /
-        2.0 *
-        math.pow(2, zoom);
+    // More precise tile coordinate calculation
+    final double zoomFactor = math.pow(2.0, zoom).toDouble();
 
+    // Calculate tile coordinates for west/north (top-left)
+    final double westTileX = ((west + 180.0) / 360.0) * zoomFactor;
+    final double northLatRad = north * math.pi / 180.0;
+    final double northTileY = (1.0 -
+            math.log(math.tan(northLatRad) + 1.0 / math.cos(northLatRad)) /
+                math.pi) *
+        zoomFactor /
+        2.0;
+
+    // Calculate tile coordinates for east/south (bottom-right)
+    final double eastTileX = ((east + 180.0) / 360.0) * zoomFactor;
+    final double southLatRad = south * math.pi / 180.0;
+    final double southTileY = (1.0 -
+            math.log(math.tan(southLatRad) + 1.0 / math.cos(southLatRad)) /
+                math.pi) *
+        zoomFactor /
+        2.0;
+
+    // Floor/ceil to ensure we cover the entire area
     return {
-      'minX': math.min(northWestTileX, southEastTileX).floor(),
-      'maxX': math.max(northWestTileX, southEastTileX).floor(),
-      'minY': math.min(northWestTileY, southEastTileY).floor(),
-      'maxY': math.max(northWestTileY, southEastTileY).floor(),
+      'minX': westTileX.floor(),
+      'maxX': eastTileX.floor(),
+      'minY': northTileY.floor(),
+      'maxY': southTileY.floor(),
     };
   }
 

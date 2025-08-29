@@ -42,7 +42,7 @@ class BuildingUseCases {
           bounds, zoom, municipalityId, isOffline);
     } else {
       List<Building> buildings =
-          await _buildingRepository.getBuildingsByDownloadId(downloadId!);
+          await _buildingRepository.getBuildingsByDownloadId(downloadId);
 
       return buildings.toEntityList();
     }

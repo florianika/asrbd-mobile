@@ -14,7 +14,11 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
     return select(buildings).get();
   }
 
-  Future<List<Building>> getBuildingsByDownloadId(int downloadId) {
+  Future<List<Building>> getBuildingsByDownloadId(int? downloadId) {
+    if (downloadId == null) {
+      return Future.value([]);
+    }
+
     return (select(buildings)
           ..where((tbl) => tbl.downloadId.equals(downloadId)))
         .get();
