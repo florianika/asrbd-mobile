@@ -11,6 +11,8 @@ class TileState extends Equatable {
   final String path;
   final bool isOffline;
   final String? activeSessionId;
+  final int? userId;
+  final int? municipalityId;
   final TileIndexService? indexService;
   final LatLng? mapCenter;
   final LatLngBounds? bounds;
@@ -22,6 +24,8 @@ class TileState extends Equatable {
     this.indexService,
     this.mapCenter,
     this.bounds,
+    this.userId,
+    this.municipalityId,
   });
 
   @override
@@ -63,7 +67,12 @@ class TileCubit extends Cubit<TileState> {
 
   /// Set offline mode with a specific session
   Future<void> setOfflineSession(
-      String sessionId, LatLng centerMap, LatLngBounds? bounds) async {
+    String sessionId,
+    LatLng centerMap,
+    LatLngBounds? bounds,
+    int? userId,
+    int? municipalityId,
+  ) async {
     if (_globalIndexService == null) {
       await _initializeIndexService();
     }
@@ -87,6 +96,8 @@ class TileCubit extends Cubit<TileState> {
         indexService: _globalIndexService,
         mapCenter: centerMap,
         bounds: bounds,
+        userId: userId,
+        municipalityId: municipalityId,
       ));
     } else {
       throw Exception('Failed to get tiles path for session: $sessionId');

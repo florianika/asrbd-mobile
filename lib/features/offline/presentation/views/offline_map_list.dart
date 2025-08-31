@@ -19,37 +19,37 @@ class DownloadedMapsViewer extends StatefulWidget {
 }
 
 class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
-  List<DownloadedMap> _downloadedMaps = [];
+  List<DownloadedData> _downloadedData = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadDownloadedMaps();
+    _loadDownloadedData();
   }
 
-  Future<void> _loadDownloadedMaps() async {
+  Future<void> _loadDownloadedData() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
       final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String offlineMapsPath = '${appDocDir.path}/offline_maps';
-      final Directory offlineMapsDir = Directory(offlineMapsPath);
+      final String offlineDataPath = '${appDocDir.path}/offline_data';
+      final Directory offlineDataDir = Directory(offlineDataPath);
 
-      if (!await offlineMapsDir.exists()) {
+      if (!await offlineDataDir.exists()) {
         setState(() {
-          _downloadedMaps = [];
+          _downloadedData = [];
           _isLoading = false;
         });
         return;
       }
 
-      List<DownloadedMap> maps = [];
+      List<DownloadedData> dataList = [];
 
       // Get all session directories
-      await for (FileSystemEntity sessionEntity in offlineMapsDir.list()) {
+      await for (FileSystemEntity sessionEntity in offlineDataDir.list()) {
         if (sessionEntity is Directory) {
           try {
             // Try to load metadata for this session
@@ -58,46 +58,24 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               final metadataContent = await metadataFile.readAsString();
               final metadata = jsonDecode(metadataContent);
 
-              // Calculate actual file size by scanning tiles
-              int actualSize = 0;
-              final tilesDir = Directory('${sessionEntity.path}/tiles');
-              if (await tilesDir.exists()) {
-                await for (FileSystemEntity entity
-                    in tilesDir.list(recursive: true)) {
-                  if (entity is File && entity.path.endsWith('.png')) {
-                    final stats = await entity.stat();
-                    actualSize += stats.size;
-                  }
+              // Calculate directory size
+              int totalSize = 0;
+              await for (FileSystemEntity entity in sessionEntity.list(recursive: true)) {
+                if (entity is File) {
+                  final stats = await entity.stat();
+                  totalSize += stats.size;
                 }
               }
 
-              // Construct preview tile path
-              String? previewTilePath;
-              if (metadata['previewTile'] != null) {
-                previewTilePath =
-                    '${sessionEntity.path}/tiles/${metadata['previewTile']}';
-                // Verify the preview file exists
-                if (!await File(previewTilePath).exists()) {
-                  previewTilePath = null;
-                }
-              }
-
-              final map = DownloadedMap(
+              final downloadedData = DownloadedData(
                 sessionId: metadata['sessionId'].toString(),
-                name: metadata['name'],
-                location: metadata['location'],
-                totalTiles: metadata['totalTiles'],
-                sizeInBytes: actualSize,
-                zoomLevels: List<int>.generate(
-                  metadata['zoomLevels']['max'] -
-                      metadata['zoomLevels']['min'] +
-                      1,
-                  (index) => metadata['zoomLevels']['min'] + index,
-                ),
+                name: metadata['name'] ?? 'Unnamed Download',
+                location: metadata['location'] ?? 'Unknown Location',
+                buildingCount: 0, // Will be updated from database if needed
+                sizeInBytes: totalSize,
                 downloadDate: DateTime.parse(metadata['downloadDate']),
-                lastAccessed: DateTime.parse(
-                    metadata['downloadDate']), // For now, same as download date
-                previewTilePath: previewTilePath,
+                userMunicipalityId: metadata['user']?['municipalityId'],
+                userEmail: metadata['user']?['email'],
                 bounds: LatLngBounds.fromPoints([
                   LatLng(metadata['bounds']['northWest']['lat'],
                       metadata['bounds']['northWest']['lng']),
@@ -110,150 +88,66 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                 ),
               );
 
-              maps.add(map);
+              dataList.add(downloadedData);
             }
           } catch (e) {
-            print('Error loading map session ${sessionEntity.path}: $e');
-            // Continue with other sessions
-
+            print('Error loading data session ${sessionEntity.path}: $e');
+            
             NotifierService.showMessage(
               context,
-              message: 'Error loading map session ${sessionEntity.path}: $e',
-              type: MessageType.error,
+              message: 'Error loading data session: ${sessionEntity.path.split('/').last}',
+              type: MessageType.warning,
             );
           }
         }
       }
 
-      // Sort maps by download date (newest first)
-      maps.sort((a, b) => b.downloadDate.compareTo(a.downloadDate));
+      // Sort data by download date (newest first)
+      dataList.sort((a, b) => b.downloadDate.compareTo(a.downloadDate));
 
       setState(() {
-        _downloadedMaps = maps;
+        _downloadedData = dataList;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading downloaded maps: $e');
+      print('Error loading downloaded data: $e');
       setState(() {
-        _downloadedMaps = [];
+        _downloadedData = [];
         _isLoading = false;
       });
     }
-  }
-
-  // Handle legacy map data (old structure without metadata)
-  Future<DownloadedMap?> _analyzeLegacyMapData(Directory mapDir) async {
-    try {
-      int totalTiles = 0;
-      int totalSize = 0;
-      List<int> zoomLevels = [];
-      DateTime? oldestDate;
-      DateTime? newestDate;
-      String? previewTilePath;
-
-      // Check if this looks like the old structure (zoom folders directly in session folder)
-      bool hasDirectZoomFolders = false;
-      await for (FileSystemEntity entity in mapDir.list()) {
-        if (entity is Directory) {
-          final String name = entity.path.split('/').last;
-          if (int.tryParse(name) != null) {
-            hasDirectZoomFolders = true;
-            break;
-          }
-        }
-      }
-
-      if (!hasDirectZoomFolders) return null;
-
-      // Analyze legacy structure
-      await for (FileSystemEntity zoomEntity in mapDir.list()) {
-        if (zoomEntity is Directory) {
-          final String zoomStr = zoomEntity.path.split('/').last;
-          final int? zoom = int.tryParse(zoomStr);
-
-          if (zoom != null) {
-            zoomLevels.add(zoom);
-
-            await for (FileSystemEntity xDir in zoomEntity.list()) {
-              if (xDir is Directory) {
-                await for (FileSystemEntity tileFile in xDir.list()) {
-                  if (tileFile is File && tileFile.path.endsWith('.png')) {
-                    totalTiles++;
-
-                    if (previewTilePath == null || zoom == 13) {
-                      previewTilePath = tileFile.path;
-                    }
-
-                    final FileStat stats = await tileFile.stat();
-                    totalSize += stats.size;
-
-                    if (oldestDate == null ||
-                        stats.modified.isBefore(oldestDate)) {
-                      oldestDate = stats.modified;
-                    }
-                    if (newestDate == null ||
-                        stats.modified.isAfter(newestDate)) {
-                      newestDate = stats.modified;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-
-      if (totalTiles > 0) {
-        zoomLevels.sort();
-        return DownloadedMap(
-          sessionId: 'legacy_${mapDir.path.split('/').last}',
-          name: 'Legacy Map',
-          location: 'Unknown Location',
-          totalTiles: totalTiles,
-          sizeInBytes: totalSize,
-          zoomLevels: zoomLevels,
-          downloadDate: newestDate ?? DateTime.now(),
-          lastAccessed: oldestDate ?? DateTime.now(),
-          previewTilePath: previewTilePath,
-          bounds: null, // No bounds info for legacy maps
-        );
-      }
-    } catch (e) {
-      print('Error analyzing legacy map data: $e');
-    }
-    return null;
   }
 
   Future<void> _applyMap(int index) async {
-    final map = _downloadedMaps[index];
+    final data = _downloadedData[index];
     StorageService storageService = sl<StorageService>();
 
     if (!mounted) return;
 
     context
         .read<TileCubit>()
-        .setOfflineSession(map.sessionId, map.center!, map.bounds);
+        .setOfflineSession(data.sessionId, data.center, data.bounds, data.userId, data.userMunicipalityId);
 
     // Save the correct sessionId
     storageService.saveString(
       boxName: HiveBoxes.offlineMap,
       key: "map",
-      value: map.sessionId,
+      value: data.sessionId,
     );
 
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
 
-  Future<void> _deleteMap(int index) async {
-    final map = _downloadedMaps[index];
+  Future<void> _deleteData(int index) async {
+    final data = _downloadedData[index];
 
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete Map'),
+          title: Text('Delete Downloaded Data'),
           content: Text(
-              'Are you sure you want to delete "${map.name}"? This action cannot be undone.'),
+              'Are you sure you want to delete "${data.name}"?\n\nThis will permanently remove all buildings, entrances, and dwellings data for this area. This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -272,26 +166,28 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     if (confirmed == true) {
       try {
         final Directory appDocDir = await getApplicationDocumentsDirectory();
-        final String sessionPath =
-            '${appDocDir.path}/offline_maps/${map.sessionId}';
+        final String sessionPath = '${appDocDir.path}/offline_data/${data.sessionId}';
         final Directory sessionDir = Directory(sessionPath);
 
         if (await sessionDir.exists()) {
           await sessionDir.delete(recursive: true);
         }
 
+        // TODO: Also remove data from local database if needed
+        // This would require calling the repository methods to delete buildings, entrances, dwellings by sessionId
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Map "${map.name}" deleted successfully'),
+            content: Text('Data "${data.name}" deleted successfully'),
             backgroundColor: Colors.green,
           ),
         );
 
-        _loadDownloadedMaps(); // Refresh the list
+        _loadDownloadedData(); // Refresh the list
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting map: $e'),
+            content: Text('Error deleting data: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -316,13 +212,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Downloaded Maps'),
+        title: Text('Downloaded Areas'),
         backgroundColor: Colors.blueGrey[800],
         foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: _loadDownloadedMaps,
+            onPressed: _loadDownloadedData,
             tooltip: 'Refresh',
           ),
         ],
@@ -334,23 +230,23 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                 children: [
                   CircularProgressIndicator(color: Colors.cyan),
                   SizedBox(height: 16),
-                  Text('Loading downloaded maps...'),
+                  Text('Loading downloaded areas...'),
                 ],
               ),
             )
-          : _downloadedMaps.isEmpty
+          : _downloadedData.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.map_outlined,
+                        Icons.location_city_outlined,
                         size: 64,
                         color: Colors.grey[400],
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'No offline maps found',
+                        'No offline areas found',
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],
@@ -358,7 +254,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Download some maps to see them here',
+                        'Download some areas to see them here',
                         style: TextStyle(
                           color: Colors.grey[500],
                         ),
@@ -367,12 +263,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                   ),
                 )
               : RefreshIndicator(
-                  onRefresh: _loadDownloadedMaps,
+                  onRefresh: _loadDownloadedData,
                   child: ListView.builder(
                     padding: EdgeInsets.all(16),
-                    itemCount: _downloadedMaps.length,
+                    itemCount: _downloadedData.length,
                     itemBuilder: (context, index) {
-                      final map = _downloadedMaps[index];
+                      final data = _downloadedData[index];
                       return Card(
                         elevation: 4,
                         margin: EdgeInsets.only(bottom: 16),
@@ -386,54 +282,46 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                             children: [
                               Row(
                                 children: [
-                                  // Map preview
+                                  // Area icon
                                   Container(
                                     width: 80,
                                     height: 80,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8),
+                                      color: Colors.cyan.withOpacity(0.1),
                                       border: Border.all(
-                                        color: Colors.grey[300]!,
+                                        color: Colors.cyan.withOpacity(0.3),
                                         width: 1,
                                       ),
                                     ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(7),
-                                      child: map.previewTilePath != null
-                                          ? Image.file(
-                                              File(map.previewTilePath!),
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  color: Colors.grey[200],
-                                                  child: Icon(
-                                                    Icons.broken_image,
-                                                    color: Colors.grey[400],
-                                                    size: 32,
-                                                  ),
-                                                );
-                                              },
-                                            )
-                                          : Container(
-                                              color: Colors.grey[200],
-                                              child: Icon(
-                                                Icons.map_outlined,
-                                                color: Colors.grey[400],
-                                                size: 32,
-                                              ),
-                                            ),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.location_city,
+                                          color: Colors.cyan[600],
+                                          size: 32,
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'AREA',
+                                          style: TextStyle(
+                                            color: Colors.cyan[600],
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                   SizedBox(width: 16),
-                                  // Map info
+                                  // Area info
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          map.name,
+                                          data.name,
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.bold,
@@ -441,7 +329,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          map.location,
+                                          data.location,
                                           style: TextStyle(
                                             color: Colors.grey[600],
                                             fontSize: 14,
@@ -456,22 +344,30 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.cyan
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                color: Colors.orange.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: Colors.cyan
-                                                      .withOpacity(0.3),
+                                                  color: Colors.orange.withOpacity(0.3),
                                                 ),
                                               ),
-                                              child: Text(
-                                                '${map.totalTiles} tiles',
-                                                style: TextStyle(
-                                                  color: Colors.cyan[700],
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.business,
+                                                    size: 12,
+                                                    color: Colors.orange[700],
+                                                  ),
+                                                  SizedBox(width: 4),
+                                                  Text(
+                                                    '${data.buildingCount} buildings',
+                                                    style: TextStyle(
+                                                      color: Colors.orange[700],
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             SizedBox(width: 8),
@@ -481,18 +377,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.green
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                color: Colors.green.withOpacity(0.1),
+                                                borderRadius: BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: Colors.green
-                                                      .withOpacity(0.3),
+                                                  color: Colors.green.withOpacity(0.3),
                                                 ),
                                               ),
                                               child: Text(
-                                                _formatFileSize(
-                                                    map.sizeInBytes),
+                                                _formatFileSize(data.sizeInBytes),
                                                 style: TextStyle(
                                                   color: Colors.green[700],
                                                   fontSize: 12,
@@ -509,8 +401,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   PopupMenuButton<String>(
                                     onSelected: (value) {
                                       if (value == 'delete') {
-                                        _deleteMap(index);
-                                      } else {
+                                        _deleteData(index);
+                                      } else if (value == 'apply') {
                                         _applyMap(index);
                                       }
                                     },
@@ -519,10 +411,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         value: 'apply',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.check,
-                                                color: Colors.green),
+                                            Icon(Icons.check, color: Colors.green),
                                             SizedBox(width: 8),
-                                            Text('Apply'),
+                                            Text('Apply Area'),
                                           ],
                                         ),
                                       ),
@@ -530,8 +421,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete,
-                                                color: Colors.red),
+                                            Icon(Icons.delete, color: Colors.red),
                                             SizedBox(width: 8),
                                             Text('Delete'),
                                           ],
@@ -548,22 +438,47 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                 children: [
                                   Expanded(
                                     child: _buildInfoItem(
-                                      Icons.zoom_in,
-                                      'Zoom Levels',
-                                      '${map.zoomLevels.first}-${map.zoomLevels.last}',
+                                      Icons.calendar_today,
+                                      'Downloaded',
+                                      _formatDate(data.downloadDate),
                                       true,
                                     ),
                                   ),
                                   Expanded(
                                     child: _buildInfoItem(
-                                      Icons.download_done,
-                                      'Downloaded',
-                                      _formatDate(map.downloadDate),
+                                      Icons.location_on,
+                                      'Coordinates',
+                                      '${data.center.latitude.toStringAsFixed(4)}, ${data.center.longitude.toStringAsFixed(4)}',
                                       true,
                                     ),
                                   ),
                                 ],
                               ),
+                              if (data.userEmail != null || data.userMunicipalityId != null) ...[
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    if (data.userEmail != null)
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.person,
+                                          'User',
+                                          data.userEmail!,
+                                          true,
+                                        ),
+                                      ),
+                                    if (data.userMunicipalityId != null)
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.location_city,
+                                          'Municipality',
+                                          data.userMunicipalityId!.toString(),
+                                          true,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -574,8 +489,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     );
   }
 
-  Widget _buildInfoItem(
-      IconData icon, String label, String value, bool isTablet) {
+  Widget _buildInfoItem(IconData icon, String label, String value, bool isTablet) {
     return Row(
       children: [
         Icon(
@@ -612,30 +526,30 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
   }
 }
 
-class DownloadedMap {
+class DownloadedData {
   final String sessionId;
   final String name;
   final String location;
-  final int totalTiles;
+  final int buildingCount;
   final int sizeInBytes;
-  final List<int> zoomLevels;
   final DateTime downloadDate;
-  final DateTime lastAccessed;
-  final String? previewTilePath;
-  final LatLngBounds? bounds;
-  final LatLng? center;
+  final int? userMunicipalityId;
+  final String? userEmail;
+  final int? userId;
+  final LatLngBounds bounds;
+  final LatLng center;
 
-  DownloadedMap({
+  DownloadedData({
     required this.sessionId,
     required this.name,
     required this.location,
-    required this.totalTiles,
+    required this.buildingCount,
     required this.sizeInBytes,
-    required this.zoomLevels,
     required this.downloadDate,
-    required this.lastAccessed,
-    this.previewTilePath,
-    this.bounds,
-    this.center,
+    this.userMunicipalityId,
+    this.userId,
+    this.userEmail,
+    required this.bounds,
+    required this.center,
   });
 }

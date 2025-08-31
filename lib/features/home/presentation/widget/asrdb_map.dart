@@ -308,10 +308,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 context.read<BuildingCubit>().getBuildings(
                     widget.mapController.camera.visibleBounds,
                     AppConfig.buildingMinZoom,
-                    userService.userInfo!.municipality,
+                    state.isOffline
+                        ? state.municipalityId!
+                        : userService.userInfo!.municipality,
                     !state.isOffline,
                     state.activeSessionId != null
-                        ? state.activeSessionId as int
+                        ? int.parse(state.activeSessionId!)
                         : null),
                 visibleBounds = widget.mapController.camera.visibleBounds,
               },
@@ -330,7 +332,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.asrdb.al',
                   tileProvider: tileProvider),
-              const MunicipalityMarker(),
+              MunicipalityMarker(
+                isOffline: state.isOffline,
+                municipalityId: state.municipalityId,
+              ),
               if (_showLocationMarker)
                 MarkerLayer(
                   markers: [
