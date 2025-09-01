@@ -108,7 +108,7 @@ class AuthService {
 
   Future<void> _saveJsonFilesIfNeeded() async {
     try {
-      final filesExist = await _jsonFileService.areJsonFilesExist();
+      final filesExist = false; //await _jsonFileService.areJsonFilesExist();
 
       if (!filesExist) {  
         await _jsonFileService.saveJsonFiles();
