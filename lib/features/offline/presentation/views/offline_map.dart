@@ -37,6 +37,7 @@ class _OfflineMapState extends State<OfflineMap> {
 
   final double squareSize = 200;
   double _currentZoom = 19;
+  bool _mapReady = false;
 
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
@@ -45,38 +46,41 @@ class _OfflineMapState extends State<OfflineMap> {
   LatLngBounds? _downloadBounds;
 
   void _calculateDownloadBounds() {
-    final camera = _mapController.camera;
-    final mapSize = MediaQuery.of(context).size;
-    final center = Offset(mapSize.width / 2, mapSize.height / 2);
+    try {
+      final camera = _mapController.camera;
+      final mapSize = MediaQuery.of(context).size;
+      final center = Offset(mapSize.width / 2, mapSize.height / 2);
 
-    final topLeft =
-        Offset(center.dx - squareSize / 2, center.dy - squareSize / 2);
-    final bottomRight =
-        Offset(center.dx + squareSize / 2, center.dy + squareSize / 2);
+      final topLeft =
+          Offset(center.dx - squareSize / 2, center.dy - squareSize / 2);
+      final bottomRight =
+          Offset(center.dx + squareSize / 2, center.dy + squareSize / 2);
 
-    // Convert pixel coordinates to LatLng using the camera
-    final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
-    final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
+      // Convert pixel coordinates to LatLng using the camera
+      final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
+      final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
 
-    // Ensure proper bounds ordering
-    final north = math.max(nw.latitude, se.latitude);
-    final south = math.min(nw.latitude, se.latitude);
-    final east = math.max(nw.longitude, se.longitude);
-    final west = math.min(nw.longitude, se.longitude);
+      // Ensure proper bounds ordering
+      final north = math.max(nw.latitude, se.latitude);
+      final south = math.min(nw.latitude, se.latitude);
+      final east = math.max(nw.longitude, se.longitude);
+      final west = math.min(nw.longitude, se.longitude);
 
-    setState(() {
       _downloadBounds = LatLngBounds.fromPoints([
         LatLng(north, west), // Northwest
         LatLng(south, east), // Southeast
       ]);
-    });
 
-    print('=== DOWNLOAD BOUNDS ===');
-    print('North: $north, South: $south, East: $east, West: $west');
+      print('=== DOWNLOAD BOUNDS ===');
+      print('North: $north, South: $south, East: $east, West: $west');
+    } catch (e) {
+      print('Error calculating download bounds: $e');
+      _downloadBounds = null;
+    }
   }
 
   void _downloadArea() async {
-    // Calculate the download bounds
+    // Calculate the download bounds based on current map position
     _calculateDownloadBounds();
 
     if (_downloadBounds == null) {
@@ -385,15 +389,33 @@ class _OfflineMapState extends State<OfflineMap> {
 
   /// Get polygon points for the download bounds to display on map
   List<LatLng> _getBoundsPolygon() {
-    if (_downloadBounds == null) return [];
+    try {
+      if (!_mapReady) return [];
 
-    return [
-      _downloadBounds!.northWest,
-      LatLng(_downloadBounds!.north, _downloadBounds!.east),
-      _downloadBounds!.southEast,
-      LatLng(_downloadBounds!.south, _downloadBounds!.west),
-      _downloadBounds!.northWest, // Close the polygon
-    ];
+      final camera = _mapController.camera;
+      final mapSize = MediaQuery.of(context).size;
+      final center = Offset(mapSize.width / 2, mapSize.height / 2);
+
+      final topLeft =
+          Offset(center.dx - squareSize / 2, center.dy - squareSize / 2);
+      final bottomRight =
+          Offset(center.dx + squareSize / 2, center.dy + squareSize / 2);
+
+      // Convert pixel coordinates to LatLng using the camera
+      final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
+      final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
+
+      return [
+        nw, // Northwest
+        LatLng(nw.latitude, se.longitude), // Northeast
+        se, // Southeast
+        LatLng(se.latitude, nw.longitude), // Southwest
+        nw, // Close the polygon
+      ];
+    } catch (e) {
+      print('Error calculating bounds polygon: $e');
+      return [];
+    }
   }
 
   @override
@@ -418,6 +440,7 @@ class _OfflineMapState extends State<OfflineMap> {
             icon: const Icon(Icons.info_outline),
             onPressed: () {
               if (_currentZoom >= AppConfig.minZoomDownload) {
+                // Calculate bounds for info display only
                 _calculateDownloadBounds();
                 if (_downloadBounds != null) {
                   showDialog(
@@ -471,14 +494,16 @@ class _OfflineMapState extends State<OfflineMap> {
             options: MapOptions(
               initialCenter: const LatLng(41.3275, 19.8189),
               initialZoom: AppConfig.initZoom,
+              onMapReady: () {
+                setState(() {
+                  _mapReady = true;
+                });
+              },
               onPositionChanged: (position, _) {
                 setState(() {
                   _currentZoom = position.zoom;
                 });
-                // Recalculate bounds when map moves
-                if (_currentZoom >= AppConfig.minZoomDownload) {
-                  _calculateDownloadBounds();
-                }
+                // Don't calculate bounds here - only update zoom level
               },
             ),
             children: [
@@ -487,14 +512,13 @@ class _OfflineMapState extends State<OfflineMap> {
                 userAgentPackageName: 'com.asrdb.al',
                 tileProvider: tileProvider,
               ),
-              // Show download bounds as polygon overlay
-              if (_downloadBounds != null &&
-                  _currentZoom >= AppConfig.minZoomDownload)
+              // Show download area as polygon overlay that updates dynamically
+              if (_mapReady && _currentZoom >= AppConfig.minZoomDownload)
                 PolygonLayer(
                   polygons: [
                     Polygon(
                       points: _getBoundsPolygon(),
-                      color: Colors.cyan.withValues(alpha: 0.2),
+                      color: Colors.cyan.withOpacity(0.2),
                       borderColor: Colors.cyan,
                       borderStrokeWidth: 2.0,
                     ),
@@ -524,36 +548,8 @@ class _OfflineMapState extends State<OfflineMap> {
             ),
           ),
 
-          // Download area indicator
-          if (_currentZoom >= AppConfig.minZoomDownload)
-            Center(
-              child: IgnorePointer(
-                child: Container(
-                  width: squareSize,
-                  height: squareSize,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.cyan,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.cyan.withValues(alpha: 0.1),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Download\nArea',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.cyan,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            )
-          else
+          // Show message when zoom is too low
+          if (_currentZoom < AppConfig.minZoomDownload)
             Center(
               child: Container(
                 padding: const EdgeInsets.all(16),
