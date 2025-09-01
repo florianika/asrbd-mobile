@@ -87,8 +87,9 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primaryColor = widget.color ?? theme.colorScheme.primary;
+    // Custom light green color instead of theme primary color
+    final lightGreen = const Color(0xFF4CAF50); // Material Design Light Green
+    final primaryColor = widget.color ?? lightGreen;
     
     return GestureDetector(
       onTapDown: _onTapDown,

@@ -71,11 +71,12 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    // Custom light green color instead of theme primary color
+    final lightGreen = const Color(0xFF4CAF50); // Material Design Light Green
     
     return Drawer(
       child: Container(
-        color: primaryColor, // Single solid color instead of gradient
+        color: lightGreen, // Single solid light green color
         child: SlideTransition(
           position: _slideAnimation,
           child: FadeTransition(
@@ -93,7 +94,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.1 + 0.05 * _glowAnimation.value),
+                          color: lightGreen.withOpacity(0.1 + 0.05 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -110,7 +111,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 300,
                         height: 300,
                         decoration: BoxDecoration(
-                          color: primaryColor.withOpacity(0.08 + 0.02 * _glowAnimation.value),
+                          color: lightGreen.withOpacity(0.08 + 0.02 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -124,7 +125,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                     Container(
                       height: 200,
                       decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.9), // Slightly darker for depth
+                        color: lightGreen.withOpacity(0.9), // Slightly darker for depth
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
