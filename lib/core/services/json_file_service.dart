@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/api/entrance_api.dart';
@@ -98,6 +99,31 @@ class JsonFileService {
   Future<String?> getDwellingJsonFromFile() async {
     return await readJsonFile('dwelling.json');
   }
+
+Future<List<FieldSchema>> getAttributes(String fileName) async {
+  try {
+    final raw = await readJsonFile(fileName);
+    if (raw == null) {
+      throw Exception('$fileName not found or unreadable');
+    }
+
+    final decoded = jsonDecode(raw);
+    if (decoded is! Map<String, dynamic>) {
+      throw Exception('Invalid JSON structure in $fileName');
+    }
+
+    final fields = decoded['fields'];
+    if (fields is! List) {
+      throw Exception('"fields" key is missing or not a list in $fileName');
+    }
+
+    return fields
+        .map<FieldSchema>((e) => FieldSchema.fromJson(e as Map<String, dynamic>))
+        .toList();
+  } catch (e) {
+    throw Exception('Get attributes from $fileName failed: $e');
+  }
+}
 
   Future<void> deleteJsonFiles() async {
     try {

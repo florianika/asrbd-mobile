@@ -13,10 +13,12 @@ import 'package:asrdb/main.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geodesy/geodesy.dart';
 import 'package:turf/turf.dart' as turf;
+import 'package:asrdb/core/services/json_file_service.dart';
 
 class BuildingUseCases {
   final BuildingRepository _buildingRepository;
   final CheckUseCases _checkUseCases;
+  final JsonFileService _jsonFileService = JsonFileService();
 
   BuildingUseCases(
     this._buildingRepository,
@@ -57,7 +59,7 @@ class BuildingUseCases {
   }
 
   Future<List<FieldSchema>> getBuildingAttibutes() async {
-    return await _buildingRepository.getBuildingAttributes();
+    return await _jsonFileService.getAttributes('building.json');
   }
 
   Future<String> _addBuildingFeatureOnline(BuildingEntity building) async {

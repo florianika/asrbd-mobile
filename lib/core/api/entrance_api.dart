@@ -26,11 +26,6 @@ class EntranceApi {
         '${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
   }
 
-  Future<Response> getEntranceAttributesJson(String esriToken) async {
-    return await _apiClient.get(
-        '${ApiEndpoints.esriBaseUri.toString()}/0?f=pjson&token=$esriToken');
-  }
-
   Future<Response> addEntranceFeature(
       String esriToken, EntranceEntity entrance) async {
     Map<String, String> contentType = <String, String>{

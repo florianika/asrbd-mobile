@@ -26,6 +26,7 @@ class AuthService {
         await _storage.saveString(
             key: StorageKeys.idhToken, value: authResponse.idToken);
  
+        await loginEsri();
         await _saveJsonFilesIfNeeded();
 
         return authResponse;
@@ -111,7 +112,6 @@ class AuthService {
 
       if (!filesExist) {  
         await _jsonFileService.saveJsonFiles();
-      } else {
       }
     } catch (e) {
       // Don't throw here as login should still succeed even if JSON saving fails
@@ -122,17 +122,10 @@ class AuthService {
   Future<void> saveJsonFiles() async {
     try {
       await _jsonFileService.saveJsonFiles();
-      print('JSON files saved successfully');
     } catch (e) {
       throw Exception('Failed to save JSON files: $e');
     }
   }
-  Future<String?> readJsonFiles() async {
-    try {
-     var a= await _jsonFileService.getBuildingJsonFromFile();
-     return a;
-    } catch (e) {
-      throw Exception('Failed to save JSON files: $e');
-    }
-  }
+
+
 }
