@@ -9,9 +9,9 @@ LazyDatabase openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'asrdb.sqlite'));
 
-    if (await file.exists()) {
-      await file.delete();
-    }
+    // if (await file.exists()) {
+    //   await file.delete();
+    // }
 
     return NativeDatabase(file);
   });

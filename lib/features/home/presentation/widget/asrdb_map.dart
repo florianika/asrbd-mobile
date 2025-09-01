@@ -29,7 +29,6 @@ import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:asrdb/core/widgets/file_tile_provider.dart' as ft;
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -52,7 +51,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   LatLngBounds? visibleBounds;
-  late String tileDirPath = '';
+  // late String tileDirPath = '';
   double zoom = 0;
   String? _selectedGlobalId;
 
@@ -74,19 +73,19 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   @override
   void initState() {
-    applyTile();
+    // applyTile();
     super.initState();
   }
 
-  Future<void> applyTile() async {
-    String? path = await storageService.getString(
-        boxName: HiveBoxes.offlineMap, key: "map");
-    if (path != null) {
-      setState(() {
-        tileDirPath = path;
-      });
-    }
-  }
+  // Future<void> applyTile() async {
+  //   String? path = await storageService.getString(
+  //       boxName: HiveBoxes.offlineMap, key: "map");
+  //   if (path != null) {
+  //     setState(() {
+  //       tileDirPath = path;
+  //     });
+  //   }
+  // }
 
   void _goToCurrentLocation() async {
     final location = await LocationService.getCurrentLocation();
@@ -298,9 +297,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       : currentPosition)
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
-              // cameraConstraint: state.isOffline && state.bounds != null
-              //     ? CameraConstraint.contain(bounds: state.bounds!)
-              //     : CameraConstraint.unconstrained(),
+              cameraConstraint: state.isOffline && state.bounds != null
+                  ? CameraConstraint.contain(bounds: state.bounds!)
+                  : CameraConstraint.unconstrained(),
               onTap: (TapPosition position, LatLng latlng) =>
                   _handleBuildingOnTap(latlng),
               onMapReady: () => {
