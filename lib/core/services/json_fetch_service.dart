@@ -21,7 +21,7 @@ class JsonFetchService {
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await buildingApi.getBuildingAttributesJson(esriToken);
+      final response = await buildingApi.getBuildingAttributes(esriToken);
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -42,7 +42,7 @@ class JsonFetchService {
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await entranceApi.getEntranceAttributesJson(esriToken);
+      final response = await entranceApi.getEntranceAttributes(esriToken);
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -63,7 +63,7 @@ class JsonFetchService {
           await _storage.getString(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
-      final response = await dwellingApi.getDwellingAttributesJson(esriToken);
+      final response = await dwellingApi.getDwellingAttributes(esriToken);
 
       if (response.statusCode == 200) {
         final data = response.data;

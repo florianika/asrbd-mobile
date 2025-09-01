@@ -2,6 +2,7 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/mapper/entrance_mapper.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
@@ -13,6 +14,7 @@ import 'package:asrdb/main.dart';
 
 class EntranceUseCases {
   final EntranceRepository _entranceRepository;
+  final JsonFileService _jsonFileService = JsonFileService();
 
   EntranceUseCases(this._entranceRepository);
 
@@ -30,7 +32,7 @@ class EntranceUseCases {
   }
 
   Future<List<FieldSchema>> getEntranceAttributes() async {
-    return await _entranceRepository.getEntranceAttributes();
+    return await _jsonFileService.getAttributes('entrance.json');
   }
 
   Future<String> _addEntranceFeatureOnline(EntranceEntity entrance) async {

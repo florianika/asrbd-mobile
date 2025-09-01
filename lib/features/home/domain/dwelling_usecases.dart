@@ -1,4 +1,5 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/dwelling_repository.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
@@ -10,6 +11,7 @@ import 'package:asrdb/main.dart';
 class DwellingUseCases {
   final DwellingRepository _dwellingRepository;
   final CheckUseCases _checkUseCases;
+  final JsonFileService _jsonFileService = JsonFileService();
 
   DwellingUseCases(this._dwellingRepository, this._checkUseCases);
 
@@ -18,7 +20,7 @@ class DwellingUseCases {
   }
 
   Future<List<FieldSchema>> getDwellingAttibutes() async {
-    return await _dwellingRepository.getDwellingAttributes();
+      return await _jsonFileService.getAttributes('dwelling.json');
   }
 
   Future<String> _addDwellingFeatureOnline(DwellingEntity dwelling) async {
