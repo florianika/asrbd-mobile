@@ -7,8 +7,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 
 class MunicipalityMarker extends StatefulWidget {
+  final bool isOffline;
+  final int? municipalityId;
   const MunicipalityMarker({
     super.key,
+    required this.isOffline,
+    this.municipalityId,
   });
 
   @override
@@ -21,7 +25,11 @@ class _MunicipalityMarkerState extends State<MunicipalityMarker> {
   void initState() {
     super.initState();
     context.read<MunicipalityCubit>().getMunicipality(
-        userService.userInfo!.municipality, ServiceMode.online);
+          widget.isOffline
+              ? widget.municipalityId!
+              : userService.userInfo!.municipality,
+          widget.isOffline ? ServiceMode.offline : ServiceMode.online,
+        );
   }
 
   @override
