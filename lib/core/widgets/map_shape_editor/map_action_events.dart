@@ -1,6 +1,7 @@
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
+import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
@@ -84,6 +85,32 @@ class _MapActionEventsState extends State<MapActionEvents> {
       geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
     } else if (geometryEditor.selectedType == EntityType.entrance) {
       geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
+    }
+  }
+
+  Future<void> _addPointFromLocation() async {
+    try {
+      final currentLocation = await LocationService.getCurrentLocation();
+    
+      widget.mapController.move(currentLocation, widget.mapController.camera.zoom);
+      
+      if (!mounted) return;
+      
+      final geometryEditor = context.read<GeometryEditorCubit>();
+
+      if (geometryEditor.selectedType == EntityType.building) {
+        geometryEditor.buildingCubit.addPoint(currentLocation);
+      } else if (geometryEditor.selectedType == EntityType.entrance) {
+        geometryEditor.entranceCubit.addPoint(currentLocation);
+      }
+    } catch (e) {
+      if (mounted) {
+        NotifierService.showMessage(
+          context,
+          message: e.toString(),
+          type: MessageType.error,
+        );
+      }
     }
   }
 
@@ -274,6 +301,16 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           ),
 
                           const SizedBox(height: 20),
+
+                          FloatingButton(
+                            icon: Icons.my_location,
+                            heroTag: 'locate_me',
+                            isEnabled: geometryEditor.canAddPoint,
+                            onPressed: _addPointFromLocation,
+                          ),
+
+                          const SizedBox(height: 20),
+
                           FloatingButton(
                             icon: Icons.add_location_alt_outlined,
                             heroTag: 'pin',
