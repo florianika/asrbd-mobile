@@ -1,4 +1,5 @@
 import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/core/widgets/animated_burger_menu.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -39,6 +40,11 @@ class _MapAppBarState extends State<MapAppBar> {
         // final hasStatusUpdate = _showBadge;
 
         return AppBar(
+          leading: AnimatedBurgerMenu(
+            onTap: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
           title: BlocBuilder<AttributesCubit, AttributesState>(
               builder: (context, state) {
             return BlocConsumer<TileCubit, TileState>(
