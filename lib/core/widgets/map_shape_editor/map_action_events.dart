@@ -91,18 +91,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
   Future<void> _addPointFromLocation() async {
     try {
       final currentLocation = await LocationService.getCurrentLocation();
-    
       widget.mapController.move(currentLocation, widget.mapController.camera.zoom);
-      
-      if (!mounted) return;
-      
-      final geometryEditor = context.read<GeometryEditorCubit>();
-
-      if (geometryEditor.selectedType == EntityType.building) {
-        geometryEditor.buildingCubit.addPoint(currentLocation);
-      } else if (geometryEditor.selectedType == EntityType.entrance) {
-        geometryEditor.entranceCubit.addPoint(currentLocation);
-      }
     } catch (e) {
       if (mounted) {
         NotifierService.showMessage(
@@ -303,7 +292,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           const SizedBox(height: 20),
 
                           FloatingButton(
-                            icon: Icons.my_location,
+                            icon: Icons.location_on,
                             heroTag: 'locate_me',
                             isEnabled: geometryEditor.canAddPoint,
                             onPressed: _addPointFromLocation,
