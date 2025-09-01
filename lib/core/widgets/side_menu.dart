@@ -11,8 +11,10 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
+  late AnimationController _glowController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
@@ -23,6 +25,10 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
     );
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _glowController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
@@ -42,200 +48,234 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
       curve: Curves.easeOutCubic,
     ));
 
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _glowController,
+      curve: Curves.easeInOut,
+    ));
+
     _fadeController.forward();
     _slideController.forward();
+    _glowController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _glowController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    
     return Drawer(
       child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.primary.withOpacity(0.8),
-              Theme.of(context).colorScheme.secondary.withOpacity(0.6),
-            ],
-          ),
-        ),
+        color: primaryColor, // Single solid color instead of gradient
         child: SlideTransition(
           position: _slideAnimation,
           child: FadeTransition(
             opacity: _fadeAnimation,
-            child: Column(
-              children: <Widget>[
-                // Cool header with gradient and icon
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.1),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(30),
-                      bottomRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
+            child: Stack(
+              children: [
+                // Subtle background pattern for depth
+                Positioned(
+                  top: -100,
+                  right: -100,
+                  child: AnimatedBuilder(
+                    animation: _glowController,
+                    builder: (context, child) {
+                      return Container(
+                        width: 200,
+                        height: 200,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.1),
-                              blurRadius: 20,
-                              spreadRadius: 5,
-                            ),
-                          ],
+                          color: primaryColor.withOpacity(0.1 + 0.05 * _glowAnimation.value),
+                          shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          Icons.map_rounded,
-                          size: 50,
-                          color: Colors.white,
+                      );
+                    },
+                  ),
+                ),
+                Positioned(
+                  bottom: -150,
+                  left: -150,
+                  child: AnimatedBuilder(
+                    animation: _glowController,
+                    builder: (context, child) {
+                      return Container(
+                        width: 300,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          color: primaryColor.withOpacity(0.08 + 0.02 * _glowAnimation.value),
+                          shape: BoxShape.circle,
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'ASRDB',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          shadows: [
-                            Shadow(
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
-                              color: Colors.black.withOpacity(0.3),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        'Mobile App',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
                 ),
                 
-                // Menu items with cool styling
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        
-                        // View Maps Item
-                        _buildMenuItem(
-                          context,
-                          icon: Icons.map_outlined,
-                          title: 'View Maps',
-                          subtitle: 'Downloaded offline maps',
-                          onTap: () {
-                            Navigator.pushNamed(context, RouteManager.downloadedMapList);
-                          },
+                Column(
+                  children: <Widget>[
+                    // Header with subtle depth
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: primaryColor.withOpacity(0.9), // Slightly darker for depth
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
                         ),
-                        
-                        const SizedBox(height: 12),
-                        
-                        // Settings Item
-                        _buildMenuItem(
-                          context,
-                          icon: Icons.settings_outlined,
-                          title: 'Settings',
-                          subtitle: 'App configuration',
-                          onTap: () {
-                            // Handle settings tap
-                          },
-                        ),
-                        
-                        const SizedBox(height: 12),
-                        
-                        // Profile Item
-                        _buildMenuItem(
-                          context,
-                          icon: Icons.person_outline,
-                          title: 'Profile',
-                          subtitle: 'User account details',
-                          onTap: () {
-                            // Handle profile tap
-                          },
-                        ),
-                        
-                        const SizedBox(height: 12),
-                        
-                        // Help Item
-                        _buildMenuItem(
-                          context,
-                          icon: Icons.help_outline,
-                          title: 'Help & Support',
-                          subtitle: 'Get assistance',
-                          onTap: () {
-                            // Handle help tap
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                
-                // Footer with version info
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 1,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.transparent,
-                              Colors.white.withOpacity(0.3),
-                              Colors.transparent,
-                            ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedBuilder(
+                            animation: _glowController,
+                            builder: (context, child) {
+                              return Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15 + 0.05 * _glowAnimation.value),
+                                  borderRadius: BorderRadius.circular(50),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.3 + 0.1 * _glowAnimation.value),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.1 + 0.05 * _glowAnimation.value),
+                                      blurRadius: 20 + 10 * _glowAnimation.value,
+                                      spreadRadius: 5 + 3 * _glowAnimation.value,
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.map_rounded,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                              );
+                            },
                           ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'ASRDB',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                              shadows: [
+                                Shadow(
+                                  offset: const Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black.withOpacity(0.3),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            'Mobile App',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    // Menu items with monochromatic styling
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+                            
+                            // View Maps Item
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.map_outlined,
+                              title: 'View Maps',
+                              subtitle: 'Downloaded offline maps',
+                              onTap: () {
+                                Navigator.pushNamed(context, RouteManager.downloadedMapList);
+                              },
+                            ),
+                            
+                            const SizedBox(height: 12),
+                            
+                            // Settings Item
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.settings_outlined,
+                              title: 'Settings',
+                              subtitle: 'App configuration',
+                              onTap: () {
+                                // Handle settings tap
+                              },
+                            ),
+                            
+                            const SizedBox(height: 12),
+                            
+                            // Profile Item
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.person_outline,
+                              title: 'Profile',
+                              subtitle: 'User account details',
+                              onTap: () {
+                                // Handle profile tap
+                              },
+                            ),
+                            
+                            const SizedBox(height: 12),
+                            
+                            // Help Item
+                            _buildMenuItem(
+                              context,
+                              icon: Icons.help_outline,
+                              title: 'Help & Support',
+                              subtitle: 'Get assistance',
+                              onTap: () {
+                                // Handle help tap
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Version 1.0.0',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
-                        ),
+                    ),
+                    
+                    // Footer with version info
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 1,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.3),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Version 1.0.0',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.7),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -254,7 +294,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withOpacity(0.1), // Subtle white overlay
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.white.withOpacity(0.2),

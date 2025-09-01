@@ -21,6 +21,7 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
   late AnimationController _animationController;
   late Animation<double> _rotationAnimation;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _glowAnimation;
   bool _isPressed = false;
 
   @override
@@ -42,6 +43,14 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
     _scaleAnimation = Tween<double>(
       begin: 1.0,
       end: 0.9,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
     ).animate(CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
@@ -91,98 +100,139 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: 48,
-              height: 48,
+              width: 52,
+              height: 52,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    primaryColor,
-                    primaryColor.withOpacity(0.8),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16),
+                color: primaryColor, // Single solid color instead of gradient
+                borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withOpacity(0.3),
-                    blurRadius: _isPressed ? 4 : 8,
-                    offset: Offset(0, _isPressed ? 1 : 2),
-                    spreadRadius: _isPressed ? 0 : 1,
+                    color: primaryColor.withOpacity(0.4),
+                    blurRadius: _isPressed ? 6 : 12,
+                    offset: Offset(0, _isPressed ? 2 : 4),
+                    spreadRadius: _isPressed ? 0 : 2,
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(-2, -2),
+                    spreadRadius: 0,
                   ),
                 ],
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.2),
+                  width: 1.5,
+                ),
               ),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(18),
                   onTap: widget.onTap,
                   child: Container(
-                    padding: const EdgeInsets.all(12),
-                    child: Transform.rotate(
-                      angle: _rotationAnimation.value,
-                      child: Stack(
-                        children: [
-                          // Burger lines with custom styling
-                          Positioned(
-                            top: 6,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.5),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
+                    padding: const EdgeInsets.all(14),
+                    child: Stack(
+                      children: [
+                        // Animated glow effect
+                        AnimatedBuilder(
+                          animation: _glowAnimation,
+                          builder: (context, child) {
+                            return Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.3 * _glowAnimation.value),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        
+                        // Burger lines with enhanced styling
+                        Transform.rotate(
+                          angle: _rotationAnimation.value,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Top line
+                              Container(
+                                width: 24,
+                                height: 2.5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(1.25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.6),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              
+                              // Middle line
+                              Container(
+                                width: 20,
+                                height: 2.5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(1.25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.6),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              
+                              // Bottom line
+                              Container(
+                                width: 16,
+                                height: 2.5,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(1.25),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.white.withOpacity(0.6),
+                                      blurRadius: 4,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        
+                        // Subtle inner glow
+                        Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              gradient: RadialGradient(
+                                center: Alignment.center,
+                                radius: 0.8,
+                                colors: [
+                                  Colors.white.withOpacity(0.1),
+                                  Colors.transparent,
                                 ],
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 12,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.5),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 18,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.white.withOpacity(0.5),
-                                    blurRadius: 2,
-                                    spreadRadius: 0,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
