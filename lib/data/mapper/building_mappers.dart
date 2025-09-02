@@ -60,50 +60,57 @@ var uuid = Uuid();
 
 /// Convert BuildingEntity → Drift row
 extension BuildingEntityToDrift on BuildingEntity {
-  Building toDriftBuilding({int downloadId = 0}) {
+  BuildingsCompanion toDriftBuilding({int downloadId = 0}) {
     final rawCoords = coordinates
         .map((ring) => ring.map((p) => [p.longitude, p.latitude]).toList())
         .toList();
 
-    return Building(
-      id: 0,
-      downloadId: downloadId,
-      objectId: objectId,
-      geometryType: geometryType,
-      coordinates: jsonEncode(rawCoords),
-      shapeLength: shapeLength,
-      shapeArea: shapeArea,
-      globalId: globalId != null ? globalId! : '',
-      bldCensus2023: bldCensus2023,
-      bldQuality: bldQuality,
-      bldMunicipality: bldMunicipality,
-      bldEnumArea: bldEnumArea,
-      bldLatitude: bldLatitude,
-      bldLongitude: bldLongitude,
-      bldCadastralZone: bldCadastralZone,
-      bldProperty: bldProperty,
-      bldPermitNumber: bldPermitNumber,
-      bldPermitDate: bldPermitDate,
-      bldStatus: bldStatus,
-      bldYearConstruction: bldYearConstruction,
-      bldYearDemolition: bldYearDemolition,
-      bldType: bldType,
-      bldClass: bldClass,
-      bldArea: bldArea,
-      bldFloorsAbove: bldFloorsAbove,
-      bldHeight: bldHeight,
-      bldVolume: bldVolume,
-      bldWasteWater: bldWasteWater,
-      bldElectricity: bldElectricity,
-      bldPipedGas: bldPipedGas,
-      bldElevator: bldElevator,
-      createdDate: createdDate,
-      bldCentroidStatus: bldCentroidStatus,
-      bldDwellingRecs: bldDwellingRecs,
-      bldEntranceRecs: bldEntranceRecs,
-      bldAddressID: bldAddressID,
-      bldReview: bldReview,
-      bldWaterSupply: bldWaterSupply,
+    return BuildingsCompanion(
+      id: Value.absent(),
+      downloadId: Value(downloadId),
+      objectId: Value(objectId),
+      geometryType: Value(geometryType),
+      coordinates: Value(jsonEncode(rawCoords)),
+      shapeLength: Value(shapeLength),
+      shapeArea: Value(shapeArea),
+      globalId: Value(globalId ?? ''),
+      bldCensus2023: Value(bldCensus2023),
+      bldQuality: Value(bldQuality),
+      bldMunicipality: Value(bldMunicipality),
+      bldEnumArea: Value(bldEnumArea),
+      bldLatitude: Value(bldLatitude),
+      bldLongitude: Value(bldLongitude),
+      bldCadastralZone: Value(bldCadastralZone),
+      bldProperty: Value(bldProperty),
+      bldPermitNumber: Value(bldPermitNumber),
+      bldPermitDate: Value(bldPermitDate),
+      bldStatus: Value(bldStatus),
+      bldYearConstruction: Value(bldYearConstruction),
+      bldYearDemolition: Value(bldYearDemolition),
+      bldType: Value(bldType),
+      bldClass: Value(bldClass),
+      bldArea: Value(bldArea),
+      bldFloorsAbove: Value(bldFloorsAbove),
+      bldHeight: Value(bldHeight),
+      bldVolume: Value(bldVolume),
+      bldWasteWater: Value(bldWasteWater),
+      bldElectricity: Value(bldElectricity),
+      bldPipedGas: Value(bldPipedGas),
+      bldElevator: Value(bldElevator),
+      createdUser: Value(createdUser),
+      createdDate: Value(createdDate),
+      lastEditedUser: Value(lastEditedUser),
+      lastEditedDate: Value(lastEditedDate),
+      bldCentroidStatus: Value(bldCentroidStatus),
+      bldDwellingRecs: Value(bldDwellingRecs),
+      bldEntranceRecs: Value(bldEntranceRecs),
+      bldAddressID: Value(bldAddressID),
+      externalCreator: Value(externalCreator),
+      externalEditor: Value(externalEditor),
+      bldReview: Value(bldReview),
+      bldWaterSupply: Value(bldWaterSupply),
+      externalCreatorDate: Value(externalCreatorDate),
+      externalEditorDate: Value(externalEditorDate),
     );
   }
 }
@@ -162,9 +169,8 @@ extension BuildingRowToEntity on Building {
   }
 }
 
-/// List extensions for convenience
 extension BuildingEntityListToDrift on List<BuildingEntity> {
-  List<Building> toDriftBuildingList(int downloadId) =>
+  List<BuildingsCompanion> toDriftBuildingList(int downloadId) =>
       map((e) => e.toDriftBuilding(downloadId: downloadId)).toList();
 }
 

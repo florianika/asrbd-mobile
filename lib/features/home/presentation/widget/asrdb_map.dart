@@ -181,17 +181,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       // if (!hasGesture && !zoomChanged) return;
 
-      // if (_debounce?.isActive ?? false) _debounce!.cancel();
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
 
       // KEY FIX: Use longer debounce for offline mode
       final debounceMs = isOffline ? 0 : 800; // Much longer delay for offline
 
-      NotifierService.showMessage(
-        context,
-        message: 'moved',
-        type: MessageType.info,
-      );
-
+   
       _debounce = Timer(Duration(milliseconds: debounceMs), () {
         if (camera.zoom >= AppConfig.buildingMinZoom) {
           context.read<BuildingCubit>().getBuildings(
@@ -335,7 +330,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   _onPositionChanged(
                     camera,
                     false, // hasGesture = false, since user stopped
-                    userService.userInfo!.municipality,
+                    state.isOffline
+                        ? state.municipalityId!
+                        : userService.userInfo!.municipality,
                     state.isOffline,
                     state.activeSessionId != null
                         ? int.parse(state.activeSessionId!)

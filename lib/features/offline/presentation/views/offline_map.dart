@@ -227,11 +227,11 @@ class _OfflineMapState extends State<OfflineMap> {
 
       if (!mounted) return;
 
-      NotifierService.showMessage(
-        context,
-        message: "Started download: $downloadName (ID: $downloadId)",
-        type: MessageType.info,
-      );
+      // NotifierService.showMessage(
+      //   context,
+      //   message: "Started download: $downloadName (ID: $downloadId)",
+      //   type: MessageType.info,
+      // );
 
       // Download buildings, entrances, and dwellings
       await _downloadAllData(downloadId, downloadName);
