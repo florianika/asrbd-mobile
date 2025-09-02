@@ -40,6 +40,12 @@ class BuildingsMarker extends StatelessWidget {
             type: MessageType.error,
           );
         } else if (state is Buildings && state.buildings.isNotEmpty) {
+          NotifierService.showMessage(
+            context,
+            message: state.buildings.length.toString(),
+            type: MessageType.info,
+          );
+
           final buildingIds = state.buildings
               .map((building) => building.globalId)
               .whereType<String>()

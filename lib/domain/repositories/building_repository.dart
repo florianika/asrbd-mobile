@@ -22,17 +22,15 @@ abstract class IBuildingRepository {
   Future<void> updateBuildingGlobalId(int objectId, String newGlobalId);
 
   Future<List<BuildingEntity>> getBuildings(
-      LatLngBounds bounds, double zoom, int municipalityId, bool isOffline);
+      LatLngBounds bounds, double zoom, int municipalityId);
 
   Future<BuildingEntity> getBuildingDetails(String globalId);
 
   Future<List<FieldSchema>> getBuildingAttributes();
 
-  Future<String> addBuildingFeature(
-      BuildingEntity building);
+  Future<String> addBuildingFeature(BuildingEntity building);
 
-  Future<bool> updateBuildingFeature(
-      BuildingEntity building);
+  Future<bool> updateBuildingFeature(BuildingEntity building);
 
   Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId);
 }

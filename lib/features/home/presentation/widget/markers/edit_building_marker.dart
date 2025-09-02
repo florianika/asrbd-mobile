@@ -143,6 +143,7 @@ class EditBuildingMarker extends StatelessWidget {
           height: 20,
           point: midpoint,
           child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
             onTap: () {
               // Add new point at midpoint position
               final geometryEditor = context.read<GeometryEditorCubit>();

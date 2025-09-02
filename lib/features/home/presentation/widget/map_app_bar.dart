@@ -39,20 +39,17 @@ class _MapAppBarState extends State<MapAppBar> {
         // final hasStatusUpdate = _showBadge;
 
         return AppBar(
-          title: BlocBuilder<AttributesCubit, AttributesState>(
-              builder: (context, state) {
-            return BlocConsumer<TileCubit, TileState>(
-              listener: (context, state) {},
-              builder: (context, state) {
-                return Text(
-                  'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: state.isOffline ? Colors.red : Colors.green),
-                );
-              },
-            );
-          }),
+          title: BlocConsumer<TileCubit, TileState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return Text(
+                'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}, ${state.activeSessionId}, ${state.municipalityId}',
+                style: TextStyle(
+                    fontSize: 12,
+                    color: state.isOffline ? Colors.red : Colors.green),
+              );
+            },
+          ),
           actions: [
             Badge(
               // isLabelVisible: hasStatusUpdate,

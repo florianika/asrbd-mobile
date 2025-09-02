@@ -166,26 +166,41 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  double? _previousZoom;
+  // double? _previousZoom;
   // SIMPLE FIX: Just adjust the debounce timing based on offline/online mode
-  void _onPositionChanged(MapCamera camera, bool hasGesture, int municipalityId,
-      bool isOffline, int? downloadId) {
+  void _onPositionChanged(
+    MapCamera camera,
+    bool hasGesture,
+    int municipalityId,
+    bool isOffline,
+    int? downloadId,
+  ) {
     try {
-      final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-      _previousZoom = camera.zoom;
+      // final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
+      // _previousZoom = camera.zoom;
 
-      if (!hasGesture && !zoomChanged) return;
+      // if (!hasGesture && !zoomChanged) return;
 
-      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      // if (_debounce?.isActive ?? false) _debounce!.cancel();
 
       // KEY FIX: Use longer debounce for offline mode
-      final debounceMs =
-          isOffline ? 1500 : 800; // Much longer delay for offline
+      final debounceMs = isOffline ? 0 : 800; // Much longer delay for offline
+
+      NotifierService.showMessage(
+        context,
+        message: 'moved',
+        type: MessageType.info,
+      );
 
       _debounce = Timer(Duration(milliseconds: debounceMs), () {
         if (camera.zoom >= AppConfig.buildingMinZoom) {
-          context.read<BuildingCubit>().getBuildings(camera.visibleBounds,
-              camera.zoom, municipalityId, isOffline, downloadId);
+          context.read<BuildingCubit>().getBuildings(
+                camera.visibleBounds,
+                camera.zoom,
+                municipalityId,
+                isOffline,
+                downloadId,
+              );
         } else {
           setState(() {
             _selectedBuildingGlobalId = null;
@@ -297,9 +312,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       : currentPosition)
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
-              cameraConstraint: state.isOffline && state.bounds != null
-                  ? CameraConstraint.contain(bounds: state.bounds!)
-                  : CameraConstraint.unconstrained(),
               onTap: (TapPosition position, LatLng latlng) =>
                   _handleBuildingOnTap(latlng),
               onMapReady: () => {
@@ -310,21 +322,27 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     state.isOffline
                         ? state.municipalityId!
                         : userService.userInfo!.municipality,
-                    !state.isOffline,
+                    state.isOffline,
                     state.activeSessionId != null
                         ? int.parse(state.activeSessionId!)
                         : null),
                 visibleBounds = widget.mapController.camera.visibleBounds,
               },
-              onPositionChanged: (MapCamera camera, bool hasGesture) =>
+              onMapEvent: (event) {
+                if (event is MapEventMoveEnd) {
+                  final camera = widget.mapController.camera;
+
                   _onPositionChanged(
-                      camera,
-                      hasGesture,
-                      userService.userInfo!.municipality,
-                      state.isOffline,
-                      state.activeSessionId != null
-                          ? state.activeSessionId as int
-                          : null),
+                    camera,
+                    false, // hasGesture = false, since user stopped
+                    userService.userInfo!.municipality,
+                    state.isOffline,
+                    state.activeSessionId != null
+                        ? int.parse(state.activeSessionId!)
+                        : null,
+                  );
+                }
+              },
             ),
             children: [
               TileLayer(

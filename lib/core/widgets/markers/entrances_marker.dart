@@ -77,6 +77,7 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                   height: markerSize,
                   point: entrance.coordinates!,
                   child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
                     onTap: () => widget.onTap(entrance),
                     onLongPress: () => widget.onLongPress(entrance),
                     child: Stack(

@@ -39,9 +39,13 @@ class BuildingUseCases {
     if (zoom < AppConfig.buildingMinZoom) {
       return [];
     }
+    
     if (!isOffline) {
       return await _buildingRepository.getBuildings(
-          bounds, zoom, municipalityId, isOffline);
+        bounds,
+        zoom,
+        municipalityId,
+      );
     } else {
       List<Building> buildings =
           await _buildingRepository.getBuildingsByDownloadId(downloadId);
@@ -70,8 +74,8 @@ class BuildingUseCases {
   }
 
   Future<String> _addBuildingFeatureOffline(BuildingEntity building) async {
-    final globalId =
-        await _buildingRepository.insertBuilding(building.toDriftBuilding(123));
+    final globalId = await _buildingRepository
+        .insertBuilding(building.toDriftBuilding(downloadId: 123));
 
     return '';
   }

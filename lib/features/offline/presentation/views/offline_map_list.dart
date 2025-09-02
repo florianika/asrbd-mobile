@@ -60,7 +60,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
               // Calculate directory size
               int totalSize = 0;
-              await for (FileSystemEntity entity in sessionEntity.list(recursive: true)) {
+              await for (FileSystemEntity entity
+                  in sessionEntity.list(recursive: true)) {
                 if (entity is File) {
                   final stats = await entity.stat();
                   totalSize += stats.size;
@@ -92,10 +93,11 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
             }
           } catch (e) {
             print('Error loading data session ${sessionEntity.path}: $e');
-            
+
             NotifierService.showMessage(
               context,
-              message: 'Error loading data session: ${sessionEntity.path.split('/').last}',
+              message:
+                  'Error loading data session: ${sessionEntity.path.split('/').last}',
               type: MessageType.warning,
             );
           }
@@ -124,16 +126,17 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (!mounted) return;
 
-    context
-        .read<TileCubit>()
-        .setOfflineSession(data.sessionId, data.center, data.bounds, data.userId, data.userMunicipalityId);
+    await context.read<TileCubit>().setOfflineSession(data.sessionId,
+        data.center, data.bounds, data.userId, data.userMunicipalityId,);
 
     // Save the correct sessionId
-    storageService.saveString(
+    await storageService.saveString(
       boxName: HiveBoxes.offlineMap,
       key: "map",
       value: data.sessionId,
     );
+
+    if (!mounted) return;
 
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
@@ -166,7 +169,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     if (confirmed == true) {
       try {
         final Directory appDocDir = await getApplicationDocumentsDirectory();
-        final String sessionPath = '${appDocDir.path}/offline_data/${data.sessionId}';
+        final String sessionPath =
+            '${appDocDir.path}/offline_data/${data.sessionId}';
         final Directory sessionDir = Directory(sessionPath);
 
         if (await sessionDir.exists()) {
@@ -295,7 +299,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                       ),
                                     ),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         Icon(
                                           Icons.location_city,
@@ -318,7 +323,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   // Area info
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           data.name,
@@ -344,10 +350,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.orange.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(12),
+                                                color: Colors.orange
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: Colors.orange.withOpacity(0.3),
+                                                  color: Colors.orange
+                                                      .withOpacity(0.3),
                                                 ),
                                               ),
                                               child: Row(
@@ -364,7 +373,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                     style: TextStyle(
                                                       color: Colors.orange[700],
                                                       fontSize: 12,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ],
@@ -377,14 +387,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 vertical: 4,
                                               ),
                                               decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(12),
+                                                color: Colors.green
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
                                                 border: Border.all(
-                                                  color: Colors.green.withOpacity(0.3),
+                                                  color: Colors.green
+                                                      .withOpacity(0.3),
                                                 ),
                                               ),
                                               child: Text(
-                                                _formatFileSize(data.sizeInBytes),
+                                                _formatFileSize(
+                                                    data.sizeInBytes),
                                                 style: TextStyle(
                                                   color: Colors.green[700],
                                                   fontSize: 12,
@@ -411,7 +425,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         value: 'apply',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.check, color: Colors.green),
+                                            Icon(Icons.check,
+                                                color: Colors.green),
                                             SizedBox(width: 8),
                                             Text('Apply Area'),
                                           ],
@@ -421,7 +436,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete, color: Colors.red),
+                                            Icon(Icons.delete,
+                                                color: Colors.red),
                                             SizedBox(width: 8),
                                             Text('Delete'),
                                           ],
@@ -454,7 +470,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   ),
                                 ],
                               ),
-                              if (data.userEmail != null || data.userMunicipalityId != null) ...[
+                              if (data.userEmail != null ||
+                                  data.userMunicipalityId != null) ...[
                                 SizedBox(height: 8),
                                 Row(
                                   children: [
@@ -489,7 +506,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value, bool isTablet) {
+  Widget _buildInfoItem(
+      IconData icon, String label, String value, bool isTablet) {
     return Row(
       children: [
         Icon(

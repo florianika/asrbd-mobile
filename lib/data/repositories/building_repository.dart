@@ -40,8 +40,8 @@ class BuildingRepository implements IBuildingRepository {
       _dao.buildingDao.updateGlobalIdById(id: id, globalId: newGlobalId);
 
   @override
-  Future<List<BuildingEntity>> getBuildings(LatLngBounds bounds, double zoom,
-      int municipalityId, bool isOnline) async {
+  Future<List<BuildingEntity>> getBuildings(
+      LatLngBounds bounds, double zoom, int municipalityId) async {
     return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 

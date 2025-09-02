@@ -285,55 +285,55 @@ class _OfflineMapState extends State<OfflineMap> {
         _downloadBounds!,
         AppConfig.minZoomDownload,
         userService.userInfo!.municipality,
-        true,
       );
 
       print('Buildings found: ${buildings.length}');
 
       var buildingsDao = buildings.toDriftBuildingList(downloadId);
+
       await buildingRepository.insertBuildings(buildingsDao);
 
-      setState(() {
-        _downloadStatus = 'Downloading entrances...';
-        _downloadProgress = 0.4;
-      });
+      // setState(() {
+      //   _downloadStatus = 'Downloading entrances...';
+      //   _downloadProgress = 0.4;
+      // });
 
-      // Download entrances
-      List<String> buildingIds =
-          buildings.map((entity) => entity.globalId!).toList();
-      List<EntranceEntity> entrances =
-          await entranceRepository.getEntrances(buildingIds);
-      print('Entrances found: ${entrances.length}');
+      // // Download entrances
+      // List<String> buildingIds =
+      //     buildings.map((entity) => entity.globalId!).toList();
+      // List<EntranceEntity> entrances =
+      //     await entranceRepository.getEntrances(buildingIds);
+      // print('Entrances found: ${entrances.length}');
 
-      var entrancesDao = entrances.toDriftEntranceList(downloadId);
-      await entranceRepository.insertEntrances(entrancesDao);
+      // var entrancesDao = entrances.toDriftEntranceList(downloadId);
+      // await entranceRepository.insertEntrances(entrancesDao);
 
-      setState(() {
-        _downloadStatus = 'Downloading dwellings...';
-        _downloadProgress = 0.7;
-      });
+      // setState(() {
+      //   _downloadStatus = 'Downloading dwellings...';
+      //   _downloadProgress = 0.7;
+      // });
 
-      // Download dwellings
-      List<String> entrancesIds =
-          entrances.map((entity) => entity.globalId!).toList();
-      List<DwellingEntity> dwellings =
-          await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
-      print('Dwellings found: ${dwellings.length}');
+      // // Download dwellings
+      // List<String> entrancesIds =
+      //     entrances.map((entity) => entity.globalId!).toList();
+      // List<DwellingEntity> dwellings =
+      //     await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
+      // print('Dwellings found: ${dwellings.length}');
 
-      var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
-      await dwellingRepository.insertDwellings(dwellingsDao);
+      // var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
+      // await dwellingRepository.insertDwellings(dwellingsDao);
 
-      setState(() {
-        _downloadStatus = 'Finalizing...';
-        _downloadProgress = 0.9;
-      });
+      // setState(() {
+      //   _downloadStatus = 'Finalizing...';
+      //   _downloadProgress = 0.9;
+      // });
 
-      NotifierService.showMessage(
-        context,
-        message:
-            'Data download complete - Buildings: ${buildings.length}, Entrances: ${entrances.length}, Dwellings: ${dwellings.length}',
-        type: MessageType.success,
-      );
+      // NotifierService.showMessage(
+      //   context,
+      //   message: 'Data download complete - Buildings: ${buildings.length}',
+      //   // 'Data download complete - Buildings: ${buildings.length}, Entrances: ${entrances.length}, Dwellings: ${dwellings.length}',
+      //   type: MessageType.success,
+      // );
 
       print('=== DATA DOWNLOAD COMPLETE ===');
     } catch (e, stack) {

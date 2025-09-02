@@ -32,7 +32,8 @@ class StorageService {
     required String key,
   }) async {
     final box = await _getBox(boxName);
-    return await box.get(key);
+    final result = await box.get(key);
+    return Map<String, dynamic>.from(result ?? {});
   }
 
   Future<void> saveBool(
