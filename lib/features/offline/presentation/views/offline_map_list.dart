@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:ui';
 
 class DownloadedMapsViewer extends StatefulWidget {
   @override
@@ -211,281 +212,453 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Downloaded Areas'),
-        backgroundColor: Colors.blueGrey[800],
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: _loadDownloadedData,
-            tooltip: 'Refresh',
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blueGrey[900]!,
+              Colors.blueGrey[800]!,
+              Colors.blueGrey[700]!,
+            ],
+            stops: [0.0, 0.3, 1.0],
           ),
-        ],
-      ),
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: Colors.cyan),
-                  SizedBox(height: 16),
-                  Text('Loading downloaded areas...'),
-                ],
-              ),
-            )
-          : _downloadedData.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.location_city_outlined,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      SizedBox(height: 16),
-                      Text(
-                        'No offline areas found',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Download some areas to see them here',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadDownloadedData,
-                  child: ListView.builder(
-                    padding: EdgeInsets.all(16),
-                    itemCount: _downloadedData.length,
-                    itemBuilder: (context, index) {
-                      final data = _downloadedData[index];
-                      return Card(
-                        elevation: 4,
-                        margin: EdgeInsets.only(bottom: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    Expanded(
+                      child: Text(
+                        'Downloaded Areas',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.refresh_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        onPressed: _loadDownloadedData,
+                        tooltip: 'Refresh',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Expanded(
+                child: _isLoading
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
                                 children: [
-                                  // Area icon
+                                  CircularProgressIndicator(
+                                    color: Colors.cyan[300],
+                                    strokeWidth: 3,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Loading downloaded areas...',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _downloadedData.isEmpty
+                        ? Center(
+                            child: Container(
+                              padding: EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: Colors.white.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
                                   Container(
-                                    width: 80,
-                                    height: 80,
+                                    padding: EdgeInsets.all(20),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
                                       color: Colors.cyan.withOpacity(0.1),
-                                      border: Border.all(
-                                        color: Colors.cyan.withOpacity(0.3),
-                                        width: 1,
-                                      ),
+                                      borderRadius: BorderRadius.circular(20),
                                     ),
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.location_city,
-                                          color: Colors.cyan[600],
-                                          size: 32,
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          'AREA',
-                                          style: TextStyle(
-                                            color: Colors.cyan[600],
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
+                                    child: Icon(
+                                      Icons.location_city_outlined,
+                                      size: 64,
+                                      color: Colors.cyan[300],
                                     ),
                                   ),
-                                  SizedBox(width: 16),
-                                  // Area info
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data.name,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          data.location,
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.orange.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.orange.withOpacity(0.3),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(
-                                                    Icons.business,
-                                                    size: 12,
-                                                    color: Colors.orange[700],
-                                                  ),
-                                                  SizedBox(width: 4),
-                                                  Text(
-                                                    '${data.buildingCount} buildings',
-                                                    style: TextStyle(
-                                                      color: Colors.orange[700],
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(width: 8),
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.green.withOpacity(0.1),
-                                                borderRadius: BorderRadius.circular(12),
-                                                border: Border.all(
-                                                  color: Colors.green.withOpacity(0.3),
-                                                ),
-                                              ),
-                                              child: Text(
-                                                _formatFileSize(data.sizeInBytes),
-                                                style: TextStyle(
-                                                  color: Colors.green[700],
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                  SizedBox(height: 24),
+                                  Text(
+                                    'No offline areas found',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  // Options menu
-                                  PopupMenuButton<String>(
-                                    onSelected: (value) {
-                                      if (value == 'delete') {
-                                        _deleteData(index);
-                                      } else if (value == 'apply') {
-                                        _applyMap(index);
-                                      }
-                                    },
-                                    itemBuilder: (BuildContext context) => [
-                                      const PopupMenuItem<String>(
-                                        value: 'apply',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.check, color: Colors.green),
-                                            SizedBox(width: 8),
-                                            Text('Apply Area'),
-                                          ],
-                                        ),
-                                      ),
-                                      const PopupMenuItem<String>(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.delete, color: Colors.red),
-                                            SizedBox(width: 8),
-                                            Text('Delete'),
-                                          ],
-                                        ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'Download some areas to see them here',
+                                    style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 16,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _loadDownloadedData,
+                            color: Colors.cyan[300],
+                            backgroundColor: Colors.blueGrey[800],
+                            child: ListView.builder(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: _downloadedData.length,
+                              itemBuilder: (context, index) {
+                                final data = _downloadedData[index];
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 16),
-                              Divider(),
-                              SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.calendar_today,
-                                      'Downloaded',
-                                      _formatDate(data.downloadDate),
-                                      true,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: _buildInfoItem(
-                                      Icons.location_on,
-                                      'Coordinates',
-                                      '${data.center.latitude.toStringAsFixed(4)}, ${data.center.longitude.toStringAsFixed(4)}',
-                                      true,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (data.userEmail != null || data.userMunicipalityId != null) ...[
-                                SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    if (data.userEmail != null)
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.person,
-                                          'User',
-                                          data.userEmail!,
-                                          true,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: BackdropFilter(
+                                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(20),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(16),
+                                                    gradient: LinearGradient(
+                                                      begin: Alignment.topLeft,
+                                                      end: Alignment.bottomRight,
+                                                      colors: [
+                                                        Colors.cyan.withOpacity(0.3),
+                                                        Colors.blue.withOpacity(0.3),
+                                                      ],
+                                                    ),
+                                                    border: Border.all(
+                                                      color: Colors.cyan.withOpacity(0.5),
+                                                      width: 2,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.cyan.withOpacity(0.3),
+                                                        blurRadius: 15,
+                                                        offset: Offset(0, 5),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: Column(
+                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.location_city,
+                                                        color: Colors.cyan[300],
+                                                        size: 32,
+                                                      ),
+                                                      SizedBox(height: 4),
+                                                      Text(
+                                                        'AREA',
+                                                        style: TextStyle(
+                                                          color: Colors.cyan[300],
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.bold,
+                                                          letterSpacing: 1,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                SizedBox(width: 20),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(
+                                                        data.name,
+                                                        style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.white,
+                                                          letterSpacing: 0.5,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 6),
+                                                      Text(
+                                                        data.location,
+                                                        style: TextStyle(
+                                                          color: Colors.white.withOpacity(0.8),
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 12),
+                                                      Row(
+                                                        children: [
+                                                          Container(
+                                                            padding: EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.orange.withOpacity(0.2),
+                                                              borderRadius: BorderRadius.circular(20),
+                                                              border: Border.all(
+                                                                color: Colors.orange.withOpacity(0.4),
+                                                                width: 1,
+                                                              ),
+                                                            ),
+                                                            child: Row(
+                                                              mainAxisSize: MainAxisSize.min,
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.business,
+                                                                  size: 14,
+                                                                  color: Colors.orange[300],
+                                                                ),
+                                                                SizedBox(width: 6),
+                                                                Text(
+                                                                  '${data.buildingCount} buildings',
+                                                                  style: TextStyle(
+                                                                    color: Colors.orange[300],
+                                                                    fontSize: 13,
+                                                                    fontWeight: FontWeight.w600,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 10),
+                                                          Container(
+                                                            padding: EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 6,
+                                                            ),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.green.withOpacity(0.2),
+                                                              borderRadius: BorderRadius.circular(20),
+                                                              border: Border.all(
+                                                                color: Colors.green.withOpacity(0.4),
+                                                                width: 1,
+                                                              ),
+                                                            ),
+                                                            child: Text(
+                                                              _formatFileSize(data.sizeInBytes),
+                                                              style: TextStyle(
+                                                                color: Colors.green[300],
+                                                                fontSize: 13,
+                                                                fontWeight: FontWeight.w600,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white.withOpacity(0.1),
+                                                    borderRadius: BorderRadius.circular(12),
+                                                    border: Border.all(
+                                                      color: Colors.white.withOpacity(0.2),
+                                                      width: 1,
+                                                    ),
+                                                  ),
+                                                  child: PopupMenuButton<String>(
+                                                    onSelected: (value) {
+                                                      if (value == 'delete') {
+                                                        _deleteData(index);
+                                                      } else if (value == 'apply') {
+                                                        _applyMap(index);
+                                                      }
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.more_vert,
+                                                      color: Colors.white,
+                                                    ),
+                                                    itemBuilder: (BuildContext context) => [
+                                                      const PopupMenuItem<String>(
+                                                        value: 'apply',
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.check, color: Colors.green),
+                                                            SizedBox(width: 8),
+                                                            Text('Apply Area'),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const PopupMenuItem<String>(
+                                                        value: 'delete',
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.delete, color: Colors.red),
+                                                            SizedBox(width: 8),
+                                                            Text('Delete'),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 20),
+                                            Container(
+                                              height: 1,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [
+                                                    Colors.transparent,
+                                                    Colors.white.withOpacity(0.3),
+                                                    Colors.transparent,
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 16),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: _buildInfoItem(
+                                                    Icons.calendar_today,
+                                                    'Downloaded',
+                                                    _formatDate(data.downloadDate),
+                                                    true,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: _buildInfoItem(
+                                                    Icons.location_on,
+                                                    'Coordinates',
+                                                    '${data.center.latitude.toStringAsFixed(4)}, ${data.center.longitude.toStringAsFixed(4)}',
+                                                    true,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            if (data.userEmail != null || data.userMunicipalityId != null) ...[
+                                              SizedBox(height: 12),
+                                              Row(
+                                                children: [
+                                                  if (data.userEmail != null)
+                                                    Expanded(
+                                                      child: _buildInfoItem(
+                                                        Icons.person,
+                                                        'User',
+                                                        data.userEmail!,
+                                                        true,
+                                                      ),
+                                                    ),
+                                                  if (data.userMunicipalityId != null)
+                                                    Expanded(
+                                                      child: _buildInfoItem(
+                                                        Icons.location_city,
+                                                        'Municipality',
+                                                        data.userMunicipalityId!.toString(),
+                                                        true,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ],
+                                          ],
                                         ),
                                       ),
-                                    if (data.userMunicipalityId != null)
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.location_city,
-                                          'Municipality',
-                                          data.userMunicipalityId!.toString(),
-                                          true,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -495,7 +668,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         Icon(
           icon,
           size: isTablet ? 20 : 16,
-          color: Colors.grey[600],
+          color: Colors.white.withOpacity(0.7),
         ),
         SizedBox(width: 4),
         Expanded(
@@ -506,14 +679,16 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                 label,
                 style: TextStyle(
                   fontSize: isTablet ? 14 : 12,
-                  color: Colors.grey[600],
+                  color: Colors.white.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               Text(
                 value,
                 style: TextStyle(
                   fontSize: isTablet ? 16 : 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
                 ),
                 maxLines: isTablet ? 2 : 1,
                 overflow: TextOverflow.ellipsis,

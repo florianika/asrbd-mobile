@@ -1,5 +1,6 @@
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -71,19 +72,26 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // Custom light green color instead of theme primary color
-    final lightGreen = const Color(0xFF4CAF50); // Material Design Light Green
-    
     return Drawer(
       child: Container(
-        color: lightGreen, // Single solid light green color
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Colors.blueGrey[900]!,
+              Colors.blueGrey[800]!,
+              Colors.blueGrey[700]!,
+            ],
+            stops: [0.0, 0.3, 1.0],
+          ),
+        ),
         child: SlideTransition(
           position: _slideAnimation,
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Stack(
               children: [
-                // Subtle background pattern for depth
                 Positioned(
                   top: -100,
                   right: -100,
@@ -94,7 +102,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: lightGreen.withOpacity(0.1 + 0.05 * _glowAnimation.value),
+                          color: Colors.cyan.withOpacity(0.1 + 0.05 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -111,7 +119,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 300,
                         height: 300,
                         decoration: BoxDecoration(
-                          color: lightGreen.withOpacity(0.08 + 0.02 * _glowAnimation.value),
+                          color: Colors.blue.withOpacity(0.08 + 0.02 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -120,86 +128,110 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                 ),
                 
                 Column(
-                  children: <Widget>[
-                    // Header with subtle depth
+                  children: <Widget>[      
                     Container(
-                      height: 200,
+                      height: 160,
                       decoration: BoxDecoration(
-                        color: lightGreen.withOpacity(0.9), // Slightly darker for depth
+                        color: Colors.white.withOpacity(0.1),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
                         ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedBuilder(
-                            animation: _glowController,
-                            builder: (context, child) {
-                              return Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15 + 0.05 * _glowAnimation.value),
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.3 + 0.1 * _glowAnimation.value),
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.1 + 0.05 * _glowAnimation.value),
-                                      blurRadius: 20 + 10 * _glowAnimation.value,
-                                      spreadRadius: 5 + 3 * _glowAnimation.value,
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.map_rounded,
-                                  size: 50,
-                                  color: Colors.white,
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'ASRDB',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 2,
-                              shadows: [
-                                Shadow(
-                                  offset: const Offset(0, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black.withOpacity(0.3),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            'Mobile App',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                            ),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: Offset(0, 2),
                           ),
                         ],
                       ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AnimatedBuilder(
+                                animation: _glowController,
+                                builder: (context, child) {
+                                  return Container(
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(40),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.cyan.withOpacity(0.3),
+                                          Colors.blue.withOpacity(0.3),
+                                        ],
+                                      ),
+                                      border: Border.all(
+                                        color: Colors.cyan.withOpacity(0.5),
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.cyan.withOpacity(0.3),
+                                          blurRadius: 20 + 10 * _glowAnimation.value,
+                                          spreadRadius: 5 + 3 * _glowAnimation.value,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.map_rounded,
+                                      size: 36,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'ASRDB',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2,
+                                  shadows: [
+                                    Shadow(
+                                      offset: const Offset(0, 2),
+                                      blurRadius: 4,
+                                      color: Colors.black.withOpacity(0.3),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Mobile App',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                     
-                    // Menu items with monochromatic styling
                     Expanded(
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16),
                         child: Column(
                           children: [
-                            const SizedBox(height: 20),
-                            
-                            // View Maps Item
+                            const SizedBox(height: 16),
                             _buildMenuItem(
                               context,
                               icon: Icons.map_outlined,
@@ -210,10 +242,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               },
                             ),
                             
-                            const SizedBox(height: 12),
-                            
-                            // Settings Item
-                            _buildMenuItem(
+                            const SizedBox(height: 10),
+                             _buildMenuItem(
                               context,
                               icon: Icons.settings_outlined,
                               title: 'Settings',
@@ -223,9 +253,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               },
                             ),
                             
-                            const SizedBox(height: 12),
-                            
-                            // Profile Item
+                            const SizedBox(height: 10),
                             _buildMenuItem(
                               context,
                               icon: Icons.person_outline,
@@ -236,9 +264,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               },
                             ),
                             
-                            const SizedBox(height: 12),
-                            
-                            // Help Item
+                            const SizedBox(height: 10),
                             _buildMenuItem(
                               context,
                               icon: Icons.help_outline,
@@ -252,25 +278,41 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    
-                    // Footer with version info
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         children: [
                           Container(
                             height: 1,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.3),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.white.withOpacity(0.3),
+                                  Colors.transparent,
+                                ],
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Version 1.0.0',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.7),
-                              fontSize: 12,
-                              fontWeight: FontWeight.w300,
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              'Version 1.0.0',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.8),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ],
@@ -295,8 +337,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1), // Subtle white overlay
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: Colors.white.withOpacity(0.2),
           width: 1,
@@ -304,70 +346,99 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(18),
+              child: Container(
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Colors.cyan.withOpacity(0.3),
+                            Colors.blue.withOpacity(0.3),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: Colors.cyan.withOpacity(0.5),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.cyan.withOpacity(0.2),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            subtitle,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.8),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(6),
+                      decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.1),
-                        blurRadius: 8,
-                        spreadRadius: 0,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.2),
+                          width: 1,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                        ),
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        color: Colors.white.withOpacity(0.7),
+                        size: 14,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.6),
-                  size: 16,
-                ),
-              ],
+              ),
             ),
           ),
         ),

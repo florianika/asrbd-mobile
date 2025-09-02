@@ -87,9 +87,7 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
 
   @override
   Widget build(BuildContext context) {
-    // Custom light green color instead of theme primary color
-    final lightGreen = const Color(0xFF4CAF50); // Material Design Light Green
-    final primaryColor = widget.color ?? lightGreen;
+    final burgerLineColor = const Color.fromARGB(255, 64, 92, 106);
     
     return GestureDetector(
       onTapDown: _onTapDown,
@@ -101,139 +99,52 @@ class _AnimatedBurgerMenuState extends State<AnimatedBurgerMenu>
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: primaryColor, // Single solid color instead of gradient
-                borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: primaryColor.withOpacity(0.4),
-                    blurRadius: _isPressed ? 6 : 12,
-                    offset: Offset(0, _isPressed ? 2 : 4),
-                    spreadRadius: _isPressed ? 0 : 2,
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withOpacity(0.1),
-                    blurRadius: 8,
-                    offset: const Offset(-2, -2),
-                    spreadRadius: 0,
-                  ),
-                ],
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
-                  width: 1.5,
-                ),
-              ),
+              width: 48,
+              height: 48,
+              color: Colors.white,
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(18),
                   onTap: widget.onTap,
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    child: Stack(
-                      children: [
-                        // Animated glow effect
-                        AnimatedBuilder(
-                          animation: _glowAnimation,
-                          builder: (context, child) {
-                            return Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(18),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.3 * _glowAnimation.value),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        
-                        // Burger lines with enhanced styling
-                        Transform.rotate(
-                          angle: _rotationAnimation.value,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Top line
-                              Container(
-                                width: 24,
-                                height: 2.5,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(1.25),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.6),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              
-                              // Middle line
-                              Container(
-                                width: 20,
-                                height: 2.5,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(1.25),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.6),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              
-                              // Bottom line
-                              Container(
-                                width: 16,
-                                height: 2.5,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(1.25),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.white.withOpacity(0.6),
-                                      blurRadius: 4,
-                                      spreadRadius: 0,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        
-                        // Subtle inner glow
-                        Positioned.fill(
-                          child: Container(
+                  child: Center(
+                    child: Transform.rotate(
+                      angle: _rotationAnimation.value,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Top line
+                          Container(
+                            width: 20,
+                            height: 2,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(18),
-                              gradient: RadialGradient(
-                                center: Alignment.center,
-                                radius: 0.8,
-                                colors: [
-                                  Colors.white.withOpacity(0.1),
-                                  Colors.transparent,
-                                ],
-                              ),
+                              color: burgerLineColor,
+                              borderRadius: BorderRadius.circular(1),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 5),
+                          
+                          // Middle line
+                          Container(
+                            width: 20,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              color: burgerLineColor,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          
+                          // Bottom line
+                          Container(
+                            width: 20,
+                            height: 2,
+                            decoration: BoxDecoration(
+                              color: burgerLineColor,
+                              borderRadius: BorderRadius.circular(1),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
