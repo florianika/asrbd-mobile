@@ -24,7 +24,7 @@ class DwellingForm extends StatefulWidget {
 
 class _DwellingFormState extends State<DwellingForm> {
   final List<DwellingEntity> _dwellingRows = [];
-  final List<FieldSchema> _dwellingSchema = [];
+  List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
@@ -69,30 +69,27 @@ class _DwellingFormState extends State<DwellingForm> {
         if (state is Dwellings) {
           final dwellings = state.dwellings;
 
-          // if (featuresRaw is List) {
-          // final features = featuresRaw;
           setState(() {
             _dwellingRows.clear();
             _dwellingRows.addAll(dwellings);
           });
-        }
-        // } else if (state is DwellingAttributes) {
-        //   setState(() {
-        //     _dwellingSchema = state.attributes;
-        //     _showDwellingForm = _viewPendingRow == null;
-        //   });
+        } else if (state is DwellingAttributes) {
+          setState(() {
+            _dwellingSchema = state.attributes;
+            _showDwellingForm = _viewPendingRow == null;
+          });
 
-        //   if (_viewPendingRow != null) {
-        //     WidgetsBinding.instance.addPostFrameCallback((_) {
-        //       _showViewDialog(_viewPendingRow!);
-        //       _viewPendingRow = null;
-        //     });
-        //   }
-        // } else if (state is DwellingError) {
-        //   ScaffoldMessenger.of(context).showSnackBar(
-        //     SnackBar(content: Text(state.message)),
-        //   );
-        // }
+          if (_viewPendingRow != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showViewDialog(_viewPendingRow!);
+              _viewPendingRow = null;
+            });
+          }
+        } else if (state is DwellingError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
       },
       builder: (context, state) {
         return (state is Dwellings && state.showDwellingList)
