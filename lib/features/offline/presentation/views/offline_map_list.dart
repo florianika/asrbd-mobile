@@ -125,17 +125,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (!mounted) return;
 
-    context
+   await context
         .read<TileCubit>()
         .setOfflineSession(data.sessionId, data.center, data.bounds, data.userId, data.userMunicipalityId);
 
     // Save the correct sessionId
-    storageService.saveString(
+   await storageService.saveString(
       boxName: HiveBoxes.offlineMap,
       key: "map",
       value: data.sessionId,
     );
 
+if (!mounted) return;
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
 

@@ -27,13 +27,14 @@ class StorageService {
     await box.put(key, value);
   }
 
-  Future<Map<String, dynamic>> getMap({
-    String boxName = HiveBoxes.validations,
-    required String key,
-  }) async {
-    final box = await _getBox(boxName);
-    return await box.get(key);
-  }
+Future<Map<String, dynamic>> getMap({
+  String boxName = HiveBoxes.validations,
+  required String key,
+}) async {
+  final box = await _getBox(boxName);
+  final result = await box.get(key);
+  return Map<String, dynamic>.from(result ?? {});
+}
 
   Future<void> saveBool(
       {String boxName = HiveBoxes.validations,
