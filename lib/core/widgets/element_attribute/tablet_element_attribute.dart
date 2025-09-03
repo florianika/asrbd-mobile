@@ -7,6 +7,7 @@ import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
 import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -157,9 +158,10 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 startReviewingBuilding: widget.startReviewing,
                 finishReviewingBuilding: widget.finishReviewing,
                 openDwelling: () => {
-                  context
-                      .read<DwellingCubit>()
-                      .getDwellings(widget.initialData['GlobalID']),
+                  context.read<DwellingCubit>().getDwellings(
+                        widget.initialData['GlobalID'],
+                        context.read<TileCubit>().isOffline,
+                      ),
                 },
                 selectedShapeType: widget.selectedShapeType,
               ),

@@ -11,8 +11,7 @@ class EntranceRepository implements IEntranceRepository {
 
   EntranceRepository(this._dao, this.entranceService);
 
-  Future<List<EntranceEntity>> getEntrances(
-      List<String> entBldGlobalID) async {
+  Future<List<EntranceEntity>> getEntrances(List<String> entBldGlobalID) async {
     return await entranceService.getEntrances(entBldGlobalID);
   }
 
@@ -28,8 +27,7 @@ class EntranceRepository implements IEntranceRepository {
     return await entranceService.addEntranceFeature(entrance);
   }
 
-  Future<bool> updateEntranceFeature(
-      EntranceEntity entrance) async {
+  Future<bool> updateEntranceFeature(EntranceEntity entrance) async {
     return await entranceService.updateEntranceFeature(entrance);
   }
 
@@ -48,18 +46,22 @@ class EntranceRepository implements IEntranceRepository {
   }
 
   @override
+  Future<Entrance?> getEntranceById(String globalId) =>
+      _dao.entranceDao.getEntranceById(globalId);
+
+  @override
   Future<List<Entrance>> getEntrancesByBuildingId(
       List<String> buildingGlobalIds) async {
     return await _dao.entranceDao.getEntrancesByBuildingId(buildingGlobalIds);
   }
 
   @override
-  Future<void> insertEntrance(Entrance entrance) async {
+  Future<void> insertEntrance(EntrancesCompanion entrance) async {
     await _dao.entranceDao.insertEntrance(entrance);
   }
 
   @override
-  Future<void> insertEntrances(List<Entrance> entranceList) async {
+  Future<void> insertEntrances(List<EntrancesCompanion> entranceList) async {
     await _dao.entranceDao.insertEntrances(entranceList);
   }
 

@@ -127,7 +127,8 @@ class AttributesCubit extends Cubit<AttributesState> {
     toggleAttributesVisibility(show);
   }
 
-  Future<void> showDwellingAttributes(int? dwellingObjectID) async {
+  Future<void> showDwellingAttributes(
+      int? dwellingObjectID, bool isOffline) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
@@ -148,8 +149,8 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final dwelling =
-          await dwellingUseCases.getDwellingDetails(dwellingObjectID);
+      final dwelling = await dwellingUseCases.getDwellingDetails(
+          dwellingObjectID, isOffline);
 
       // Store permanently
       _persistentDwelling = dwelling;
@@ -169,8 +170,8 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  Future<void> showEntranceAttributes(
-      String? entranceGlobalID, String? buildingGlobalID) async {
+  Future<void> showEntranceAttributes(String? entranceGlobalID,
+      String? buildingGlobalID, bool isOffline) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
@@ -190,8 +191,8 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final entrance =
-          await entranceUseCases.getEntranceDetails(entranceGlobalID);
+      final entrance = await entranceUseCases.getEntranceDetails(
+          entranceGlobalID, isOffline);
 
       // Store permanently
       _persistentEntrance = entrance;
@@ -210,7 +211,8 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  Future<void> showBuildingAttributes(String? buildingGlobalID) async {
+  Future<void> showBuildingAttributes(
+      String? buildingGlobalID, bool isOffline) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
@@ -230,8 +232,8 @@ class AttributesCubit extends Cubit<AttributesState> {
         return;
       }
 
-      final building =
-          await buildingUseCases.getBuildingDetails(buildingGlobalID);
+      final building = await buildingUseCases.getBuildingDetails(
+          buildingGlobalID, isOffline);
 
       // Store permanently
       _persistentBuilding = building;

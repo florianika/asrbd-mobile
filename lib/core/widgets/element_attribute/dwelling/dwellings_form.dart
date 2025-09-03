@@ -4,6 +4,7 @@ import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
 import 'package:asrdb/core/widgets/side_container.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -844,8 +845,10 @@ class _DwellingFormState extends State<DwellingForm> {
 
   void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();
-    // context.read<NewGeometryCubit>().setType(ShapeType.noShape);
-    context.read<AttributesCubit>().showDwellingAttributes(row.objectId);
+    bool isOffline = context.read<TileCubit>().isOffline;
+    context
+        .read<AttributesCubit>()
+        .showDwellingAttributes(row.objectId, isOffline);
   }
 
   void handleOnClose() {
@@ -855,7 +858,8 @@ class _DwellingFormState extends State<DwellingForm> {
   void _onAddNewDwelling() {
     context.read<DwellingCubit>().closeDwellings();
     // context.read<NewGeometryCubit>().setType(ShapeType.noShape);
-    context.read<AttributesCubit>().showDwellingAttributes(null);
+    bool isOffline = context.read<TileCubit>().isOffline;
+    context.read<AttributesCubit>().showDwellingAttributes(null, isOffline);
   }
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {

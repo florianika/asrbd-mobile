@@ -10,20 +10,24 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
   DwellingsDao(AppDatabase db) : super(db);
 
   // Get dwellings by list of entrance GlobalIDs
-  Future<List<Dwelling>> getDwellingsByEntranceId(
-      List<String> entranceGlobalIds) {
+  Future<List<Dwelling>> getDwellingsByEntranceId(String entranceGlobalId) {
     return (select(dwellings)
-          ..where((tbl) => tbl.dwlEntGlobalId.isIn(entranceGlobalIds)))
+          ..where((tbl) => tbl.dwlEntGlobalId.equals(entranceGlobalId)))
         .get();
   }
 
+  Future<Dwelling> getDwellingsByObjectId(int objectId) {
+    return (select(dwellings)..where((tbl) => tbl.objectId.equals(objectId)))
+        .getSingle();
+  }
+
   // Insert or update a single dwelling
-  Future<void> insertDwelling(Dwelling dwelling) async {
+  Future<void> insertDwelling(DwellingsCompanion dwelling) async {
     await into(dwellings).insertOnConflictUpdate(dwelling);
   }
 
   // Bulk insert or update dwellings
-  Future<void> insertDwellings(List<Dwelling> dwellingList) async {
+  Future<void> insertDwellings(List<DwellingsCompanion> dwellingList) async {
     await batch((batch) {
       batch.insertAllOnConflictUpdate(dwellings, dwellingList);
     });

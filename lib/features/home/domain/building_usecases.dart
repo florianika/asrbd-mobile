@@ -39,9 +39,13 @@ class BuildingUseCases {
     if (zoom < AppConfig.buildingMinZoom) {
       return [];
     }
+
     if (!isOffline) {
       return await _buildingRepository.getBuildings(
-          bounds, zoom, municipalityId, isOffline);
+        bounds,
+        zoom,
+        municipalityId,
+      );
     } else {
       List<Building> buildings =
           await _buildingRepository.getBuildingsByDownloadId(downloadId);
@@ -50,8 +54,16 @@ class BuildingUseCases {
     }
   }
 
-  Future<BuildingEntity> getBuildingDetails(String globalId) async {
-    return await _buildingRepository.getBuildingDetails(globalId);
+  Future<BuildingEntity> getBuildingDetails(
+    String globalId,
+    bool isOffline,
+  ) async {
+    if (!isOffline) {
+      return await _buildingRepository.getBuildingDetails(globalId);
+    } else {
+      Building? building = await _buildingRepository.getBuildingById(globalId);
+      return building!.toEntity();
+    }
   }
 
   Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
@@ -70,8 +82,8 @@ class BuildingUseCases {
   }
 
   Future<String> _addBuildingFeatureOffline(BuildingEntity building) async {
-    final globalId =
-        await _buildingRepository.insertBuilding(building.toDriftBuilding(123));
+    final globalId = await _buildingRepository
+        .insertBuilding(building.toDriftBuilding(downloadId: 123));
 
     return '';
   }
@@ -86,7 +98,7 @@ class BuildingUseCases {
   }
 
   Future<bool> startReviewing(String globalId, int value) async {
-    var building = await getBuildingDetails(globalId);
+    var building = await getBuildingDetails(globalId, false);
 
     if (building.bldReview == 6) {
       building.bldReview = 4;

@@ -31,12 +31,12 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
   }
 
   // 3. Insert or update a single building
-  Future<void> insertBuilding(Building building) async {
+  Future<void> insertBuilding(BuildingsCompanion building) async {
     await into(buildings).insertOnConflictUpdate(building);
   }
 
   // 4. Bulk insert or update buildings
-  Future<void> insertBuildings(List<Building> buildingList) async {
+  Future<void> insertBuildings(List<BuildingsCompanion> buildingList) async {
     await batch((batch) {
       batch.insertAllOnConflictUpdate(buildings, buildingList);
     });

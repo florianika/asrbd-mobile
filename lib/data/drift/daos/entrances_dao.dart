@@ -18,12 +18,17 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Insert or update a single entrance
-  Future<void> insertEntrance(Entrance entrance) async {
+  Future<void> insertEntrance(EntrancesCompanion entrance) async {
     await into(entrances).insertOnConflictUpdate(entrance);
   }
 
+  Future<Entrance?> getEntranceById(String globalId) {
+    return (select(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+        .getSingleOrNull();
+  }
+
   // Bulk insert or update entrances
-  Future<void> insertEntrances(List<Entrance> entranceList) async {
+  Future<void> insertEntrances(List<EntrancesCompanion> entranceList) async {
     await batch((batch) {
       batch.insertAllOnConflictUpdate(entrances, entranceList);
     });

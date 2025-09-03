@@ -23,17 +23,17 @@ class DwellingRepository implements IDwellingRepository {
 
   @override
   Future<List<Dwelling>> getDwellingsByEntranceId(
-      List<String> entranceGlobalIds) async {
-    return await _dao.dwellingDao.getDwellingsByEntranceId(entranceGlobalIds);
+      String entranceGlobalId) async {
+    return await _dao.dwellingDao.getDwellingsByEntranceId(entranceGlobalId);
   }
 
   @override
-  Future<void> insertDwelling(Dwelling dwelling) async {
+  Future<void> insertDwelling(DwellingsCompanion dwelling) async {
     await _dao.dwellingDao.insertDwelling(dwelling);
   }
 
   @override
-  Future<void> insertDwellings(List<Dwelling> dwellingList) async {
+  Future<void> insertDwellings(List<DwellingsCompanion> dwellingList) async {
     await _dao.dwellingDao.insertDwellings(dwellingList);
   }
 
@@ -69,6 +69,11 @@ class DwellingRepository implements IDwellingRepository {
 
   Future<DwellingEntity> getDwellingDetails(int objectId) async {
     return await dwellingService.getDwellingDetails(objectId);
+  }
+
+  @override
+  Future<Dwelling> getDwellingDetailsByObjectId(int objectId) async {
+    return _dao.dwellingDao.getDwellingsByObjectId(objectId);
   }
 
   Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {

@@ -61,7 +61,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
               // Calculate directory size
               int totalSize = 0;
-              await for (FileSystemEntity entity in sessionEntity.list(recursive: true)) {
+              await for (FileSystemEntity entity
+                  in sessionEntity.list(recursive: true)) {
                 if (entity is File) {
                   final stats = await entity.stat();
                   totalSize += stats.size;
@@ -93,10 +94,11 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
             }
           } catch (e) {
             print('Error loading data session ${sessionEntity.path}: $e');
-            
+
             NotifierService.showMessage(
               context,
-              message: 'Error loading data session: ${sessionEntity.path.split('/').last}',
+              message:
+                  'Error loading data session: ${sessionEntity.path.split('/').last}',
               type: MessageType.warning,
             );
           }
@@ -125,18 +127,24 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (!mounted) return;
 
-   await context
-        .read<TileCubit>()
-        .setOfflineSession(data.sessionId, data.center, data.bounds, data.userId, data.userMunicipalityId);
+    await context.read<TileCubit>().setOfflineSession(
+          data.sessionId,
+          data.center,
+          data.bounds,
+          data.userId,
+          data.userMunicipalityId,
+        );
 
     // Save the correct sessionId
-   await storageService.saveString(
+    await storageService.saveString(
       boxName: HiveBoxes.offlineMap,
       key: "map",
       value: data.sessionId,
     );
 
-if (!mounted) return;
+    if (!mounted) return;
+
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
 
@@ -168,7 +176,8 @@ if (!mounted) return;
     if (confirmed == true) {
       try {
         final Directory appDocDir = await getApplicationDocumentsDirectory();
-        final String sessionPath = '${appDocDir.path}/offline_data/${data.sessionId}';
+        final String sessionPath =
+            '${appDocDir.path}/offline_data/${data.sessionId}';
         final Directory sessionDir = Directory(sessionPath);
 
         if (await sessionDir.exists()) {
@@ -400,11 +409,13 @@ if (!mounted) return;
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(16),
                                     child: BackdropFilter(
-                                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                      filter: ImageFilter.blur(
+                                          sigmaX: 10, sigmaY: 10),
                                       child: Padding(
                                         padding: EdgeInsets.all(20),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
                                               children: [
@@ -412,29 +423,38 @@ if (!mounted) return;
                                                   width: 80,
                                                   height: 80,
                                                   decoration: BoxDecoration(
-                                                    borderRadius: BorderRadius.circular(16),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
                                                     gradient: LinearGradient(
                                                       begin: Alignment.topLeft,
-                                                      end: Alignment.bottomRight,
+                                                      end:
+                                                          Alignment.bottomRight,
                                                       colors: [
-                                                        Colors.cyan.withOpacity(0.3),
-                                                        Colors.blue.withOpacity(0.3),
+                                                        Colors.cyan
+                                                            .withOpacity(0.3),
+                                                        Colors.blue
+                                                            .withOpacity(0.3),
                                                       ],
                                                     ),
                                                     border: Border.all(
-                                                      color: Colors.cyan.withOpacity(0.5),
+                                                      color: Colors.cyan
+                                                          .withOpacity(0.5),
                                                       width: 2,
                                                     ),
                                                     boxShadow: [
                                                       BoxShadow(
-                                                        color: Colors.cyan.withOpacity(0.3),
+                                                        color: Colors.cyan
+                                                            .withOpacity(0.3),
                                                         blurRadius: 15,
                                                         offset: Offset(0, 5),
                                                       ),
                                                     ],
                                                   ),
                                                   child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       Icon(
                                                         Icons.location_city,
@@ -445,9 +465,11 @@ if (!mounted) return;
                                                       Text(
                                                         'AREA',
                                                         style: TextStyle(
-                                                          color: Colors.cyan[300],
+                                                          color:
+                                                              Colors.cyan[300],
                                                           fontSize: 10,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           letterSpacing: 1,
                                                         ),
                                                       ),
@@ -457,13 +479,16 @@ if (!mounted) return;
                                                 SizedBox(width: 20),
                                                 Expanded(
                                                   child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Text(
                                                         data.name,
                                                         style: TextStyle(
                                                           fontSize: 20,
-                                                          fontWeight: FontWeight.bold,
+                                                          fontWeight:
+                                                              FontWeight.bold,
                                                           color: Colors.white,
                                                           letterSpacing: 0.5,
                                                         ),
@@ -472,7 +497,8 @@ if (!mounted) return;
                                                       Text(
                                                         data.location,
                                                         style: TextStyle(
-                                                          color: Colors.white.withOpacity(0.8),
+                                                          color: Colors.white
+                                                              .withOpacity(0.8),
                                                           fontSize: 16,
                                                         ),
                                                       ),
@@ -480,33 +506,57 @@ if (!mounted) return;
                                                       Row(
                                                         children: [
                                                           Container(
-                                                            padding: EdgeInsets.symmetric(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
                                                               horizontal: 12,
                                                               vertical: 6,
                                                             ),
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.orange.withOpacity(0.2),
-                                                              borderRadius: BorderRadius.circular(20),
-                                                              border: Border.all(
-                                                                color: Colors.orange.withOpacity(0.4),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .orange
+                                                                  .withOpacity(
+                                                                      0.2),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20),
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .orange
+                                                                    .withOpacity(
+                                                                        0.4),
                                                                 width: 1,
                                                               ),
                                                             ),
                                                             child: Row(
-                                                              mainAxisSize: MainAxisSize.min,
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
                                                               children: [
                                                                 Icon(
-                                                                  Icons.business,
+                                                                  Icons
+                                                                      .business,
                                                                   size: 14,
-                                                                  color: Colors.orange[300],
+                                                                  color: Colors
+                                                                          .orange[
+                                                                      300],
                                                                 ),
-                                                                SizedBox(width: 6),
+                                                                SizedBox(
+                                                                    width: 6),
                                                                 Text(
                                                                   '${data.buildingCount} buildings',
-                                                                  style: TextStyle(
-                                                                    color: Colors.orange[300],
-                                                                    fontSize: 13,
-                                                                    fontWeight: FontWeight.w600,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                            .orange[
+                                                                        300],
+                                                                    fontSize:
+                                                                        13,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w600,
                                                                   ),
                                                                 ),
                                                               ],
@@ -514,24 +564,40 @@ if (!mounted) return;
                                                           ),
                                                           SizedBox(width: 10),
                                                           Container(
-                                                            padding: EdgeInsets.symmetric(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
                                                               horizontal: 12,
                                                               vertical: 6,
                                                             ),
-                                                            decoration: BoxDecoration(
-                                                              color: Colors.green.withOpacity(0.2),
-                                                              borderRadius: BorderRadius.circular(20),
-                                                              border: Border.all(
-                                                                color: Colors.green.withOpacity(0.4),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              color: Colors
+                                                                  .green
+                                                                  .withOpacity(
+                                                                      0.2),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          20),
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .green
+                                                                    .withOpacity(
+                                                                        0.4),
                                                                 width: 1,
                                                               ),
                                                             ),
                                                             child: Text(
-                                                              _formatFileSize(data.sizeInBytes),
+                                                              _formatFileSize(data
+                                                                  .sizeInBytes),
                                                               style: TextStyle(
-                                                                color: Colors.green[300],
+                                                                color: Colors
+                                                                    .green[300],
                                                                 fontSize: 13,
-                                                                fontWeight: FontWeight.w600,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
                                                               ),
                                                             ),
                                                           ),
@@ -542,18 +608,24 @@ if (!mounted) return;
                                                 ),
                                                 Container(
                                                   decoration: BoxDecoration(
-                                                    color: Colors.white.withOpacity(0.1),
-                                                    borderRadius: BorderRadius.circular(12),
+                                                    color: Colors.white
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12),
                                                     border: Border.all(
-                                                      color: Colors.white.withOpacity(0.2),
+                                                      color: Colors.white
+                                                          .withOpacity(0.2),
                                                       width: 1,
                                                     ),
                                                   ),
-                                                  child: PopupMenuButton<String>(
+                                                  child:
+                                                      PopupMenuButton<String>(
                                                     onSelected: (value) {
                                                       if (value == 'delete') {
                                                         _deleteData(index);
-                                                      } else if (value == 'apply') {
+                                                      } else if (value ==
+                                                          'apply') {
                                                         _applyMap(index);
                                                       }
                                                     },
@@ -561,22 +633,30 @@ if (!mounted) return;
                                                       Icons.more_vert,
                                                       color: Colors.white,
                                                     ),
-                                                    itemBuilder: (BuildContext context) => [
-                                                      const PopupMenuItem<String>(
+                                                    itemBuilder: (BuildContext
+                                                            context) =>
+                                                        [
+                                                      const PopupMenuItem<
+                                                          String>(
                                                         value: 'apply',
                                                         child: Row(
                                                           children: [
-                                                            Icon(Icons.check, color: Colors.green),
+                                                            Icon(Icons.check,
+                                                                color: Colors
+                                                                    .green),
                                                             SizedBox(width: 8),
                                                             Text('Apply Area'),
                                                           ],
                                                         ),
                                                       ),
-                                                      const PopupMenuItem<String>(
+                                                      const PopupMenuItem<
+                                                          String>(
                                                         value: 'delete',
                                                         child: Row(
                                                           children: [
-                                                            Icon(Icons.delete, color: Colors.red),
+                                                            Icon(Icons.delete,
+                                                                color:
+                                                                    Colors.red),
                                                             SizedBox(width: 8),
                                                             Text('Delete'),
                                                           ],
@@ -594,7 +674,8 @@ if (!mounted) return;
                                                 gradient: LinearGradient(
                                                   colors: [
                                                     Colors.transparent,
-                                                    Colors.white.withOpacity(0.3),
+                                                    Colors.white
+                                                        .withOpacity(0.3),
                                                     Colors.transparent,
                                                   ],
                                                 ),
@@ -607,7 +688,8 @@ if (!mounted) return;
                                                   child: _buildInfoItem(
                                                     Icons.calendar_today,
                                                     'Downloaded',
-                                                    _formatDate(data.downloadDate),
+                                                    _formatDate(
+                                                        data.downloadDate),
                                                     true,
                                                   ),
                                                 ),
@@ -621,7 +703,9 @@ if (!mounted) return;
                                                 ),
                                               ],
                                             ),
-                                            if (data.userEmail != null || data.userMunicipalityId != null) ...[
+                                            if (data.userEmail != null ||
+                                                data.userMunicipalityId !=
+                                                    null) ...[
                                               SizedBox(height: 12),
                                               Row(
                                                 children: [
@@ -634,12 +718,14 @@ if (!mounted) return;
                                                         true,
                                                       ),
                                                     ),
-                                                  if (data.userMunicipalityId != null)
+                                                  if (data.userMunicipalityId !=
+                                                      null)
                                                     Expanded(
                                                       child: _buildInfoItem(
                                                         Icons.location_city,
                                                         'Municipality',
-                                                        data.userMunicipalityId!.toString(),
+                                                        data.userMunicipalityId!
+                                                            .toString(),
                                                         true,
                                                       ),
                                                     ),
@@ -663,7 +749,8 @@ if (!mounted) return;
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value, bool isTablet) {
+  Widget _buildInfoItem(
+      IconData icon, String label, String value, bool isTablet) {
     return Row(
       children: [
         Icon(

@@ -19,11 +19,11 @@ class BuildingRepository implements IBuildingRepository {
       _dao.buildingDao.getAllBuildings();
 
   @override
-  Future<void> insertBuilding(Building building) =>
+  Future<void> insertBuilding(BuildingsCompanion building) =>
       _dao.buildingDao.insertBuilding(building);
 
   @override
-  Future<void> insertBuildings(List<Building> buildings) =>
+  Future<void> insertBuildings(List<BuildingsCompanion> buildings) =>
       _dao.buildingDao.insertBuildings(buildings);
 
   // Future<void> deleteBuilding(String globalId) => _dao.deleteBuilding(globalId);
@@ -40,8 +40,8 @@ class BuildingRepository implements IBuildingRepository {
       _dao.buildingDao.updateGlobalIdById(id: id, globalId: newGlobalId);
 
   @override
-  Future<List<BuildingEntity>> getBuildings(LatLngBounds bounds, double zoom,
-      int municipalityId, bool isOnline) async {
+  Future<List<BuildingEntity>> getBuildings(
+      LatLngBounds bounds, double zoom, int municipalityId) async {
     return await buildingService.getBuildings(bounds, zoom, municipalityId);
   }
 

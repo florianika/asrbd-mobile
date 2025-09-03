@@ -227,12 +227,6 @@ class _OfflineMapState extends State<OfflineMap> {
 
       if (!mounted) return;
 
-      NotifierService.showMessage(
-        context,
-        message: "Started download: $downloadName (ID: $downloadId)",
-        type: MessageType.info,
-      );
-
       // Download buildings, entrances, and dwellings
       await _downloadAllData(downloadId, downloadName);
 
@@ -247,7 +241,6 @@ class _OfflineMapState extends State<OfflineMap> {
         type: MessageType.success,
       );
     } catch (e) {
-      print('Download error: $e');
       if (mounted) {
         NotifierService.showMessage(
           context,
@@ -270,77 +263,33 @@ class _OfflineMapState extends State<OfflineMap> {
     final dwellingRepository = sl<DwellingRepository>();
     final userService = sl<UserService>();
 
-    setState(() {
-      _downloadStatus = 'Downloading buildings...';
-      _downloadProgress = 0.1;
-    });
+    // Download buildings
+    var buildings = await buildingRepository.getBuildings(
+      _downloadBounds!,
+      AppConfig.minZoomDownload,
+      userService.userInfo!.municipality,
+    );
 
-    try {
-      print('=== DOWNLOADING DATA ===');
-      print('Using bounds: $_downloadBounds');
-      print('Download name: $downloadName');
+    var buildingsDao = buildings.toDriftBuildingList(downloadId);
+    await buildingRepository.insertBuildings(buildingsDao);
 
-      // Download buildings
-      var buildings = await buildingRepository.getBuildings(
-        _downloadBounds!,
-        AppConfig.minZoomDownload,
-        userService.userInfo!.municipality,
-        true,
-      );
+    // // Download entrances
+    List<String> buildingIds =
+        buildings.map((entity) => entity.globalId!).toList();
+    List<EntranceEntity> entrances =
+        await entranceRepository.getEntrances(buildingIds);
 
-      print('Buildings found: ${buildings.length}');
+    var entrancesDao = entrances.toDriftEntranceList(downloadId);
+    await entranceRepository.insertEntrances(entrancesDao);
 
-      var buildingsDao = buildings.toDriftBuildingList(downloadId);
-      await buildingRepository.insertBuildings(buildingsDao);
+    // // Download dwellings
+    List<String> entrancesIds =
+        entrances.map((entity) => entity.globalId!).toList();
+    List<DwellingEntity> dwellings =
+        await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
 
-      setState(() {
-        _downloadStatus = 'Downloading entrances...';
-        _downloadProgress = 0.4;
-      });
-
-      // Download entrances
-      List<String> buildingIds =
-          buildings.map((entity) => entity.globalId!).toList();
-      List<EntranceEntity> entrances =
-          await entranceRepository.getEntrances(buildingIds);
-      print('Entrances found: ${entrances.length}');
-
-      var entrancesDao = entrances.toDriftEntranceList(downloadId);
-      await entranceRepository.insertEntrances(entrancesDao);
-
-      setState(() {
-        _downloadStatus = 'Downloading dwellings...';
-        _downloadProgress = 0.7;
-      });
-
-      // Download dwellings
-      List<String> entrancesIds =
-          entrances.map((entity) => entity.globalId!).toList();
-      List<DwellingEntity> dwellings =
-          await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
-      print('Dwellings found: ${dwellings.length}');
-
-      var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
-      await dwellingRepository.insertDwellings(dwellingsDao);
-
-      setState(() {
-        _downloadStatus = 'Finalizing...';
-        _downloadProgress = 0.9;
-      });
-
-      NotifierService.showMessage(
-        context,
-        message:
-            'Data download complete - Buildings: ${buildings.length}, Entrances: ${entrances.length}, Dwellings: ${dwellings.length}',
-        type: MessageType.success,
-      );
-
-      print('=== DATA DOWNLOAD COMPLETE ===');
-    } catch (e, stack) {
-      print('Data download error: $e');
-      print('Stack trace: $stack');
-      throw e;
-    }
+    var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
+    await dwellingRepository.insertDwellings(dwellingsDao);
   }
 
   Future<void> _saveMetadata(int downloadId, String downloadName) async {
@@ -518,7 +467,7 @@ class _OfflineMapState extends State<OfflineMap> {
                   polygons: [
                     Polygon(
                       points: _getBoundsPolygon(),
-                      color: Colors.cyan.withOpacity(0.2),
+                      color: Colors.cyan.withValues(alpha: .2),
                       borderColor: Colors.cyan,
                       borderStrokeWidth: 2.0,
                     ),
@@ -581,19 +530,6 @@ class _OfflineMapState extends State<OfflineMap> {
                     ),
                     child: Column(
                       children: [
-                        CircularProgressIndicator(
-                          value: _downloadProgress,
-                          color: Colors.cyan,
-                          backgroundColor: Colors.grey[600],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${(_downloadProgress * 100).toInt()}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
                         if (_downloadStatus.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(

@@ -36,29 +36,29 @@ extension EntranceDtoToDrift on EntranceDto {
 var uuid = const Uuid();
 
 extension EntranceEntityToDrift on EntranceEntity {
-  Entrance toDriftEntrance(int downloadId) {
-    return Entrance(
-      globalId: globalId ?? uuid.v4(),
-      entBldGlobalId:
-          entBldGlobalID ?? '{00000000-0000-0000-0000-000000000000}',
-      entAddressId: entAddressID,
-      entQuality: entQuality ?? 9,
-      entLatitude: entLatitude ?? 0,
-      entLongitude: entLongitude ?? 0,
-      entPointStatus: entPointStatus ?? 1,
-      entStrGlobalId: entStrGlobalID,
-      entBuildingNumber: entBuildingNumber,
-      entEntranceNumber: entEntranceNumber,
-      entTown: entTown,
-      entZipCode: entZipCode,
-      entDwellingRecs: entDwellingRecs,
-      entDwellingExpec: entDwellingExpec,
-      geometryType: geometryType,
-      coordinates: coordinates != null
-          ? jsonEncode([coordinates!.longitude, coordinates!.latitude])
-          : jsonEncode(null),
-      downloadId: downloadId,
-      id: 0,
+  EntrancesCompanion toDriftEntrance(int downloadId) {
+    return EntrancesCompanion(
+      globalId: globalId != null ? Value(globalId!) : Value(uuid.v4()),
+      entBldGlobalId: entBldGlobalID != null
+          ? Value(entBldGlobalID!)
+          : Value('{00000000-0000-0000-0000-000000000000}'),
+      entAddressId: Value(entAddressID),
+      entQuality: entQuality != null ? Value(entQuality!) : Value(9),
+      entLatitude: entLatitude != null ? Value(entLatitude!) : Value(0),
+      entLongitude: entLongitude != null ? Value(entLongitude!) : Value(0),
+      entPointStatus:
+          entPointStatus != null ? Value(entPointStatus!) : Value(1),
+      entStrGlobalId: Value.absentIfNull(entStrGlobalID),
+      entBuildingNumber: Value.absentIfNull(entBuildingNumber),
+      entEntranceNumber: Value.absentIfNull(entEntranceNumber),
+      entTown: Value.absentIfNull(entTown),
+      entZipCode: Value.absentIfNull(entZipCode),
+      entDwellingRecs: Value.absentIfNull(entDwellingRecs),
+      entDwellingExpec: Value.absentIfNull(entDwellingExpec),
+      geometryType: Value.absentIfNull(geometryType),
+      coordinates: Value.absentIfNull(
+          jsonEncode([coordinates!.longitude, coordinates!.latitude])),
+      downloadId: Value.absentIfNull(downloadId),
     );
   }
 }
@@ -104,7 +104,10 @@ extension EntranceRowToEntity on Entrance {
 }
 
 extension EntranceEntityListToDrift on List<EntranceEntity> {
-  List<Entrance> toDriftEntranceList(int downloadId) {
-    return map((entity) => entity.toDriftEntrance(downloadId)).toList();
-  }
+  List<EntrancesCompanion> toDriftEntranceList(int downloadId) =>
+      map((e) => e.toDriftEntrance(downloadId)).toList();
+}
+
+extension EntranceListToEntity on List<Entrance> {
+  List<EntranceEntity> toEntityList() => map((e) => e.toEntity()).toList();
 }

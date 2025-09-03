@@ -3261,6 +3261,12 @@ class $DwellingsTable extends Dwellings
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('REFERENCES downloads (id)'));
+  static const VerificationMeta _objectIdMeta =
+      const VerificationMeta('objectId');
+  @override
+  late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
+      'object_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _globalIdMeta =
       const VerificationMeta('globalId');
   @override
@@ -3424,6 +3430,7 @@ class $DwellingsTable extends Dwellings
   List<GeneratedColumn> get $columns => [
         id,
         downloadId,
+        objectId,
         globalId,
         dwlEntGlobalId,
         dwlAddressId,
@@ -3465,6 +3472,12 @@ class $DwellingsTable extends Dwellings
               data['download_id']!, _downloadIdMeta));
     } else if (isInserting) {
       context.missing(_downloadIdMeta);
+    }
+    if (data.containsKey('object_id')) {
+      context.handle(_objectIdMeta,
+          objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+    } else if (isInserting) {
+      context.missing(_objectIdMeta);
     }
     if (data.containsKey('global_id')) {
       context.handle(_globalIdMeta,
@@ -3591,6 +3604,8 @@ class $DwellingsTable extends Dwellings
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       downloadId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
+      objectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
       globalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
       dwlEntGlobalId: attachedDatabase.typeMapping.read(
@@ -3643,6 +3658,7 @@ class $DwellingsTable extends Dwellings
 class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int id;
   final int downloadId;
+  final int objectId;
   final String globalId;
   final String dwlEntGlobalId;
   final String? dwlAddressId;
@@ -3666,6 +3682,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   const Dwelling(
       {required this.id,
       required this.downloadId,
+      required this.objectId,
       required this.globalId,
       required this.dwlEntGlobalId,
       this.dwlAddressId,
@@ -3691,6 +3708,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['download_id'] = Variable<int>(downloadId);
+    map['object_id'] = Variable<int>(objectId);
     map['global_id'] = Variable<String>(globalId);
     map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId);
     if (!nullToAbsent || dwlAddressId != null) {
@@ -3750,6 +3768,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     return DwellingsCompanion(
       id: Value(id),
       downloadId: Value(downloadId),
+      objectId: Value(objectId),
       globalId: Value(globalId),
       dwlEntGlobalId: Value(dwlEntGlobalId),
       dwlAddressId: dwlAddressId == null && nullToAbsent
@@ -3811,6 +3830,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     return Dwelling(
       id: serializer.fromJson<int>(json['id']),
       downloadId: serializer.fromJson<int>(json['downloadId']),
+      objectId: serializer.fromJson<int>(json['objectId']),
       globalId: serializer.fromJson<String>(json['globalId']),
       dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
       dwlAddressId: serializer.fromJson<String?>(json['dwlAddressId']),
@@ -3840,6 +3860,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'downloadId': serializer.toJson<int>(downloadId),
+      'objectId': serializer.toJson<int>(objectId),
       'globalId': serializer.toJson<String>(globalId),
       'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
       'dwlAddressId': serializer.toJson<String?>(dwlAddressId),
@@ -3866,6 +3887,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   Dwelling copyWith(
           {int? id,
           int? downloadId,
+          int? objectId,
           String? globalId,
           String? dwlEntGlobalId,
           Value<String?> dwlAddressId = const Value.absent(),
@@ -3889,6 +3911,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       Dwelling(
         id: id ?? this.id,
         downloadId: downloadId ?? this.downloadId,
+        objectId: objectId ?? this.objectId,
         globalId: globalId ?? this.globalId,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
         dwlAddressId:
@@ -3931,6 +3954,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       id: data.id.present ? data.id.value : this.id,
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
+      objectId: data.objectId.present ? data.objectId.value : this.objectId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
       dwlEntGlobalId: data.dwlEntGlobalId.present
           ? data.dwlEntGlobalId.value
@@ -3985,6 +4009,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     return (StringBuffer('Dwelling(')
           ..write('id: $id, ')
           ..write('downloadId: $downloadId, ')
+          ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
@@ -4013,6 +4038,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   int get hashCode => Object.hashAll([
         id,
         downloadId,
+        objectId,
         globalId,
         dwlEntGlobalId,
         dwlAddressId,
@@ -4040,6 +4066,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       (other is Dwelling &&
           other.id == this.id &&
           other.downloadId == this.downloadId &&
+          other.objectId == this.objectId &&
           other.globalId == this.globalId &&
           other.dwlEntGlobalId == this.dwlEntGlobalId &&
           other.dwlAddressId == this.dwlAddressId &&
@@ -4065,6 +4092,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
 class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int> id;
   final Value<int> downloadId;
+  final Value<int> objectId;
   final Value<String> globalId;
   final Value<String> dwlEntGlobalId;
   final Value<String?> dwlAddressId;
@@ -4088,6 +4116,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   const DwellingsCompanion({
     this.id = const Value.absent(),
     this.downloadId = const Value.absent(),
+    this.objectId = const Value.absent(),
     this.globalId = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
     this.dwlAddressId = const Value.absent(),
@@ -4112,6 +4141,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   DwellingsCompanion.insert({
     this.id = const Value.absent(),
     required int downloadId,
+    required int objectId,
     required String globalId,
     required String dwlEntGlobalId,
     this.dwlAddressId = const Value.absent(),
@@ -4133,11 +4163,13 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.dwlSolarPanel = const Value.absent(),
     this.geometryType = const Value.absent(),
   })  : downloadId = Value(downloadId),
+        objectId = Value(objectId),
         globalId = Value(globalId),
         dwlEntGlobalId = Value(dwlEntGlobalId);
   static Insertable<Dwelling> custom({
     Expression<int>? id,
     Expression<int>? downloadId,
+    Expression<int>? objectId,
     Expression<String>? globalId,
     Expression<String>? dwlEntGlobalId,
     Expression<String>? dwlAddressId,
@@ -4162,6 +4194,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (downloadId != null) 'download_id': downloadId,
+      if (objectId != null) 'object_id': objectId,
       if (globalId != null) 'global_id': globalId,
       if (dwlEntGlobalId != null) 'dwl_ent_global_id': dwlEntGlobalId,
       if (dwlAddressId != null) 'dwl_address_id': dwlAddressId,
@@ -4191,6 +4224,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   DwellingsCompanion copyWith(
       {Value<int>? id,
       Value<int>? downloadId,
+      Value<int>? objectId,
       Value<String>? globalId,
       Value<String>? dwlEntGlobalId,
       Value<String?>? dwlAddressId,
@@ -4214,6 +4248,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     return DwellingsCompanion(
       id: id ?? this.id,
       downloadId: downloadId ?? this.downloadId,
+      objectId: objectId ?? this.objectId,
       globalId: globalId ?? this.globalId,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
       dwlAddressId: dwlAddressId ?? this.dwlAddressId,
@@ -4245,6 +4280,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     }
     if (downloadId.present) {
       map['download_id'] = Variable<int>(downloadId.value);
+    }
+    if (objectId.present) {
+      map['object_id'] = Variable<int>(objectId.value);
     }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
@@ -4314,6 +4352,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     return (StringBuffer('DwellingsCompanion(')
           ..write('id: $id, ')
           ..write('downloadId: $downloadId, ')
+          ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
@@ -6758,6 +6797,7 @@ typedef $$EntrancesTableProcessedTableManager = ProcessedTableManager<
 typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   Value<int> id,
   required int downloadId,
+  required int objectId,
   required String globalId,
   required String dwlEntGlobalId,
   Value<String?> dwlAddressId,
@@ -6782,6 +6822,7 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
 typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int> id,
   Value<int> downloadId,
+  Value<int> objectId,
   Value<String> globalId,
   Value<String> dwlEntGlobalId,
   Value<String?> dwlAddressId,
@@ -6850,6 +6891,9 @@ class $$DwellingsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
@@ -6966,6 +7010,9 @@ class $$DwellingsTableOrderingComposer
   });
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get objectId => $composableBuilder(
+      column: $table.objectId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
@@ -7087,6 +7134,9 @@ class $$DwellingsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get objectId =>
+      $composableBuilder(column: $table.objectId, builder: (column) => column);
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
@@ -7211,6 +7261,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<int> downloadId = const Value.absent(),
+            Value<int> objectId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
             Value<String> dwlEntGlobalId = const Value.absent(),
             Value<String?> dwlAddressId = const Value.absent(),
@@ -7235,6 +7286,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
               DwellingsCompanion(
             id: id,
             downloadId: downloadId,
+            objectId: objectId,
             globalId: globalId,
             dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,
@@ -7259,6 +7311,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required int downloadId,
+            required int objectId,
             required String globalId,
             required String dwlEntGlobalId,
             Value<String?> dwlAddressId = const Value.absent(),
@@ -7283,6 +7336,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
               DwellingsCompanion.insert(
             id: id,
             downloadId: downloadId,
+            objectId: objectId,
             globalId: globalId,
             dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,

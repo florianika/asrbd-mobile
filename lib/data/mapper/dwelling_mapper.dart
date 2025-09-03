@@ -9,6 +9,7 @@ extension DwellingDtoToDrift on DwellingDto {
   DwellingsCompanion toCompanion() {
     return DwellingsCompanion(
       globalId: Value(globalId ?? const Uuid().v4()),
+      objectId: Value(objectId),
       dwlEntGlobalId:
           Value(dwlEntGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
       dwlAddressId: Value.absentIfNull(dwlAddressID),
@@ -36,31 +37,32 @@ extension DwellingDtoToDrift on DwellingDto {
 var uuid = const Uuid();
 
 extension DwellingEntityToDrift on DwellingEntity {
-  Dwelling toDriftDwelling(int downloadId) {
-    return Dwelling(
-      globalId: globalId ?? uuid.v4(),
-      dwlEntGlobalId:
-          dwlEntGlobalID ?? '{00000000-0000-0000-0000-000000000000}',
-      dwlAddressId: dwlAddressID,
-      dwlQuality: dwlQuality ?? 9,
-      dwlFloor: dwlFloor,
-      dwlApartNumber: dwlApartNumber,
-      dwlStatus: dwlStatus ?? 4,
-      dwlYearConstruction: dwlYearConstruction,
-      dwlYearElimination: dwlYearElimination,
-      dwlType: dwlType,
-      dwlOwnership: dwlOwnership,
-      dwlOccupancy: dwlOccupancy,
-      dwlSurface: dwlSurface,
-      dwlToilet: dwlToilet,
-      dwlBath: dwlBath,
-      dwlHeatingFacility: dwlHeatingFacility,
-      dwlHeatingEnergy: dwlHeatingEnergy,
-      dwlAirConditioner: dwlAirConditioner,
-      dwlSolarPanel: dwlSolarPanel,
-      geometryType: geometryType,
-      downloadId: downloadId,
-      id: 0,
+  DwellingsCompanion toDriftDwelling(int downloadId) {
+    return DwellingsCompanion(
+      globalId: globalId != null ? Value(globalId!) : Value(uuid.v4()),
+      dwlEntGlobalId: dwlEntGlobalID != null
+          ? Value(dwlEntGlobalID!)
+          : Value('{00000000-0000-0000-0000-000000000000}'),
+      objectId: Value(objectId),
+      dwlAddressId: Value.absentIfNull(dwlAddressID),
+      dwlQuality: dwlQuality != null ? Value(dwlQuality!) : Value(9),
+      dwlFloor: Value.absentIfNull(dwlFloor),
+      dwlApartNumber: Value.absentIfNull(dwlApartNumber),
+      dwlStatus: dwlStatus != null ? Value(dwlStatus!) : Value(4),
+      dwlYearConstruction: Value.absentIfNull(dwlYearConstruction),
+      dwlYearElimination: Value.absentIfNull(dwlYearElimination),
+      dwlType: Value.absentIfNull(dwlType),
+      dwlOwnership: Value.absentIfNull(dwlOwnership),
+      dwlOccupancy: Value.absentIfNull(dwlOccupancy),
+      dwlSurface: Value.absentIfNull(dwlSurface),
+      dwlToilet: Value.absentIfNull(dwlToilet),
+      dwlBath: Value.absentIfNull(dwlBath),
+      dwlHeatingFacility: Value.absentIfNull(dwlHeatingFacility),
+      dwlHeatingEnergy: Value.absentIfNull(dwlHeatingEnergy),
+      dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
+      dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
+      geometryType: Value.absentIfNull(geometryType),
+      downloadId: Value.absentIfNull(downloadId),
     );
   }
 }
@@ -69,7 +71,7 @@ extension DwellingEntityToDrift on DwellingEntity {
 extension DwellingRowToEntity on Dwelling {
   DwellingEntity toEntity() {
     return DwellingEntity(
-      objectId: id,
+      objectId: objectId,
       geometryType: geometryType,
       globalId: globalId,
       dwlEntGlobalID: dwlEntGlobalId,
@@ -95,7 +97,11 @@ extension DwellingRowToEntity on Dwelling {
 }
 
 extension DwellingEntityListToDrift on List<DwellingEntity> {
-  List<Dwelling> toDriftDwellingList(int downloadId) {
+  List<DwellingsCompanion> toDriftDwellingList(int downloadId) {
     return map((entity) => entity.toDriftDwelling(downloadId)).toList();
   }
+}
+
+extension DwellingListToEntity on List<Dwelling> {
+  List<DwellingEntity> toEntityList() => map((e) => e.toEntity()).toList();
 }
