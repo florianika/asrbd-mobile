@@ -70,11 +70,12 @@ class EntranceCubit extends Cubit<EntranceState> {
     this.dwellingCubit,
   ) : super(EntranceInitial());
 
-  Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs) async {
+  Future<void> getEntrances(
+      double zoom, List<String> entBldGlobalIDs, bool isOffline) async {
     emit(EntranceLoading());
-    try {
+    try {      
       final entrances =
-          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs);
+          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs, isOffline);
       _entrances = entrances;
       emit(Entrances(entrances));
     } catch (e) {
@@ -82,19 +83,18 @@ class EntranceCubit extends Cubit<EntranceState> {
     }
   }
 
-
-  Future<void> getEntranceDetails(
-      String globalId, String? buildingGlobalId) async {
-    emit(EntranceLoading());
-    try {
-      attributesCubit.showAttributes(true);
-      await attributesCubit.showEntranceAttributes(globalId, buildingGlobalId);
-      currentGlobalId = globalId;
-      emit(EntranceGlobalId(globalId));
-    } catch (e) {
-      emit(EntranceError(e.toString()));
-    }
-  }
+  // Future<void> getEntranceDetails(
+  //     String globalId, String? buildingGlobalId, bool isOffline) async {
+  //   emit(EntranceLoading());
+  //   try {
+  //     attributesCubit.showAttributes(true);
+  //     await attributesCubit.showEntranceAttributes(globalId, buildingGlobalId);
+  //     currentGlobalId = globalId;
+  //     emit(EntranceGlobalId(globalId));
+  //   } catch (e) {
+  //     emit(EntranceError(e.toString()));
+  //   }
+  // }
 
   Future<void> getEntranceAttributes() async {
     emit(EntranceLoading());

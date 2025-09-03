@@ -1,16 +1,16 @@
 import 'package:asrdb/data/drift/app_database.dart';
 
 abstract class IDwellingRepository {
-  Future<List<Dwelling>> getDwellingsByEntranceId(
-      List<String> entranceGlobalIds);
+  Future<List<Dwelling>> getDwellingsByEntranceId(String entranceGlobalId);
 
-  Future<void> insertDwelling(Dwelling dwelling);
+  Future<void> insertDwelling(DwellingsCompanion dwelling);
 
-  Future<void> insertDwellings(List<Dwelling> dwellingList);
+  Future<void> insertDwellings(List<DwellingsCompanion> dwellingList);
 
   Future<void> deleteDwelling(String globalId);
 
   Future<void> deleteDwellings();
+  Future<Dwelling> getDwellingDetailsByObjectId(int objectId);
 
   Future<void> updateDwellingDwlEntGlobalID({
     required String globalId,

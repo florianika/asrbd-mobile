@@ -38,7 +38,7 @@ class AppConfig {
   static const double initZoom = 19.0;
 
   //minimum zoom level for the map in order to load entrances
-  static const double entranceMinZoom = 20.5;
+  static const double entranceMinZoom = 19.5;
 
   //minimum zoom level for the map in order to load buildings
   static const double buildingMinZoom = 16.0;

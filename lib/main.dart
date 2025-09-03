@@ -45,7 +45,6 @@ import 'package:asrdb/features/auth/presentation/lang_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path_provider/path_provider.dart';
 import 'routing/route_manager.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
@@ -76,11 +75,11 @@ void main() async {
   await Hive.initFlutter();
   await StreetDatabase.database;
 
-  final Directory appDocDir = await getApplicationDocumentsDirectory();
-  final String offlineMapsPath = '${appDocDir.path}/offline_maps/';
+  // final Directory appDocDir = await getApplicationDocumentsDirectory();
+  // final String offlineMapsPath = '${appDocDir.path}/offline_maps/';
 
-  final tileIndex = TileIndexService(offlineMapsPath);
-  await tileIndex.preloadTiles();
+  // final tileIndex = TileIndexService(offlineMapsPath);
+  // await tileIndex.preloadTiles();
 
   sl.registerSingleton<DatabaseService>(DatabaseService());
 

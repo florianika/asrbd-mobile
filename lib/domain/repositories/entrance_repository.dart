@@ -4,11 +4,13 @@ abstract class IEntranceRepository {
   Future<List<Entrance>> getEntrancesByBuildingId(
       List<String> buildingGlobalIds);
 
-  Future<void> insertEntrance(Entrance entrance);
+  Future<void> insertEntrance(EntrancesCompanion entrance);
 
-  Future<void> insertEntrances(List<Entrance> entranceList);
+  Future<void> insertEntrances(List<EntrancesCompanion> entranceList);
 
   Future<void> deleteEntrance(String globalId);
+
+  Future<Entrance?> getEntranceById(String globalId);
 
   Future<void> deleteEntrances();
 

@@ -6,6 +6,7 @@ import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/cubit/building_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
@@ -37,6 +38,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final geometryEditor = context.read<GeometryEditorCubit>();
     final loadingCubit = context.read<LoadingCubit>();
     final attributeCubit = context.read<AttributesCubit>();
+    bool isOffline = context.read<TileCubit>().isOffline;
 
     loadingCubit.show();
 
@@ -56,7 +58,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       loadingCubit.hide();
 
-      await attributeCubit.showEntranceAttributes(response.data, null);
+      await attributeCubit.showEntranceAttributes(
+          response.data, null, isOffline);
       if (mounted) {
         NotifierService.showMessage(
           context,
@@ -91,7 +94,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
   Future<void> _addPointFromLocation() async {
     try {
       final currentLocation = await LocationService.getCurrentLocation();
-      widget.mapController.move(currentLocation, widget.mapController.camera.zoom);
+      widget.mapController
+          .move(currentLocation, widget.mapController.camera.zoom);
     } catch (e) {
       if (mounted) {
         NotifierService.showMessage(
@@ -112,6 +116,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
     try {
       loadingCubit.show();
+      bool isOffline = context.read<TileCubit>().isOffline;
       BuildingEntity? building = geometryEditor.buildingCubit.currentBuilding;
 
       if (building == null) {
@@ -154,7 +159,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       loadingCubit.hide();
 
-      await attributeCubit.showBuildingAttributes(response.data);
+      await attributeCubit.showBuildingAttributes(response.data, isOffline);
 
       if (mounted) {
         NotifierService.showMessage(

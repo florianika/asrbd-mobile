@@ -48,11 +48,13 @@ class DwellingCubit extends Cubit<DwellingState> {
   DwellingCubit(this.dwellingUseCases, this.attributesCubit)
       : super(Dwellings([], false));
 
-  Future<void> getDwellings(String? entranceGlobalId) async {
+  Future<void> getDwellings(String? entranceGlobalId, bool isOffline) async {
     emit(DwellingLoading());
     try {
       attributesCubit.showAttributes(false);
-      final dwellings = await dwellingUseCases.getDwellings(entranceGlobalId);
+
+      final dwellings =
+          await dwellingUseCases.getDwellings(entranceGlobalId, isOffline);
       emit(Dwellings(dwellings, true));
     } catch (e) {
       emit(DwellingError(e.toString()));
@@ -100,14 +102,14 @@ class DwellingCubit extends Cubit<DwellingState> {
   //   }
   // }
 
-  Future<void> getDwellingDetails(int? objectId) async {
-    emit(DwellingLoading());
-    try {
-      attributesCubit.showAttributes(true);
-      await attributesCubit.showDwellingAttributes(objectId!);
-      // emit(Dwelling(await attributesCubit.showDwellingAttributes(objectId!)));
-    } catch (e) {
-      emit(DwellingError(e.toString()));
-    }
-  }
+  // Future<void> getDwellingDetails(int? objectId, bool isOffline) async {
+  //   emit(DwellingLoading());
+  //   try {
+  //     attributesCubit.showAttributes(true);
+  //     await attributesCubit.showDwellingAttributes(objectId!);
+  //     // emit(Dwelling(await attributesCubit.showDwellingAttributes(objectId!)));
+  //   } catch (e) {
+  //     emit(DwellingError(e.toString()));
+  //   }
+  // }
 }

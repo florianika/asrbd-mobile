@@ -4,6 +4,7 @@ import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/entrance_mapper.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
@@ -19,16 +20,31 @@ class EntranceUseCases {
   EntranceUseCases(this._entranceRepository);
 
   Future<List<EntranceEntity>> getEntrances(
-      double zoom, List<String> entBldGlobalID) async {
+      double zoom, List<String> entBldGlobalID, bool isOffline) async {
     if (zoom < AppConfig.entranceMinZoom) return [];
 
     if (entBldGlobalID.isEmpty) return [];
 
-    return await _entranceRepository.getEntrances(entBldGlobalID);
+    if (!isOffline) {
+      return await _entranceRepository.getEntrances(entBldGlobalID);
+    } else {
+      List<Entrance> entrances =
+          await _entranceRepository.getEntrancesByBuildingId(entBldGlobalID);
+
+      return entrances.toEntityList();
+    }
   }
 
-  Future<EntranceEntity> getEntranceDetails(String globalId) async {
-    return await _entranceRepository.getEntranceDetails(globalId);
+  Future<EntranceEntity> getEntranceDetails(
+    String globalId,
+    bool isOffline,
+  ) async {
+    if (!isOffline) {
+      return await _entranceRepository.getEntranceDetails(globalId);
+    } else {
+      Entrance? entrance = await _entranceRepository.getEntranceById(globalId);
+      return entrance!.toEntity();
+    }
   }
 
   Future<List<FieldSchema>> getEntranceAttributes() async {

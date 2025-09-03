@@ -357,7 +357,7 @@ class _ViewMapState extends State<ViewMap> {
     try {
       loadingCubit.show();
       final buildingDetails =
-          await buildingUseCases.getBuildingDetails(globalId);
+          await buildingUseCases.getBuildingDetails(globalId, false);
 
       if (buildingDetails.bldQuality == DefaultData.untestedData && mounted) {
         NotifierService.showMessage(

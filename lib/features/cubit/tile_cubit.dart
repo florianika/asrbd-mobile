@@ -2,10 +2,7 @@ import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:io';
-import 'dart:convert';
 
 class TileState extends Equatable {
   final String path;
@@ -150,42 +147,42 @@ class TileCubit extends Cubit<TileState> {
   }
 
   /// Check if a specific tile exists (only works in offline mode)
-  bool hasTile(int z, int x, int y) {
-    if (!state.isOffline || state.indexService == null) {
-      return false;
-    }
-    return state.indexService!.hasTile(z, x, y);
-  }
+  // bool hasTile(int z, int x, int y) {
+  //   if (!state.isOffline || state.indexService == null) {
+  //     return false;
+  //   }
+  //   return state.indexService!.hasTile(z, x, y);
+  // }
 
   /// Get tile file (only works in offline mode)
-  File? getTileFile(int z, int x, int y) {
-    if (!state.isOffline || state.indexService == null) {
-      return null;
-    }
+  // File? getTileFile(int z, int x, int y) {
+  //   if (!state.isOffline || state.indexService == null) {
+  //     return null;
+  //   }
 
-    try {
-      return state.indexService!.getFile(z, x, y);
-    } catch (e) {
-      print('Error getting tile file: $e');
-      return null;
-    }
-  }
+  //   try {
+  //     return state.indexService!.getFile(z, x, y);
+  //   } catch (e) {
+  //     print('Error getting tile file: $e');
+  //     return null;
+  //   }
+  // }
 
   /// Get available zoom levels for current offline session
-  Set<int> get availableZoomLevels {
-    if (!state.isOffline || state.indexService == null) {
-      return {};
-    }
-    return state.indexService!.availableZoomLevels;
-  }
+  // Set<int> get availableZoomLevels {
+  //   if (!state.isOffline || state.indexService == null) {
+  //     return {};
+  //   }
+  //   return state.indexService!.availableZoomLevels;
+  // }
 
   /// Get total tile count for current offline session
-  int get tileCount {
-    if (!state.isOffline || state.indexService == null) {
-      return 0;
-    }
-    return state.indexService!.tileCount;
-  }
+  // int get tileCount {
+  //   if (!state.isOffline || state.indexService == null) {
+  //     return 0;
+  //   }
+  //   return state.indexService!.tileCount;
+  // }
 
   // Getters for backward compatibility
   String get path => state.path;

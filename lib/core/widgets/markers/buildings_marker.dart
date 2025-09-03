@@ -2,6 +2,7 @@ import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -40,12 +41,6 @@ class BuildingsMarker extends StatelessWidget {
             type: MessageType.error,
           );
         } else if (state is Buildings && state.buildings.isNotEmpty) {
-          NotifierService.showMessage(
-            context,
-            message: state.buildings.length.toString(),
-            type: MessageType.info,
-          );
-
           final buildingIds = state.buildings
               .map((building) => building.globalId)
               .whereType<String>()
@@ -53,20 +48,19 @@ class BuildingsMarker extends StatelessWidget {
               .toList();
 
           // ✅ Only call getEntrances if building list actually changed
-          if (buildingIds.isNotEmpty &&
-              !_listEquals(buildingIds, _lastBuildingIds)) {
-            _lastBuildingIds = List.from(buildingIds);
+          // if (buildingIds.isNotEmpty &&
+          //     !_listEquals(buildingIds, _lastBuildingIds)) {
+          _lastBuildingIds = List.from(buildingIds);
 
-            // ✅ Debounce entrance calls to avoid rapid fire
-            Future.delayed(const Duration(milliseconds: 100), () {
-              if (context.mounted) {
-                context.read<EntranceCubit>().getEntrances(
-                      mapController.camera.zoom,
-                      buildingIds,
-                    );
-              }
-            });
-          }
+          bool isOffline = context.read<TileCubit>().isOffline;
+          // ✅ Debounce entrance calls to avoid rapid fire
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (context.mounted) {
+              context.read<EntranceCubit>().getEntrances(
+                  mapController.camera.zoom, buildingIds, isOffline);
+            }
+          });
+         // }
         }
       },
       // ✅ Much stricter buildWhen - only rebuild when building data meaningfully changes

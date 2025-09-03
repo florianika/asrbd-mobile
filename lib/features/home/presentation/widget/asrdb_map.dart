@@ -99,6 +99,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Future<void> _handleEntranceTap(EntranceEntity entrance) async {
     try {
       context.read<DwellingCubit>().closeDwellings();
+      bool isOffline = context.read<TileCubit>().isOffline;
       _selectedGlobalId = entrance.globalId;
       context.read<AttributesCubit>().clearSelections();
 
@@ -118,9 +119,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       final buildingGlobalId =
           context.read<AttributesCubit>().currentBuildingGlobalId;
 
-      await context
-          .read<AttributesCubit>()
-          .showEntranceAttributes(entrance.globalId, buildingGlobalId);
+      await context.read<AttributesCubit>().showEntranceAttributes(
+          entrance.globalId, buildingGlobalId, isOffline);
 
       if (mounted) {
         await context
@@ -186,7 +186,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
       // KEY FIX: Use longer debounce for offline mode
       final debounceMs = isOffline ? 0 : 800; // Much longer delay for offline
 
-   
       _debounce = Timer(Duration(milliseconds: debounceMs), () {
         if (camera.zoom >= AppConfig.buildingMinZoom) {
           context.read<BuildingCubit>().getBuildings(
@@ -235,7 +234,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  void _handleBuildingOnTap(LatLng position) {
+  void _handleBuildingOnTap(LatLng position, bool isOffline) {
     try {
       context.read<DwellingCubit>().closeDwellings();
       context.read<AttributesCubit>().clearSelections();
@@ -246,7 +245,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (buildingFound != null) {
         context
             .read<AttributesCubit>()
-            .showBuildingAttributes(buildingFound.globalId);
+            .showBuildingAttributes(buildingFound.globalId, isOffline);
 
         final storageResponsitory = sl<StorageRepository>();
         storageResponsitory.saveString(
@@ -308,7 +307,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
-                  _handleBuildingOnTap(latlng),
+                  _handleBuildingOnTap(latlng, state.isOffline),
               onMapReady: () => {
                 _goToCurrentLocation(),
                 context.read<BuildingCubit>().getBuildings(

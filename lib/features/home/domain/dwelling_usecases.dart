@@ -1,6 +1,8 @@
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/data/mapper/dwelling_mapper.dart';
 import 'package:asrdb/data/repositories/dwelling_repository.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
@@ -15,12 +17,20 @@ class DwellingUseCases {
 
   DwellingUseCases(this._dwellingRepository, this._checkUseCases);
 
-  Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
-    return await _dwellingRepository.getDwellings(entranceGlobalId);
+  Future<List<DwellingEntity>> getDwellings(
+      String? entranceGlobalId, bool isOffline) async {
+    if (!isOffline) {
+      return await _dwellingRepository.getDwellings(entranceGlobalId);
+    } else {
+      List<Dwelling> dwellings =
+          await _dwellingRepository.getDwellingsByEntranceId(entranceGlobalId!);
+
+      return dwellings.toEntityList();
+    }
   }
 
   Future<List<FieldSchema>> getDwellingAttibutes() async {
-      return await _jsonFileService.getAttributes('dwelling.json');
+    return await _jsonFileService.getAttributes('dwelling.json');
   }
 
   Future<String> _addDwellingFeatureOnline(DwellingEntity dwelling) async {
@@ -33,8 +43,15 @@ class DwellingUseCases {
         'Offline add for dwelling feature is not implemented yet');
   }
 
-  Future<DwellingEntity> getDwellingDetails(int objectId) async {
-    return await _dwellingRepository.getDwellingDetails(objectId);
+  Future<DwellingEntity> getDwellingDetails(
+      int objectId, bool isOffline) async {
+    if (!isOffline) {
+      return await _dwellingRepository.getDwellingDetails(objectId);
+    } else {
+      Dwelling dwelling =
+          await _dwellingRepository.getDwellingDetailsByObjectId(objectId);
+      return dwelling.toEntity();
+    }
   }
 
   Future<bool> _updateDwellingFeatureOnline(

@@ -132,20 +132,20 @@ class BuildingCubit extends Cubit<BuildingState> {
   }
 
   /// Select and load building details
-  Future<void> getBuildingDetails(String globalId) async {
-    emit(BuildingLoading());
-    try {
-      _selectedBuildingGlobalId =
-          globalId.replaceAll('{', '').replaceAll('}', '');
+  // Future<void> getBuildingDetails(String globalId, bool isOffline) async {
+  //   emit(BuildingLoading());
+  //   try {
+  //     _selectedBuildingGlobalId =
+  //         globalId.replaceAll('{', '').replaceAll('}', '');
 
-      attributesCubit.showAttributes(true);
-      await attributesCubit.showBuildingAttributes(_selectedBuildingGlobalId);
+  //     attributesCubit.showAttributes(true);
+  //     await attributesCubit.showBuildingAttributes(_selectedBuildingGlobalId);
 
-      emit(BuildingGlobalId(_selectedBuildingGlobalId));
-    } catch (e) {
-      emit(BuildingError(e.toString()));
-    }
-  }
+  //     emit(BuildingGlobalId(_selectedBuildingGlobalId));
+  //   } catch (e) {
+  //     emit(BuildingError(e.toString()));
+  //   }
+  // }
 
   /// Load attribute schema
   Future<void> getBuildingAttributes() async {
