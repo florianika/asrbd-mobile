@@ -51,12 +51,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:asrdb/core/themes/app_theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 final sl = GetIt.instance; // Service locator instance
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Preserve the splash screen while we initialize the app
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
+  
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore('mapStore').manage.create();
 
@@ -115,6 +120,9 @@ void main() async {
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();
   sl.registerFactory<TileCubit>(() => TileCubit());
+  
+  // Remove the splash screen after all initialization is complete
+  FlutterNativeSplash.remove();
 
   sl.registerFactory<EntranceGeometryCubit>(() => EntranceGeometryCubit());
   sl.registerFactory<BuildingGeometryCubit>(() => BuildingGeometryCubit());
