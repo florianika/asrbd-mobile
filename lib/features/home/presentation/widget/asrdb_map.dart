@@ -77,16 +77,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     super.initState();
   }
 
-  // Future<void> applyTile() async {
-  //   String? path = await storageService.getString(
-  //       boxName: HiveBoxes.offlineMap, key: "map");
-  //   if (path != null) {
-  //     setState(() {
-  //       tileDirPath = path;
-  //     });
-  //   }
-  // }
-
   void _goToCurrentLocation() async {
     final location = await LocationService.getCurrentLocation();
     widget.mapController.move(location, AppConfig.initZoom);
@@ -301,9 +291,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
             options: MapOptions(
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
               initialCenter: state.isOffline
-                  ? (state.mapCenter != null
-                      ? state.mapCenter!
-                      : currentPosition)
+                  ? (LatLng(
+                      state.download!.centerLat!, state.download!.centerLng!))
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
@@ -314,12 +303,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     widget.mapController.camera.visibleBounds,
                     AppConfig.buildingMinZoom,
                     state.isOffline
-                        ? state.municipalityId!
+                        ? state.download!.municipalityId!
                         : userService.userInfo!.municipality,
                     state.isOffline,
-                    state.activeSessionId != null
-                        ? int.parse(state.activeSessionId!)
-                        : null),
+                    state.download?.id!),
                 visibleBounds = widget.mapController.camera.visibleBounds,
               },
               onMapEvent: (event) {
@@ -330,12 +317,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     camera,
                     false, // hasGesture = false, since user stopped
                     state.isOffline
-                        ? state.municipalityId!
+                        ? state.download!.municipalityId!
                         : userService.userInfo!.municipality,
                     state.isOffline,
-                    state.activeSessionId != null
-                        ? int.parse(state.activeSessionId!)
-                        : null,
+                    state.download?.id!,
                   );
                 }
               },
@@ -347,7 +332,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   tileProvider: tileProvider),
               MunicipalityMarker(
                 isOffline: state.isOffline,
-                municipalityId: state.municipalityId,
+                municipalityId: state.download?.municipalityId,
               ),
               if (_showLocationMarker)
                 MarkerLayer(

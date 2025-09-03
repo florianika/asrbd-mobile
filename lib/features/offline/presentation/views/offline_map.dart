@@ -5,23 +5,21 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
+import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/mapper/dwelling_mapper.dart';
 import 'package:asrdb/data/mapper/entrance_mapper.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/data/repositories/dwelling_repository.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
+import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
-import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'dart:math' as math;
-import 'dart:convert';
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class OfflineMap extends StatefulWidget {
@@ -222,8 +220,23 @@ class _OfflineMapState extends State<OfflineMap> {
     });
 
     try {
+      final userService = sl<UserService>();
       final downloadUseCase = sl<DownloadRepository>();
-      final downloadId = await downloadUseCase.insertDownload();
+      var downloadInfo = DownloadEntity(
+        areaName: downloadName,
+        boundsNorthWestLat: _downloadBounds!.northWest.latitude,
+        boundsNorthWestLng: _downloadBounds!.northWest.longitude,
+        boundsSouthEastLng: _downloadBounds!.southEast.longitude,
+        boundsSouthEastLat: _downloadBounds!.southEast.latitude,
+        centerLat: _mapController.camera.center.latitude,
+        centerLng: _mapController.camera.center.longitude,
+        municipalityId: userService.userInfo!.municipality,
+        email: userService.userInfo!.email,
+        userId: -1, //int.parse(userService.userInfo!.nameId),
+      );
+
+      final downloadId =
+          await downloadUseCase.insertDownload(downloadInfo.toDriftDownload());
 
       if (!mounted) return;
 
@@ -231,7 +244,7 @@ class _OfflineMapState extends State<OfflineMap> {
       await _downloadAllData(downloadId, downloadName);
 
       // Save metadata
-      await _saveMetadata(downloadId, downloadName);
+      // await _saveMetadata(downloadId, downloadName);
 
       if (!mounted) return;
 
@@ -290,50 +303,6 @@ class _OfflineMapState extends State<OfflineMap> {
 
     var dwellingsDao = dwellings.toDriftDwellingList(downloadId);
     await dwellingRepository.insertDwellings(dwellingsDao);
-  }
-
-  Future<void> _saveMetadata(int downloadId, String downloadName) async {
-    try {
-      final userService = sl<UserService>();
-      final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String offlineDataPath =
-          '${appDocDir.path}/offline_data/$downloadId';
-
-      await Directory(offlineDataPath).create(recursive: true);
-
-      final metadata = {
-        'sessionId': downloadId,
-        'name': downloadName,
-        'location': 'Tirana, Albania',
-        'downloadDate': DateTime.now().toIso8601String(),
-        'bounds': {
-          'northWest': {
-            'lat': _downloadBounds!.northWest.latitude,
-            'lng': _downloadBounds!.northWest.longitude,
-          },
-          'southEast': {
-            'lat': _downloadBounds!.southEast.latitude,
-            'lng': _downloadBounds!.southEast.longitude,
-          },
-        },
-        'center': {
-          'lat': _mapController.camera.center.latitude,
-          'lng': _mapController.camera.center.longitude,
-        },
-        'user': {
-          'municipalityId': userService.userInfo?.municipality,
-          'email': userService.userInfo?.email,
-          'userId': userService.userInfo?.nameId,
-        },
-      };
-
-      final metadataFile = File('$offlineDataPath/metadata.json');
-      await metadataFile.writeAsString(jsonEncode(metadata));
-
-      print('Metadata saved to: ${metadataFile.path}');
-    } catch (e) {
-      print('Error saving metadata: $e');
-    }
   }
 
   /// Get polygon points for the download bounds to display on map

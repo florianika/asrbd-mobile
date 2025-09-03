@@ -1,7 +1,6 @@
-import 'package:asrdb/core/db/hive_boxes.dart';
-import 'package:asrdb/core/enums/message_type.dart';
-import 'package:asrdb/core/services/notifier_service.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/data/mapper/download_mappers.dart';
+import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:asrdb/routing/route_manager.dart';
@@ -9,9 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:convert';
 import 'dart:ui';
 
 class DownloadedMapsViewer extends StatefulWidget {
@@ -20,7 +16,7 @@ class DownloadedMapsViewer extends StatefulWidget {
 }
 
 class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
-  List<DownloadedData> _downloadedData = [];
+  List<Download> _downloadedData = [];
   bool _isLoading = true;
 
   @override
@@ -35,85 +31,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     });
 
     try {
-      final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final String offlineDataPath = '${appDocDir.path}/offline_data';
-      final Directory offlineDataDir = Directory(offlineDataPath);
-
-      if (!await offlineDataDir.exists()) {
-        setState(() {
-          _downloadedData = [];
-          _isLoading = false;
-        });
-        return;
-      }
-
-      List<DownloadedData> dataList = [];
-
-      // Get all session directories
-      await for (FileSystemEntity sessionEntity in offlineDataDir.list()) {
-        if (sessionEntity is Directory) {
-          try {
-            // Try to load metadata for this session
-            final metadataFile = File('${sessionEntity.path}/metadata.json');
-            if (await metadataFile.exists()) {
-              final metadataContent = await metadataFile.readAsString();
-              final metadata = jsonDecode(metadataContent);
-
-              // Calculate directory size
-              int totalSize = 0;
-              await for (FileSystemEntity entity
-                  in sessionEntity.list(recursive: true)) {
-                if (entity is File) {
-                  final stats = await entity.stat();
-                  totalSize += stats.size;
-                }
-              }
-
-              final downloadedData = DownloadedData(
-                sessionId: metadata['sessionId'].toString(),
-                name: metadata['name'] ?? 'Unnamed Download',
-                location: metadata['location'] ?? 'Unknown Location',
-                buildingCount: 0, // Will be updated from database if needed
-                sizeInBytes: totalSize,
-                downloadDate: DateTime.parse(metadata['downloadDate']),
-                userMunicipalityId: metadata['user']?['municipalityId'],
-                userEmail: metadata['user']?['email'],
-                bounds: LatLngBounds.fromPoints([
-                  LatLng(metadata['bounds']['northWest']['lat'],
-                      metadata['bounds']['northWest']['lng']),
-                  LatLng(metadata['bounds']['southEast']['lat'],
-                      metadata['bounds']['southEast']['lng']),
-                ]),
-                center: LatLng(
-                  metadata['center']['lat'],
-                  metadata['center']['lng'],
-                ),
-              );
-
-              dataList.add(downloadedData);
-            }
-          } catch (e) {
-            print('Error loading data session ${sessionEntity.path}: $e');
-
-            NotifierService.showMessage(
-              context,
-              message:
-                  'Error loading data session: ${sessionEntity.path.split('/').last}',
-              type: MessageType.warning,
-            );
-          }
-        }
-      }
-
-      // Sort data by download date (newest first)
-      dataList.sort((a, b) => b.downloadDate.compareTo(a.downloadDate));
+      final downloadRespository = sl<DownloadRepository>();
+      _downloadedData = await downloadRespository.getAllDownloads();
 
       setState(() {
-        _downloadedData = dataList;
+        _downloadedData.sort((a, b) => b.createdDate.compareTo(a.createdDate));
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading downloaded data: $e');
       setState(() {
         _downloadedData = [];
         _isLoading = false;
@@ -123,26 +48,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
   Future<void> _applyMap(int index) async {
     final data = _downloadedData[index];
-    StorageService storageService = sl<StorageService>();
-
-    if (!mounted) return;
-
-    await context.read<TileCubit>().setOfflineSession(
-          data.sessionId,
-          data.center,
-          data.bounds,
-          data.userId,
-          data.userMunicipalityId,
-        );
-
-    // Save the correct sessionId
-    await storageService.saveString(
-      boxName: HiveBoxes.offlineMap,
-      key: "map",
-      value: data.sessionId,
-    );
-
-    if (!mounted) return;
+    await context.read<TileCubit>().setOfflineSession(data.toEntity());
 
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
@@ -157,7 +63,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         return AlertDialog(
           title: Text('Delete Downloaded Data'),
           content: Text(
-              'Are you sure you want to delete "${data.name}"?\n\nThis will permanently remove all buildings, entrances, and dwellings data for this area. This action cannot be undone.'),
+              'Are you sure you want to delete "${data.areaName}"?\n\nThis will permanently remove all buildings, entrances, and dwellings data for this area. This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -175,24 +81,23 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (confirmed == true) {
       try {
-        final Directory appDocDir = await getApplicationDocumentsDirectory();
-        final String sessionPath =
-            '${appDocDir.path}/offline_data/${data.sessionId}';
-        final Directory sessionDir = Directory(sessionPath);
+        // final Directory appDocDir = await getApplicationDocumentsDirectory();
+        // final String sessionPath = '${appDocDir.path}/offline_data/${data.id}';
+        // final Directory sessionDir = Directory(sessionPath);
 
-        if (await sessionDir.exists()) {
-          await sessionDir.delete(recursive: true);
-        }
+        // if (await sessionDir.exists()) {
+        //   await sessionDir.delete(recursive: true);
+        // }
 
-        // TODO: Also remove data from local database if needed
-        // This would require calling the repository methods to delete buildings, entrances, dwellings by sessionId
+        // // TODO: Also remove data from local database if needed
+        // // This would require calling the repository methods to delete buildings, entrances, dwellings by sessionId
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Data "${data.name}" deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text('Data "${data.name}" deleted successfully'),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
 
         _loadDownloadedData(); // Refresh the list
       } catch (e) {
@@ -204,15 +109,6 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         );
       }
     }
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
   String _formatDate(DateTime date) {
@@ -484,22 +380,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        data.name,
+                                                        data.areaName,
                                                         style: TextStyle(
                                                           fontSize: 20,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           color: Colors.white,
                                                           letterSpacing: 0.5,
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 6),
-                                                      Text(
-                                                        data.location,
-                                                        style: TextStyle(
-                                                          color: Colors.white
-                                                              .withOpacity(0.8),
-                                                          fontSize: 16,
                                                         ),
                                                       ),
                                                       SizedBox(height: 12),
@@ -543,22 +430,6 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                           .orange[
                                                                       300],
                                                                 ),
-                                                                SizedBox(
-                                                                    width: 6),
-                                                                Text(
-                                                                  '${data.buildingCount} buildings',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    color: Colors
-                                                                            .orange[
-                                                                        300],
-                                                                    fontSize:
-                                                                        13,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                  ),
-                                                                ),
                                                               ],
                                                             ),
                                                           ),
@@ -586,18 +457,6 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                     .withOpacity(
                                                                         0.4),
                                                                 width: 1,
-                                                              ),
-                                                            ),
-                                                            child: Text(
-                                                              _formatFileSize(data
-                                                                  .sizeInBytes),
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .green[300],
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
                                                               ),
                                                             ),
                                                           ),
@@ -689,46 +548,33 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                     Icons.calendar_today,
                                                     'Downloaded',
                                                     _formatDate(
-                                                        data.downloadDate),
-                                                    true,
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  child: _buildInfoItem(
-                                                    Icons.location_on,
-                                                    'Coordinates',
-                                                    '${data.center.latitude.toStringAsFixed(4)}, ${data.center.longitude.toStringAsFixed(4)}',
+                                                        data.createdDate),
                                                     true,
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                            if (data.userEmail != null ||
-                                                data.userMunicipalityId !=
-                                                    null) ...[
+                                            ...[
                                               SizedBox(height: 12),
                                               Row(
                                                 children: [
-                                                  if (data.userEmail != null)
-                                                    Expanded(
-                                                      child: _buildInfoItem(
-                                                        Icons.person,
-                                                        'User',
-                                                        data.userEmail!,
-                                                        true,
-                                                      ),
+                                                  Expanded(
+                                                    child: _buildInfoItem(
+                                                      Icons.person,
+                                                      'User',
+                                                      data.email,
+                                                      true,
                                                     ),
-                                                  if (data.userMunicipalityId !=
-                                                      null)
-                                                    Expanded(
-                                                      child: _buildInfoItem(
-                                                        Icons.location_city,
-                                                        'Municipality',
-                                                        data.userMunicipalityId!
-                                                            .toString(),
-                                                        true,
-                                                      ),
+                                                  ),
+                                                  Expanded(
+                                                    child: _buildInfoItem(
+                                                      Icons.location_city,
+                                                      'Municipality',
+                                                      data.municipalityId
+                                                          .toString(),
+                                                      true,
                                                     ),
+                                                  ),
                                                 ],
                                               ),
                                             ],

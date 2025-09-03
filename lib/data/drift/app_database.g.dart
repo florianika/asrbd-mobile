@@ -18,6 +18,64 @@ class $DownloadsTable extends Downloads
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _areaNameMeta =
+      const VerificationMeta('areaName');
+  @override
+  late final GeneratedColumn<String> areaName = GeneratedColumn<String>(
+      'area_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _boundsNorthWestLatMeta =
+      const VerificationMeta('boundsNorthWestLat');
+  @override
+  late final GeneratedColumn<double> boundsNorthWestLat =
+      GeneratedColumn<double>('bounds_north_west_lat', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _boundsNorthWestLngMeta =
+      const VerificationMeta('boundsNorthWestLng');
+  @override
+  late final GeneratedColumn<double> boundsNorthWestLng =
+      GeneratedColumn<double>('bounds_north_west_lng', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _boundsSouthEastLatMeta =
+      const VerificationMeta('boundsSouthEastLat');
+  @override
+  late final GeneratedColumn<double> boundsSouthEastLat =
+      GeneratedColumn<double>('bounds_south_east_lat', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _boundsSouthEastLngMeta =
+      const VerificationMeta('boundsSouthEastLng');
+  @override
+  late final GeneratedColumn<double> boundsSouthEastLng =
+      GeneratedColumn<double>('bounds_south_east_lng', aliasedName, true,
+          type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _centerLatMeta =
+      const VerificationMeta('centerLat');
+  @override
+  late final GeneratedColumn<double> centerLat = GeneratedColumn<double>(
+      'center_lat', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _centerLngMeta =
+      const VerificationMeta('centerLng');
+  @override
+  late final GeneratedColumn<double> centerLng = GeneratedColumn<double>(
+      'center_lng', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _municipalityIdMeta =
+      const VerificationMeta('municipalityId');
+  @override
+  late final GeneratedColumn<int> municipalityId = GeneratedColumn<int>(
+      'municipality_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+      'email', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _createdDateMeta =
       const VerificationMeta('createdDate');
   @override
@@ -27,7 +85,20 @@ class $DownloadsTable extends Downloads
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns => [id, createdDate];
+  List<GeneratedColumn> get $columns => [
+        id,
+        areaName,
+        boundsNorthWestLat,
+        boundsNorthWestLng,
+        boundsSouthEastLat,
+        boundsSouthEastLng,
+        centerLat,
+        centerLng,
+        municipalityId,
+        email,
+        userId,
+        createdDate
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -40,6 +111,64 @@ class $DownloadsTable extends Downloads
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('area_name')) {
+      context.handle(_areaNameMeta,
+          areaName.isAcceptableOrUnknown(data['area_name']!, _areaNameMeta));
+    } else if (isInserting) {
+      context.missing(_areaNameMeta);
+    }
+    if (data.containsKey('bounds_north_west_lat')) {
+      context.handle(
+          _boundsNorthWestLatMeta,
+          boundsNorthWestLat.isAcceptableOrUnknown(
+              data['bounds_north_west_lat']!, _boundsNorthWestLatMeta));
+    }
+    if (data.containsKey('bounds_north_west_lng')) {
+      context.handle(
+          _boundsNorthWestLngMeta,
+          boundsNorthWestLng.isAcceptableOrUnknown(
+              data['bounds_north_west_lng']!, _boundsNorthWestLngMeta));
+    }
+    if (data.containsKey('bounds_south_east_lat')) {
+      context.handle(
+          _boundsSouthEastLatMeta,
+          boundsSouthEastLat.isAcceptableOrUnknown(
+              data['bounds_south_east_lat']!, _boundsSouthEastLatMeta));
+    }
+    if (data.containsKey('bounds_south_east_lng')) {
+      context.handle(
+          _boundsSouthEastLngMeta,
+          boundsSouthEastLng.isAcceptableOrUnknown(
+              data['bounds_south_east_lng']!, _boundsSouthEastLngMeta));
+    }
+    if (data.containsKey('center_lat')) {
+      context.handle(_centerLatMeta,
+          centerLat.isAcceptableOrUnknown(data['center_lat']!, _centerLatMeta));
+    }
+    if (data.containsKey('center_lng')) {
+      context.handle(_centerLngMeta,
+          centerLng.isAcceptableOrUnknown(data['center_lng']!, _centerLngMeta));
+    }
+    if (data.containsKey('municipality_id')) {
+      context.handle(
+          _municipalityIdMeta,
+          municipalityId.isAcceptableOrUnknown(
+              data['municipality_id']!, _municipalityIdMeta));
+    } else if (isInserting) {
+      context.missing(_municipalityIdMeta);
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+          _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
+    } else if (isInserting) {
+      context.missing(_emailMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    } else if (isInserting) {
+      context.missing(_userIdMeta);
     }
     if (data.containsKey('created_date')) {
       context.handle(
@@ -58,6 +187,26 @@ class $DownloadsTable extends Downloads
     return Download(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      areaName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}area_name'])!,
+      boundsNorthWestLat: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bounds_north_west_lat']),
+      boundsNorthWestLng: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bounds_north_west_lng']),
+      boundsSouthEastLat: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bounds_south_east_lat']),
+      boundsSouthEastLng: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}bounds_south_east_lng']),
+      centerLat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}center_lat']),
+      centerLng: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}center_lng']),
+      municipalityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}municipality_id'])!,
+      email: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}user_id'])!,
       createdDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date'])!,
     );
@@ -71,12 +220,56 @@ class $DownloadsTable extends Downloads
 
 class Download extends DataClass implements Insertable<Download> {
   final int id;
+  final String areaName;
+  final double? boundsNorthWestLat;
+  final double? boundsNorthWestLng;
+  final double? boundsSouthEastLat;
+  final double? boundsSouthEastLng;
+  final double? centerLat;
+  final double? centerLng;
+  final int municipalityId;
+  final String email;
+  final int userId;
   final DateTime createdDate;
-  const Download({required this.id, required this.createdDate});
+  const Download(
+      {required this.id,
+      required this.areaName,
+      this.boundsNorthWestLat,
+      this.boundsNorthWestLng,
+      this.boundsSouthEastLat,
+      this.boundsSouthEastLng,
+      this.centerLat,
+      this.centerLng,
+      required this.municipalityId,
+      required this.email,
+      required this.userId,
+      required this.createdDate});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['area_name'] = Variable<String>(areaName);
+    if (!nullToAbsent || boundsNorthWestLat != null) {
+      map['bounds_north_west_lat'] = Variable<double>(boundsNorthWestLat);
+    }
+    if (!nullToAbsent || boundsNorthWestLng != null) {
+      map['bounds_north_west_lng'] = Variable<double>(boundsNorthWestLng);
+    }
+    if (!nullToAbsent || boundsSouthEastLat != null) {
+      map['bounds_south_east_lat'] = Variable<double>(boundsSouthEastLat);
+    }
+    if (!nullToAbsent || boundsSouthEastLng != null) {
+      map['bounds_south_east_lng'] = Variable<double>(boundsSouthEastLng);
+    }
+    if (!nullToAbsent || centerLat != null) {
+      map['center_lat'] = Variable<double>(centerLat);
+    }
+    if (!nullToAbsent || centerLng != null) {
+      map['center_lng'] = Variable<double>(centerLng);
+    }
+    map['municipality_id'] = Variable<int>(municipalityId);
+    map['email'] = Variable<String>(email);
+    map['user_id'] = Variable<int>(userId);
     map['created_date'] = Variable<DateTime>(createdDate);
     return map;
   }
@@ -84,6 +277,28 @@ class Download extends DataClass implements Insertable<Download> {
   DownloadsCompanion toCompanion(bool nullToAbsent) {
     return DownloadsCompanion(
       id: Value(id),
+      areaName: Value(areaName),
+      boundsNorthWestLat: boundsNorthWestLat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boundsNorthWestLat),
+      boundsNorthWestLng: boundsNorthWestLng == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boundsNorthWestLng),
+      boundsSouthEastLat: boundsSouthEastLat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boundsSouthEastLat),
+      boundsSouthEastLng: boundsSouthEastLng == null && nullToAbsent
+          ? const Value.absent()
+          : Value(boundsSouthEastLng),
+      centerLat: centerLat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(centerLat),
+      centerLng: centerLng == null && nullToAbsent
+          ? const Value.absent()
+          : Value(centerLng),
+      municipalityId: Value(municipalityId),
+      email: Value(email),
+      userId: Value(userId),
       createdDate: Value(createdDate),
     );
   }
@@ -93,6 +308,20 @@ class Download extends DataClass implements Insertable<Download> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Download(
       id: serializer.fromJson<int>(json['id']),
+      areaName: serializer.fromJson<String>(json['areaName']),
+      boundsNorthWestLat:
+          serializer.fromJson<double?>(json['boundsNorthWestLat']),
+      boundsNorthWestLng:
+          serializer.fromJson<double?>(json['boundsNorthWestLng']),
+      boundsSouthEastLat:
+          serializer.fromJson<double?>(json['boundsSouthEastLat']),
+      boundsSouthEastLng:
+          serializer.fromJson<double?>(json['boundsSouthEastLng']),
+      centerLat: serializer.fromJson<double?>(json['centerLat']),
+      centerLng: serializer.fromJson<double?>(json['centerLng']),
+      municipalityId: serializer.fromJson<int>(json['municipalityId']),
+      email: serializer.fromJson<String>(json['email']),
+      userId: serializer.fromJson<int>(json['userId']),
       createdDate: serializer.fromJson<DateTime>(json['createdDate']),
     );
   }
@@ -101,17 +330,78 @@ class Download extends DataClass implements Insertable<Download> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'areaName': serializer.toJson<String>(areaName),
+      'boundsNorthWestLat': serializer.toJson<double?>(boundsNorthWestLat),
+      'boundsNorthWestLng': serializer.toJson<double?>(boundsNorthWestLng),
+      'boundsSouthEastLat': serializer.toJson<double?>(boundsSouthEastLat),
+      'boundsSouthEastLng': serializer.toJson<double?>(boundsSouthEastLng),
+      'centerLat': serializer.toJson<double?>(centerLat),
+      'centerLng': serializer.toJson<double?>(centerLng),
+      'municipalityId': serializer.toJson<int>(municipalityId),
+      'email': serializer.toJson<String>(email),
+      'userId': serializer.toJson<int>(userId),
       'createdDate': serializer.toJson<DateTime>(createdDate),
     };
   }
 
-  Download copyWith({int? id, DateTime? createdDate}) => Download(
+  Download copyWith(
+          {int? id,
+          String? areaName,
+          Value<double?> boundsNorthWestLat = const Value.absent(),
+          Value<double?> boundsNorthWestLng = const Value.absent(),
+          Value<double?> boundsSouthEastLat = const Value.absent(),
+          Value<double?> boundsSouthEastLng = const Value.absent(),
+          Value<double?> centerLat = const Value.absent(),
+          Value<double?> centerLng = const Value.absent(),
+          int? municipalityId,
+          String? email,
+          int? userId,
+          DateTime? createdDate}) =>
+      Download(
         id: id ?? this.id,
+        areaName: areaName ?? this.areaName,
+        boundsNorthWestLat: boundsNorthWestLat.present
+            ? boundsNorthWestLat.value
+            : this.boundsNorthWestLat,
+        boundsNorthWestLng: boundsNorthWestLng.present
+            ? boundsNorthWestLng.value
+            : this.boundsNorthWestLng,
+        boundsSouthEastLat: boundsSouthEastLat.present
+            ? boundsSouthEastLat.value
+            : this.boundsSouthEastLat,
+        boundsSouthEastLng: boundsSouthEastLng.present
+            ? boundsSouthEastLng.value
+            : this.boundsSouthEastLng,
+        centerLat: centerLat.present ? centerLat.value : this.centerLat,
+        centerLng: centerLng.present ? centerLng.value : this.centerLng,
+        municipalityId: municipalityId ?? this.municipalityId,
+        email: email ?? this.email,
+        userId: userId ?? this.userId,
         createdDate: createdDate ?? this.createdDate,
       );
   Download copyWithCompanion(DownloadsCompanion data) {
     return Download(
       id: data.id.present ? data.id.value : this.id,
+      areaName: data.areaName.present ? data.areaName.value : this.areaName,
+      boundsNorthWestLat: data.boundsNorthWestLat.present
+          ? data.boundsNorthWestLat.value
+          : this.boundsNorthWestLat,
+      boundsNorthWestLng: data.boundsNorthWestLng.present
+          ? data.boundsNorthWestLng.value
+          : this.boundsNorthWestLng,
+      boundsSouthEastLat: data.boundsSouthEastLat.present
+          ? data.boundsSouthEastLat.value
+          : this.boundsSouthEastLat,
+      boundsSouthEastLng: data.boundsSouthEastLng.present
+          ? data.boundsSouthEastLng.value
+          : this.boundsSouthEastLng,
+      centerLat: data.centerLat.present ? data.centerLat.value : this.centerLat,
+      centerLng: data.centerLng.present ? data.centerLng.value : this.centerLng,
+      municipalityId: data.municipalityId.present
+          ? data.municipalityId.value
+          : this.municipalityId,
+      email: data.email.present ? data.email.value : this.email,
+      userId: data.userId.present ? data.userId.value : this.userId,
       createdDate:
           data.createdDate.present ? data.createdDate.value : this.createdDate,
     );
@@ -121,45 +411,156 @@ class Download extends DataClass implements Insertable<Download> {
   String toString() {
     return (StringBuffer('Download(')
           ..write('id: $id, ')
+          ..write('areaName: $areaName, ')
+          ..write('boundsNorthWestLat: $boundsNorthWestLat, ')
+          ..write('boundsNorthWestLng: $boundsNorthWestLng, ')
+          ..write('boundsSouthEastLat: $boundsSouthEastLat, ')
+          ..write('boundsSouthEastLng: $boundsSouthEastLng, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLng: $centerLng, ')
+          ..write('municipalityId: $municipalityId, ')
+          ..write('email: $email, ')
+          ..write('userId: $userId, ')
           ..write('createdDate: $createdDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, createdDate);
+  int get hashCode => Object.hash(
+      id,
+      areaName,
+      boundsNorthWestLat,
+      boundsNorthWestLng,
+      boundsSouthEastLat,
+      boundsSouthEastLng,
+      centerLat,
+      centerLng,
+      municipalityId,
+      email,
+      userId,
+      createdDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Download &&
           other.id == this.id &&
+          other.areaName == this.areaName &&
+          other.boundsNorthWestLat == this.boundsNorthWestLat &&
+          other.boundsNorthWestLng == this.boundsNorthWestLng &&
+          other.boundsSouthEastLat == this.boundsSouthEastLat &&
+          other.boundsSouthEastLng == this.boundsSouthEastLng &&
+          other.centerLat == this.centerLat &&
+          other.centerLng == this.centerLng &&
+          other.municipalityId == this.municipalityId &&
+          other.email == this.email &&
+          other.userId == this.userId &&
           other.createdDate == this.createdDate);
 }
 
 class DownloadsCompanion extends UpdateCompanion<Download> {
   final Value<int> id;
+  final Value<String> areaName;
+  final Value<double?> boundsNorthWestLat;
+  final Value<double?> boundsNorthWestLng;
+  final Value<double?> boundsSouthEastLat;
+  final Value<double?> boundsSouthEastLng;
+  final Value<double?> centerLat;
+  final Value<double?> centerLng;
+  final Value<int> municipalityId;
+  final Value<String> email;
+  final Value<int> userId;
   final Value<DateTime> createdDate;
   const DownloadsCompanion({
     this.id = const Value.absent(),
+    this.areaName = const Value.absent(),
+    this.boundsNorthWestLat = const Value.absent(),
+    this.boundsNorthWestLng = const Value.absent(),
+    this.boundsSouthEastLat = const Value.absent(),
+    this.boundsSouthEastLng = const Value.absent(),
+    this.centerLat = const Value.absent(),
+    this.centerLng = const Value.absent(),
+    this.municipalityId = const Value.absent(),
+    this.email = const Value.absent(),
+    this.userId = const Value.absent(),
     this.createdDate = const Value.absent(),
   });
   DownloadsCompanion.insert({
     this.id = const Value.absent(),
+    required String areaName,
+    this.boundsNorthWestLat = const Value.absent(),
+    this.boundsNorthWestLng = const Value.absent(),
+    this.boundsSouthEastLat = const Value.absent(),
+    this.boundsSouthEastLng = const Value.absent(),
+    this.centerLat = const Value.absent(),
+    this.centerLng = const Value.absent(),
+    required int municipalityId,
+    required String email,
+    required int userId,
     this.createdDate = const Value.absent(),
-  });
+  })  : areaName = Value(areaName),
+        municipalityId = Value(municipalityId),
+        email = Value(email),
+        userId = Value(userId);
   static Insertable<Download> custom({
     Expression<int>? id,
+    Expression<String>? areaName,
+    Expression<double>? boundsNorthWestLat,
+    Expression<double>? boundsNorthWestLng,
+    Expression<double>? boundsSouthEastLat,
+    Expression<double>? boundsSouthEastLng,
+    Expression<double>? centerLat,
+    Expression<double>? centerLng,
+    Expression<int>? municipalityId,
+    Expression<String>? email,
+    Expression<int>? userId,
     Expression<DateTime>? createdDate,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (areaName != null) 'area_name': areaName,
+      if (boundsNorthWestLat != null)
+        'bounds_north_west_lat': boundsNorthWestLat,
+      if (boundsNorthWestLng != null)
+        'bounds_north_west_lng': boundsNorthWestLng,
+      if (boundsSouthEastLat != null)
+        'bounds_south_east_lat': boundsSouthEastLat,
+      if (boundsSouthEastLng != null)
+        'bounds_south_east_lng': boundsSouthEastLng,
+      if (centerLat != null) 'center_lat': centerLat,
+      if (centerLng != null) 'center_lng': centerLng,
+      if (municipalityId != null) 'municipality_id': municipalityId,
+      if (email != null) 'email': email,
+      if (userId != null) 'user_id': userId,
       if (createdDate != null) 'created_date': createdDate,
     });
   }
 
-  DownloadsCompanion copyWith({Value<int>? id, Value<DateTime>? createdDate}) {
+  DownloadsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? areaName,
+      Value<double?>? boundsNorthWestLat,
+      Value<double?>? boundsNorthWestLng,
+      Value<double?>? boundsSouthEastLat,
+      Value<double?>? boundsSouthEastLng,
+      Value<double?>? centerLat,
+      Value<double?>? centerLng,
+      Value<int>? municipalityId,
+      Value<String>? email,
+      Value<int>? userId,
+      Value<DateTime>? createdDate}) {
     return DownloadsCompanion(
       id: id ?? this.id,
+      areaName: areaName ?? this.areaName,
+      boundsNorthWestLat: boundsNorthWestLat ?? this.boundsNorthWestLat,
+      boundsNorthWestLng: boundsNorthWestLng ?? this.boundsNorthWestLng,
+      boundsSouthEastLat: boundsSouthEastLat ?? this.boundsSouthEastLat,
+      boundsSouthEastLng: boundsSouthEastLng ?? this.boundsSouthEastLng,
+      centerLat: centerLat ?? this.centerLat,
+      centerLng: centerLng ?? this.centerLng,
+      municipalityId: municipalityId ?? this.municipalityId,
+      email: email ?? this.email,
+      userId: userId ?? this.userId,
       createdDate: createdDate ?? this.createdDate,
     );
   }
@@ -169,6 +570,36 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (areaName.present) {
+      map['area_name'] = Variable<String>(areaName.value);
+    }
+    if (boundsNorthWestLat.present) {
+      map['bounds_north_west_lat'] = Variable<double>(boundsNorthWestLat.value);
+    }
+    if (boundsNorthWestLng.present) {
+      map['bounds_north_west_lng'] = Variable<double>(boundsNorthWestLng.value);
+    }
+    if (boundsSouthEastLat.present) {
+      map['bounds_south_east_lat'] = Variable<double>(boundsSouthEastLat.value);
+    }
+    if (boundsSouthEastLng.present) {
+      map['bounds_south_east_lng'] = Variable<double>(boundsSouthEastLng.value);
+    }
+    if (centerLat.present) {
+      map['center_lat'] = Variable<double>(centerLat.value);
+    }
+    if (centerLng.present) {
+      map['center_lng'] = Variable<double>(centerLng.value);
+    }
+    if (municipalityId.present) {
+      map['municipality_id'] = Variable<int>(municipalityId.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<int>(userId.value);
     }
     if (createdDate.present) {
       map['created_date'] = Variable<DateTime>(createdDate.value);
@@ -180,6 +611,16 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
   String toString() {
     return (StringBuffer('DownloadsCompanion(')
           ..write('id: $id, ')
+          ..write('areaName: $areaName, ')
+          ..write('boundsNorthWestLat: $boundsNorthWestLat, ')
+          ..write('boundsNorthWestLng: $boundsNorthWestLng, ')
+          ..write('boundsSouthEastLat: $boundsSouthEastLat, ')
+          ..write('boundsSouthEastLng: $boundsSouthEastLng, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLng: $centerLng, ')
+          ..write('municipalityId: $municipalityId, ')
+          ..write('email: $email, ')
+          ..write('userId: $userId, ')
           ..write('createdDate: $createdDate')
           ..write(')'))
         .toString();
@@ -4757,10 +5198,30 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$DownloadsTableCreateCompanionBuilder = DownloadsCompanion Function({
   Value<int> id,
+  required String areaName,
+  Value<double?> boundsNorthWestLat,
+  Value<double?> boundsNorthWestLng,
+  Value<double?> boundsSouthEastLat,
+  Value<double?> boundsSouthEastLng,
+  Value<double?> centerLat,
+  Value<double?> centerLng,
+  required int municipalityId,
+  required String email,
+  required int userId,
   Value<DateTime> createdDate,
 });
 typedef $$DownloadsTableUpdateCompanionBuilder = DownloadsCompanion Function({
   Value<int> id,
+  Value<String> areaName,
+  Value<double?> boundsNorthWestLat,
+  Value<double?> boundsNorthWestLng,
+  Value<double?> boundsSouthEastLat,
+  Value<double?> boundsSouthEastLng,
+  Value<double?> centerLat,
+  Value<double?> centerLng,
+  Value<int> municipalityId,
+  Value<String> email,
+  Value<int> userId,
   Value<DateTime> createdDate,
 });
 
@@ -4840,6 +5301,41 @@ class $$DownloadsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get areaName => $composableBuilder(
+      column: $table.areaName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get boundsNorthWestLat => $composableBuilder(
+      column: $table.boundsNorthWestLat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get boundsNorthWestLng => $composableBuilder(
+      column: $table.boundsNorthWestLng,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get boundsSouthEastLat => $composableBuilder(
+      column: $table.boundsSouthEastLat,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get boundsSouthEastLng => $composableBuilder(
+      column: $table.boundsSouthEastLng,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get centerLat => $composableBuilder(
+      column: $table.centerLat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get centerLng => $composableBuilder(
+      column: $table.centerLng, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get municipalityId => $composableBuilder(
+      column: $table.municipalityId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => ColumnFilters(column));
@@ -4941,6 +5437,41 @@ class $$DownloadsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get areaName => $composableBuilder(
+      column: $table.areaName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get boundsNorthWestLat => $composableBuilder(
+      column: $table.boundsNorthWestLat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get boundsNorthWestLng => $composableBuilder(
+      column: $table.boundsNorthWestLng,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get boundsSouthEastLat => $composableBuilder(
+      column: $table.boundsSouthEastLat,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get boundsSouthEastLng => $composableBuilder(
+      column: $table.boundsSouthEastLng,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get centerLat => $composableBuilder(
+      column: $table.centerLat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get centerLng => $composableBuilder(
+      column: $table.centerLng, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get municipalityId => $composableBuilder(
+      column: $table.municipalityId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get email => $composableBuilder(
+      column: $table.email, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => ColumnOrderings(column));
 }
@@ -4956,6 +5487,36 @@ class $$DownloadsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get areaName =>
+      $composableBuilder(column: $table.areaName, builder: (column) => column);
+
+  GeneratedColumn<double> get boundsNorthWestLat => $composableBuilder(
+      column: $table.boundsNorthWestLat, builder: (column) => column);
+
+  GeneratedColumn<double> get boundsNorthWestLng => $composableBuilder(
+      column: $table.boundsNorthWestLng, builder: (column) => column);
+
+  GeneratedColumn<double> get boundsSouthEastLat => $composableBuilder(
+      column: $table.boundsSouthEastLat, builder: (column) => column);
+
+  GeneratedColumn<double> get boundsSouthEastLng => $composableBuilder(
+      column: $table.boundsSouthEastLng, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLat =>
+      $composableBuilder(column: $table.centerLat, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLng =>
+      $composableBuilder(column: $table.centerLng, builder: (column) => column);
+
+  GeneratedColumn<int> get municipalityId => $composableBuilder(
+      column: $table.municipalityId, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<int> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => column);
@@ -5073,18 +5634,58 @@ class $$DownloadsTableTableManager extends RootTableManager<
               $$DownloadsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            Value<String> areaName = const Value.absent(),
+            Value<double?> boundsNorthWestLat = const Value.absent(),
+            Value<double?> boundsNorthWestLng = const Value.absent(),
+            Value<double?> boundsSouthEastLat = const Value.absent(),
+            Value<double?> boundsSouthEastLng = const Value.absent(),
+            Value<double?> centerLat = const Value.absent(),
+            Value<double?> centerLng = const Value.absent(),
+            Value<int> municipalityId = const Value.absent(),
+            Value<String> email = const Value.absent(),
+            Value<int> userId = const Value.absent(),
             Value<DateTime> createdDate = const Value.absent(),
           }) =>
               DownloadsCompanion(
             id: id,
+            areaName: areaName,
+            boundsNorthWestLat: boundsNorthWestLat,
+            boundsNorthWestLng: boundsNorthWestLng,
+            boundsSouthEastLat: boundsSouthEastLat,
+            boundsSouthEastLng: boundsSouthEastLng,
+            centerLat: centerLat,
+            centerLng: centerLng,
+            municipalityId: municipalityId,
+            email: email,
+            userId: userId,
             createdDate: createdDate,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            required String areaName,
+            Value<double?> boundsNorthWestLat = const Value.absent(),
+            Value<double?> boundsNorthWestLng = const Value.absent(),
+            Value<double?> boundsSouthEastLat = const Value.absent(),
+            Value<double?> boundsSouthEastLng = const Value.absent(),
+            Value<double?> centerLat = const Value.absent(),
+            Value<double?> centerLng = const Value.absent(),
+            required int municipalityId,
+            required String email,
+            required int userId,
             Value<DateTime> createdDate = const Value.absent(),
           }) =>
               DownloadsCompanion.insert(
             id: id,
+            areaName: areaName,
+            boundsNorthWestLat: boundsNorthWestLat,
+            boundsNorthWestLng: boundsNorthWestLng,
+            boundsSouthEastLat: boundsSouthEastLat,
+            boundsSouthEastLng: boundsSouthEastLng,
+            centerLat: centerLat,
+            centerLng: centerLng,
+            municipalityId: municipalityId,
+            email: email,
+            userId: userId,
             createdDate: createdDate,
           ),
           withReferenceMapper: (p0) => p0

@@ -18,7 +18,7 @@ class DownloadRepository implements IDownloadRepository {
   }
 
   @override
-  Future<int> insertDownload() async {
-    return await _dao.downloadDao.insertDownload();
+  Future<int> insertDownload(DownloadsCompanion download) async {
+    return await _dao.downloadDao.insertDownload(download);
   }
 }

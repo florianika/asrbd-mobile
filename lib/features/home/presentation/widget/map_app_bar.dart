@@ -1,7 +1,5 @@
 import 'package:asrdb/core/field_work_status_cubit.dart';
-import 'package:asrdb/core/widgets/animated_burger_menu.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
@@ -44,7 +42,7 @@ class _MapAppBarState extends State<MapAppBar> {
             listener: (context, state) {},
             builder: (context, state) {
               return Text(
-                'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}, ${state.activeSessionId}, ${state.municipalityId}',
+                'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}, ${state.download?.id}, ${state.download?.municipalityId}',
                 style: TextStyle(
                     fontSize: 12,
                     color: state.isOffline ? Colors.red : Colors.green),
@@ -53,8 +51,6 @@ class _MapAppBarState extends State<MapAppBar> {
           ),
           actions: [
             Badge(
-              // isLabelVisible: hasStatusUpdate,
-              // label: const Text('1'),
               child: IconButton(
                 icon: Icon(
                   fieldWorkStatus.inError
@@ -70,9 +66,6 @@ class _MapAppBarState extends State<MapAppBar> {
                           : Colors.red,
                 ),
                 onPressed: () {
-                  // setState(() {
-                  //   _showBadge = false;
-                  // });
                   _showFieldWorkStatusModal(context, fieldWorkStatus);
                 },
               ),
@@ -150,7 +143,6 @@ class _MapAppBarState extends State<MapAppBar> {
                     : fieldWorkStatus.isFieldworkTime
                         ? Colors.green
                         : Colors.red,
-                //fieldWorkStatus.isFieldworkTime ? Colors.green : Colors.red,
               ),
               const SizedBox(width: 8),
               Text(
