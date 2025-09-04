@@ -55,7 +55,7 @@ class _ViewMapState extends State<ViewMap> {
   Map<String, dynamic>? entranceData;
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
-  String attributeLegend = 'quality';
+  String attributeLegend = 'review';
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   bool isLoading = false;
   LatLngBounds? visibleBounds;
@@ -447,7 +447,7 @@ class _ViewMapState extends State<ViewMap> {
                         right: 20,
                         child: CombinedLegendWidget(
                           buildingLegends: buildingLegends,
-                          initialBuildingAttribute: 'quality',
+                          initialBuildingAttribute: attributeLegend,
                           entranceLegends: entranceLegends,
                           onChange: onLegendChangeAttribute,
                         ),
