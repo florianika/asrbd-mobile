@@ -292,8 +292,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
               initialCenter: state.isOffline
                   ? (LatLng(
-                      state.download?.centerLat ?? 41.3275, 
-                      state.download?.centerLng ?? 19.8189))
+                    state.download!.centerLat!, state.download!.centerLng!))
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
