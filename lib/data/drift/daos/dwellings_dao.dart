@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/drift/tables/dwellings.dart' show Dwellings;
 import 'package:drift/drift.dart';
@@ -22,8 +23,40 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Insert or update a single dwelling
-  Future<void> insertDwelling(DwellingsCompanion dwelling) async {
-    await into(dwellings).insertOnConflictUpdate(dwelling);
+  Future<String> insertDwelling(DwellingsCompanion dwelling) async {
+    final updatedCompanion = dwelling.copyWith(
+      recordStatus: Value(RecordStatus.added),
+    );
+    await into(dwellings).insertOnConflictUpdate(updatedCompanion);
+    return dwelling.globalId.value;
+  }
+
+  Future<int> updateDwelling(DwellingsCompanion dwelling) async {
+    assert(dwelling.globalId.present, 'globalId must be provided for update');
+
+    // 1. Get the current record from DB
+    final current = await (select(dwellings)
+          ..where((tbl) => tbl.globalId.equals(dwelling.globalId.value)))
+        .getSingleOrNull();
+
+    if (current == null) {
+      throw Exception('dwelling not found: ${dwelling.globalId.value}');
+    }
+
+    // 2. Determine new status
+    final statusToUpdate = (current.recordStatus == RecordStatus.added)
+        ? RecordStatus.added
+        : RecordStatus.updated;
+
+    // 3. Build a new companion including the conditional status
+    final updatedCompanion = dwelling.copyWith(
+      recordStatus: Value(statusToUpdate),
+    );
+
+    // 4. Execute the update
+    return (update(dwellings)
+          ..where((tbl) => tbl.globalId.equals(dwelling.globalId.value)))
+        .write(updatedCompanion);
   }
 
   // Bulk insert or update dwellings

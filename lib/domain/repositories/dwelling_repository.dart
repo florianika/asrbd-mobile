@@ -12,6 +12,8 @@ abstract class IDwellingRepository {
   Future<void> deleteDwellings();
   Future<Dwelling> getDwellingDetailsByObjectId(int objectId);
 
+  Future<void> updateDwellingOffline(DwellingsCompanion dwelling);
+
   Future<void> updateDwellingDwlEntGlobalID({
     required String globalId,
     required String newDwlEntGlobalID,

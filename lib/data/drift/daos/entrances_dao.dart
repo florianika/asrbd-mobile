@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/drift/tables/entrances.dart';
 import 'package:drift/drift.dart';
@@ -18,8 +19,16 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Insert or update a single entrance
-  Future<void> insertEntrance(EntrancesCompanion entrance) async {
-    await into(entrances).insertOnConflictUpdate(entrance);
+  // Future<void> insertEntrance(EntrancesCompanion entrance) async {
+  //   await into(entrances).insertOnConflictUpdate(entrance);
+  // }
+
+  Future<String> insertEntrance(EntrancesCompanion entrance) async {
+    final updatedCompanion = entrance.copyWith(
+      recordStatus: Value(RecordStatus.added),
+    );
+    await into(entrances).insertOnConflictUpdate(updatedCompanion);
+    return entrance.globalId.value;
   }
 
   Future<Entrance?> getEntranceById(String globalId) {
@@ -38,6 +47,34 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
   Future<void> deleteEntrance(String globalId) async {
     await (delete(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
         .go();
+  }
+
+  Future<int> updateEntrance(EntrancesCompanion entrance) async {
+    assert(entrance.globalId.present, 'globalId must be provided for update');
+
+    // 1. Get the current record from DB
+    final current = await (select(entrances)
+          ..where((tbl) => tbl.globalId.equals(entrance.globalId.value)))
+        .getSingleOrNull();
+
+    if (current == null) {
+      throw Exception('entrance not found: ${entrance.globalId.value}');
+    }
+
+    // 2. Determine new status
+    final statusToUpdate = (current.recordStatus == RecordStatus.added)
+        ? RecordStatus.added
+        : RecordStatus.updated;
+
+    // 3. Build a new companion including the conditional status
+    final updatedCompanion = entrance.copyWith(
+      recordStatus: Value(statusToUpdate),
+    );
+
+    // 4. Execute the update
+    return (update(entrances)
+          ..where((tbl) => tbl.globalId.equals(entrance.globalId.value)))
+        .write(updatedCompanion);
   }
 
   // Delete all entrances

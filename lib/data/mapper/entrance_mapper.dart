@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/dto/entrance_dto.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
@@ -36,9 +37,10 @@ extension EntranceDtoToDrift on EntranceDto {
 var uuid = const Uuid();
 
 extension EntranceEntityToDrift on EntranceEntity {
-  EntrancesCompanion toDriftEntrance(int downloadId) {
+  EntrancesCompanion toDriftEntrance(
+      {int downloadId = 0, int recordStatus = RecordStatus.unmodified}) {
     return EntrancesCompanion(
-      globalId: globalId != null ? Value(globalId!) : Value(uuid.v4()),
+      globalId: Value(globalId ?? uuid.v4()),
       entBldGlobalId: entBldGlobalID != null
           ? Value(entBldGlobalID!)
           : Value('{00000000-0000-0000-0000-000000000000}'),
@@ -56,9 +58,9 @@ extension EntranceEntityToDrift on EntranceEntity {
       entDwellingRecs: Value.absentIfNull(entDwellingRecs),
       entDwellingExpec: Value.absentIfNull(entDwellingExpec),
       geometryType: Value.absentIfNull(geometryType),
-      coordinates: Value.absentIfNull(
-          jsonEncode([coordinates!.longitude, coordinates!.latitude])),
-      downloadId: Value.absentIfNull(downloadId),
+      coordinates:
+          Value(jsonEncode([coordinates!.longitude, coordinates!.latitude])),
+      downloadId: Value(downloadId),
     );
   }
 }
@@ -105,7 +107,7 @@ extension EntranceRowToEntity on Entrance {
 
 extension EntranceEntityListToDrift on List<EntranceEntity> {
   List<EntrancesCompanion> toDriftEntranceList(int downloadId) =>
-      map((e) => e.toDriftEntrance(downloadId)).toList();
+      map((e) => e.toDriftEntrance(downloadId: downloadId)).toList();
 }
 
 extension EntranceListToEntity on List<Entrance> {

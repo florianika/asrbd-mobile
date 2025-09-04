@@ -43,6 +43,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final loadingCubit = context.read<LoadingCubit>();
     final attributeCubit = context.read<AttributesCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
+    DownloadEntity? download = context.read<TileCubit>().download;
 
     loadingCubit.show();
 
@@ -54,8 +55,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final offlineMode = false;
 
     try {
-      SaveResult response =
-          await entranceUseCase.saveEntrance(entrance, offlineMode);
+      SaveResult response = await entranceUseCase.saveEntrance(
+          entrance, offlineMode, download?.id);
 
       widget.mapController.move(widget.mapController.camera.center,
           widget.mapController.camera.zoom + 0.3);

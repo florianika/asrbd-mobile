@@ -13,6 +13,8 @@ import 'package:latlong2/latlong.dart';
 import 'dart:ui';
 
 class DownloadedMapsViewer extends StatefulWidget {
+  const DownloadedMapsViewer({super.key});
+
   @override
   State<DownloadedMapsViewer> createState() => _DownloadedMapsViewerState();
 }
@@ -82,8 +84,17 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
       List<BuildingEntity> buildings =
           await buildingSyncUseCase.getBuildingsToSync(data.id);
-
       await buildingSyncUseCase.syncBuildings(buildings);
+
+      //TODO: steps below
+      //1. get entrances to sync
+      //2. sync entrances
+
+      //3. get dwellings to sync
+      //4. sync dwellings
+
+      //5. delete all unchanged buildings, entrances and dwellings
+      //6. fetch all data from esri again and insert locally to have latest version
 
       Navigator.of(context).pop(); // Close progress dialog
 

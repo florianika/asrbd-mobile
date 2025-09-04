@@ -2,6 +2,7 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/drift/app_database.dart';
@@ -55,21 +56,25 @@ class EntranceUseCases {
     return await _entranceRepository.addEntranceFeature(entrance);
   }
 
-  Future<String> _addEntranceFeatureOffline(EntranceEntity entrance) async {
-    final globalId =
-        await _entranceRepository.insertEntrance(entrance.toDriftEntrance(123));
+  Future<String> _addEntranceFeatureOffline(
+      EntranceEntity entrance, int downloadId) async {
+    final globalId = await _entranceRepository.insertEntrance(
+        entrance.toDriftEntrance(
+            downloadId: downloadId, recordStatus: RecordStatus.added));
 
-    return '';
+    return globalId;
   }
 
   Future<bool> _updateEntranceFeatureOnline(EntranceEntity entrance) async {
     return await _entranceRepository.updateEntranceFeature(entrance);
   }
 
-  Future<bool> _updateEntranceFeatureOffline(EntranceEntity entrance) async {
-    //return await _entranceRepository.updateEntranceFeature(entrance);
-    throw UnimplementedError(
-        'Offline update for entrance feature is not implemented yet');
+  Future<String> _updateEntranceFeatureOffline(
+      EntranceEntity entrance, int downloadId) async {
+    await _entranceRepository.updateEntranceOffline(entrance.toDriftEntrance(
+        downloadId: downloadId, recordStatus: RecordStatus.updated));
+
+    return entrance.globalId ?? '';
   }
 
   Future<bool> deleteEntranceFeature(String objectId) async {
@@ -77,21 +82,22 @@ class EntranceUseCases {
   }
 
   Future<SaveResult> saveEntrance(
-      EntranceEntity entrance, bool offlineMode) async {
+      EntranceEntity entrance, bool isOffline, int? downloadId) async {
     entrance.entPointStatus = DefaultData.fieldData;
     bool isNewEntrance = entrance.globalId == null;
 
     if (isNewEntrance) {
-      String globalId = await _createNewEntrance(entrance, offlineMode);
+      String globalId =
+          await _createNewEntrance(entrance, isOffline, downloadId);
       return SaveResult(true, Keys.successAddEntrance, globalId);
     } else {
-      await _updateExistingEntrance(entrance, offlineMode);
+      await _updateExistingEntrance(entrance, isOffline, downloadId);
       return SaveResult(true, Keys.successUpdateEntrance, entrance.globalId);
     }
   }
 
   Future<String> _createNewEntrance(
-      EntranceEntity entrance, bool offlineMode) async {
+      EntranceEntity entrance, bool isOffline, int? downloadId) async {
     final storageRepository = sl<StorageRepository>();
     final entranceUseCases = sl<EntranceUseCases>();
     final userService = sl<UserService>();
@@ -106,36 +112,27 @@ class EntranceUseCases {
     entrance.entLatitude = entrance.coordinates?.latitude;
     entrance.entLongitude = entrance.coordinates?.longitude;
 
-    if (!offlineMode) {
+    if (!isOffline) {
       return await entranceUseCases._addEntranceFeatureOnline(entrance);
-      // await outputLogsCubit.checkAutomatic(
-      //     attributes[EntranceFields.entBldGlobalID]
-      //         .toString()
-      //         .replaceAll('{', '')
-      //         .replaceAll('}', ''));
     } else {
-      return await entranceUseCases._addEntranceFeatureOffline(entrance);
+      return await entranceUseCases._addEntranceFeatureOffline(
+          entrance, downloadId!);
     }
   }
 
   Future<void> _updateExistingEntrance(
-      EntranceEntity entrance, bool offlineMode) async {
+      EntranceEntity entrance, bool isOffline, int? downloadId) async {
     final entranceUseCases = sl<EntranceUseCases>();
     final userService = sl<UserService>();
 
     entrance.externalEditor = '{${userService.userInfo?.nameId}}';
     entrance.externalEditorDate = DateTime.now();
 
-    if (!offlineMode) {
+    if (!isOffline) {
       await entranceUseCases._updateEntranceFeatureOnline(entrance);
-
-      // await outputLogsCubit.checkAutomatic(
-      //     attributes[EntranceFields.entBldGlobalID]
-      //         .toString()
-      //         .replaceAll('{', '')
-      //         .replaceAll('}', ''));
     } else {
-      await entranceUseCases._updateEntranceFeatureOffline(entrance);
+      await entranceUseCases._updateEntranceFeatureOffline(
+          entrance, downloadId!);
     }
   }
 }

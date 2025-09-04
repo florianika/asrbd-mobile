@@ -13,6 +13,8 @@ class Dwellings extends Table {
   TextColumn get globalId =>
       text().named('global_id').withLength(min: 1, max: 38)();
 
+  IntColumn get recordStatus => integer().named('record_status')();
+
   TextColumn get dwlEntGlobalId => text()
       .named('dwl_ent_global_id')
       .withLength(min: 1, max: 38)

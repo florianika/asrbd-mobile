@@ -111,10 +111,10 @@ class _ViewMapState extends State<ViewMap> {
         await _saveBuilding(building, download);
       } else if (attributes['GeometryType'] == 'Point') {
         final entrance = EntranceEntity.fromMap(attributes);
-        await _saveEntrance(entrance);
+        await _saveEntrance(entrance, download);
       } else if (attributes['GeometryType'] == null) {
         final dwelling = DwellingEntity.fromMap(attributes);
-        await _saveDwelling(dwelling);
+        await _saveDwelling(dwelling, download);
       } else {
         NotifierService.showMessage(
           context,
@@ -133,23 +133,21 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> _saveDwelling(DwellingEntity dwelling) async {
+  Future<void> _saveDwelling(
+      DwellingEntity dwelling, DownloadEntity? download) async {
     final entranceUseCase = sl<DwellingUseCases>();
     final attributeCubit = sl<AttributesCubit>();
     final checkUseCase = sl<CheckUseCases>();
     final offlineMode = false;
 
     try {
-      // NotifierService.showMessage(
-      //   context,
-      //   message: attributeCubit.currentEntranceGlobalId.toString(),
-      //   type: MessageType.info,
-      // );
       dwelling.dwlEntGlobalID ??= attributeCubit.currentEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,
         offlineMode,
+        download?.id,
       );
+
       if (mounted) {
         await checkUseCase.checkAutomatic(attributeCubit
             .currentEntrance!.entBldGlobalID
@@ -174,17 +172,20 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> _saveEntrance(EntranceEntity entrance) async {
+  Future<void> _saveEntrance(
+      EntranceEntity entrance, DownloadEntity? download) async {
     final entranceUseCase = sl<EntranceUseCases>();
     final checkUseCase = sl<CheckUseCases>();
-    final offlineMode = false;
+    bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
       SaveResult response =
-          await entranceUseCase.saveEntrance(entrance, offlineMode);
+          await entranceUseCase.saveEntrance(entrance, isOffline, download?.id);
 
-      await checkUseCase
-          .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
+      if (!isOffline) {
+        await checkUseCase
+            .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
+      }
 
       if (mounted) {
         NotifierService.showMessage(

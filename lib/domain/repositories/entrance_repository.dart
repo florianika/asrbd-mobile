@@ -14,6 +14,8 @@ abstract class IEntranceRepository {
 
   Future<void> deleteEntrances();
 
+  Future<void> updateEntranceOffline(EntrancesCompanion entrance);
+
   Future<void> updateEntranceEntBldGlobalID({
     required String globalId,
     required String newEntBldGlobalID,

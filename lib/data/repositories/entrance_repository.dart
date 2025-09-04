@@ -36,6 +36,10 @@ class EntranceRepository implements IEntranceRepository {
   }
 
   @override
+  Future<void> updateEntranceOffline(EntrancesCompanion entrance) =>
+      _dao.entranceDao.updateEntrance(entrance);
+
+  @override
   Future<void> deleteEntrance(String globalId) async {
     await _dao.entranceDao.deleteEntrance(globalId);
   }
@@ -56,8 +60,8 @@ class EntranceRepository implements IEntranceRepository {
   }
 
   @override
-  Future<void> insertEntrance(EntrancesCompanion entrance) async {
-    await _dao.entranceDao.insertEntrance(entrance);
+  Future<String> insertEntrance(EntrancesCompanion entrance) async {
+    return await _dao.entranceDao.insertEntrance(entrance);
   }
 
   @override
