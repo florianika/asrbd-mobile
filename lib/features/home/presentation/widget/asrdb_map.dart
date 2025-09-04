@@ -292,7 +292,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
               initialCenter: state.isOffline
                   ? (LatLng(
-                      state.download!.centerLat!, state.download!.centerLng!))
+                    state.download!.centerLat!, state.download!.centerLng!))
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
@@ -303,10 +303,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     widget.mapController.camera.visibleBounds,
                     AppConfig.buildingMinZoom,
                     state.isOffline
-                        ? state.download!.municipalityId!
+                        ? (state.download?.municipalityId ?? 0)
                         : userService.userInfo!.municipality,
                     state.isOffline,
-                    state.download?.id!),
+                    state.download?.id),
                 visibleBounds = widget.mapController.camera.visibleBounds,
               },
               onMapEvent: (event) {
@@ -317,10 +317,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     camera,
                     false, // hasGesture = false, since user stopped
                     state.isOffline
-                        ? state.download!.municipalityId!
+                        ? (state.download?.municipalityId ?? 0)
                         : userService.userInfo!.municipality,
                     state.isOffline,
-                    state.download?.id!,
+                    state.download?.id,
                   );
                 }
               },

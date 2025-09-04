@@ -70,53 +70,65 @@ class _MapAppBarState extends State<MapAppBar> {
                 },
               ),
             ),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.layers, size: 25),
-              onSelected: (String result) {
-                // Handle basemap selection
+            BlocBuilder<TileCubit, TileState>(
+              builder: (context, tileState) {
+               if (tileState.isOffline) {
+                  return const SizedBox.shrink();
+                }
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.layers, size: 25),
+                      onSelected: (String result) {
+                        // Handle basemap selection
+                      },
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        PopupMenuItem<String>(
+                          value: 'terrain',
+                          child: Row(
+                            children: [
+                              Icon(Icons.terrain, color: Colors.grey[600]),
+                              const SizedBox(width: 12),
+                              Text(AppLocalizations.of(context)
+                                  .translate(Keys.basemapTerrain)),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'satellite',
+                          child: Row(
+                            children: [
+                              Icon(Icons.satellite, color: Colors.grey[600]),
+                              const SizedBox(width: 12),
+                              Text(AppLocalizations.of(context)
+                                  .translate(Keys.basemapSatellite)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.download, size: 25),
+                      onSelected: (String result) =>
+                          Navigator.pushNamed(context, RouteManager.downloadMapRoute),
+                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                        PopupMenuItem<String>(
+                          value: 'download',
+                          child: Row(
+                            children: [
+                              Icon(Icons.download, color: Colors.grey[600]),
+                              const SizedBox(width: 12),
+                              Text(AppLocalizations.of(context)
+                                  .translate(Keys.download)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
               },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'terrain',
-                  child: Row(
-                    children: [
-                      Icon(Icons.terrain, color: Colors.grey[600]),
-                      const SizedBox(width: 12),
-                      Text(AppLocalizations.of(context)
-                          .translate(Keys.basemapTerrain)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'satellite',
-                  child: Row(
-                    children: [
-                      Icon(Icons.satellite, color: Colors.grey[600]),
-                      const SizedBox(width: 12),
-                      Text(AppLocalizations.of(context)
-                          .translate(Keys.basemapSatellite)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            PopupMenuButton<String>(
-              icon: const Icon(Icons.download, size: 25),
-              onSelected: (String result) =>
-                  Navigator.pushNamed(context, RouteManager.downloadMapRoute),
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'download',
-                  child: Row(
-                    children: [
-                      Icon(Icons.download, color: Colors.grey[600]),
-                      const SizedBox(width: 12),
-                      Text(AppLocalizations.of(context)
-                          .translate(Keys.download)),
-                    ],
-                  ),
-                ),
-              ],
             ),
           ],
         );
