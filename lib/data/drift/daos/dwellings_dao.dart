@@ -31,6 +31,15 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
     return dwelling.globalId.value;
   }
 
+  Future<int> markAsUnmodified(String globalId) async {
+    return (update(dwellings)..where((tbl) => tbl.globalId.equals(globalId)))
+        .write(
+      DwellingsCompanion(
+        recordStatus: Value(RecordStatus.unmodified),
+      ),
+    );
+  }
+
   Future<int> updateDwelling(DwellingsCompanion dwelling) async {
     assert(dwelling.globalId.present, 'globalId must be provided for update');
 
@@ -79,10 +88,11 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
 
   // Update DwlEntGlobalID by GlobalID
   Future<void> updateDwellingDwlEntGlobalID({
-    required String globalId,
+    required String oldDwlEntGlobalID,
     required String newDwlEntGlobalID,
   }) async {
-    await (update(dwellings)..where((tbl) => tbl.globalId.equals(globalId)))
+    await (update(dwellings)
+          ..where((tbl) => tbl.dwlEntGlobalId.equals(oldDwlEntGlobalID)))
         .write(
       DwellingsCompanion(
         dwlEntGlobalId: Value(newDwlEntGlobalID),

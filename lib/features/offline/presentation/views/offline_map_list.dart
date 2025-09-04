@@ -2,8 +2,9 @@ import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/offline/domain/building_sync_usecases.dart';
+import 'package:asrdb/features/offline/domain/sync_usecases.dart';
 import 'package:asrdb/main.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
@@ -80,15 +81,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     );
 
     try {
-      final buildingSyncUseCase = sl<BuildingSyncUseCases>();
+      final syncUseCase = sl<SyncUseCases>();
 
       List<BuildingEntity> buildings =
-          await buildingSyncUseCase.getBuildingsToSync(data.id);
-      await buildingSyncUseCase.syncBuildings(buildings);
+          await syncUseCase.getBuildingsToSync(data.id);
+      await syncUseCase.syncBuildings(buildings);
+
+      List<EntranceEntity> entrances =
+          await syncUseCase.getEntrancesToSync(data.id);
+
+      await syncUseCase.syncEntrances(entrances);
 
       //TODO: steps below
-      //1. get entrances to sync
-      //2. sync entrances
 
       //3. get dwellings to sync
       //4. sync dwellings

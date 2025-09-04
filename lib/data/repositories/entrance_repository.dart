@@ -82,4 +82,13 @@ class EntranceRepository implements IEntranceRepository {
     await _dao.entranceDao
         .updateEntranceGlobalID(id: id, newGlobalId: newGlobalId);
   }
+
+  @override
+  Future<List<Entrance>> getUnsyncedEntrances(int downloadId) =>
+      _dao.entranceDao.getUnsyncedEntrances(downloadId);
+
+  @override
+  Future<void> markAsUnchanged(String globalId) async {
+    await _dao.entranceDao.markAsUnmodified(globalId);
+  }
 }

@@ -84,8 +84,7 @@ class BuildingRepository implements IBuildingRepository {
   }
 
   @override
-  Future<void> markAsUnchanged(String globalId) {
-    // TODO: implement markAsUnchanged
-    throw UnimplementedError();
+  Future<void> markAsUnchanged(String globalId) async {
+    await _dao.buildingDao.markAsUnmodified(globalId);
   }
 }

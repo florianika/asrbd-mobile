@@ -18,6 +18,21 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
+  Future<List<Entrance>> getUnsyncedEntrances(int downloadId) {
+    return (select(entrances)
+          ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
+        .get();
+  }
+
+  Future<int> markAsUnmodified(String globalId) async {
+    return (update(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+        .write(
+      EntrancesCompanion(
+        recordStatus: Value(RecordStatus.unmodified),
+      ),
+    );
+  }
+
   // Insert or update a single entrance
   // Future<void> insertEntrance(EntrancesCompanion entrance) async {
   //   await into(entrances).insertOnConflictUpdate(entrance);

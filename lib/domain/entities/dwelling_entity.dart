@@ -1,8 +1,11 @@
+import 'package:asrdb/core/models/record_status.dart';
+
 class DwellingEntity {
   final int objectId;
   final int? featureId;
   final String? geometryType;
   final String? globalId;
+  final int? recordStatus;
   String? dwlEntGlobalID;
   final String? dwlCensus2023;
   DateTime? externalCreatorDate;
@@ -38,6 +41,7 @@ class DwellingEntity {
     this.globalId,
     this.dwlEntGlobalID = '{00000000-0000-0000-0000-000000000000}',
     this.dwlCensus2023 = '99999999999999999',
+    this.recordStatus = RecordStatus.unmodified,
     this.externalCreatorDate,
     this.externalEditorDate,
     this.dwlAddressID,

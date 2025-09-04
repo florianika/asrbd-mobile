@@ -15,6 +15,7 @@ import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
+import 'package:asrdb/data/repositories/dwelling_repository.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
@@ -36,7 +37,7 @@ import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
-import 'package:asrdb/features/offline/domain/building_sync_usecases.dart';
+import 'package:asrdb/features/offline/domain/sync_usecases.dart';
 import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -140,8 +141,9 @@ void main() async {
   initOutputLogsModule(sl);
   initMunicipalityModule(sl);
 
-  sl.registerSingleton<BuildingSyncUseCases>(
-    BuildingSyncUseCases(sl<BuildingRepository>(), sl<EntranceRepository>()),
+  sl.registerSingleton<SyncUseCases>(
+    SyncUseCases(sl<BuildingRepository>(), sl<EntranceRepository>(),
+        sl<DwellingRepository>()),
   );
 
   runApp(const MyApp());

@@ -6,6 +6,8 @@ abstract class IEntranceRepository {
 
   Future<void> insertEntrance(EntrancesCompanion entrance);
 
+  Future<List<Entrance>> getUnsyncedEntrances(int downloadId);
+
   Future<void> insertEntrances(List<EntrancesCompanion> entranceList);
 
   Future<void> deleteEntrance(String globalId);
@@ -13,6 +15,8 @@ abstract class IEntranceRepository {
   Future<Entrance?> getEntranceById(String globalId);
 
   Future<void> deleteEntrances();
+
+  Future<void> markAsUnchanged(String globalId);
 
   Future<void> updateEntranceOffline(EntrancesCompanion entrance);
 

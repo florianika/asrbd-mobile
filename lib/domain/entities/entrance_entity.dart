@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:latlong2/latlong.dart';
 
 class EntranceEntity {
@@ -7,6 +8,7 @@ class EntranceEntity {
   LatLng? coordinates;
 
   final String? globalId;
+  final int? recordStatus;
   final String? entCensus2023;
   DateTime? externalCreatorDate;
   DateTime? externalEditorDate;
@@ -36,6 +38,7 @@ class EntranceEntity {
     this.geometryType = "Point",
     this.coordinates,
     this.globalId,
+    this.recordStatus = RecordStatus.unmodified,
     this.entCensus2023 = '9999999999999',
     this.externalCreatorDate,
     this.externalEditorDate,
@@ -194,8 +197,6 @@ class EntranceEntity {
   }
 }
 
-
-
 extension EntranceEntityMapper on EntranceEntity {
   Map<String, dynamic> toMap() {
     return {
@@ -229,7 +230,5 @@ extension EntranceEntityMapper on EntranceEntity {
       'external_creator': externalCreator,
       'external_editor': externalEditor,
     };
-  }  
-  
-  
+  }
 }
