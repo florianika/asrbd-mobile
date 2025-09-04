@@ -4,7 +4,9 @@ import 'package:drift/drift.dart';
 class Buildings extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get objectId => integer().named('object_id')();
+  IntColumn get objectId => integer().named('object_id').nullable()();
+
+  IntColumn get recordStatus => integer().named('record_status')();
 
   IntColumn get downloadId =>
       integer().named('download_id').references(Downloads, #id)();

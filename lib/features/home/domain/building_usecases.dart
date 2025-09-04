@@ -1,6 +1,7 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
@@ -41,7 +42,7 @@ class BuildingUseCases {
     }
 
     if (!isOffline) {
-      return await _buildingRepository.getBuildings(
+      return await _buildingRepository.getBuildingsOnline(
         bounds,
         zoom,
         municipalityId,
@@ -81,11 +82,13 @@ class BuildingUseCases {
     return globalId;
   }
 
-  Future<String> _addBuildingFeatureOffline(BuildingEntity building) async {
-    final globalId = await _buildingRepository
-        .insertBuilding(building.toDriftBuilding(downloadId: 123));
+  Future<String> _addBuildingFeatureOffline(
+      BuildingEntity building, int downloadId) async {
+    final globalId = await _buildingRepository.insertBuilding(
+        building.toDriftBuilding(
+            downloadId: downloadId, recordStatus: RecordStatus.added));
 
-    return '';
+    return globalId;
   }
 
   Future<String> updateBuildingFeature(BuildingEntity building) async {
@@ -94,6 +97,14 @@ class BuildingUseCases {
     await _buildingRepository.updateBuildingFeature(building);
     await _checkUseCases.checkAutomatic(
         building.globalId.toString().replaceAll('{', '').replaceAll('}', ''));
+    return building.globalId ?? '';
+  }
+
+  Future<String> _updateBuildingFeatureOffline(
+      BuildingEntity building, int downloadId) async {
+    await _buildingRepository.updateBuildingOffline(building.toDriftBuilding(
+        downloadId: downloadId, recordStatus: RecordStatus.updated));
+
     return building.globalId ?? '';
   }
 
@@ -163,25 +174,24 @@ class BuildingUseCases {
   }
 
   Future<SaveResult> saveBuilding(
-    BuildingEntity building,
-    bool offlineMode,
-  ) async {
+      BuildingEntity building, bool offlineMode, int? downloadId) async {
     bool isNewBuilding = building.globalId == null;
     building.bldCentroidStatus = DefaultData.fieldData;
 
     await _setCentroidCoordinates(building);
 
     if (isNewBuilding) {
-      String globalId = await _createNewBuilding(building, offlineMode);
+      String globalId =
+          await _createNewBuilding(building, offlineMode, downloadId);
       return SaveResult(true, Keys.successAddBuilding, globalId);
     } else {
-      await _updateExistingBuilding(building);
+      await _updateExistingBuilding(building, offlineMode, downloadId);
       return SaveResult(true, Keys.successUpdateBuilding, building.globalId);
     }
   }
 
   Future<String> _createNewBuilding(
-      BuildingEntity building, bool offlineMode) async {
+      BuildingEntity building, bool offlineMode, int? downloadId) async {
     final buildingUseCase = sl<BuildingUseCases>();
     final userService = sl<UserService>();
 
@@ -192,16 +202,23 @@ class BuildingUseCases {
     if (!offlineMode) {
       return await buildingUseCase._addBuildingFeatureOnline(building);
     } else {
-      return await buildingUseCase._addBuildingFeatureOffline(building);
+      return await buildingUseCase._addBuildingFeatureOffline(
+          building, downloadId!);
     }
   }
 
-  Future<void> _updateExistingBuilding(BuildingEntity building) async {
+  Future<void> _updateExistingBuilding(
+      BuildingEntity building, bool offlineMode, int? downloadId) async {
     final buildingUseCase = sl<BuildingUseCases>();
     final userService = sl<UserService>();
     building.externalCreator = '{${userService.userInfo?.nameId}}';
     building.externalCreatorDate = DateTime.now();
 
-    await buildingUseCase.updateBuildingFeature(building);
+    if (!offlineMode) {
+      await buildingUseCase.updateBuildingFeature(building);
+    } else {
+      await buildingUseCase._updateBuildingFeatureOffline(
+          building, downloadId!);
+    }
   }
 }

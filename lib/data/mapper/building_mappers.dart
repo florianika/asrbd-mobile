@@ -1,5 +1,6 @@
 // lib/data/mappers/building_mappers.dart
 import 'dart:convert';
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
@@ -60,7 +61,8 @@ var uuid = Uuid();
 
 /// Convert BuildingEntity → Drift row
 extension BuildingEntityToDrift on BuildingEntity {
-  BuildingsCompanion toDriftBuilding({int downloadId = 0}) {
+  BuildingsCompanion toDriftBuilding(
+      {int downloadId = 0, int recordStatus = RecordStatus.added}) {
     final rawCoords = coordinates
         .map((ring) => ring.map((p) => [p.longitude, p.latitude]).toList())
         .toList();
@@ -68,49 +70,50 @@ extension BuildingEntityToDrift on BuildingEntity {
     return BuildingsCompanion(
       id: Value.absent(),
       downloadId: Value(downloadId),
-      objectId: Value(objectId),
-      geometryType: Value(geometryType),
+      recordStatus: Value(recordStatus),
+      objectId: Value.absentIfNull(objectId),
+      geometryType: Value.absentIfNull(geometryType),
       coordinates: Value(jsonEncode(rawCoords)),
-      shapeLength: Value(shapeLength),
-      shapeArea: Value(shapeArea),
-      globalId: Value(globalId ?? ''),
-      bldCensus2023: Value(bldCensus2023),
-      bldQuality: Value(bldQuality),
-      bldMunicipality: Value(bldMunicipality),
-      bldEnumArea: Value(bldEnumArea),
-      bldLatitude: Value(bldLatitude),
-      bldLongitude: Value(bldLongitude),
-      bldCadastralZone: Value(bldCadastralZone),
-      bldProperty: Value(bldProperty),
-      bldPermitNumber: Value(bldPermitNumber),
-      bldPermitDate: Value(bldPermitDate),
-      bldStatus: Value(bldStatus),
-      bldYearConstruction: Value(bldYearConstruction),
-      bldYearDemolition: Value(bldYearDemolition),
-      bldType: Value(bldType),
-      bldClass: Value(bldClass),
-      bldArea: Value(bldArea),
-      bldFloorsAbove: Value(bldFloorsAbove),
-      bldHeight: Value(bldHeight),
-      bldVolume: Value(bldVolume),
-      bldWasteWater: Value(bldWasteWater),
-      bldElectricity: Value(bldElectricity),
-      bldPipedGas: Value(bldPipedGas),
-      bldElevator: Value(bldElevator),
-      createdUser: Value(createdUser),
-      createdDate: Value(createdDate),
-      lastEditedUser: Value(lastEditedUser),
-      lastEditedDate: Value(lastEditedDate),
-      bldCentroidStatus: Value(bldCentroidStatus),
-      bldDwellingRecs: Value(bldDwellingRecs),
-      bldEntranceRecs: Value(bldEntranceRecs),
-      bldAddressID: Value(bldAddressID),
-      externalCreator: Value(externalCreator),
-      externalEditor: Value(externalEditor),
-      bldReview: Value(bldReview),
-      bldWaterSupply: Value(bldWaterSupply),
-      externalCreatorDate: Value(externalCreatorDate),
-      externalEditorDate: Value(externalEditorDate),
+      shapeLength: Value.absentIfNull(shapeLength),
+      shapeArea: Value.absentIfNull(shapeArea),
+      globalId: Value(globalId ?? uuid.v4()),
+      bldCensus2023: Value.absentIfNull(bldCensus2023),
+      bldQuality: Value.absentIfNull(bldQuality),
+      bldMunicipality: Value.absentIfNull(bldMunicipality),
+      bldEnumArea: Value.absentIfNull(bldEnumArea),
+      bldLatitude: Value.absentIfNull(bldLatitude),
+      bldLongitude: Value.absentIfNull(bldLongitude),
+      bldCadastralZone: Value.absentIfNull(bldCadastralZone),
+      bldProperty: Value.absentIfNull(bldProperty),
+      bldPermitNumber: Value.absentIfNull(bldPermitNumber),
+      bldPermitDate: Value.absentIfNull(bldPermitDate),
+      bldStatus: Value.absentIfNull(bldStatus),
+      bldYearConstruction: Value.absentIfNull(bldYearConstruction),
+      bldYearDemolition: Value.absentIfNull(bldYearDemolition),
+      bldType: Value.absentIfNull(bldType),
+      bldClass: Value.absentIfNull(bldClass),
+      bldArea: Value.absentIfNull(bldArea),
+      bldFloorsAbove: Value.absentIfNull(bldFloorsAbove),
+      bldHeight: Value.absentIfNull(bldHeight),
+      bldVolume: Value.absentIfNull(bldVolume),
+      bldWasteWater: Value.absentIfNull(bldWasteWater),
+      bldElectricity: Value.absentIfNull(bldElectricity),
+      bldPipedGas: Value.absentIfNull(bldPipedGas),
+      bldElevator: Value.absentIfNull(bldElevator),
+      createdUser: Value.absentIfNull(createdUser),
+      createdDate: Value.absentIfNull(createdDate),
+      lastEditedUser: Value.absentIfNull(lastEditedUser),
+      lastEditedDate: Value.absentIfNull(lastEditedDate),
+      bldCentroidStatus: Value.absentIfNull(bldCentroidStatus),
+      bldDwellingRecs: Value.absentIfNull(bldDwellingRecs),
+      bldEntranceRecs: Value.absentIfNull(bldEntranceRecs),
+      bldAddressID: Value.absentIfNull(bldAddressID),
+      externalCreator: Value.absentIfNull(externalCreator),
+      externalEditor: Value.absentIfNull(externalEditor),
+      bldReview: Value.absentIfNull(bldReview),
+      bldWaterSupply: Value.absentIfNull(bldWaterSupply),
+      externalCreatorDate: Value.absentIfNull(externalCreatorDate),
+      externalEditorDate: Value.absentIfNull(externalEditorDate),
     );
   }
 }
@@ -129,9 +132,10 @@ extension BuildingRowToEntity on Building {
     }).toList();
 
     return BuildingEntity(
-      objectId: objectId,
+      objectId: objectId ?? 0,
       geometryType: geometryType,
       coordinates: coordsDecoded,
+      recordStatus: recordStatus,
       shapeLength: shapeLength,
       shapeArea: shapeArea,
       globalId: globalId,

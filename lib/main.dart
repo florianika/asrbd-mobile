@@ -13,7 +13,9 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
+import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/building_module.dart';
 import 'package:asrdb/features/home/cubit/building_geometry_cubit.dart';
@@ -34,6 +36,7 @@ import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/features/offline/domain/building_sync_usecases.dart';
 import 'package:asrdb/features/offline/domain/download_usecases.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,10 +60,10 @@ final sl = GetIt.instance; // Service locator instance
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Preserve the splash screen while we initialize the app
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
-  
+
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore('mapStore').manage.create();
 
@@ -102,6 +105,7 @@ void main() async {
   sl.registerSingleton<SchemaService>(
     SchemaService(sl<SchemaApi>()),
   );
+
   sl.registerLazySingleton<NoteApi>(() => NoteApi());
   sl.registerSingleton<UserService>(UserService());
 
@@ -119,7 +123,7 @@ void main() async {
   // Initialize schemas immediately
   await sl<SchemaService>().initialize();
   sl.registerFactory<TileCubit>(() => TileCubit());
-  
+
   // Remove the splash screen after all initialization is complete
   FlutterNativeSplash.remove();
 
@@ -135,6 +139,10 @@ void main() async {
   initDwellingModule(sl);
   initOutputLogsModule(sl);
   initMunicipalityModule(sl);
+
+  sl.registerSingleton<BuildingSyncUseCases>(
+    BuildingSyncUseCases(sl<BuildingRepository>(), sl<EntranceRepository>()),
+  );
 
   runApp(const MyApp());
 }

@@ -1,7 +1,9 @@
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
+import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/features/offline/domain/building_sync_usecases.dart';
 import 'package:asrdb/main.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +56,57 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     Navigator.pushReplacementNamed(context, RouteManager.homeRoute);
   }
 
+  Future<void> _syncMap(int index) async {
+    final data = _downloadedData[index];
+
+    // Show sync in progress
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text('Synchronizing "${data.areaName}"...'),
+            ],
+          ),
+        );
+      },
+    );
+
+    try {
+      final buildingSyncUseCase = sl<BuildingSyncUseCases>();
+
+      List<BuildingEntity> buildings =
+          await buildingSyncUseCase.getBuildingsToSync(data.id);
+
+      await buildingSyncUseCase.syncBuildings(buildings);
+
+      Navigator.of(context).pop(); // Close progress dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Data "${buildings.length}" synchronized successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      _loadDownloadedData(); // Refresh the list
+    } catch (e) {
+      Navigator.of(context).pop(); // Close progress dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error synchronizing data: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Future<void> _deleteData(int index) async {
     final data = _downloadedData[index];
 
@@ -81,23 +134,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
     if (confirmed == true) {
       try {
-        // final Directory appDocDir = await getApplicationDocumentsDirectory();
-        // final String sessionPath = '${appDocDir.path}/offline_data/${data.id}';
-        // final Directory sessionDir = Directory(sessionPath);
-
-        // if (await sessionDir.exists()) {
-        //   await sessionDir.delete(recursive: true);
-        // }
-
-        // // TODO: Also remove data from local database if needed
-        // // This would require calling the repository methods to delete buildings, entrances, dwellings by sessionId
-
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('Data "${data.name}" deleted successfully'),
-        //     backgroundColor: Colors.green,
-        //   ),
-        // );
+        // TODO: Implement delete logic here
 
         _loadDownloadedData(); // Refresh the list
       } catch (e) {
@@ -113,6 +150,19 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  // Mock function to determine if there are pending items
+  bool _hasPendingItems(Download data) {
+    // TODO: Replace with actual logic to check for pending sync items
+    return data.id % 3 == 0; // Mock: every 3rd item has pending sync
+  }
+
+  // Mock function to get last sync date
+  DateTime? _getLastSyncDate(Download data) {
+    // TODO: Replace with actual logic to get last sync date
+    return data.createdDate
+        .subtract(Duration(hours: 2)); // Mock: 2 hours after download
   }
 
   @override
@@ -285,11 +335,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                               itemCount: _downloadedData.length,
                               itemBuilder: (context, index) {
                                 final data = _downloadedData[index];
+                                final hasPending = _hasPendingItems(data);
+                                final lastSync = _getLastSyncDate(data);
+
                                 return Container(
-                                  margin: EdgeInsets.only(bottom: 16),
+                                  margin: EdgeInsets.only(bottom: 12),
                                   decoration: BoxDecoration(
                                     color: Colors.white.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
                                       color: Colors.white.withOpacity(0.2),
                                       width: 1,
@@ -297,18 +350,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 10,
-                                        offset: Offset(0, 4),
+                                        blurRadius: 8,
+                                        offset: Offset(0, 2),
                                       ),
                                     ],
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(12),
                                     child: BackdropFilter(
                                       filter: ImageFilter.blur(
                                           sigmaX: 10, sigmaY: 10),
                                       child: Padding(
-                                        padding: EdgeInsets.all(20),
+                                        padding: EdgeInsets.all(16),
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -316,12 +369,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                             Row(
                                               children: [
                                                 Container(
-                                                  width: 80,
-                                                  height: 80,
+                                                  width: 60,
+                                                  height: 60,
                                                   decoration: BoxDecoration(
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            16),
+                                                            12),
                                                     gradient: LinearGradient(
                                                       begin: Alignment.topLeft,
                                                       end:
@@ -336,43 +389,16 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                     border: Border.all(
                                                       color: Colors.cyan
                                                           .withOpacity(0.5),
-                                                      width: 2,
+                                                      width: 1.5,
                                                     ),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.cyan
-                                                            .withOpacity(0.3),
-                                                        blurRadius: 15,
-                                                        offset: Offset(0, 5),
-                                                      ),
-                                                    ],
                                                   ),
-                                                  child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Icon(
-                                                        Icons.location_city,
-                                                        color: Colors.cyan[300],
-                                                        size: 32,
-                                                      ),
-                                                      SizedBox(height: 4),
-                                                      Text(
-                                                        'AREA',
-                                                        style: TextStyle(
-                                                          color:
-                                                              Colors.cyan[300],
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          letterSpacing: 1,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  child: Icon(
+                                                    Icons.location_city,
+                                                    color: Colors.cyan[300],
+                                                    size: 28,
                                                   ),
                                                 ),
-                                                SizedBox(width: 20),
+                                                SizedBox(width: 16),
                                                 Expanded(
                                                   child: Column(
                                                     crossAxisAlignment:
@@ -382,85 +408,15 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Text(
                                                         data.areaName,
                                                         style: TextStyle(
-                                                          fontSize: 20,
+                                                          fontSize: 18,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           color: Colors.white,
-                                                          letterSpacing: 0.5,
+                                                          letterSpacing: 0.3,
                                                         ),
-                                                      ),
-                                                      SizedBox(height: 12),
-                                                      Row(
-                                                        children: [
-                                                          Container(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                              horizontal: 12,
-                                                              vertical: 6,
-                                                            ),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .orange
-                                                                  .withOpacity(
-                                                                      0.2),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          20),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .orange
-                                                                    .withOpacity(
-                                                                        0.4),
-                                                                width: 1,
-                                                              ),
-                                                            ),
-                                                            child: Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                Icon(
-                                                                  Icons
-                                                                      .business,
-                                                                  size: 14,
-                                                                  color: Colors
-                                                                          .orange[
-                                                                      300],
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: 10),
-                                                          Container(
-                                                            padding: EdgeInsets
-                                                                .symmetric(
-                                                              horizontal: 12,
-                                                              vertical: 6,
-                                                            ),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .green
-                                                                  .withOpacity(
-                                                                      0.2),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          20),
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .green
-                                                                    .withOpacity(
-                                                                        0.4),
-                                                                width: 1,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ],
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                     ],
                                                   ),
@@ -471,7 +427,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                         .withOpacity(0.1),
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            12),
+                                                            8),
                                                     border: Border.all(
                                                       color: Colors.white
                                                           .withOpacity(0.2),
@@ -486,11 +442,15 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       } else if (value ==
                                                           'apply') {
                                                         _applyMap(index);
+                                                      } else if (value ==
+                                                          'sync') {
+                                                        _syncMap(index);
                                                       }
                                                     },
                                                     icon: Icon(
                                                       Icons.more_vert,
                                                       color: Colors.white,
+                                                      size: 20,
                                                     ),
                                                     itemBuilder: (BuildContext
                                                             context) =>
@@ -502,9 +462,24 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                           children: [
                                                             Icon(Icons.check,
                                                                 color: Colors
-                                                                    .green),
+                                                                    .green,
+                                                                size: 20),
                                                             SizedBox(width: 8),
                                                             Text('Apply Area'),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const PopupMenuItem<
+                                                          String>(
+                                                        value: 'sync',
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(Icons.sync,
+                                                                color:
+                                                                    Colors.blue,
+                                                                size: 20),
+                                                            SizedBox(width: 8),
+                                                            Text('Synchronize'),
                                                           ],
                                                         ),
                                                       ),
@@ -515,7 +490,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                           children: [
                                                             Icon(Icons.delete,
                                                                 color:
-                                                                    Colors.red),
+                                                                    Colors.red,
+                                                                size: 20),
                                                             SizedBox(width: 8),
                                                             Text('Delete'),
                                                           ],
@@ -526,7 +502,49 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 20),
+                                            if (hasPending) ...[
+                                              SizedBox(height: 8),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.orange
+                                                      .withOpacity(0.2),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: Colors.orange
+                                                        .withOpacity(0.5),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.sync_problem,
+                                                      size: 14,
+                                                      color: Colors.orange[300],
+                                                    ),
+                                                    SizedBox(width: 6),
+                                                    Text(
+                                                      'Has items pending synchronization',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            Colors.orange[300],
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                            SizedBox(height: 12),
                                             Container(
                                               height: 1,
                                               decoration: BoxDecoration(
@@ -534,13 +552,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                   colors: [
                                                     Colors.transparent,
                                                     Colors.white
-                                                        .withOpacity(0.3),
+                                                        .withOpacity(0.2),
                                                     Colors.transparent,
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                            SizedBox(height: 16),
+                                            SizedBox(height: 12),
                                             Row(
                                               children: [
                                                 Expanded(
@@ -552,32 +570,26 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                     true,
                                                   ),
                                                 ),
+                                                Expanded(
+                                                  child: _buildInfoItem(
+                                                    Icons.person,
+                                                    'User',
+                                                    data.email,
+                                                    true,
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  child: _buildInfoItem(
+                                                    Icons.sync,
+                                                    'Last Sync',
+                                                    lastSync != null
+                                                        ? _formatDate(lastSync)
+                                                        : 'Never',
+                                                    true,
+                                                  ),
+                                                ),
                                               ],
                                             ),
-                                            ...[
-                                              SizedBox(height: 12),
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: _buildInfoItem(
-                                                      Icons.person,
-                                                      'User',
-                                                      data.email,
-                                                      true,
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: _buildInfoItem(
-                                                      Icons.location_city,
-                                                      'Municipality',
-                                                      data.municipalityId
-                                                          .toString(),
-                                                      true,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
                                           ],
                                         ),
                                       ),
@@ -601,10 +613,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
       children: [
         Icon(
           icon,
-          size: isTablet ? 20 : 16,
+          size: isTablet ? 16 : 14,
           color: Colors.white.withOpacity(0.7),
         ),
-        SizedBox(width: 4),
+        SizedBox(width: 6),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,7 +624,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: isTablet ? 14 : 12,
+                  fontSize: isTablet ? 12 : 11,
                   color: Colors.white.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
                 ),
@@ -620,11 +632,11 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: isTablet ? 16 : 14,
+                  fontSize: isTablet ? 13 : 12,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),
-                maxLines: isTablet ? 2 : 1,
+                maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ],

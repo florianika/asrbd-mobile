@@ -277,7 +277,7 @@ class _OfflineMapState extends State<OfflineMap> {
     final userService = sl<UserService>();
 
     // Download buildings
-    var buildings = await buildingRepository.getBuildings(
+    var buildings = await buildingRepository.getBuildingsOnline(
       _downloadBounds!,
       AppConfig.minZoomDownload,
       userService.userInfo!.municipality,

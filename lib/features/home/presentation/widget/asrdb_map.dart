@@ -13,6 +13,7 @@ import 'package:asrdb/core/widgets/markers/buildings_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrances_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/core/widgets/markers/selected_building_marker.dart';
+import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
