@@ -6,6 +6,7 @@ import 'package:asrdb/core/api/street_api.dart';
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/services/database_service.dart';
+import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
@@ -98,9 +99,11 @@ void main() async {
   sl.registerLazySingleton<StorageRepository>(
       () => StorageRepository(sl<StorageService>()));
 
+  sl.registerLazySingleton<JsonFileService>(() => JsonFileService());
+
   // Register SchemaService as singleton
   sl.registerSingleton<SchemaService>(
-    SchemaService(sl<SchemaApi>()),
+    SchemaService(sl<JsonFileService>()),
   );
   sl.registerLazySingleton<NoteApi>(() => NoteApi());
   sl.registerSingleton<UserService>(UserService());
@@ -116,8 +119,8 @@ void main() async {
   sl.registerLazySingleton<DownloadUsecases>(
       () => DownloadUsecases(sl<DownloadRepository>()));
 
-  // Initialize schemas immediately
-  await sl<SchemaService>().initialize();
+
+  await sl<SchemaService>().initializeWithFallback();
   sl.registerFactory<TileCubit>(() => TileCubit());
   
   // Remove the splash screen after all initialization is complete

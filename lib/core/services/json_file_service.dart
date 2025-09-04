@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/api/dwelling_api.dart';
+import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/services/json_fetch_service.dart';
 
 class JsonFileService {
@@ -15,6 +16,7 @@ class JsonFileService {
       BuildingApi(),
       EntranceApi(),
       DwellingApi(),
+      SchemaApi(),
     );
   }
 
@@ -45,6 +47,22 @@ class JsonFileService {
     }
   }
 
+  Future<bool> areSchemaFilesExist() async {
+    try {
+      final jsonDir = await _getJsonDirectory();
+
+      final entranceSchemaFile = File('${jsonDir.path}/entrance_schema.json');
+      final buildingSchemaFile = File('${jsonDir.path}/building_schema.json');
+      final dwellingSchemaFile = File('${jsonDir.path}/dwelling_schema.json');
+
+      return await entranceSchemaFile.exists() &&
+          await buildingSchemaFile.exists() &&
+          await dwellingSchemaFile.exists();
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<void> saveJsonFiles() async {
     try {
       final jsonDir = await _getJsonDirectory();
@@ -58,6 +76,26 @@ class JsonFileService {
     } catch (e) {
       
     }
+  }
+
+  Future<void> saveSchemaFiles() async {
+    try {
+      final jsonDir = await _getJsonDirectory();
+      final entranceSchemaJson = await _jsonFetchService.getEntranceSchemaJson();
+      final buildingSchemaJson = await _jsonFetchService.getBuildingSchemaJson();
+      final dwellingSchemaJson = await _jsonFetchService.getDwellingSchemaJson();
+      await _saveJsonToFile('${jsonDir.path}/entrance_schema.json', entranceSchemaJson);
+      await _saveJsonToFile('${jsonDir.path}/building_schema.json', buildingSchemaJson);
+      await _saveJsonToFile('${jsonDir.path}/dwelling_schema.json', dwellingSchemaJson);
+    // ignore: empty_catches
+    } catch (e) {
+      
+    }
+  }
+
+  Future<void> saveAllFiles() async {
+    await saveJsonFiles();
+    await saveSchemaFiles();
   }
 
   Future<void> _saveJsonToFile(String filePath, String jsonString) async {
@@ -98,6 +136,18 @@ class JsonFileService {
 
   Future<String?> getDwellingJsonFromFile() async {
     return await readJsonFile('dwelling.json');
+  }
+
+  Future<String?> getEntranceSchemaJsonFromFile() async {
+    return await readJsonFile('entrance_schema.json');
+  }
+
+  Future<String?> getBuildingSchemaJsonFromFile() async {
+    return await readJsonFile('building_schema.json');
+  }
+
+  Future<String?> getDwellingSchemaJsonFromFile() async {
+    return await readJsonFile('dwelling_schema.json');
   }
 
 Future<List<FieldSchema>> getAttributes(String fileName) async {
@@ -142,6 +192,23 @@ Future<List<FieldSchema>> getAttributes(String fileName) async {
     }
   }
 
+  Future<void> deleteSchemaFiles() async {
+    try {
+      final jsonDir = await _getJsonDirectory();
+
+      final entranceSchemaFile = File('${jsonDir.path}/entrance_schema.json');
+      final buildingSchemaFile = File('${jsonDir.path}/building_schema.json');
+      final dwellingSchemaFile = File('${jsonDir.path}/dwelling_schema.json');
+
+      if (await entranceSchemaFile.exists()) await entranceSchemaFile.delete();
+      if (await buildingSchemaFile.exists()) await buildingSchemaFile.delete();
+      if (await dwellingSchemaFile.exists()) await dwellingSchemaFile.delete();
+       // ignore: empty_catches
+    } catch (e) {
+      
+    }
+  }
+
   Future<Map<String, String>> getJsonFilePaths() async {
     final jsonDir = await _getJsonDirectory();
 
@@ -149,6 +216,16 @@ Future<List<FieldSchema>> getAttributes(String fileName) async {
       'building': '${jsonDir.path}/building.json',
       'entrance': '${jsonDir.path}/entrance.json',
       'dwelling': '${jsonDir.path}/dwelling.json',
+    };
+  }
+
+  Future<Map<String, String>> getSchemaFilePaths() async {
+    final jsonDir = await _getJsonDirectory();
+
+    return {
+      'entrance_schema': '${jsonDir.path}/entrance_schema.json',
+      'building_schema': '${jsonDir.path}/building_schema.json',
+      'dwelling_schema': '${jsonDir.path}/dwelling_schema.json',
     };
   }
 }
