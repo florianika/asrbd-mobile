@@ -40,6 +40,7 @@ extension EntranceEntityToDrift on EntranceEntity {
   EntrancesCompanion toDriftEntrance(
       {int downloadId = 0, int recordStatus = RecordStatus.unmodified}) {
     return EntrancesCompanion(
+      recordStatus: Value(recordStatus),
       globalId: Value(globalId ?? uuid.v4()),
       entBldGlobalId: entBldGlobalID != null
           ? Value(entBldGlobalID!)

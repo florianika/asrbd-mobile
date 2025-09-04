@@ -39,8 +39,9 @@ var uuid = const Uuid();
 
 extension DwellingEntityToDrift on DwellingEntity {
   DwellingsCompanion toDriftDwelling(
-      {int downloadId = 0, int? recordStatus = RecordStatus.unmodified}) {
+      {int downloadId = 0, int recordStatus = RecordStatus.unmodified}) {
     return DwellingsCompanion(
+      recordStatus: Value(recordStatus),
       globalId: globalId != null ? Value(globalId!) : Value(uuid.v4()),
       dwlEntGlobalId: dwlEntGlobalID != null
           ? Value(dwlEntGlobalID!)
