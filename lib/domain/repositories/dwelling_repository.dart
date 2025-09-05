@@ -12,9 +12,14 @@ abstract class IDwellingRepository {
   Future<void> markAsUnchanged(String globalId);
 
   Future<void> deleteDwellings();
+
+  Future<int> deleteUnmodified(int downloadId);
+
   Future<Dwelling> getDwellingDetailsByObjectId(int objectId);
 
   Future<void> updateDwellingOffline(DwellingsCompanion dwelling);
+
+  Future<List<Dwelling>> getUnsyncedDwellings(int downloadId);
 
   Future<void> updateDwellingDwlEntGlobalID({
     required String oldDwlEntGlobalID,
@@ -22,7 +27,7 @@ abstract class IDwellingRepository {
   });
 
   Future<void> updateDwellingById({
-    required int id,
+    required String oldGlobalId,
     required String newGlobalId,
   });
 }

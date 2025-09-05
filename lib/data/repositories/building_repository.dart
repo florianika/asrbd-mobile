@@ -87,4 +87,8 @@ class BuildingRepository implements IBuildingRepository {
   Future<void> markAsUnchanged(String globalId) async {
     await _dao.buildingDao.markAsUnmodified(globalId);
   }
+
+    @override
+  Future<int> deleteUnmodified(int downloadId) =>
+      _dao.buildingDao.deleteUnmodifiedBuildings(downloadId);
 }

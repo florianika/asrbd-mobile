@@ -17,6 +17,12 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
+  Future<List<Dwelling>> getUnsyncedDwellings(int downloadId) {
+    return (select(dwellings)
+          ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
+        .get();
+  }
+
   Future<Dwelling> getDwellingsByObjectId(int objectId) {
     return (select(dwellings)..where((tbl) => tbl.objectId.equals(objectId)))
         .getSingle();
@@ -102,13 +108,20 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
 
   // Update GlobalID by ObjectID
   Future<void> updateDwellingById({
-    required int id,
+    required String oldGlobalId,
     required String newGlobalId,
   }) async {
-    await (update(dwellings)..where((tbl) => tbl.id.equals(id))).write(
+    await (update(dwellings)..where((tbl) => tbl.globalId.equals(oldGlobalId)))
+        .write(
       DwellingsCompanion(
         globalId: Value(newGlobalId),
       ),
     );
+  }
+
+  Future<int> deleteUnmodifiedDwellings(int downloadId) {
+    return (delete(dwellings)
+          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+        .go();
   }
 }

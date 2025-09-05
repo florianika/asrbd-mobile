@@ -16,9 +16,24 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<List<Building>> getUnsyncedBuildings(int downloadId) {
+    // final rows = await db.customSelect(
+    //   'SELECT id, record_status FROM buildings',
+    //   readsFrom: {db.buildings}, // optional but good practice
+    // ).get();
+
+    // for (final row in rows) {
+    //   print('id=${row.data['id']}, record_status=${row.data['record_status']}');
+    // }
+
     return (select(buildings)
           ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
         .get();
+  }
+
+  Future<int> deleteUnmodifiedBuildings(int downloadId) {
+    return (delete(buildings)
+          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+        .go();
   }
 
   Future<List<Building>> getBuildingsByDownloadId(int? downloadId) {

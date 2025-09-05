@@ -88,6 +88,10 @@ class EntranceRepository implements IEntranceRepository {
       _dao.entranceDao.getUnsyncedEntrances(downloadId);
 
   @override
+  Future<int> deleteUnmodified(int downloadId) =>
+      _dao.entranceDao.deleteUnmodifiedEntrances(downloadId);
+
+  @override
   Future<void> markAsUnchanged(String globalId) async {
     await _dao.entranceDao.markAsUnmodified(globalId);
   }

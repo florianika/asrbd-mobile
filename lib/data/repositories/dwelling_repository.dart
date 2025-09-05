@@ -48,8 +48,9 @@ class DwellingRepository implements IDwellingRepository {
 
   @override
   Future<void> updateDwellingById(
-      {required int id, required String newGlobalId}) async {
-    await _dao.dwellingDao.updateDwellingById(id: id, newGlobalId: newGlobalId);
+      {required String oldGlobalId, required String newGlobalId}) async {
+    await _dao.dwellingDao
+        .updateDwellingById(oldGlobalId: oldGlobalId, newGlobalId: newGlobalId);
   }
 
   @override
@@ -90,4 +91,12 @@ class DwellingRepository implements IDwellingRepository {
   Future<void> markAsUnchanged(String globalId) async {
     await _dao.dwellingDao.markAsUnmodified(globalId);
   }
+
+  @override
+  Future<List<Dwelling>> getUnsyncedDwellings(int downloadId) =>
+      _dao.dwellingDao.getUnsyncedDwellings(downloadId);
+
+  @override
+  Future<int> deleteUnmodified(int downloadId) =>
+      _dao.dwellingDao.deleteUnmodifiedDwellings(downloadId);
 }

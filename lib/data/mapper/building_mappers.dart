@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
-import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:drift/drift.dart';
 import 'package:latlong2/latlong.dart';
@@ -10,59 +9,10 @@ import 'package:uuid/uuid.dart';
 
 var uuid = Uuid();
 
-/// Convert BuildingDto → Drift companion for insertion
-// extension BuildingDtoToDrift on BuildingDto {
-//   BuildingsCompanion toCompanion() {
-//     // Convert coordinates to raw List<List<List<double>>> for JSON storage
-//     final rawCoords = coordinates
-//         .map((ring) => ring.map((p) => [p.longitude, p.latitude]).toList())
-//         .toList();
-
-//     return BuildingsCompanion(
-//       objectId: Value(objectId),
-//       geometryType: Value(geometryType),
-//       coordinates: Value(jsonEncode(rawCoords)),
-//       shapeLength: Value(shapeLength),
-//       shapeArea: Value(shapeArea),
-//       globalId: Value.absentIfNull(globalId),
-//       bldCensus2023: Value.absentIfNull(bldCensus2023),
-//       bldQuality: Value.absentIfNull(bldQuality),
-//       bldMunicipality: Value.absentIfNull(bldMunicipality),
-//       bldEnumArea: Value(bldEnumArea),
-//       bldLatitude: Value.absentIfNull(bldLatitude),
-//       bldLongitude: Value.absentIfNull(bldLongitude),
-//       bldCadastralZone: Value.absentIfNull(bldCadastralZone),
-//       bldProperty: Value(bldProperty),
-//       bldPermitNumber: Value(bldPermitNumber),
-//       bldPermitDate: Value(bldPermitDate),
-//       bldStatus: Value.absentIfNull(bldStatus),
-//       bldYearConstruction: Value(bldYearConstruction),
-//       bldYearDemolition: Value(bldYearDemolition),
-//       bldType: Value(bldType),
-//       bldClass: Value(bldClass),
-//       bldArea: Value(bldArea),
-//       bldFloorsAbove: Value(bldFloorsAbove),
-//       bldHeight: Value.absentIfNull(bldHeight),
-//       bldVolume: Value(bldVolume),
-//       bldWasteWater: Value(bldWasteWater),
-//       bldElectricity: Value(bldElectricity),
-//       bldPipedGas: Value(bldPipedGas),
-//       bldElevator: Value(bldElevator),
-//       createdDate: Value(createdDate),
-//       bldCentroidStatus: Value.absentIfNull(bldCentroidStatus),
-//       bldDwellingRecs: Value(bldDwellingRecs),
-//       bldEntranceRecs: Value(bldEntranceRecs),
-//       bldAddressID: Value.absentIfNull(bldAddressID),
-//       bldReview: Value.absentIfNull(bldReview),
-//       bldWaterSupply: Value(bldWaterSupply),
-//     );
-//   }
-// }
-
 /// Convert BuildingEntity → Drift row
 extension BuildingEntityToDrift on BuildingEntity {
   BuildingsCompanion toDriftBuilding(
-      {int downloadId = 0, int recordStatus = RecordStatus.added}) {
+      {int downloadId = 0, int recordStatus = RecordStatus.unmodified}) {
     final rawCoords = coordinates
         .map((ring) => ring.map((p) => [p.longitude, p.latitude]).toList())
         .toList();

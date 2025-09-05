@@ -2,6 +2,7 @@ import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/offline/domain/sync_usecases.dart';
@@ -89,16 +90,20 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
       List<EntranceEntity> entrances =
           await syncUseCase.getEntrancesToSync(data.id);
-
       await syncUseCase.syncEntrances(entrances);
 
-      //TODO: steps below
+      List<DwellingEntity> dwellings =
+          await syncUseCase.getDwellingsToSync(data.id);
+      await syncUseCase.syncDwellings(dwellings);
 
-      //3. get dwellings to sync
-      //4. sync dwellings
+      await syncUseCase.deleteUnmodifiedObjects(data.id);
 
-      //5. delete all unchanged buildings, entrances and dwellings
-      //6. fetch all data from esri again and insert locally to have latest version
+      final bounds = LatLngBounds(
+        LatLng(data.boundsNorthWestLat!, data.boundsNorthWestLng!),
+        LatLng(data.boundsSouthEastLat!, data.boundsSouthEastLng!),
+      );
+
+      await syncUseCase.downloadAllData(data.id, data.municipalityId, bounds);
 
       Navigator.of(context).pop(); // Close progress dialog
 

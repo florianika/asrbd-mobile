@@ -33,6 +33,12 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
     );
   }
 
+  Future<int> deleteUnmodifiedEntrances(int downloadId) {
+  return (delete(entrances)
+        ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+      .go();
+}
+
   // Insert or update a single entrance
   // Future<void> insertEntrance(EntrancesCompanion entrance) async {
   //   await into(entrances).insertOnConflictUpdate(entrance);

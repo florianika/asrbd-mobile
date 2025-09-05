@@ -14,6 +14,8 @@ abstract class IEntranceRepository {
 
   Future<Entrance?> getEntranceById(String globalId);
 
+  Future<int> deleteUnmodified(int downloadId);
+
   Future<void> deleteEntrances();
 
   Future<void> markAsUnchanged(String globalId);

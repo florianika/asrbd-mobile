@@ -290,13 +290,16 @@ class _OfflineMapState extends State<OfflineMap> {
     // // Download entrances
     List<String> buildingIds =
         buildings.map((entity) => entity.globalId!).toList();
+
+    if (buildingIds.isEmpty) return;
+    
     List<EntranceEntity> entrances =
         await entranceRepository.getEntrances(buildingIds);
 
     var entrancesDao = entrances.toDriftEntranceList(downloadId);
     await entranceRepository.insertEntrances(entrancesDao);
 
-    // // Download dwellings
+    if (entrances.isEmpty) return;
     List<String> entrancesIds =
         entrances.map((entity) => entity.globalId!).toList();
     List<DwellingEntity> dwellings =
