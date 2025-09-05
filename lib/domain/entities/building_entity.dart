@@ -1,4 +1,5 @@
 // lib/domain/entities/building_entity.dart
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:latlong2/latlong.dart';
 
 class BuildingEntity {
@@ -7,6 +8,7 @@ class BuildingEntity {
   final String? geometryType;
   final List<List<LatLng>> coordinates;
 
+  final int? recordStatus;
   final double? shapeLength;
   final double? shapeArea;
   final String? globalId;
@@ -56,6 +58,7 @@ class BuildingEntity {
     this.shapeLength,
     this.shapeArea,
     this.globalId,
+    this.recordStatus = RecordStatus.unmodified,
     this.bldCensus2023 = '99999999999',
     this.bldQuality = 9,
     this.bldMunicipality,

@@ -6,13 +6,21 @@ abstract class IEntranceRepository {
 
   Future<void> insertEntrance(EntrancesCompanion entrance);
 
+  Future<List<Entrance>> getUnsyncedEntrances(int downloadId);
+
   Future<void> insertEntrances(List<EntrancesCompanion> entranceList);
 
   Future<void> deleteEntrance(String globalId);
 
   Future<Entrance?> getEntranceById(String globalId);
 
+  Future<int> deleteUnmodified(int downloadId);
+
   Future<void> deleteEntrances();
+
+  Future<void> markAsUnchanged(String globalId);
+
+  Future<void> updateEntranceOffline(EntrancesCompanion entrance);
 
   Future<void> updateEntranceEntBldGlobalID({
     required String globalId,

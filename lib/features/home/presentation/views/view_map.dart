@@ -17,9 +17,11 @@ import 'package:asrdb/core/widgets/map_shape_editor/map_geometry_editor.dart';
 import 'package:asrdb/core/widgets/map_shape_editor/map_action_events.dart';
 import 'package:asrdb/core/widgets/side_menu.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
@@ -99,19 +101,20 @@ class _ViewMapState extends State<ViewMap> {
 
   Future<void> _onSave(Map<String, dynamic> attributes) async {
     final loadingCubit = context.read<LoadingCubit>();
+    DownloadEntity? download = context.read<TileCubit>().download;
 
     loadingCubit.show();
 
     try {
       if (attributes['GeometryType'] == 'Polygon') {
         final building = BuildingEntity.fromMap(attributes);
-        await _saveBuilding(building);
+        await _saveBuilding(building, download);
       } else if (attributes['GeometryType'] == 'Point') {
         final entrance = EntranceEntity.fromMap(attributes);
-        await _saveEntrance(entrance);
+        await _saveEntrance(entrance, download);
       } else if (attributes['GeometryType'] == null) {
         final dwelling = DwellingEntity.fromMap(attributes);
-        await _saveDwelling(dwelling);
+        await _saveDwelling(dwelling, download);
       } else {
         NotifierService.showMessage(
           context,
@@ -130,23 +133,21 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> _saveDwelling(DwellingEntity dwelling) async {
+  Future<void> _saveDwelling(
+      DwellingEntity dwelling, DownloadEntity? download) async {
     final entranceUseCase = sl<DwellingUseCases>();
     final attributeCubit = sl<AttributesCubit>();
     final checkUseCase = sl<CheckUseCases>();
     final offlineMode = false;
 
     try {
-      // NotifierService.showMessage(
-      //   context,
-      //   message: attributeCubit.currentEntranceGlobalId.toString(),
-      //   type: MessageType.info,
-      // );
       dwelling.dwlEntGlobalID ??= attributeCubit.currentEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,
         offlineMode,
+        download?.id,
       );
+
       if (mounted) {
         await checkUseCase.checkAutomatic(attributeCubit
             .currentEntrance!.entBldGlobalID
@@ -171,17 +172,20 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> _saveEntrance(EntranceEntity entrance) async {
+  Future<void> _saveEntrance(
+      EntranceEntity entrance, DownloadEntity? download) async {
     final entranceUseCase = sl<EntranceUseCases>();
     final checkUseCase = sl<CheckUseCases>();
-    final offlineMode = false;
+    bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
       SaveResult response =
-          await entranceUseCase.saveEntrance(entrance, offlineMode);
+          await entranceUseCase.saveEntrance(entrance, isOffline, download?.id);
 
-      await checkUseCase
-          .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
+      if (!isOffline) {
+        await checkUseCase
+            .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
+      }
 
       if (mounted) {
         NotifierService.showMessage(
@@ -201,11 +205,12 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<void> _saveBuilding(BuildingEntity building) async {
+  Future<void> _saveBuilding(
+      BuildingEntity building, DownloadEntity? download) async {
     final buildingUseCase = sl<BuildingUseCases>();
     final checkUseCase = sl<CheckUseCases>();
     final buildingCubit = context.read<BuildingCubit>();
-    final offlineMode = false;
+    bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
       final buildings = (buildingCubit.state as Buildings).buildings;
@@ -242,10 +247,14 @@ class _ViewMapState extends State<ViewMap> {
 
       SaveResult response = await buildingUseCase.saveBuilding(
         building,
-        offlineMode,
+        isOffline,
+        download?.id,
       );
 
-      await checkUseCase.checkAutomatic(building.globalId.removeCurlyBraces()!);
+      if (!isOffline) {
+        await checkUseCase
+            .checkAutomatic(building.globalId.removeCurlyBraces()!);
+      }
 
       if (mounted) {
         NotifierService.showMessage(
@@ -472,57 +481,6 @@ class _ViewMapState extends State<ViewMap> {
                     ],
                   ),
                 ),
-                // BlocListener<EntranceCubit, EntranceState>(
-                //   listener: (context, state) {
-                //     if (state is EntranceError) {
-                //       NotifierService.showMessage(
-                //         context,
-                //         message: state.message,
-                //         type: MessageType.error,
-                //       );
-                //     } else if (state is EntranceAddResponse ||
-                //         state is EntranceUpdateResponse) {
-                //       final id = StringHelper.removeCurlyBracesFromString(
-                //           (state as EntranceAddResponse).buildingGlboalId);
-                //       context
-                //           .read<AttributesCubit>()
-                //           .showBuildingAttributes(id);
-                //     }
-                //   },
-                //   child: const SizedBox.shrink(),
-                // ),
-                // BlocListener<DwellingCubit, DwellingState>(
-                //   listener: (context, state) {
-                //     if (state is DwellingError) {
-                //       NotifierService.showMessage(
-                //         context,
-                //         message: state.message,
-                //         type: MessageType.error,
-                //       );
-                //     } else if (state is DwellingUpdateResponse) {
-                //       NotifierService.showMessage(
-                //         context,
-                //         messageKey: state.isAdded
-                //             ? Keys.dwellingUpdated
-                //             : Keys.dwellingCouldNotUpdated,
-                //         type: state.isAdded
-                //             ? MessageType.success
-                //             : MessageType.warning,
-                //       );
-                //     } else if (state is DwellingAddResponse) {
-                //       NotifierService.showMessage(
-                //         context,
-                //         messageKey: state.isAdded
-                //             ? Keys.dwellingAdded
-                //             : Keys.dwellingCouldNotAdd,
-                //         type: state.isAdded
-                //             ? MessageType.success
-                //             : MessageType.warning,
-                //       );
-                //     }
-                //   },
-                //   child: const SizedBox.shrink(),
-                // ),
                 DwellingForm(onSave: _onSave),
                 BlocConsumer<AttributesCubit, AttributesState>(
                   listener: (context, state) {

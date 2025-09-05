@@ -1,3 +1,4 @@
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/dto/dwelling_dto.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
@@ -37,8 +38,10 @@ extension DwellingDtoToDrift on DwellingDto {
 var uuid = const Uuid();
 
 extension DwellingEntityToDrift on DwellingEntity {
-  DwellingsCompanion toDriftDwelling(int downloadId) {
+  DwellingsCompanion toDriftDwelling(
+      {int downloadId = 0, int recordStatus = RecordStatus.unmodified}) {
     return DwellingsCompanion(
+      recordStatus: Value(recordStatus),
       globalId: globalId != null ? Value(globalId!) : Value(uuid.v4()),
       dwlEntGlobalId: dwlEntGlobalID != null
           ? Value(dwlEntGlobalID!)
@@ -98,7 +101,8 @@ extension DwellingRowToEntity on Dwelling {
 
 extension DwellingEntityListToDrift on List<DwellingEntity> {
   List<DwellingsCompanion> toDriftDwellingList(int downloadId) {
-    return map((entity) => entity.toDriftDwelling(downloadId)).toList();
+    return map((entity) => entity.toDriftDwelling(downloadId: downloadId))
+        .toList();
   }
 }
 

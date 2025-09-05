@@ -2,8 +2,10 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
+import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
@@ -13,6 +15,7 @@ import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
@@ -39,6 +42,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final loadingCubit = context.read<LoadingCubit>();
     final attributeCubit = context.read<AttributesCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
+    DownloadEntity? download = context.read<TileCubit>().download;
 
     loadingCubit.show();
 
@@ -50,8 +54,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final offlineMode = false;
 
     try {
-      SaveResult response =
-          await entranceUseCase.saveEntrance(entrance, offlineMode);
+      SaveResult response = await entranceUseCase.saveEntrance(
+          entrance, offlineMode, download?.id);
 
       widget.mapController.move(widget.mapController.camera.center,
           widget.mapController.camera.zoom + 0.3);
@@ -112,11 +116,9 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final geometryEditor = context.read<GeometryEditorCubit>();
     final attributeCubit = context.read<AttributesCubit>();
     final loadingCubit = context.read<LoadingCubit>();
-    final offlineMode = false;
 
     try {
       loadingCubit.show();
-      bool isOffline = context.read<TileCubit>().isOffline;
       BuildingEntity? building = geometryEditor.buildingCubit.currentBuilding;
 
       if (building == null) {
@@ -149,13 +151,28 @@ class _MapActionEventsState extends State<MapActionEvents> {
         }
       }
 
+      bool isOffline = context.read<TileCubit>().isOffline;
+      DownloadEntity? download = context.read<TileCubit>().download;
+
       SaveResult response = await buildingUseCase.saveBuilding(
         building,
-        offlineMode,
+        isOffline,
+        download?.id,
       );
 
-      widget.mapController.move(widget.mapController.camera.center,
-          widget.mapController.camera.zoom + 0.3);
+      if (!mounted) return;
+
+      final userService = sl<UserService>();
+
+      await context.read<BuildingCubit>().getBuildings(
+            widget.mapController.camera.visibleBounds,
+            widget.mapController.camera.zoom,
+            isOffline
+                ? download!.municipalityId!
+                : userService.userInfo!.municipality,
+            isOffline,
+            download?.id,
+          );
 
       loadingCubit.hide();
 

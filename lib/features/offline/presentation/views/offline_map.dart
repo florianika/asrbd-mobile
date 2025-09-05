@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
@@ -277,7 +278,7 @@ class _OfflineMapState extends State<OfflineMap> {
     final userService = sl<UserService>();
 
     // Download buildings
-    var buildings = await buildingRepository.getBuildings(
+    var buildings = await buildingRepository.getBuildingsOnline(
       _downloadBounds!,
       AppConfig.minZoomDownload,
       userService.userInfo!.municipality,
@@ -289,13 +290,16 @@ class _OfflineMapState extends State<OfflineMap> {
     // // Download entrances
     List<String> buildingIds =
         buildings.map((entity) => entity.globalId!).toList();
+
+    if (buildingIds.isEmpty) return;
+    
     List<EntranceEntity> entrances =
         await entranceRepository.getEntrances(buildingIds);
 
     var entrancesDao = entrances.toDriftEntranceList(downloadId);
     await entranceRepository.insertEntrances(entrancesDao);
 
-    // // Download dwellings
+    if (entrances.isEmpty) return;
     List<String> entrancesIds =
         entrances.map((entity) => entity.globalId!).toList();
     List<DwellingEntity> dwellings =

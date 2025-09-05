@@ -646,7 +646,13 @@ class $BuildingsTable extends Buildings
       const VerificationMeta('objectId');
   @override
   late final GeneratedColumn<int> objectId = GeneratedColumn<int>(
-      'object_id', aliasedName, false,
+      'object_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _recordStatusMeta =
+      const VerificationMeta('recordStatus');
+  @override
+  late final GeneratedColumn<int> recordStatus = GeneratedColumn<int>(
+      'record_status', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _downloadIdMeta =
       const VerificationMeta('downloadId');
@@ -965,6 +971,7 @@ class $BuildingsTable extends Buildings
   List<GeneratedColumn> get $columns => [
         id,
         objectId,
+        recordStatus,
         downloadId,
         globalId,
         bldAddressID,
@@ -1025,8 +1032,14 @@ class $BuildingsTable extends Buildings
     if (data.containsKey('object_id')) {
       context.handle(_objectIdMeta,
           objectId.isAcceptableOrUnknown(data['object_id']!, _objectIdMeta));
+    }
+    if (data.containsKey('record_status')) {
+      context.handle(
+          _recordStatusMeta,
+          recordStatus.isAcceptableOrUnknown(
+              data['record_status']!, _recordStatusMeta));
     } else if (isInserting) {
-      context.missing(_objectIdMeta);
+      context.missing(_recordStatusMeta);
     }
     if (data.containsKey('download_id')) {
       context.handle(
@@ -1286,7 +1299,9 @@ class $BuildingsTable extends Buildings
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       objectId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}object_id']),
+      recordStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}record_status'])!,
       downloadId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       globalId: attachedDatabase.typeMapping
@@ -1386,7 +1401,8 @@ class $BuildingsTable extends Buildings
 
 class Building extends DataClass implements Insertable<Building> {
   final int id;
-  final int objectId;
+  final int? objectId;
+  final int recordStatus;
   final int downloadId;
   final String globalId;
   final String? bldAddressID;
@@ -1432,7 +1448,8 @@ class Building extends DataClass implements Insertable<Building> {
   final String coordinates;
   const Building(
       {required this.id,
-      required this.objectId,
+      this.objectId,
+      required this.recordStatus,
       required this.downloadId,
       required this.globalId,
       this.bldAddressID,
@@ -1480,7 +1497,10 @@ class Building extends DataClass implements Insertable<Building> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['object_id'] = Variable<int>(objectId);
+    if (!nullToAbsent || objectId != null) {
+      map['object_id'] = Variable<int>(objectId);
+    }
+    map['record_status'] = Variable<int>(recordStatus);
     map['download_id'] = Variable<int>(downloadId);
     map['global_id'] = Variable<String>(globalId);
     if (!nullToAbsent || bldAddressID != null) {
@@ -1610,7 +1630,10 @@ class Building extends DataClass implements Insertable<Building> {
   BuildingsCompanion toCompanion(bool nullToAbsent) {
     return BuildingsCompanion(
       id: Value(id),
-      objectId: Value(objectId),
+      objectId: objectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(objectId),
+      recordStatus: Value(recordStatus),
       downloadId: Value(downloadId),
       globalId: Value(globalId),
       bldAddressID: bldAddressID == null && nullToAbsent
@@ -1742,7 +1765,8 @@ class Building extends DataClass implements Insertable<Building> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Building(
       id: serializer.fromJson<int>(json['id']),
-      objectId: serializer.fromJson<int>(json['objectId']),
+      objectId: serializer.fromJson<int?>(json['objectId']),
+      recordStatus: serializer.fromJson<int>(json['recordStatus']),
       downloadId: serializer.fromJson<int>(json['downloadId']),
       globalId: serializer.fromJson<String>(json['globalId']),
       bldAddressID: serializer.fromJson<String?>(json['bldAddressID']),
@@ -1796,7 +1820,8 @@ class Building extends DataClass implements Insertable<Building> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'objectId': serializer.toJson<int>(objectId),
+      'objectId': serializer.toJson<int?>(objectId),
+      'recordStatus': serializer.toJson<int>(recordStatus),
       'downloadId': serializer.toJson<int>(downloadId),
       'globalId': serializer.toJson<String>(globalId),
       'bldAddressID': serializer.toJson<String?>(bldAddressID),
@@ -1845,7 +1870,8 @@ class Building extends DataClass implements Insertable<Building> {
 
   Building copyWith(
           {int? id,
-          int? objectId,
+          Value<int?> objectId = const Value.absent(),
+          int? recordStatus,
           int? downloadId,
           String? globalId,
           Value<String?> bldAddressID = const Value.absent(),
@@ -1891,7 +1917,8 @@ class Building extends DataClass implements Insertable<Building> {
           String? coordinates}) =>
       Building(
         id: id ?? this.id,
-        objectId: objectId ?? this.objectId,
+        objectId: objectId.present ? objectId.value : this.objectId,
+        recordStatus: recordStatus ?? this.recordStatus,
         downloadId: downloadId ?? this.downloadId,
         globalId: globalId ?? this.globalId,
         bldAddressID:
@@ -1974,6 +2001,9 @@ class Building extends DataClass implements Insertable<Building> {
     return Building(
       id: data.id.present ? data.id.value : this.id,
       objectId: data.objectId.present ? data.objectId.value : this.objectId,
+      recordStatus: data.recordStatus.present
+          ? data.recordStatus.value
+          : this.recordStatus,
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
@@ -2082,6 +2112,7 @@ class Building extends DataClass implements Insertable<Building> {
     return (StringBuffer('Building(')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
           ..write('bldAddressID: $bldAddressID, ')
@@ -2133,6 +2164,7 @@ class Building extends DataClass implements Insertable<Building> {
   int get hashCode => Object.hashAll([
         id,
         objectId,
+        recordStatus,
         downloadId,
         globalId,
         bldAddressID,
@@ -2183,6 +2215,7 @@ class Building extends DataClass implements Insertable<Building> {
       (other is Building &&
           other.id == this.id &&
           other.objectId == this.objectId &&
+          other.recordStatus == this.recordStatus &&
           other.downloadId == this.downloadId &&
           other.globalId == this.globalId &&
           other.bldAddressID == this.bldAddressID &&
@@ -2230,7 +2263,8 @@ class Building extends DataClass implements Insertable<Building> {
 
 class BuildingsCompanion extends UpdateCompanion<Building> {
   final Value<int> id;
-  final Value<int> objectId;
+  final Value<int?> objectId;
+  final Value<int> recordStatus;
   final Value<int> downloadId;
   final Value<String> globalId;
   final Value<String?> bldAddressID;
@@ -2277,6 +2311,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   const BuildingsCompanion({
     this.id = const Value.absent(),
     this.objectId = const Value.absent(),
+    this.recordStatus = const Value.absent(),
     this.downloadId = const Value.absent(),
     this.globalId = const Value.absent(),
     this.bldAddressID = const Value.absent(),
@@ -2323,7 +2358,8 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
   });
   BuildingsCompanion.insert({
     this.id = const Value.absent(),
-    required int objectId,
+    this.objectId = const Value.absent(),
+    required int recordStatus,
     required int downloadId,
     required String globalId,
     this.bldAddressID = const Value.absent(),
@@ -2367,13 +2403,14 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     this.externalEditorDate = const Value.absent(),
     this.geometryType = const Value.absent(),
     required String coordinates,
-  })  : objectId = Value(objectId),
+  })  : recordStatus = Value(recordStatus),
         downloadId = Value(downloadId),
         globalId = Value(globalId),
         coordinates = Value(coordinates);
   static Insertable<Building> custom({
     Expression<int>? id,
     Expression<int>? objectId,
+    Expression<int>? recordStatus,
     Expression<int>? downloadId,
     Expression<String>? globalId,
     Expression<String>? bldAddressID,
@@ -2421,6 +2458,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (objectId != null) 'object_id': objectId,
+      if (recordStatus != null) 'record_status': recordStatus,
       if (downloadId != null) 'download_id': downloadId,
       if (globalId != null) 'global_id': globalId,
       if (bldAddressID != null) 'bld_address_id': bldAddressID,
@@ -2472,7 +2510,8 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
 
   BuildingsCompanion copyWith(
       {Value<int>? id,
-      Value<int>? objectId,
+      Value<int?>? objectId,
+      Value<int>? recordStatus,
       Value<int>? downloadId,
       Value<String>? globalId,
       Value<String?>? bldAddressID,
@@ -2519,6 +2558,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     return BuildingsCompanion(
       id: id ?? this.id,
       objectId: objectId ?? this.objectId,
+      recordStatus: recordStatus ?? this.recordStatus,
       downloadId: downloadId ?? this.downloadId,
       globalId: globalId ?? this.globalId,
       bldAddressID: bldAddressID ?? this.bldAddressID,
@@ -2573,6 +2613,9 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     }
     if (objectId.present) {
       map['object_id'] = Variable<int>(objectId.value);
+    }
+    if (recordStatus.present) {
+      map['record_status'] = Variable<int>(recordStatus.value);
     }
     if (downloadId.present) {
       map['download_id'] = Variable<int>(downloadId.value);
@@ -2713,6 +2756,7 @@ class BuildingsCompanion extends UpdateCompanion<Building> {
     return (StringBuffer('BuildingsCompanion(')
           ..write('id: $id, ')
           ..write('objectId: $objectId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
           ..write('bldAddressID: $bldAddressID, ')
@@ -2794,6 +2838,12 @@ class $EntrancesTable extends Entrances
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _recordStatusMeta =
+      const VerificationMeta('recordStatus');
+  @override
+  late final GeneratedColumn<int> recordStatus = GeneratedColumn<int>(
+      'record_status', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _entBldGlobalIdMeta =
       const VerificationMeta('entBldGlobalId');
   @override
@@ -2913,6 +2963,7 @@ class $EntrancesTable extends Entrances
         id,
         downloadId,
         globalId,
+        recordStatus,
         entBldGlobalId,
         entAddressId,
         entQuality,
@@ -2955,6 +3006,14 @@ class $EntrancesTable extends Entrances
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
+    }
+    if (data.containsKey('record_status')) {
+      context.handle(
+          _recordStatusMeta,
+          recordStatus.isAcceptableOrUnknown(
+              data['record_status']!, _recordStatusMeta));
+    } else if (isInserting) {
+      context.missing(_recordStatusMeta);
     }
     if (data.containsKey('ent_bld_global_id')) {
       context.handle(
@@ -3067,6 +3126,8 @@ class $EntrancesTable extends Entrances
           .read(DriftSqlType.int, data['${effectivePrefix}download_id'])!,
       globalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+      recordStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}record_status'])!,
       entBldGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}ent_bld_global_id'])!,
       entAddressId: attachedDatabase.typeMapping
@@ -3110,6 +3171,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
   final int id;
   final int downloadId;
   final String globalId;
+  final int recordStatus;
   final String entBldGlobalId;
   final String? entAddressId;
   final int entQuality;
@@ -3129,6 +3191,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       {required this.id,
       required this.downloadId,
       required this.globalId,
+      required this.recordStatus,
       required this.entBldGlobalId,
       this.entAddressId,
       required this.entQuality,
@@ -3150,6 +3213,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
     map['id'] = Variable<int>(id);
     map['download_id'] = Variable<int>(downloadId);
     map['global_id'] = Variable<String>(globalId);
+    map['record_status'] = Variable<int>(recordStatus);
     map['ent_bld_global_id'] = Variable<String>(entBldGlobalId);
     if (!nullToAbsent || entAddressId != null) {
       map['ent_address_id'] = Variable<String>(entAddressId);
@@ -3191,6 +3255,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       id: Value(id),
       downloadId: Value(downloadId),
       globalId: Value(globalId),
+      recordStatus: Value(recordStatus),
       entBldGlobalId: Value(entBldGlobalId),
       entAddressId: entAddressId == null && nullToAbsent
           ? const Value.absent()
@@ -3234,6 +3299,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       id: serializer.fromJson<int>(json['id']),
       downloadId: serializer.fromJson<int>(json['downloadId']),
       globalId: serializer.fromJson<String>(json['globalId']),
+      recordStatus: serializer.fromJson<int>(json['recordStatus']),
       entBldGlobalId: serializer.fromJson<String>(json['entBldGlobalId']),
       entAddressId: serializer.fromJson<String?>(json['entAddressId']),
       entQuality: serializer.fromJson<int>(json['entQuality']),
@@ -3260,6 +3326,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       'id': serializer.toJson<int>(id),
       'downloadId': serializer.toJson<int>(downloadId),
       'globalId': serializer.toJson<String>(globalId),
+      'recordStatus': serializer.toJson<int>(recordStatus),
       'entBldGlobalId': serializer.toJson<String>(entBldGlobalId),
       'entAddressId': serializer.toJson<String?>(entAddressId),
       'entQuality': serializer.toJson<int>(entQuality),
@@ -3282,6 +3349,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           {int? id,
           int? downloadId,
           String? globalId,
+          int? recordStatus,
           String? entBldGlobalId,
           Value<String?> entAddressId = const Value.absent(),
           int? entQuality,
@@ -3301,6 +3369,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
         id: id ?? this.id,
         downloadId: downloadId ?? this.downloadId,
         globalId: globalId ?? this.globalId,
+        recordStatus: recordStatus ?? this.recordStatus,
         entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
         entAddressId:
             entAddressId.present ? entAddressId.value : this.entAddressId,
@@ -3334,6 +3403,9 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       downloadId:
           data.downloadId.present ? data.downloadId.value : this.downloadId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
+      recordStatus: data.recordStatus.present
+          ? data.recordStatus.value
+          : this.recordStatus,
       entBldGlobalId: data.entBldGlobalId.present
           ? data.entBldGlobalId.value
           : this.entBldGlobalId,
@@ -3382,6 +3454,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           ..write('id: $id, ')
           ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
@@ -3406,6 +3479,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
       id,
       downloadId,
       globalId,
+      recordStatus,
       entBldGlobalId,
       entAddressId,
       entQuality,
@@ -3428,6 +3502,7 @@ class Entrance extends DataClass implements Insertable<Entrance> {
           other.id == this.id &&
           other.downloadId == this.downloadId &&
           other.globalId == this.globalId &&
+          other.recordStatus == this.recordStatus &&
           other.entBldGlobalId == this.entBldGlobalId &&
           other.entAddressId == this.entAddressId &&
           other.entQuality == this.entQuality &&
@@ -3449,6 +3524,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
   final Value<int> id;
   final Value<int> downloadId;
   final Value<String> globalId;
+  final Value<int> recordStatus;
   final Value<String> entBldGlobalId;
   final Value<String?> entAddressId;
   final Value<int> entQuality;
@@ -3468,6 +3544,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.id = const Value.absent(),
     this.downloadId = const Value.absent(),
     this.globalId = const Value.absent(),
+    this.recordStatus = const Value.absent(),
     this.entBldGlobalId = const Value.absent(),
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
@@ -3488,6 +3565,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     this.id = const Value.absent(),
     required int downloadId,
     required String globalId,
+    required int recordStatus,
     required String entBldGlobalId,
     this.entAddressId = const Value.absent(),
     this.entQuality = const Value.absent(),
@@ -3505,6 +3583,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     required String coordinates,
   })  : downloadId = Value(downloadId),
         globalId = Value(globalId),
+        recordStatus = Value(recordStatus),
         entBldGlobalId = Value(entBldGlobalId),
         entLatitude = Value(entLatitude),
         entLongitude = Value(entLongitude),
@@ -3513,6 +3592,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     Expression<int>? id,
     Expression<int>? downloadId,
     Expression<String>? globalId,
+    Expression<int>? recordStatus,
     Expression<String>? entBldGlobalId,
     Expression<String>? entAddressId,
     Expression<int>? entQuality,
@@ -3533,6 +3613,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       if (id != null) 'id': id,
       if (downloadId != null) 'download_id': downloadId,
       if (globalId != null) 'global_id': globalId,
+      if (recordStatus != null) 'record_status': recordStatus,
       if (entBldGlobalId != null) 'ent_bld_global_id': entBldGlobalId,
       if (entAddressId != null) 'ent_address_id': entAddressId,
       if (entQuality != null) 'ent_quality': entQuality,
@@ -3555,6 +3636,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       {Value<int>? id,
       Value<int>? downloadId,
       Value<String>? globalId,
+      Value<int>? recordStatus,
       Value<String>? entBldGlobalId,
       Value<String?>? entAddressId,
       Value<int>? entQuality,
@@ -3574,6 +3656,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
       id: id ?? this.id,
       downloadId: downloadId ?? this.downloadId,
       globalId: globalId ?? this.globalId,
+      recordStatus: recordStatus ?? this.recordStatus,
       entBldGlobalId: entBldGlobalId ?? this.entBldGlobalId,
       entAddressId: entAddressId ?? this.entAddressId,
       entQuality: entQuality ?? this.entQuality,
@@ -3603,6 +3686,9 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
     }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
+    }
+    if (recordStatus.present) {
+      map['record_status'] = Variable<int>(recordStatus.value);
     }
     if (entBldGlobalId.present) {
       map['ent_bld_global_id'] = Variable<String>(entBldGlobalId.value);
@@ -3658,6 +3744,7 @@ class EntrancesCompanion extends UpdateCompanion<Entrance> {
           ..write('id: $id, ')
           ..write('downloadId: $downloadId, ')
           ..write('globalId: $globalId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('entBldGlobalId: $entBldGlobalId, ')
           ..write('entAddressId: $entAddressId, ')
           ..write('entQuality: $entQuality, ')
@@ -3717,6 +3804,12 @@ class $DwellingsTable extends Dwellings
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 38),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _recordStatusMeta =
+      const VerificationMeta('recordStatus');
+  @override
+  late final GeneratedColumn<int> recordStatus = GeneratedColumn<int>(
+      'record_status', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _dwlEntGlobalIdMeta =
       const VerificationMeta('dwlEntGlobalId');
   @override
@@ -3873,6 +3966,7 @@ class $DwellingsTable extends Dwellings
         downloadId,
         objectId,
         globalId,
+        recordStatus,
         dwlEntGlobalId,
         dwlAddressId,
         dwlQuality,
@@ -3925,6 +4019,14 @@ class $DwellingsTable extends Dwellings
           globalId.isAcceptableOrUnknown(data['global_id']!, _globalIdMeta));
     } else if (isInserting) {
       context.missing(_globalIdMeta);
+    }
+    if (data.containsKey('record_status')) {
+      context.handle(
+          _recordStatusMeta,
+          recordStatus.isAcceptableOrUnknown(
+              data['record_status']!, _recordStatusMeta));
+    } else if (isInserting) {
+      context.missing(_recordStatusMeta);
     }
     if (data.containsKey('dwl_ent_global_id')) {
       context.handle(
@@ -4049,6 +4151,8 @@ class $DwellingsTable extends Dwellings
           .read(DriftSqlType.int, data['${effectivePrefix}object_id'])!,
       globalId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}global_id'])!,
+      recordStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}record_status'])!,
       dwlEntGlobalId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}dwl_ent_global_id'])!,
       dwlAddressId: attachedDatabase.typeMapping
@@ -4101,6 +4205,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
   final int downloadId;
   final int objectId;
   final String globalId;
+  final int recordStatus;
   final String dwlEntGlobalId;
   final String? dwlAddressId;
   final int dwlQuality;
@@ -4125,6 +4230,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       required this.downloadId,
       required this.objectId,
       required this.globalId,
+      required this.recordStatus,
       required this.dwlEntGlobalId,
       this.dwlAddressId,
       required this.dwlQuality,
@@ -4151,6 +4257,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
     map['download_id'] = Variable<int>(downloadId);
     map['object_id'] = Variable<int>(objectId);
     map['global_id'] = Variable<String>(globalId);
+    map['record_status'] = Variable<int>(recordStatus);
     map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId);
     if (!nullToAbsent || dwlAddressId != null) {
       map['dwl_address_id'] = Variable<String>(dwlAddressId);
@@ -4211,6 +4318,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       downloadId: Value(downloadId),
       objectId: Value(objectId),
       globalId: Value(globalId),
+      recordStatus: Value(recordStatus),
       dwlEntGlobalId: Value(dwlEntGlobalId),
       dwlAddressId: dwlAddressId == null && nullToAbsent
           ? const Value.absent()
@@ -4273,6 +4381,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       downloadId: serializer.fromJson<int>(json['downloadId']),
       objectId: serializer.fromJson<int>(json['objectId']),
       globalId: serializer.fromJson<String>(json['globalId']),
+      recordStatus: serializer.fromJson<int>(json['recordStatus']),
       dwlEntGlobalId: serializer.fromJson<String>(json['dwlEntGlobalId']),
       dwlAddressId: serializer.fromJson<String?>(json['dwlAddressId']),
       dwlQuality: serializer.fromJson<int>(json['dwlQuality']),
@@ -4303,6 +4412,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
       'downloadId': serializer.toJson<int>(downloadId),
       'objectId': serializer.toJson<int>(objectId),
       'globalId': serializer.toJson<String>(globalId),
+      'recordStatus': serializer.toJson<int>(recordStatus),
       'dwlEntGlobalId': serializer.toJson<String>(dwlEntGlobalId),
       'dwlAddressId': serializer.toJson<String?>(dwlAddressId),
       'dwlQuality': serializer.toJson<int>(dwlQuality),
@@ -4330,6 +4440,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           int? downloadId,
           int? objectId,
           String? globalId,
+          int? recordStatus,
           String? dwlEntGlobalId,
           Value<String?> dwlAddressId = const Value.absent(),
           int? dwlQuality,
@@ -4354,6 +4465,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
         downloadId: downloadId ?? this.downloadId,
         objectId: objectId ?? this.objectId,
         globalId: globalId ?? this.globalId,
+        recordStatus: recordStatus ?? this.recordStatus,
         dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
         dwlAddressId:
             dwlAddressId.present ? dwlAddressId.value : this.dwlAddressId,
@@ -4397,6 +4509,9 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           data.downloadId.present ? data.downloadId.value : this.downloadId,
       objectId: data.objectId.present ? data.objectId.value : this.objectId,
       globalId: data.globalId.present ? data.globalId.value : this.globalId,
+      recordStatus: data.recordStatus.present
+          ? data.recordStatus.value
+          : this.recordStatus,
       dwlEntGlobalId: data.dwlEntGlobalId.present
           ? data.dwlEntGlobalId.value
           : this.dwlEntGlobalId,
@@ -4452,6 +4567,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           ..write('downloadId: $downloadId, ')
           ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
@@ -4481,6 +4597,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
         downloadId,
         objectId,
         globalId,
+        recordStatus,
         dwlEntGlobalId,
         dwlAddressId,
         dwlQuality,
@@ -4509,6 +4626,7 @@ class Dwelling extends DataClass implements Insertable<Dwelling> {
           other.downloadId == this.downloadId &&
           other.objectId == this.objectId &&
           other.globalId == this.globalId &&
+          other.recordStatus == this.recordStatus &&
           other.dwlEntGlobalId == this.dwlEntGlobalId &&
           other.dwlAddressId == this.dwlAddressId &&
           other.dwlQuality == this.dwlQuality &&
@@ -4535,6 +4653,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   final Value<int> downloadId;
   final Value<int> objectId;
   final Value<String> globalId;
+  final Value<int> recordStatus;
   final Value<String> dwlEntGlobalId;
   final Value<String?> dwlAddressId;
   final Value<int> dwlQuality;
@@ -4559,6 +4678,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     this.downloadId = const Value.absent(),
     this.objectId = const Value.absent(),
     this.globalId = const Value.absent(),
+    this.recordStatus = const Value.absent(),
     this.dwlEntGlobalId = const Value.absent(),
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
@@ -4584,6 +4704,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     required int downloadId,
     required int objectId,
     required String globalId,
+    required int recordStatus,
     required String dwlEntGlobalId,
     this.dwlAddressId = const Value.absent(),
     this.dwlQuality = const Value.absent(),
@@ -4606,12 +4727,14 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
   })  : downloadId = Value(downloadId),
         objectId = Value(objectId),
         globalId = Value(globalId),
+        recordStatus = Value(recordStatus),
         dwlEntGlobalId = Value(dwlEntGlobalId);
   static Insertable<Dwelling> custom({
     Expression<int>? id,
     Expression<int>? downloadId,
     Expression<int>? objectId,
     Expression<String>? globalId,
+    Expression<int>? recordStatus,
     Expression<String>? dwlEntGlobalId,
     Expression<String>? dwlAddressId,
     Expression<int>? dwlQuality,
@@ -4637,6 +4760,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       if (downloadId != null) 'download_id': downloadId,
       if (objectId != null) 'object_id': objectId,
       if (globalId != null) 'global_id': globalId,
+      if (recordStatus != null) 'record_status': recordStatus,
       if (dwlEntGlobalId != null) 'dwl_ent_global_id': dwlEntGlobalId,
       if (dwlAddressId != null) 'dwl_address_id': dwlAddressId,
       if (dwlQuality != null) 'dwl_quality': dwlQuality,
@@ -4667,6 +4791,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       Value<int>? downloadId,
       Value<int>? objectId,
       Value<String>? globalId,
+      Value<int>? recordStatus,
       Value<String>? dwlEntGlobalId,
       Value<String?>? dwlAddressId,
       Value<int>? dwlQuality,
@@ -4691,6 +4816,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
       downloadId: downloadId ?? this.downloadId,
       objectId: objectId ?? this.objectId,
       globalId: globalId ?? this.globalId,
+      recordStatus: recordStatus ?? this.recordStatus,
       dwlEntGlobalId: dwlEntGlobalId ?? this.dwlEntGlobalId,
       dwlAddressId: dwlAddressId ?? this.dwlAddressId,
       dwlQuality: dwlQuality ?? this.dwlQuality,
@@ -4727,6 +4853,9 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
     }
     if (globalId.present) {
       map['global_id'] = Variable<String>(globalId.value);
+    }
+    if (recordStatus.present) {
+      map['record_status'] = Variable<int>(recordStatus.value);
     }
     if (dwlEntGlobalId.present) {
       map['dwl_ent_global_id'] = Variable<String>(dwlEntGlobalId.value);
@@ -4795,6 +4924,7 @@ class DwellingsCompanion extends UpdateCompanion<Dwelling> {
           ..write('downloadId: $downloadId, ')
           ..write('objectId: $objectId, ')
           ..write('globalId: $globalId, ')
+          ..write('recordStatus: $recordStatus, ')
           ..write('dwlEntGlobalId: $dwlEntGlobalId, ')
           ..write('dwlAddressId: $dwlAddressId, ')
           ..write('dwlQuality: $dwlQuality, ')
@@ -5787,7 +5917,8 @@ typedef $$DownloadsTableProcessedTableManager = ProcessedTableManager<
         bool municipalitiesRefs})>;
 typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
   Value<int> id,
-  required int objectId,
+  Value<int?> objectId,
+  required int recordStatus,
   required int downloadId,
   required String globalId,
   Value<String?> bldAddressID,
@@ -5834,7 +5965,8 @@ typedef $$BuildingsTableCreateCompanionBuilder = BuildingsCompanion Function({
 });
 typedef $$BuildingsTableUpdateCompanionBuilder = BuildingsCompanion Function({
   Value<int> id,
-  Value<int> objectId,
+  Value<int?> objectId,
+  Value<int> recordStatus,
   Value<int> downloadId,
   Value<String> globalId,
   Value<String?> bldAddressID,
@@ -5930,6 +6062,9 @@ class $$BuildingsTableFilterComposer
 
   ColumnFilters<int> get objectId => $composableBuilder(
       column: $table.objectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
@@ -6131,6 +6266,10 @@ class $$BuildingsTableOrderingComposer
   ColumnOrderings<int> get objectId => $composableBuilder(
       column: $table.objectId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
 
@@ -6315,6 +6454,9 @@ class $$BuildingsTableAnnotationComposer
 
   GeneratedColumn<int> get objectId =>
       $composableBuilder(column: $table.objectId, builder: (column) => column);
+
+  GeneratedColumn<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => column);
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
@@ -6508,7 +6650,8 @@ class $$BuildingsTableTableManager extends RootTableManager<
               $$BuildingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            Value<int> objectId = const Value.absent(),
+            Value<int?> objectId = const Value.absent(),
+            Value<int> recordStatus = const Value.absent(),
             Value<int> downloadId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
             Value<String?> bldAddressID = const Value.absent(),
@@ -6556,6 +6699,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
               BuildingsCompanion(
             id: id,
             objectId: objectId,
+            recordStatus: recordStatus,
             downloadId: downloadId,
             globalId: globalId,
             bldAddressID: bldAddressID,
@@ -6602,7 +6746,8 @@ class $$BuildingsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
-            required int objectId,
+            Value<int?> objectId = const Value.absent(),
+            required int recordStatus,
             required int downloadId,
             required String globalId,
             Value<String?> bldAddressID = const Value.absent(),
@@ -6650,6 +6795,7 @@ class $$BuildingsTableTableManager extends RootTableManager<
               BuildingsCompanion.insert(
             id: id,
             objectId: objectId,
+            recordStatus: recordStatus,
             downloadId: downloadId,
             globalId: globalId,
             bldAddressID: bldAddressID,
@@ -6768,6 +6914,7 @@ typedef $$EntrancesTableCreateCompanionBuilder = EntrancesCompanion Function({
   Value<int> id,
   required int downloadId,
   required String globalId,
+  required int recordStatus,
   required String entBldGlobalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
@@ -6788,6 +6935,7 @@ typedef $$EntrancesTableUpdateCompanionBuilder = EntrancesCompanion Function({
   Value<int> id,
   Value<int> downloadId,
   Value<String> globalId,
+  Value<int> recordStatus,
   Value<String> entBldGlobalId,
   Value<String?> entAddressId,
   Value<int> entQuality,
@@ -6870,6 +7018,9 @@ class $$EntrancesTableFilterComposer
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId, builder: (column) => ColumnFilters(column));
@@ -6996,6 +7147,10 @@ class $$EntrancesTableOrderingComposer
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId,
       builder: (column) => ColumnOrderings(column));
@@ -7102,6 +7257,9 @@ class $$EntrancesTableAnnotationComposer
 
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
+
+  GeneratedColumn<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => column);
 
   GeneratedColumn<String> get entAddressId => $composableBuilder(
       column: $table.entAddressId, builder: (column) => column);
@@ -7234,6 +7392,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<int> downloadId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
+            Value<int> recordStatus = const Value.absent(),
             Value<String> entBldGlobalId = const Value.absent(),
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
@@ -7254,6 +7413,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             id: id,
             downloadId: downloadId,
             globalId: globalId,
+            recordStatus: recordStatus,
             entBldGlobalId: entBldGlobalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
@@ -7274,6 +7434,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required int downloadId,
             required String globalId,
+            required int recordStatus,
             required String entBldGlobalId,
             Value<String?> entAddressId = const Value.absent(),
             Value<int> entQuality = const Value.absent(),
@@ -7294,6 +7455,7 @@ class $$EntrancesTableTableManager extends RootTableManager<
             id: id,
             downloadId: downloadId,
             globalId: globalId,
+            recordStatus: recordStatus,
             entBldGlobalId: entBldGlobalId,
             entAddressId: entAddressId,
             entQuality: entQuality,
@@ -7400,6 +7562,7 @@ typedef $$DwellingsTableCreateCompanionBuilder = DwellingsCompanion Function({
   required int downloadId,
   required int objectId,
   required String globalId,
+  required int recordStatus,
   required String dwlEntGlobalId,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
@@ -7425,6 +7588,7 @@ typedef $$DwellingsTableUpdateCompanionBuilder = DwellingsCompanion Function({
   Value<int> downloadId,
   Value<int> objectId,
   Value<String> globalId,
+  Value<int> recordStatus,
   Value<String> dwlEntGlobalId,
   Value<String?> dwlAddressId,
   Value<int> dwlQuality,
@@ -7498,6 +7662,9 @@ class $$DwellingsTableFilterComposer
 
   ColumnFilters<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId, builder: (column) => ColumnFilters(column));
@@ -7617,6 +7784,10 @@ class $$DwellingsTableOrderingComposer
 
   ColumnOrderings<String> get globalId => $composableBuilder(
       column: $table.globalId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId,
@@ -7742,6 +7913,9 @@ class $$DwellingsTableAnnotationComposer
   GeneratedColumn<String> get globalId =>
       $composableBuilder(column: $table.globalId, builder: (column) => column);
 
+  GeneratedColumn<int> get recordStatus => $composableBuilder(
+      column: $table.recordStatus, builder: (column) => column);
+
   GeneratedColumn<String> get dwlAddressId => $composableBuilder(
       column: $table.dwlAddressId, builder: (column) => column);
 
@@ -7864,6 +8038,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             Value<int> downloadId = const Value.absent(),
             Value<int> objectId = const Value.absent(),
             Value<String> globalId = const Value.absent(),
+            Value<int> recordStatus = const Value.absent(),
             Value<String> dwlEntGlobalId = const Value.absent(),
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
@@ -7889,6 +8064,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             downloadId: downloadId,
             objectId: objectId,
             globalId: globalId,
+            recordStatus: recordStatus,
             dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,
@@ -7914,6 +8090,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             required int downloadId,
             required int objectId,
             required String globalId,
+            required int recordStatus,
             required String dwlEntGlobalId,
             Value<String?> dwlAddressId = const Value.absent(),
             Value<int> dwlQuality = const Value.absent(),
@@ -7939,6 +8116,7 @@ class $$DwellingsTableTableManager extends RootTableManager<
             downloadId: downloadId,
             objectId: objectId,
             globalId: globalId,
+            recordStatus: recordStatus,
             dwlEntGlobalId: dwlEntGlobalId,
             dwlAddressId: dwlAddressId,
             dwlQuality: dwlQuality,

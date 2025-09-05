@@ -28,8 +28,8 @@ class DwellingRepository implements IDwellingRepository {
   }
 
   @override
-  Future<void> insertDwelling(DwellingsCompanion dwelling) async {
-    await _dao.dwellingDao.insertDwelling(dwelling);
+  Future<String> insertDwelling(DwellingsCompanion dwelling) async {
+    return await _dao.dwellingDao.insertDwelling(dwelling);
   }
 
   @override
@@ -39,16 +39,23 @@ class DwellingRepository implements IDwellingRepository {
 
   @override
   Future<void> updateDwellingDwlEntGlobalID(
-      {required String globalId, required String newDwlEntGlobalID}) async {
+      {required String oldDwlEntGlobalID,
+      required String newDwlEntGlobalID}) async {
     await _dao.dwellingDao.updateDwellingDwlEntGlobalID(
-        globalId: globalId, newDwlEntGlobalID: newDwlEntGlobalID);
+        oldDwlEntGlobalID: oldDwlEntGlobalID,
+        newDwlEntGlobalID: newDwlEntGlobalID);
   }
 
   @override
   Future<void> updateDwellingById(
-      {required int id, required String newGlobalId}) async {
-    await _dao.dwellingDao.updateDwellingById(id: id, newGlobalId: newGlobalId);
+      {required String oldGlobalId, required String newGlobalId}) async {
+    await _dao.dwellingDao
+        .updateDwellingById(oldGlobalId: oldGlobalId, newGlobalId: newGlobalId);
   }
+
+  @override
+  Future<void> updateDwellingOffline(DwellingsCompanion dwelling) =>
+      _dao.dwellingDao.updateDwelling(dwelling);
 
   Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     return await dwellingService.getDwellings(entranceGlobalId);
@@ -79,4 +86,17 @@ class DwellingRepository implements IDwellingRepository {
   Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {
     return await dwellingService.updateDwellingFeature(dwelling);
   }
+
+  @override
+  Future<void> markAsUnchanged(String globalId) async {
+    await _dao.dwellingDao.markAsUnmodified(globalId);
+  }
+
+  @override
+  Future<List<Dwelling>> getUnsyncedDwellings(int downloadId) =>
+      _dao.dwellingDao.getUnsyncedDwellings(downloadId);
+
+  @override
+  Future<int> deleteUnmodified(int downloadId) =>
+      _dao.dwellingDao.deleteUnmodifiedDwellings(downloadId);
 }

@@ -11,6 +11,8 @@ class Entrances extends Table {
   TextColumn get globalId =>
       text().named('global_id').withLength(min: 1, max: 38)();
 
+  IntColumn get recordStatus => integer().named('record_status')();
+
   TextColumn get entBldGlobalId => text()
       .named('ent_bld_global_id')
       .withLength(min: 1, max: 38)
@@ -29,14 +31,20 @@ class Entrances extends Table {
   IntColumn get entPointStatus =>
       integer().named('ent_point_status').withDefault(const Constant(1))();
 
-  TextColumn get entStrGlobalId =>
-      text().named('ent_str_global_id').withLength(min: 1, max: 38).nullable()();
+  TextColumn get entStrGlobalId => text()
+      .named('ent_str_global_id')
+      .withLength(min: 1, max: 38)
+      .nullable()();
 
-  TextColumn get entBuildingNumber =>
-      text().named('ent_building_number').withLength(min: 1, max: 5).nullable()();
+  TextColumn get entBuildingNumber => text()
+      .named('ent_building_number')
+      .withLength(min: 1, max: 5)
+      .nullable()();
 
-  TextColumn get entEntranceNumber =>
-      text().named('ent_entrance_number').withLength(min: 1, max: 4).nullable()();
+  TextColumn get entEntranceNumber => text()
+      .named('ent_entrance_number')
+      .withLength(min: 1, max: 4)
+      .nullable()();
 
   IntColumn get entTown => integer().named('ent_town').nullable()();
 

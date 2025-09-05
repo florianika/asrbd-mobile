@@ -5,13 +5,24 @@ import 'package:flutter_map/flutter_map.dart';
 
 abstract class IBuildingRepository {
   /// Local DB Operations
-  Future<List<Building>> getAllBuildings();
+  Future<List<Building>> getBuildingsOffline();
+
+  Future<List<Building>> getUnsyncedBuildings(int downloadId);
+
+  Future<List<BuildingEntity>> getBuildingsOnline(
+      LatLngBounds bounds, double zoom, int municipalityId);
+
+  Future<void> updateBuildingOffline(BuildingsCompanion building);
 
   Future<List<Building>> getBuildingsByDownloadId(int downloadId);
+
+  Future<int> deleteUnmodified(int downloadId);
 
   Future<void> insertBuilding(BuildingsCompanion building);
 
   Future<void> insertBuildings(List<BuildingsCompanion> buildings);
+
+  Future<void> markAsUnchanged(String globalId);
 
   // Future<void> deleteBuilding(String globalId);
 
@@ -19,10 +30,7 @@ abstract class IBuildingRepository {
 
   Future<Building?> getBuildingById(String globalId);
 
-  Future<void> updateBuildingGlobalId(int objectId, String newGlobalId);
-
-  Future<List<BuildingEntity>> getBuildings(
-      LatLngBounds bounds, double zoom, int municipalityId);
+  Future<void> updateBuildingGlobalId(String oldGlobalId, String newGlobalId);
 
   Future<BuildingEntity> getBuildingDetails(String globalId);
 
