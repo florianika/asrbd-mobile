@@ -55,4 +55,26 @@ class Keys {
   static const String fieldWorkNotOpened = 'fieldWorkNotOpened';
   static const String blReviewWarning = 'blReviewWarning';
   static const String blReviewNoPending = 'blReviewNoPending';
+  
+  // Settings page keys
+  static const String settings = 'settings';
+  static const String dataManagement = 'dataManagement';
+  static const String updateAndManageData = 'updateAndManageData';
+  static const String updateJsonAttributes = 'updateJsonAttributes';
+  static const String updateJsonAttributesDesc = 'updateJsonAttributesDesc';
+  static const String updateSchemaFiles = 'updateSchemaFiles';
+  static const String updateSchemaFilesDesc = 'updateSchemaFilesDesc';
+  static const String information = 'information';
+  static const String settingsInfoText = 'settingsInfoText';
+  static const String jsonAttributesUpdatedSuccess = 'jsonAttributesUpdatedSuccess';
+  static const String jsonAttributesUpdateFailed = 'jsonAttributesUpdateFailed';
+  static const String schemaFilesUpdatedSuccess = 'schemaFilesUpdatedSuccess';
+  static const String schemaFilesUpdateFailed = 'schemaFilesUpdateFailed';
+  
+  // Logout keys
+  static const String logout = 'logout';
+  static const String logoutSubtitle = 'logoutSubtitle';
+  static const String logoutConfirmation = 'logoutConfirmation';
+  static const String logoutConfirmationMessage = 'logoutConfirmationMessage';
+  static const String logoutSuccess = 'logoutSuccess';
 }

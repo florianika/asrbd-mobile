@@ -207,14 +207,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: Offset(0, 2),
                     ),
@@ -243,7 +243,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: IconButton(
@@ -269,10 +269,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                             Container(
                               padding: EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1,
                                 ),
                               ),
@@ -302,10 +302,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                             child: Container(
                               padding: EdgeInsets.all(32),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
+                                color: Colors.white.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1,
                                 ),
                               ),
@@ -315,7 +315,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   Container(
                                     padding: EdgeInsets.all(20),
                                     decoration: BoxDecoration(
-                                      color: Colors.cyan.withOpacity(0.1),
+                                      color: Colors.cyan.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Icon(
@@ -337,7 +337,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   Text(
                                     'Download some areas to see them here',
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.8),
+                                      color: Colors.white.withValues(alpha: 0.8),
                                       fontSize: 16,
                                     ),
                                     textAlign: TextAlign.center,
@@ -361,15 +361,15 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                 return Container(
                                   margin: EdgeInsets.only(bottom: 12),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.1),
+                                    color: Colors.white.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       width: 1,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color: Colors.black.withValues(alpha: 0.1),
                                         blurRadius: 8,
                                         offset: Offset(0, 2),
                                       ),
@@ -401,14 +401,14 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                           Alignment.bottomRight,
                                                       colors: [
                                                         Colors.cyan
-                                                            .withOpacity(0.3),
+                                                            .withValues(alpha: 0.3),
                                                         Colors.blue
-                                                            .withOpacity(0.3),
+                                                            .withValues(alpha: 0.3),
                                                       ],
                                                     ),
                                                     border: Border.all(
                                                       color: Colors.cyan
-                                                          .withOpacity(0.5),
+                                                          .withValues(alpha: 0.5),
                                                       width: 1.5,
                                                     ),
                                                   ),
@@ -444,13 +444,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 Container(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             8),
                                                     border: Border.all(
                                                       color: Colors.white
-                                                          .withOpacity(0.2),
+                                                          .withValues(alpha: 0.2),
                                                       width: 1,
                                                     ),
                                                   ),
@@ -531,12 +531,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                 ),
                                                 decoration: BoxDecoration(
                                                   color: Colors.orange
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                   border: Border.all(
                                                     color: Colors.orange
-                                                        .withOpacity(0.5),
+                                                        .withValues(alpha: 0.5),
                                                     width: 1,
                                                   ),
                                                 ),
@@ -572,7 +572,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                   colors: [
                                                     Colors.transparent,
                                                     Colors.white
-                                                        .withOpacity(0.2),
+                                                        .withValues(alpha: 0.2),
                                                     Colors.transparent,
                                                   ],
                                                 ),
@@ -634,7 +634,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         Icon(
           icon,
           size: isTablet ? 16 : 14,
-          color: Colors.white.withOpacity(0.7),
+          color: Colors.white.withValues(alpha: 0.7),
         ),
         SizedBox(width: 6),
         Expanded(
@@ -645,7 +645,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                 label,
                 style: TextStyle(
                   fontSize: isTablet ? 12 : 11,
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),

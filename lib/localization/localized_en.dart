@@ -69,6 +69,26 @@ class LocalizedEn {
     Keys.blReviewWarning:
         "The selected building does not require review or has a reopened review (BldReview != 6 && BldReview != 5).",
     Keys.blReviewNoPending:
-        "The selected building does not have the review status pending. (BldReview = 4)"
+        "The selected building does not have the review status pending. (BldReview = 4)",
+    // Settings page translations
+    Keys.settings: 'Settings',
+    Keys.dataManagement: 'Data Management',
+    Keys.updateAndManageData: 'Update and manage application data',
+    Keys.updateJsonAttributes: 'Update JSON Attributes',
+    Keys.updateJsonAttributesDesc: 'Download and update building, entrance, and dwelling attribute files',
+    Keys.updateSchemaFiles: 'Update Schema Files',
+    Keys.updateSchemaFilesDesc: 'Download and update schema definition files',
+    Keys.information: 'Information',
+    Keys.settingsInfoText: 'Use these options to update your local data files with the latest information from the server.',
+    Keys.jsonAttributesUpdatedSuccess: 'JSON attributes updated successfully',
+    Keys.jsonAttributesUpdateFailed: 'Failed to update JSON attributes',
+    Keys.schemaFilesUpdatedSuccess: 'Schema files updated successfully',
+    Keys.schemaFilesUpdateFailed: 'Failed to update schema files',
+    // Logout translations
+    Keys.logout: 'Logout',
+    Keys.logoutSubtitle: 'Sign out of your account',
+    Keys.logoutConfirmation: 'Confirm Logout',
+    Keys.logoutConfirmationMessage: 'Are you sure you want to logout?',
+    Keys.logoutSuccess: 'Logged out successfully'
   };
 }

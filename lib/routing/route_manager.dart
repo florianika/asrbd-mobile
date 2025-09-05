@@ -1,6 +1,7 @@
 import 'package:asrdb/features/home/presentation/views/view_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map_list.dart';
+import 'package:asrdb/features/settings/presentation/views/settings_view.dart';
 import 'package:flutter/material.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
 
@@ -11,6 +12,7 @@ RouteManager {
   static const String profileRoute = '/profile';
   static const String downloadMapRoute = '/download-map';
   static const String downloadedMapList = '/download-map-list';
+  static const String settingsRoute = '/settings';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -25,6 +27,9 @@ RouteManager {
 
       case downloadedMapList:
         return MaterialPageRoute(builder: (_) => DownloadedMapsViewer());
+
+      case settingsRoute:
+        return MaterialPageRoute(builder: (_) => const SettingsView());
 
       default:
         return _errorRoute();

@@ -11,7 +11,7 @@ class TargetMarker extends StatelessWidget {
       height: 36,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         border:
             Border.all(color: color == null ? Colors.green : color!, width: 2),
         boxShadow: const [
