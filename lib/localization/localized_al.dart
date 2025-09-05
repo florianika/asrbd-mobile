@@ -64,6 +64,26 @@ class LocalizedAl {
         "Ndertesa e zgjedhur ka mbivendosje me nje ndertese tjeter. Doni te vijoni me ruajtjen?",
     Keys.fieldWorkNotOpened: "Puna ne terrent nuk eshte nisur.",
     Keys.blReviewWarning :"Per ndertesen e zgjedhur nuk kerkohet rishikim ose ka nje rishikim te rihapur (BldReview != 6 && BldReview!=5).",
-    Keys.blReviewNoPending : "Ndertesa e zgjedhur nuk ka statusin e rishikimit ne pritje. (BldReview = 4)"
+    Keys.blReviewNoPending : "Ndertesa e zgjedhur nuk ka statusin e rishikimit ne pritje. (BldReview = 4)",
+    // Settings page translations
+    Keys.settings: 'Cilësimet',
+    Keys.dataManagement: 'Menaxhimi i të Dhënave',
+    Keys.updateAndManageData: 'Përditëso dhe menaxho të dhënat e aplikacionit',
+    Keys.updateJsonAttributes: 'Përditëso Atributet JSON',
+    Keys.updateJsonAttributesDesc: 'Shkarko dhe përditëso skedarët e atributeve të ndërtesave, hyrjeve dhe banesave',
+    Keys.updateSchemaFiles: 'Përditëso Skedarët e Skemës',
+    Keys.updateSchemaFilesDesc: 'Shkarko dhe përditëso skedarët e përkufizimit të skemës',
+    Keys.information: 'Informacioni',
+    Keys.settingsInfoText: 'Përdorni këto opsione për të përditësuar skedarët tuaj lokalë me informacionin më të fundit nga serveri.',
+    Keys.jsonAttributesUpdatedSuccess: 'Atributet JSON u përditësuan me sukses',
+    Keys.jsonAttributesUpdateFailed: 'Dështoi përditësimi i atributeve JSON',
+    Keys.schemaFilesUpdatedSuccess: 'Skedarët e skemës u përditësuan me sukses',
+    Keys.schemaFilesUpdateFailed: 'Dështoi përditësimi i skedarëve të skemës',
+    // Logout translations
+    Keys.logout: 'Dil',
+    Keys.logoutSubtitle: 'Dil nga llogaria juaj',
+    Keys.logoutConfirmation: 'Konfirmo Daljen',
+    Keys.logoutConfirmationMessage: 'Jeni i sigurt që doni të dilni?',
+    Keys.logoutSuccess: 'U dil me sukses'
   };
 }

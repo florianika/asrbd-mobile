@@ -13,7 +13,7 @@ class MapLegend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white.withOpacity(0.5),
+      color: Colors.white.withValues(alpha: 0.5),
       elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(8.0),

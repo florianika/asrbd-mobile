@@ -102,7 +102,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: Colors.cyan.withOpacity(0.1 + 0.05 * _glowAnimation.value),
+                          color: Colors.cyan.withValues(alpha: 0.1 + 0.05 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -119,7 +119,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 300,
                         height: 300,
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.08 + 0.02 * _glowAnimation.value),
+                          color: Colors.blue.withValues(alpha: 0.08 + 0.02 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -132,18 +132,18 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                     Container(
                       height: 160,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
                         ),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
                             offset: Offset(0, 2),
                           ),
@@ -170,17 +170,17 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                         colors: [
-                                          Colors.cyan.withOpacity(0.3),
-                                          Colors.blue.withOpacity(0.3),
+                                          Colors.cyan.withValues(alpha: 0.3),
+                                          Colors.blue.withValues(alpha: 0.3),
                                         ],
                                       ),
                                       border: Border.all(
-                                        color: Colors.cyan.withOpacity(0.5),
+                                        color: Colors.cyan.withValues(alpha: 0.5),
                                         width: 2,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.cyan.withOpacity(0.3),
+                                          color: Colors.cyan.withValues(alpha: 0.3),
                                           blurRadius: 20 + 10 * _glowAnimation.value,
                                           spreadRadius: 5 + 3 * _glowAnimation.value,
                                         ),
@@ -206,7 +206,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                                     Shadow(
                                       offset: const Offset(0, 2),
                                       blurRadius: 4,
-                                      color: Colors.black.withOpacity(0.3),
+                                      color: Colors.black.withValues(alpha: 0.3),
                                     ),
                                   ],
                                 ),
@@ -215,7 +215,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               Text(
                                 'Mobile App',
                                 style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w300,
                                 ),
@@ -249,7 +249,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               title: 'Settings',
                               subtitle: 'App configuration',
                               onTap: () {
-                                // Handle settings tap
+                                Navigator.pushNamed(context, RouteManager.settingsRoute);
                               },
                             ),
                             
@@ -288,7 +288,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               gradient: LinearGradient(
                                 colors: [
                                   Colors.transparent,
-                                  Colors.white.withOpacity(0.3),
+                                  Colors.white.withValues(alpha: 0.3),
                                   Colors.transparent,
                                 ],
                               ),
@@ -298,17 +298,17 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                           Container(
                             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1,
                               ),
                             ),
                             child: Text(
                               'Version 1.0.0',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: 0.5,
@@ -337,15 +337,15 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -372,17 +372,17 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.cyan.withOpacity(0.3),
-                            Colors.blue.withOpacity(0.3),
+                            Colors.cyan.withValues(alpha: 0.3),
+                            Colors.blue.withValues(alpha: 0.3),
                           ],
                         ),
                         border: Border.all(
-                          color: Colors.cyan.withOpacity(0.5),
+                          color: Colors.cyan.withValues(alpha: 0.5),
                           width: 1,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.cyan.withOpacity(0.2),
+                            color: Colors.cyan.withValues(alpha: 0.2),
                             blurRadius: 8,
                             spreadRadius: 0,
                           ),
@@ -412,7 +412,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                           Text(
                             subtitle,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 13,
                               fontWeight: FontWeight.w400,
                             ),
@@ -423,16 +423,16 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                     Container(
                       padding: EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
                       child: Icon(
                         Icons.arrow_forward_ios,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         size: 14,
                       ),
                     ),

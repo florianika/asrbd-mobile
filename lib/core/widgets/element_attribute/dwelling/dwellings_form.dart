@@ -320,7 +320,7 @@ class _DwellingFormState extends State<DwellingForm> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: qualityInfo['color'].withOpacity(0.1),
+                      color: qualityInfo['color'].withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(

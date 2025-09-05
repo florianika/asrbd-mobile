@@ -554,7 +554,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             return Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(8),
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: Colors.black.withValues(alpha: 0.1),
               child: child,
             );
           },
@@ -799,7 +799,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             return Material(
               elevation: 4,
               borderRadius: BorderRadius.circular(8),
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: Colors.black.withValues(alpha: 0.1),
               child: child,
             );
           },
