@@ -6,6 +6,7 @@ import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/offline/domain/sync_usecases.dart';
+import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
@@ -228,7 +229,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                         color: Colors.white,
                         size: 24,
                       ),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {                    
+                        final authState = context.read<AuthCubit>().state;
+                        if (authState is AuthAuthenticated) {                    
+                          Navigator.of(context).pop();
+                        } else {                       
+                          if (_downloadedData.isEmpty) {
+                            Navigator.pushReplacementNamed(context, RouteManager.loginRoute);
+                          } else {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
                     ),
                     Expanded(
                       child: Text(
