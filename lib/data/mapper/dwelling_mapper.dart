@@ -75,6 +75,7 @@ extension DwellingRowToEntity on Dwelling {
   DwellingEntity toEntity() {
     return DwellingEntity(
       objectId: objectId,
+      recordStatus: recordStatus,
       geometryType: geometryType,
       globalId: globalId,
       dwlEntGlobalID: dwlEntGlobalId,

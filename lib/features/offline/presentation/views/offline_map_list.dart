@@ -100,8 +100,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
       if (!mounted) return;
 
       NotifierService.showMessage(context,
-          message: 'Data "${buildings.length}" synchronized successfully',
-          type: MessageType.success); // Changed from error to success
+          message:
+              'Synchronization completed successfully. ${buildings.length} buildings, ${entrances.length} entrances, and ${dwellings.length} dwellings synchronized.',
+          type: MessageType.success);
 
       _loadDownloadedData(); // Refresh the list
     } catch (e) {
@@ -522,7 +523,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       .ellipsis,
                                                             ),
                                                             SizedBox(height: 4),
-                                                            _buildSyncStatusIcon(data),
+                                                            _buildSyncStatusIcon(
+                                                                data),
                                                           ],
                                                         ),
                                                       ),

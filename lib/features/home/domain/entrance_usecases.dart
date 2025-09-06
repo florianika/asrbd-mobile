@@ -58,9 +58,9 @@ class EntranceUseCases {
 
   Future<String> _addEntranceFeatureOffline(
       EntranceEntity entrance, int downloadId) async {
-    final globalId = await _entranceRepository.insertEntrance(
-        entrance.toDriftEntrance(
-            downloadId: downloadId, recordStatus: RecordStatus.added));
+    var driftEntrance = entrance.toDriftEntrance(
+        downloadId: downloadId, recordStatus: RecordStatus.added);
+    final globalId = await _entranceRepository.insertEntrance(driftEntrance);
 
     return globalId;
   }

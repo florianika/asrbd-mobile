@@ -51,11 +51,10 @@ class _MapActionEventsState extends State<MapActionEvents> {
         EntranceEntity(coordinates: widget.mapController.camera.center);
 
     final entranceUseCase = sl<EntranceUseCases>();
-    final offlineMode = false;
 
     try {
-      SaveResult response = await entranceUseCase.saveEntrance(
-          entrance, offlineMode, download?.id);
+      SaveResult response =
+          await entranceUseCase.saveEntrance(entrance, isOffline, download?.id);
 
       widget.mapController.move(widget.mapController.camera.center,
           widget.mapController.camera.zoom + 0.3);

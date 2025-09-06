@@ -138,17 +138,17 @@ class _ViewMapState extends State<ViewMap> {
     final entranceUseCase = sl<DwellingUseCases>();
     final attributeCubit = sl<AttributesCubit>();
     final checkUseCase = sl<CheckUseCases>();
-    final offlineMode = false;
+    bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
       dwelling.dwlEntGlobalID ??= attributeCubit.currentEntranceGlobalId;
       SaveResult response = await entranceUseCase.saveDwelling(
         dwelling,
-        offlineMode,
+        isOffline,
         download?.id,
       );
 
-      if (mounted) {
+      if (mounted && !isOffline) {
         await checkUseCase.checkAutomatic(attributeCubit
             .currentEntrance!.entBldGlobalID
             .removeCurlyBraces()!);

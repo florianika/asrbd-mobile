@@ -86,6 +86,7 @@ extension EntranceRowToEntity on Entrance {
 
     return EntranceEntity(
       objectId: id,
+      recordStatus: recordStatus,
       geometryType: geometryType,
       coordinates: coordsDecoded,
       globalId: globalId,
