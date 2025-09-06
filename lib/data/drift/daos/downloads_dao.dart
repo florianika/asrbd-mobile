@@ -22,4 +22,15 @@ class DownloadsDao extends DatabaseAccessor<AppDatabase>
   Future<void> deleteDownloads(Download download) async {
     await delete(downloads).delete(download);
   }
+
+  Future<bool> updateSyncStatus(int downloadId, bool syncSuccess) async {
+    final updated = await (update(downloads)
+          ..where((t) => t.id.equals(downloadId)))
+        .write(DownloadsCompanion(
+      lastSyncDate: Value(DateTime.now()),
+      syncSuccess: Value(syncSuccess),
+    ));
+
+    return updated > 0; // Returns true if a row was updated
+  }
 }

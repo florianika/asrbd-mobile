@@ -21,4 +21,9 @@ class DownloadRepository implements IDownloadRepository {
   Future<int> insertDownload(DownloadsCompanion download) async {
     return await _dao.downloadDao.insertDownload(download);
   }
+
+  @override
+  Future<bool> updateSyncStatus(int downloadId, bool isSyncSuccess) {
+    return _dao.downloadDao.updateSyncStatus(downloadId, isSyncSuccess);
+  }
 }

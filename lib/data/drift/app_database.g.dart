@@ -76,6 +76,12 @@ class $DownloadsTable extends Downloads
   late final GeneratedColumn<int> userId = GeneratedColumn<int>(
       'user_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lastSyncDateMeta =
+      const VerificationMeta('lastSyncDate');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncDate = GeneratedColumn<DateTime>(
+      'last_sync_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _createdDateMeta =
       const VerificationMeta('createdDate');
   @override
@@ -84,6 +90,15 @@ class $DownloadsTable extends Downloads
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _syncSuccessMeta =
+      const VerificationMeta('syncSuccess');
+  @override
+  late final GeneratedColumn<bool> syncSuccess = GeneratedColumn<bool>(
+      'sync_success', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("sync_success" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -97,7 +112,9 @@ class $DownloadsTable extends Downloads
         municipalityId,
         email,
         userId,
-        createdDate
+        lastSyncDate,
+        createdDate,
+        syncSuccess
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -170,11 +187,23 @@ class $DownloadsTable extends Downloads
     } else if (isInserting) {
       context.missing(_userIdMeta);
     }
+    if (data.containsKey('last_sync_date')) {
+      context.handle(
+          _lastSyncDateMeta,
+          lastSyncDate.isAcceptableOrUnknown(
+              data['last_sync_date']!, _lastSyncDateMeta));
+    }
     if (data.containsKey('created_date')) {
       context.handle(
           _createdDateMeta,
           createdDate.isAcceptableOrUnknown(
               data['created_date']!, _createdDateMeta));
+    }
+    if (data.containsKey('sync_success')) {
+      context.handle(
+          _syncSuccessMeta,
+          syncSuccess.isAcceptableOrUnknown(
+              data['sync_success']!, _syncSuccessMeta));
     }
     return context;
   }
@@ -207,8 +236,12 @@ class $DownloadsTable extends Downloads
           .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
       userId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}user_id'])!,
+      lastSyncDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_date']),
       createdDate: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_date'])!,
+      syncSuccess: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}sync_success']),
     );
   }
 
@@ -230,7 +263,9 @@ class Download extends DataClass implements Insertable<Download> {
   final int municipalityId;
   final String email;
   final int userId;
+  final DateTime? lastSyncDate;
   final DateTime createdDate;
+  final bool? syncSuccess;
   const Download(
       {required this.id,
       required this.areaName,
@@ -243,7 +278,9 @@ class Download extends DataClass implements Insertable<Download> {
       required this.municipalityId,
       required this.email,
       required this.userId,
-      required this.createdDate});
+      this.lastSyncDate,
+      required this.createdDate,
+      this.syncSuccess});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -270,7 +307,13 @@ class Download extends DataClass implements Insertable<Download> {
     map['municipality_id'] = Variable<int>(municipalityId);
     map['email'] = Variable<String>(email);
     map['user_id'] = Variable<int>(userId);
+    if (!nullToAbsent || lastSyncDate != null) {
+      map['last_sync_date'] = Variable<DateTime>(lastSyncDate);
+    }
     map['created_date'] = Variable<DateTime>(createdDate);
+    if (!nullToAbsent || syncSuccess != null) {
+      map['sync_success'] = Variable<bool>(syncSuccess);
+    }
     return map;
   }
 
@@ -299,7 +342,13 @@ class Download extends DataClass implements Insertable<Download> {
       municipalityId: Value(municipalityId),
       email: Value(email),
       userId: Value(userId),
+      lastSyncDate: lastSyncDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncDate),
       createdDate: Value(createdDate),
+      syncSuccess: syncSuccess == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncSuccess),
     );
   }
 
@@ -322,7 +371,9 @@ class Download extends DataClass implements Insertable<Download> {
       municipalityId: serializer.fromJson<int>(json['municipalityId']),
       email: serializer.fromJson<String>(json['email']),
       userId: serializer.fromJson<int>(json['userId']),
+      lastSyncDate: serializer.fromJson<DateTime?>(json['lastSyncDate']),
       createdDate: serializer.fromJson<DateTime>(json['createdDate']),
+      syncSuccess: serializer.fromJson<bool?>(json['syncSuccess']),
     );
   }
   @override
@@ -340,7 +391,9 @@ class Download extends DataClass implements Insertable<Download> {
       'municipalityId': serializer.toJson<int>(municipalityId),
       'email': serializer.toJson<String>(email),
       'userId': serializer.toJson<int>(userId),
+      'lastSyncDate': serializer.toJson<DateTime?>(lastSyncDate),
       'createdDate': serializer.toJson<DateTime>(createdDate),
+      'syncSuccess': serializer.toJson<bool?>(syncSuccess),
     };
   }
 
@@ -356,7 +409,9 @@ class Download extends DataClass implements Insertable<Download> {
           int? municipalityId,
           String? email,
           int? userId,
-          DateTime? createdDate}) =>
+          Value<DateTime?> lastSyncDate = const Value.absent(),
+          DateTime? createdDate,
+          Value<bool?> syncSuccess = const Value.absent()}) =>
       Download(
         id: id ?? this.id,
         areaName: areaName ?? this.areaName,
@@ -377,7 +432,10 @@ class Download extends DataClass implements Insertable<Download> {
         municipalityId: municipalityId ?? this.municipalityId,
         email: email ?? this.email,
         userId: userId ?? this.userId,
+        lastSyncDate:
+            lastSyncDate.present ? lastSyncDate.value : this.lastSyncDate,
         createdDate: createdDate ?? this.createdDate,
+        syncSuccess: syncSuccess.present ? syncSuccess.value : this.syncSuccess,
       );
   Download copyWithCompanion(DownloadsCompanion data) {
     return Download(
@@ -402,8 +460,13 @@ class Download extends DataClass implements Insertable<Download> {
           : this.municipalityId,
       email: data.email.present ? data.email.value : this.email,
       userId: data.userId.present ? data.userId.value : this.userId,
+      lastSyncDate: data.lastSyncDate.present
+          ? data.lastSyncDate.value
+          : this.lastSyncDate,
       createdDate:
           data.createdDate.present ? data.createdDate.value : this.createdDate,
+      syncSuccess:
+          data.syncSuccess.present ? data.syncSuccess.value : this.syncSuccess,
     );
   }
 
@@ -421,7 +484,9 @@ class Download extends DataClass implements Insertable<Download> {
           ..write('municipalityId: $municipalityId, ')
           ..write('email: $email, ')
           ..write('userId: $userId, ')
-          ..write('createdDate: $createdDate')
+          ..write('lastSyncDate: $lastSyncDate, ')
+          ..write('createdDate: $createdDate, ')
+          ..write('syncSuccess: $syncSuccess')
           ..write(')'))
         .toString();
   }
@@ -439,7 +504,9 @@ class Download extends DataClass implements Insertable<Download> {
       municipalityId,
       email,
       userId,
-      createdDate);
+      lastSyncDate,
+      createdDate,
+      syncSuccess);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -455,7 +522,9 @@ class Download extends DataClass implements Insertable<Download> {
           other.municipalityId == this.municipalityId &&
           other.email == this.email &&
           other.userId == this.userId &&
-          other.createdDate == this.createdDate);
+          other.lastSyncDate == this.lastSyncDate &&
+          other.createdDate == this.createdDate &&
+          other.syncSuccess == this.syncSuccess);
 }
 
 class DownloadsCompanion extends UpdateCompanion<Download> {
@@ -470,7 +539,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
   final Value<int> municipalityId;
   final Value<String> email;
   final Value<int> userId;
+  final Value<DateTime?> lastSyncDate;
   final Value<DateTime> createdDate;
+  final Value<bool?> syncSuccess;
   const DownloadsCompanion({
     this.id = const Value.absent(),
     this.areaName = const Value.absent(),
@@ -483,7 +554,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
     this.municipalityId = const Value.absent(),
     this.email = const Value.absent(),
     this.userId = const Value.absent(),
+    this.lastSyncDate = const Value.absent(),
     this.createdDate = const Value.absent(),
+    this.syncSuccess = const Value.absent(),
   });
   DownloadsCompanion.insert({
     this.id = const Value.absent(),
@@ -497,7 +570,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
     required int municipalityId,
     required String email,
     required int userId,
+    this.lastSyncDate = const Value.absent(),
     this.createdDate = const Value.absent(),
+    this.syncSuccess = const Value.absent(),
   })  : areaName = Value(areaName),
         municipalityId = Value(municipalityId),
         email = Value(email),
@@ -514,7 +589,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
     Expression<int>? municipalityId,
     Expression<String>? email,
     Expression<int>? userId,
+    Expression<DateTime>? lastSyncDate,
     Expression<DateTime>? createdDate,
+    Expression<bool>? syncSuccess,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -532,7 +609,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
       if (municipalityId != null) 'municipality_id': municipalityId,
       if (email != null) 'email': email,
       if (userId != null) 'user_id': userId,
+      if (lastSyncDate != null) 'last_sync_date': lastSyncDate,
       if (createdDate != null) 'created_date': createdDate,
+      if (syncSuccess != null) 'sync_success': syncSuccess,
     });
   }
 
@@ -548,7 +627,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
       Value<int>? municipalityId,
       Value<String>? email,
       Value<int>? userId,
-      Value<DateTime>? createdDate}) {
+      Value<DateTime?>? lastSyncDate,
+      Value<DateTime>? createdDate,
+      Value<bool?>? syncSuccess}) {
     return DownloadsCompanion(
       id: id ?? this.id,
       areaName: areaName ?? this.areaName,
@@ -561,7 +642,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
       municipalityId: municipalityId ?? this.municipalityId,
       email: email ?? this.email,
       userId: userId ?? this.userId,
+      lastSyncDate: lastSyncDate ?? this.lastSyncDate,
       createdDate: createdDate ?? this.createdDate,
+      syncSuccess: syncSuccess ?? this.syncSuccess,
     );
   }
 
@@ -601,8 +684,14 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
     if (userId.present) {
       map['user_id'] = Variable<int>(userId.value);
     }
+    if (lastSyncDate.present) {
+      map['last_sync_date'] = Variable<DateTime>(lastSyncDate.value);
+    }
     if (createdDate.present) {
       map['created_date'] = Variable<DateTime>(createdDate.value);
+    }
+    if (syncSuccess.present) {
+      map['sync_success'] = Variable<bool>(syncSuccess.value);
     }
     return map;
   }
@@ -621,7 +710,9 @@ class DownloadsCompanion extends UpdateCompanion<Download> {
           ..write('municipalityId: $municipalityId, ')
           ..write('email: $email, ')
           ..write('userId: $userId, ')
-          ..write('createdDate: $createdDate')
+          ..write('lastSyncDate: $lastSyncDate, ')
+          ..write('createdDate: $createdDate, ')
+          ..write('syncSuccess: $syncSuccess')
           ..write(')'))
         .toString();
   }
@@ -5338,7 +5429,9 @@ typedef $$DownloadsTableCreateCompanionBuilder = DownloadsCompanion Function({
   required int municipalityId,
   required String email,
   required int userId,
+  Value<DateTime?> lastSyncDate,
   Value<DateTime> createdDate,
+  Value<bool?> syncSuccess,
 });
 typedef $$DownloadsTableUpdateCompanionBuilder = DownloadsCompanion Function({
   Value<int> id,
@@ -5352,7 +5445,9 @@ typedef $$DownloadsTableUpdateCompanionBuilder = DownloadsCompanion Function({
   Value<int> municipalityId,
   Value<String> email,
   Value<int> userId,
+  Value<DateTime?> lastSyncDate,
   Value<DateTime> createdDate,
+  Value<bool?> syncSuccess,
 });
 
 final class $$DownloadsTableReferences
@@ -5467,8 +5562,14 @@ class $$DownloadsTableFilterComposer
   ColumnFilters<int> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<DateTime> get lastSyncDate => $composableBuilder(
+      column: $table.lastSyncDate, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get syncSuccess => $composableBuilder(
+      column: $table.syncSuccess, builder: (column) => ColumnFilters(column));
 
   Expression<bool> buildingsRefs(
       Expression<bool> Function($$BuildingsTableFilterComposer f) f) {
@@ -5602,8 +5703,15 @@ class $$DownloadsTableOrderingComposer
   ColumnOrderings<int> get userId => $composableBuilder(
       column: $table.userId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get lastSyncDate => $composableBuilder(
+      column: $table.lastSyncDate,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get syncSuccess => $composableBuilder(
+      column: $table.syncSuccess, builder: (column) => ColumnOrderings(column));
 }
 
 class $$DownloadsTableAnnotationComposer
@@ -5648,8 +5756,14 @@ class $$DownloadsTableAnnotationComposer
   GeneratedColumn<int> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get lastSyncDate => $composableBuilder(
+      column: $table.lastSyncDate, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdDate => $composableBuilder(
       column: $table.createdDate, builder: (column) => column);
+
+  GeneratedColumn<bool> get syncSuccess => $composableBuilder(
+      column: $table.syncSuccess, builder: (column) => column);
 
   Expression<T> buildingsRefs<T extends Object>(
       Expression<T> Function($$BuildingsTableAnnotationComposer a) f) {
@@ -5774,7 +5888,9 @@ class $$DownloadsTableTableManager extends RootTableManager<
             Value<int> municipalityId = const Value.absent(),
             Value<String> email = const Value.absent(),
             Value<int> userId = const Value.absent(),
+            Value<DateTime?> lastSyncDate = const Value.absent(),
             Value<DateTime> createdDate = const Value.absent(),
+            Value<bool?> syncSuccess = const Value.absent(),
           }) =>
               DownloadsCompanion(
             id: id,
@@ -5788,7 +5904,9 @@ class $$DownloadsTableTableManager extends RootTableManager<
             municipalityId: municipalityId,
             email: email,
             userId: userId,
+            lastSyncDate: lastSyncDate,
             createdDate: createdDate,
+            syncSuccess: syncSuccess,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
@@ -5802,7 +5920,9 @@ class $$DownloadsTableTableManager extends RootTableManager<
             required int municipalityId,
             required String email,
             required int userId,
+            Value<DateTime?> lastSyncDate = const Value.absent(),
             Value<DateTime> createdDate = const Value.absent(),
+            Value<bool?> syncSuccess = const Value.absent(),
           }) =>
               DownloadsCompanion.insert(
             id: id,
@@ -5816,7 +5936,9 @@ class $$DownloadsTableTableManager extends RootTableManager<
             municipalityId: municipalityId,
             email: email,
             userId: userId,
+            lastSyncDate: lastSyncDate,
             createdDate: createdDate,
+            syncSuccess: syncSuccess,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (

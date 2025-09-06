@@ -16,6 +16,9 @@ class Downloads extends Table {
   IntColumn get municipalityId => integer().named('municipality_id')();
   TextColumn get email => text().named('email')();
   IntColumn get userId => integer().named('user_id')();
+  DateTimeColumn get lastSyncDate =>
+      dateTime().named('last_sync_date').nullable()();
   DateTimeColumn get createdDate =>
       dateTime().named('created_date').withDefault(currentDateAndTime)();
+  BoolColumn get syncSuccess => boolean().named('sync_success').nullable()();
 }

@@ -11,7 +11,9 @@ class DownloadEntity {
   int? municipalityId;
   String? email;
   int? userId;
+  DateTime? lastSyncDate;
   DateTime? createdDate;
+  bool? syncSuccess;
 
   DownloadEntity({
     this.id,
@@ -25,6 +27,8 @@ class DownloadEntity {
     this.municipalityId,
     this.email,
     this.userId,
+    this.lastSyncDate,
     this.createdDate,
+    this.syncSuccess,
   });
 }

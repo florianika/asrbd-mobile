@@ -124,7 +124,6 @@ void main() async {
   sl.registerLazySingleton<DownloadUsecases>(
       () => DownloadUsecases(sl<DownloadRepository>()));
 
-
   await sl<SchemaService>().initializeWithFallback();
   sl.registerFactory<TileCubit>(() => TileCubit());
 
@@ -144,10 +143,12 @@ void main() async {
   initOutputLogsModule(sl);
   initMunicipalityModule(sl);
 
-  sl.registerSingleton<SyncUseCases>(
-    SyncUseCases(sl<BuildingRepository>(), sl<EntranceRepository>(),
-        sl<DwellingRepository>()),
-  );
+  sl.registerSingleton<SyncUseCases>(SyncUseCases(
+    sl<BuildingRepository>(),
+    sl<EntranceRepository>(),
+    sl<DwellingRepository>(),
+    sl<DownloadRepository>(),
+  ));
 
   runApp(const MyApp());
 }

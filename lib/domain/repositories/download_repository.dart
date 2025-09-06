@@ -6,4 +6,6 @@ abstract class IDownloadRepository {
   Future<int> insertDownload(DownloadsCompanion download);
 
   Future<void> deleteDownloads(Download download);
+
+  Future<bool> updateSyncStatus(int downloadId, bool isSyncSuccess);
 }
