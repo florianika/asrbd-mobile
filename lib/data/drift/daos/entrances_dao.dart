@@ -22,7 +22,9 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
 
   Future<List<Entrance>> getUnsyncedEntrances(int downloadId) {
     return (select(entrances)
-          ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
+          ..where((b) =>
+              b.recordStatus.isNotValue(RecordStatus.unmodified) &
+              b.downloadId.equals(downloadId)))
         .get();
   }
 
@@ -40,7 +42,9 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteUnmodifiedEntrances(int downloadId) {
     return (delete(entrances)
-          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+          ..where((e) =>
+              e.recordStatus.equals(RecordStatus.unmodified) &
+              e.downloadId.equals(downloadId)))
         .go();
   }
 

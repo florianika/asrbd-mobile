@@ -48,7 +48,10 @@ class SyncUseCases {
   }
 
   Future<void> downloadAllData(
-      int downloadId, int municipalityId, LatLngBounds downloadBounds) async {
+    int downloadId,
+    int municipalityId,
+    LatLngBounds downloadBounds,
+  ) async {
     final buildingRepository = sl<BuildingRepository>();
     final entranceRepository = sl<EntranceRepository>();
     final dwellingRepository = sl<DwellingRepository>();
@@ -67,6 +70,7 @@ class SyncUseCases {
     // // Download entrances
     List<String> buildingIds =
         buildings.map((entity) => entity.globalId!).toList();
+
     List<EntranceEntity> entrances =
         await entranceRepository.getEntrances(buildingIds);
 
@@ -76,6 +80,7 @@ class SyncUseCases {
     // // Download dwellings
     List<String> entrancesIds =
         entrances.map((entity) => entity.globalId!).toList();
+
     List<DwellingEntity> dwellings =
         await dwellingRepository.getDwellingsByEntrancesList(entrancesIds);
 

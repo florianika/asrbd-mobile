@@ -8,6 +8,8 @@ class Entrances extends Table {
   IntColumn get downloadId =>
       integer().named('download_id').references(Downloads, #id)();
 
+  IntColumn get objectId => integer().named('object_id').nullable()();
+
   TextColumn get globalId =>
       text().named('global_id').withLength(min: 1, max: 38)();
 

@@ -12,6 +12,7 @@ extension EntranceDtoToDrift on EntranceDto {
   EntrancesCompanion toCompanion() {
     return EntrancesCompanion(
       globalId: Value(globalId ?? const Uuid().v4()),
+      objectId: Value.absentIfNull(objectId),
       entBldGlobalId:
           Value(entBldGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
       entAddressId: Value.absentIfNull(entAddressID),
@@ -42,6 +43,7 @@ extension EntranceEntityToDrift on EntranceEntity {
     return EntrancesCompanion(
       recordStatus: Value(recordStatus),
       globalId: Value(globalId ?? uuid.v4()),
+      objectId: Value.absentIfNull(objectId),
       entBldGlobalId: entBldGlobalID != null
           ? Value(entBldGlobalID!)
           : Value('{00000000-0000-0000-0000-000000000000}'),
@@ -85,7 +87,7 @@ extension EntranceRowToEntity on Entrance {
     }
 
     return EntranceEntity(
-      objectId: id,
+      objectId: objectId ?? 0,
       recordStatus: recordStatus,
       geometryType: geometryType,
       coordinates: coordsDecoded,

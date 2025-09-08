@@ -73,6 +73,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         isOffline,
         download?.id,
       );
+      
       if (mounted) {
         NotifierService.showMessage(
           context,

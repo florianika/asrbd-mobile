@@ -22,7 +22,9 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
 
   Future<List<Dwelling>> getUnsyncedDwellings(int downloadId) {
     return (select(dwellings)
-          ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
+          ..where((b) =>
+              b.recordStatus.isNotValue(RecordStatus.unmodified) &
+              b.downloadId.equals(downloadId)))
         .get();
   }
 
@@ -139,7 +141,9 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
 
   Future<int> deleteUnmodifiedDwellings(int downloadId) {
     return (delete(dwellings)
-          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+          ..where((e) =>
+              e.recordStatus.equals(RecordStatus.unmodified) &
+              e.downloadId.equals(downloadId)))
         .go();
   }
 }
