@@ -19,12 +19,12 @@ class DwellingUseCases {
   DwellingUseCases(this._dwellingRepository, this._checkUseCases);
 
   Future<List<DwellingEntity>> getDwellings(
-      String? entranceGlobalId, bool isOffline) async {
+      String? entranceGlobalId, bool isOffline, int? downloadId) async {
     if (!isOffline) {
       return await _dwellingRepository.getDwellings(entranceGlobalId);
     } else {
-      List<Dwelling> dwellings =
-          await _dwellingRepository.getDwellingsByEntranceId(entranceGlobalId!);
+      List<Dwelling> dwellings = await _dwellingRepository
+          .getDwellingsByEntranceId(entranceGlobalId!, downloadId!);
 
       return dwellings.toEntityList();
     }
@@ -49,12 +49,12 @@ class DwellingUseCases {
   }
 
   Future<DwellingEntity> getDwellingDetails(
-      int objectId, bool isOffline) async {
+      int objectId, bool isOffline, int? downloadId) async {
     if (!isOffline) {
       return await _dwellingRepository.getDwellingDetails(objectId);
     } else {
-      Dwelling dwelling =
-          await _dwellingRepository.getDwellingDetailsByObjectId(objectId);
+      Dwelling dwelling = await _dwellingRepository
+          .getDwellingDetailsByObjectId(objectId, downloadId!);
       return dwelling.toEntity();
     }
   }

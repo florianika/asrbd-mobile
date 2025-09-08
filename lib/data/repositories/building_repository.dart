@@ -34,24 +34,29 @@ class BuildingRepository implements IBuildingRepository {
   Future<void> insertBuildings(List<BuildingsCompanion> buildings) =>
       _dao.buildingDao.insertBuildings(buildings);
 
-  Future<void> deleteBuilding(String globalId) =>
-      _dao.buildingDao.deleteBuildingByGlobalId(globalId);
+  // Future<void> deleteBuilding(String globalId) =>
+  //     _dao.buildingDao.deleteBuildingByGlobalId(globalId);
+
+  // @override
+  // Future<void> deleteAllBuildings() => _dao.buildingDao.deleteAllBuildings();
 
   @override
-  Future<void> deleteAllBuildings() => _dao.buildingDao.deleteAllBuildings();
+  Future<Building?> getBuildingById(String globalId, int downloadId) =>
+      _dao.buildingDao.getBuildingById(globalId, downloadId);
 
   @override
-  Future<Building?> getBuildingById(String globalId) =>
-      _dao.buildingDao.getBuildingById(globalId);
+  Future<void> updateBuildingGlobalId(
+          String oldGlobalId, String newGlobalId, int downloadId) =>
+      _dao.buildingDao.updateGlobalIdById(
+        oldGlobalId: oldGlobalId,
+        globalId: newGlobalId,
+        downloadId: downloadId,
+      );
 
   @override
-  Future<void> updateBuildingGlobalId(String oldGlobalId, String newGlobalId) =>
-      _dao.buildingDao
-          .updateGlobalIdById(oldGlobalId: oldGlobalId, globalId: newGlobalId);
-
-  @override
-  Future<void> updateBuildingOffline(BuildingsCompanion building) =>
-      _dao.buildingDao.updateBuilding(building);
+  Future<void> updateBuildingOffline(
+          BuildingsCompanion building, int downloadId) =>
+      _dao.buildingDao.updateBuilding(building, downloadId);
 
   @override
   Future<BuildingEntity> getBuildingDetails(String globalId) async {
@@ -84,11 +89,11 @@ class BuildingRepository implements IBuildingRepository {
   }
 
   @override
-  Future<void> markAsUnchanged(String globalId) async {
-    await _dao.buildingDao.markAsUnmodified(globalId);
+  Future<void> markAsUnchanged(String globalId, int downloadId) async {
+    await _dao.buildingDao.markAsUnmodified(globalId, downloadId);
   }
 
-    @override
+  @override
   Future<int> deleteUnmodified(int downloadId) =>
       _dao.buildingDao.deleteUnmodifiedBuildings(downloadId);
 }

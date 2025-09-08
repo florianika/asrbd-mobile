@@ -58,11 +58,13 @@ class BuildingUseCases {
   Future<BuildingEntity> getBuildingDetails(
     String globalId,
     bool isOffline,
+    int? downloadId,
   ) async {
     if (!isOffline) {
       return await _buildingRepository.getBuildingDetails(globalId);
     } else {
-      Building? building = await _buildingRepository.getBuildingById(globalId);
+      Building? building =
+          await _buildingRepository.getBuildingById(globalId, downloadId!);
       return building!.toEntity();
     }
   }
@@ -102,14 +104,18 @@ class BuildingUseCases {
 
   Future<String> _updateBuildingFeatureOffline(
       BuildingEntity building, int downloadId) async {
-    await _buildingRepository.updateBuildingOffline(building.toDriftBuilding(
-        downloadId: downloadId, recordStatus: RecordStatus.updated));
+    await _buildingRepository.updateBuildingOffline(
+      building.toDriftBuilding(
+          downloadId: downloadId, recordStatus: RecordStatus.updated),
+      downloadId,
+    );
 
     return building.globalId ?? '';
   }
 
   Future<bool> startReviewing(String globalId, int value) async {
-    var building = await getBuildingDetails(globalId, false);
+    //revieing is always enabled for online version, so we can set the downloadId to null
+    var building = await getBuildingDetails(globalId, false, null);
 
     if (building.bldReview == 6) {
       building.bldReview = 4;
@@ -218,7 +224,9 @@ class BuildingUseCases {
       await buildingUseCase.updateBuildingFeature(building);
     } else {
       await buildingUseCase._updateBuildingFeatureOffline(
-          building, downloadId!);
+        building,
+        downloadId!,
+      );
     }
   }
 }

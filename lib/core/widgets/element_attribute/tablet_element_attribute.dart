@@ -161,6 +161,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   context.read<DwellingCubit>().getDwellings(
                         widget.initialData['GlobalID'],
                         context.read<TileCubit>().isOffline,
+                         context.read<TileCubit>().download?.id
                       ),
                 },
                 selectedShapeType: widget.selectedShapeType,

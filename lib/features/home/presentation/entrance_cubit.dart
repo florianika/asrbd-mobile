@@ -70,12 +70,12 @@ class EntranceCubit extends Cubit<EntranceState> {
     this.dwellingCubit,
   ) : super(EntranceInitial());
 
-  Future<void> getEntrances(
-      double zoom, List<String> entBldGlobalIDs, bool isOffline) async {
+  Future<void> getEntrances(double zoom, List<String> entBldGlobalIDs,
+      bool isOffline, int? downloadId) async {
     emit(EntranceLoading());
-    try {      
-      final entrances =
-          await entranceUseCases.getEntrances(zoom, entBldGlobalIDs, isOffline);
+    try {
+      final entrances = await entranceUseCases.getEntrances(
+          zoom, entBldGlobalIDs, isOffline, downloadId);
       _entrances = entrances;
       emit(Entrances(entrances));
     } catch (e) {

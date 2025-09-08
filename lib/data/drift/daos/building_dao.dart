@@ -16,23 +16,18 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<List<Building>> getUnsyncedBuildings(int downloadId) {
-    // final rows = await db.customSelect(
-    //   'SELECT id, record_status FROM buildings',
-    //   readsFrom: {db.buildings}, // optional but good practice
-    // ).get();
-
-    // for (final row in rows) {
-    //   print('id=${row.data['id']}, record_status=${row.data['record_status']}');
-    // }
-
     return (select(buildings)
-          ..where((b) => b.recordStatus.isNotValue(RecordStatus.unmodified)))
+          ..where((b) =>
+              b.recordStatus.isNotValue(RecordStatus.unmodified) &
+              b.downloadId.equals(downloadId)))
         .get();
   }
 
   Future<int> deleteUnmodifiedBuildings(int downloadId) {
     return (delete(buildings)
-          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+          ..where((e) =>
+              e.recordStatus.equals(RecordStatus.unmodified) &
+              e.downloadId.equals(downloadId)))
         .go();
   }
 
@@ -47,8 +42,11 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
   }
 
   // 2. Get building by id
-  Future<Building?> getBuildingById(String globalId) {
-    return (select(buildings)..where((tbl) => tbl.globalId.equals(globalId)))
+  Future<Building?> getBuildingById(String globalId, int downloadId) {
+    return (select(buildings)
+          ..where((tbl) =>
+              tbl.globalId.equals(globalId) &
+              tbl.downloadId.equals(downloadId)))
         .getSingleOrNull();
   }
 
@@ -68,12 +66,15 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
     });
   }
 
-  Future<int> updateBuilding(BuildingsCompanion building) async {
+  Future<int> updateBuilding(
+      BuildingsCompanion building, int downloadId) async {
     assert(building.globalId.present, 'globalId must be provided for update');
 
     // 1. Get the current record from DB
     final current = await (select(buildings)
-          ..where((tbl) => tbl.globalId.equals(building.globalId.value)))
+          ..where((tbl) =>
+              tbl.globalId.equals(building.globalId.value) &
+              tbl.downloadId.equals(downloadId)))
         .getSingleOrNull();
 
     if (current == null) {
@@ -92,18 +93,23 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
 
     // 4. Execute the update
     return (update(buildings)
-          ..where((tbl) => tbl.globalId.equals(building.globalId.value)))
+          ..where((tbl) =>
+              tbl.globalId.equals(building.globalId.value) &
+              tbl.downloadId.equals(downloadId)))
         .write(updatedCompanion);
   }
 
   // 5. Delete a single building
-  Future<int> deleteBuildingByGlobalId(String globalId) async {
-    return (delete(buildings)..where((tbl) => tbl.globalId.equals(globalId)))
-        .go();
-  }
+  // Future<int> deleteBuildingByGlobalId(String globalId) async {
+  //   return (delete(buildings)..where((tbl) => tbl.globalId.equals(globalId)))
+  //       .go();
+  // }
 
-  Future<int> markAsUnmodified(String globalId) async {
-    return (update(buildings)..where((tbl) => tbl.globalId.equals(globalId)))
+  Future<int> markAsUnmodified(String globalId, int downloadId) async {
+    return (update(buildings)
+          ..where((tbl) =>
+              tbl.globalId.equals(globalId) &
+              tbl.downloadId.equals(downloadId)))
         .write(
       BuildingsCompanion(
         recordStatus: Value(RecordStatus.unmodified),
@@ -112,16 +118,20 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
   }
 
   // 6. Delete all buildings
-  Future<void> deleteAllBuildings() async {
-    await delete(buildings).go();
-  }
+  // Future<void> deleteAllBuildings() async {
+  //   await delete(buildings).go();
+  // }
 
   // 7. Update only GlobalID based on OBJECTID
   Future<void> updateGlobalIdById({
     required String oldGlobalId,
     required String globalId,
+    required int downloadId,
   }) async {
-    await (update(buildings)..where((tbl) => tbl.globalId.equals(oldGlobalId)))
+    await (update(buildings)
+          ..where((tbl) =>
+              tbl.globalId.equals(oldGlobalId) &
+              tbl.downloadId.equals(downloadId)))
         .write(
       BuildingsCompanion(
         globalId: Value(globalId),

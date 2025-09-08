@@ -47,22 +47,32 @@ class _MapActionEventsState extends State<MapActionEvents> {
     loadingCubit.show();
 
     EntranceEntity? entrance = geometryEditor.entranceCubit.currentEntrance;
-    entrance ??=
-        EntranceEntity(coordinates: widget.mapController.camera.center);
+    entrance == null
+        ? EntranceEntity(coordinates: widget.mapController.camera.center)
+        : entrance.copyWith(coordinates: widget.mapController.camera.center);
 
     final entranceUseCase = sl<EntranceUseCases>();
 
     try {
-      SaveResult response =
-          await entranceUseCase.saveEntrance(entrance, isOffline, download?.id);
+      SaveResult response = await entranceUseCase.saveEntrance(
+        entrance!,
+        isOffline,
+        download?.id,
+      );
 
-      widget.mapController.move(widget.mapController.camera.center,
-          widget.mapController.camera.zoom + 0.3);
+      widget.mapController.move(
+        widget.mapController.camera.center,
+        widget.mapController.camera.zoom + 0.3,
+      );
 
       loadingCubit.hide();
 
       await attributeCubit.showEntranceAttributes(
-          response.data, null, isOffline);
+        response.data,
+        null,
+        isOffline,
+        download?.id,
+      );
       if (mounted) {
         NotifierService.showMessage(
           context,
@@ -175,7 +185,11 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       loadingCubit.hide();
 
-      await attributeCubit.showBuildingAttributes(response.data, isOffline);
+      await attributeCubit.showBuildingAttributes(
+        response.data,
+        isOffline,
+        download?.id,
+      );
 
       if (mounted) {
         NotifierService.showMessage(

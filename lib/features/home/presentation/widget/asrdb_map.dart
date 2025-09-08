@@ -72,12 +72,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    // applyTile();
-    super.initState();
-  }
-
   void _goToCurrentLocation() async {
     final location = await LocationService.getCurrentLocation();
     widget.mapController.move(location, AppConfig.initZoom);
@@ -91,6 +85,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     try {
       context.read<DwellingCubit>().closeDwellings();
       bool isOffline = context.read<TileCubit>().isOffline;
+      DownloadEntity? download = context.read<TileCubit>().download;
       _selectedGlobalId = entrance.globalId;
       context.read<AttributesCubit>().clearSelections();
 
@@ -111,7 +106,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
           context.read<AttributesCubit>().currentBuildingGlobalId;
 
       await context.read<AttributesCubit>().showEntranceAttributes(
-          entrance.globalId, buildingGlobalId, isOffline);
+            entrance.globalId,
+            buildingGlobalId,
+            isOffline,
+            download?.id,
+          );
 
       if (mounted) {
         await context
@@ -225,7 +224,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  void _handleBuildingOnTap(LatLng position, bool isOffline) {
+  void _handleBuildingOnTap(LatLng position, bool isOffline, int? downloadId) {
     try {
       context.read<DwellingCubit>().closeDwellings();
       context.read<AttributesCubit>().clearSelections();
@@ -234,9 +233,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
 
       if (buildingFound != null) {
-        context
-            .read<AttributesCubit>()
-            .showBuildingAttributes(buildingFound.globalId, isOffline);
+        context.read<AttributesCubit>().showBuildingAttributes(
+            buildingFound.globalId, isOffline, downloadId);
 
         final storageResponsitory = sl<StorageRepository>();
         storageResponsitory.saveString(
@@ -293,11 +291,15 @@ class _AsrdbMapState extends State<AsrdbMap> {
               onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
               initialCenter: state.isOffline
                   ? (LatLng(
-                    state.download!.centerLat!, state.download!.centerLng!))
+                      state.download!.centerLat!, state.download!.centerLng!))
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
-                  _handleBuildingOnTap(latlng, state.isOffline),
+                  _handleBuildingOnTap(
+                latlng,
+                state.isOffline,
+                state.download?.id,
+              ),
               onMapReady: () => {
                 _goToCurrentLocation(),
                 context.read<BuildingCubit>().getBuildings(

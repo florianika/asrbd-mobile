@@ -48,13 +48,14 @@ class DwellingCubit extends Cubit<DwellingState> {
   DwellingCubit(this.dwellingUseCases, this.attributesCubit)
       : super(Dwellings([], false));
 
-  Future<void> getDwellings(String? entranceGlobalId, bool isOffline) async {
+  Future<void> getDwellings(
+      String? entranceGlobalId, bool isOffline, int? downloadId) async {
     emit(DwellingLoading());
     try {
       attributesCubit.showAttributes(false);
 
-      final dwellings =
-          await dwellingUseCases.getDwellings(entranceGlobalId, isOffline);
+      final dwellings = await dwellingUseCases.getDwellings(
+          entranceGlobalId, isOffline, downloadId);
       emit(Dwellings(dwellings, true));
     } catch (e) {
       emit(DwellingError(e.toString()));

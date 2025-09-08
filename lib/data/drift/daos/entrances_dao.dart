@@ -12,9 +12,11 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
 
   // Get entrances by list of building GlobalIDs
   Future<List<Entrance>> getEntrancesByBuildingId(
-      List<String> buildingGlobalIds) {
+      List<String> buildingGlobalIds, int downloadId) {
     return (select(entrances)
-          ..where((tbl) => tbl.entBldGlobalId.isIn(buildingGlobalIds)))
+          ..where((tbl) =>
+              tbl.entBldGlobalId.isIn(buildingGlobalIds) &
+              tbl.downloadId.equals(downloadId)))
         .get();
   }
 
@@ -24,8 +26,11 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
-  Future<int> markAsUnmodified(String globalId) async {
-    return (update(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+  Future<int> markAsUnmodified(String globalId, int downloadId) async {
+    return (update(entrances)
+          ..where((tbl) =>
+              tbl.globalId.equals(globalId) &
+              tbl.downloadId.equals(downloadId)))
         .write(
       EntrancesCompanion(
         recordStatus: Value(RecordStatus.unmodified),
@@ -34,10 +39,10 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<int> deleteUnmodifiedEntrances(int downloadId) {
-  return (delete(entrances)
-        ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
-      .go();
-}
+    return (delete(entrances)
+          ..where((e) => e.recordStatus.equals(RecordStatus.unmodified)))
+        .go();
+  }
 
   // Insert or update a single entrance
   // Future<void> insertEntrance(EntrancesCompanion entrance) async {
@@ -52,8 +57,11 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
     return entrance.globalId.value;
   }
 
-  Future<Entrance?> getEntranceById(String globalId) {
-    return (select(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+  Future<Entrance?> getEntranceById(String globalId, int downloadId) {
+    return (select(entrances)
+          ..where((tbl) =>
+              tbl.globalId.equals(globalId) &
+              tbl.downloadId.equals(downloadId)))
         .getSingleOrNull();
   }
 
@@ -65,17 +73,19 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Delete an entrance by GlobalID
-  Future<void> deleteEntrance(String globalId) async {
-    await (delete(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
-        .go();
-  }
+  // Future<void> deleteEntrance(String globalId) async {
+  //   await (delete(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+  //       .go();
+  // }
 
   Future<int> updateEntrance(EntrancesCompanion entrance) async {
     assert(entrance.globalId.present, 'globalId must be provided for update');
 
     // 1. Get the current record from DB
     final current = await (select(entrances)
-          ..where((tbl) => tbl.globalId.equals(entrance.globalId.value)))
+          ..where((tbl) =>
+              tbl.globalId.equals(entrance.globalId.value) &
+              tbl.downloadId.equals(entrance.downloadId.value)))
         .getSingleOrNull();
 
     if (current == null) {
@@ -94,21 +104,27 @@ class EntrancesDao extends DatabaseAccessor<AppDatabase>
 
     // 4. Execute the update
     return (update(entrances)
-          ..where((tbl) => tbl.globalId.equals(entrance.globalId.value)))
+          ..where((tbl) =>
+              tbl.globalId.equals(entrance.globalId.value) &
+              tbl.downloadId.equals(entrance.downloadId.value)))
         .write(updatedCompanion);
   }
 
   // Delete all entrances
-  Future<void> deleteEntrances() async {
-    await delete(entrances).go();
-  }
+  // Future<void> deleteEntrances() async {
+  //   await delete(entrances).go();
+  // }
 
   // Update EntBldGlobalID by GlobalID
   Future<void> updateEntranceEntBldGlobalID({
     required String globalId,
     required String newEntBldGlobalID,
+    required int downloadId,
   }) async {
-    await (update(entrances)..where((tbl) => tbl.globalId.equals(globalId)))
+    await (update(entrances)
+          ..where((tbl) =>
+              tbl.globalId.equals(globalId) &
+              tbl.downloadId.equals(downloadId)))
         .write(
       EntrancesCompanion(
         entBldGlobalId: Value(newEntBldGlobalID),

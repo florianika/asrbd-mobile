@@ -97,7 +97,8 @@ class SyncUseCases {
     // });
   }
 
-  Future<void> syncDwellings(List<DwellingEntity> dwellings) async {
+  Future<void> syncDwellings(
+      List<DwellingEntity> dwellings, int downloadId) async {
     if (dwellings.isEmpty) return;
     // final db =
     //     AppDatabase(); // make sure this is the singleton writable instance
@@ -112,12 +113,14 @@ class SyncUseCases {
           await _dwellingRepository.updateDwellingById(
             oldGlobalId: dwelling.globalId!,
             newGlobalId: newGlobalId,
+            downloadId: downloadId,
           );
 
-          await _dwellingRepository.markAsUnchanged(newGlobalId);
+          await _dwellingRepository.markAsUnchanged(newGlobalId, downloadId);
         } else {
           await _dwellingRepository.updateDwellingFeature(dwelling);
-          await _dwellingRepository.markAsUnchanged(dwelling.globalId!);
+          await _dwellingRepository.markAsUnchanged(
+              dwelling.globalId!, downloadId);
         }
       } catch (e, st) {
         print('Failed to sync dwelling ${dwelling.globalId}: $e\n$st');
@@ -126,7 +129,8 @@ class SyncUseCases {
     // });
   }
 
-  Future<void> syncEntrances(List<EntranceEntity> entrances) async {
+  Future<void> syncEntrances(
+      List<EntranceEntity> entrances, int downloadId) async {
     if (entrances.isEmpty) return;
     // final db =
     //     AppDatabase(); // make sure this is the singleton writable instance
@@ -143,17 +147,20 @@ class SyncUseCases {
           await _entranceRepository.updateEntranceEntBldGlobalID(
             globalId: oldGlobalId,
             newEntBldGlobalID: newGlobalId,
+            downloadId: downloadId,
           );
 
           await _dwellingRepository.updateDwellingDwlEntGlobalID(
             oldDwlEntGlobalID: oldGlobalId,
             newDwlEntGlobalID: newGlobalId,
+            downloadId: downloadId,
           );
 
-          await _entranceRepository.markAsUnchanged(newGlobalId);
+          await _entranceRepository.markAsUnchanged(newGlobalId, downloadId);
         } else {
           await _entranceRepository.updateEntranceFeature(entrance);
-          await _entranceRepository.markAsUnchanged(entrance.globalId!);
+          await _entranceRepository.markAsUnchanged(
+              entrance.globalId!, downloadId);
         }
       } catch (e, st) {
         // Log error, but continue with the next entrance
@@ -163,7 +170,8 @@ class SyncUseCases {
     // });
   }
 
-  Future<void> syncBuildings(List<BuildingEntity> buildings) async {
+  Future<void> syncBuildings(
+      List<BuildingEntity> buildings, int downloadId) async {
     if (buildings.isEmpty) return;
     // final db = AppDatabase();
 
@@ -179,16 +187,19 @@ class SyncUseCases {
           await _entranceRepository.updateEntranceEntBldGlobalID(
             globalId: oldGlobalId,
             newEntBldGlobalID: newGlobalId,
+            downloadId: downloadId,
           );
           await _buildingRepository.updateBuildingGlobalId(
             oldGlobalId,
             newGlobalId,
+            downloadId,
           );
 
-          await _buildingRepository.markAsUnchanged(newGlobalId);
+          await _buildingRepository.markAsUnchanged(newGlobalId, downloadId);
         } else {
           await _buildingRepository.updateBuildingFeature(building);
-          await _buildingRepository.markAsUnchanged(building.globalId!);
+          await _buildingRepository.markAsUnchanged(
+              building.globalId!, downloadId);
         }
       } catch (e, st) {
         print('Failed to sync building ${building.globalId}: $e\n$st');

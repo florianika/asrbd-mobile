@@ -2,6 +2,7 @@ import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
+import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -53,14 +54,19 @@ class BuildingsMarker extends StatelessWidget {
           _lastBuildingIds = List.from(buildingIds);
 
           bool isOffline = context.read<TileCubit>().isOffline;
+          DownloadEntity? download = context.read<TileCubit>().download;
           // ✅ Debounce entrance calls to avoid rapid fire
           Future.delayed(const Duration(milliseconds: 100), () {
             if (context.mounted) {
               context.read<EntranceCubit>().getEntrances(
-                  mapController.camera.zoom, buildingIds, isOffline);
+                    mapController.camera.zoom,
+                    buildingIds,
+                    isOffline,
+                    download?.id,
+                  );
             }
           });
-         // }
+          // }
         }
       },
       // ✅ Much stricter buildWhen - only rebuild when building data meaningfully changes

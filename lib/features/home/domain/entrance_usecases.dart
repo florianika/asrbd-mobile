@@ -20,8 +20,8 @@ class EntranceUseCases {
 
   EntranceUseCases(this._entranceRepository);
 
-  Future<List<EntranceEntity>> getEntrances(
-      double zoom, List<String> entBldGlobalID, bool isOffline) async {
+  Future<List<EntranceEntity>> getEntrances(double zoom,
+      List<String> entBldGlobalID, bool isOffline, int? downloadId) async {
     if (zoom < AppConfig.entranceMinZoom) return [];
 
     if (entBldGlobalID.isEmpty) return [];
@@ -29,8 +29,8 @@ class EntranceUseCases {
     if (!isOffline) {
       return await _entranceRepository.getEntrances(entBldGlobalID);
     } else {
-      List<Entrance> entrances =
-          await _entranceRepository.getEntrancesByBuildingId(entBldGlobalID);
+      List<Entrance> entrances = await _entranceRepository
+          .getEntrancesByBuildingId(entBldGlobalID, downloadId!);
 
       return entrances.toEntityList();
     }
@@ -39,12 +39,18 @@ class EntranceUseCases {
   Future<EntranceEntity> getEntranceDetails(
     String globalId,
     bool isOffline,
+    int? downloadId,
   ) async {
     if (!isOffline) {
       return await _entranceRepository.getEntranceDetails(globalId);
     } else {
-      Entrance? entrance = await _entranceRepository.getEntranceById(globalId);
-      return entrance!.toEntity();
+      Entrance? entrance =
+          await _entranceRepository.getEntranceById(globalId, downloadId!);
+      if (entrance == null) {
+        throw Exception(
+            "Entrance with globalId: $globalId is not found in offline mode!");
+      }
+      return entrance.toEntity();
     }
   }
 
@@ -72,7 +78,9 @@ class EntranceUseCases {
   Future<String> _updateEntranceFeatureOffline(
       EntranceEntity entrance, int downloadId) async {
     await _entranceRepository.updateEntranceOffline(entrance.toDriftEntrance(
-        downloadId: downloadId, recordStatus: RecordStatus.updated));
+      downloadId: downloadId,
+      recordStatus: RecordStatus.updated,
+    ));
 
     return entrance.globalId ?? '';
   }
@@ -132,7 +140,9 @@ class EntranceUseCases {
       await entranceUseCases._updateEntranceFeatureOnline(entrance);
     } else {
       await entranceUseCases._updateEntranceFeatureOffline(
-          entrance, downloadId!);
+        entrance,
+        downloadId!,
+      );
     }
   }
 }

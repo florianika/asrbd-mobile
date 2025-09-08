@@ -12,7 +12,8 @@ abstract class IBuildingRepository {
   Future<List<BuildingEntity>> getBuildingsOnline(
       LatLngBounds bounds, double zoom, int municipalityId);
 
-  Future<void> updateBuildingOffline(BuildingsCompanion building);
+  Future<void> updateBuildingOffline(
+      BuildingsCompanion building, int downloadId);
 
   Future<List<Building>> getBuildingsByDownloadId(int downloadId);
 
@@ -22,15 +23,16 @@ abstract class IBuildingRepository {
 
   Future<void> insertBuildings(List<BuildingsCompanion> buildings);
 
-  Future<void> markAsUnchanged(String globalId);
+  Future<void> markAsUnchanged(String globalId, int downloadId);
 
   // Future<void> deleteBuilding(String globalId);
 
-  Future<void> deleteAllBuildings();
+  // Future<void> deleteAllBuildings();
 
-  Future<Building?> getBuildingById(String globalId);
+  Future<Building?> getBuildingById(String globalId, int downloadId);
 
-  Future<void> updateBuildingGlobalId(String oldGlobalId, String newGlobalId);
+  Future<void> updateBuildingGlobalId(
+      String oldGlobalId, String newGlobalId, int downloadId);
 
   Future<BuildingEntity> getBuildingDetails(String globalId);
 

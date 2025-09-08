@@ -11,20 +11,23 @@ class DwellingRepository implements IDwellingRepository {
 
   DwellingRepository(this._dao, this.dwellingService);
 
-  @override
-  Future<void> deleteDwelling(String globalId) async {
-    await _dao.dwellingDao.deleteDwelling(globalId);
-  }
+  // @override
+  // Future<void> deleteDwelling(String globalId) async {
+  //   await _dao.dwellingDao.deleteDwelling(globalId);
+  // }
 
-  @override
-  Future<void> deleteDwellings() async {
-    await _dao.dwellingDao.deleteDwellings();
-  }
+  // @override
+  // Future<void> deleteDwellings() async {
+  //   await _dao.dwellingDao.deleteDwellings();
+  // }
 
   @override
   Future<List<Dwelling>> getDwellingsByEntranceId(
-      String entranceGlobalId) async {
-    return await _dao.dwellingDao.getDwellingsByEntranceId(entranceGlobalId);
+    String entranceGlobalId,
+    int downloadId,
+  ) async {
+    return await _dao.dwellingDao
+        .getDwellingsByEntranceId(entranceGlobalId, downloadId);
   }
 
   @override
@@ -38,19 +41,28 @@ class DwellingRepository implements IDwellingRepository {
   }
 
   @override
-  Future<void> updateDwellingDwlEntGlobalID(
-      {required String oldDwlEntGlobalID,
-      required String newDwlEntGlobalID}) async {
+  Future<void> updateDwellingDwlEntGlobalID({
+    required String oldDwlEntGlobalID,
+    required String newDwlEntGlobalID,
+    required int downloadId,
+  }) async {
     await _dao.dwellingDao.updateDwellingDwlEntGlobalID(
-        oldDwlEntGlobalID: oldDwlEntGlobalID,
-        newDwlEntGlobalID: newDwlEntGlobalID);
+      oldDwlEntGlobalID: oldDwlEntGlobalID,
+      newDwlEntGlobalID: newDwlEntGlobalID,
+      downloadId: downloadId,
+    );
   }
 
   @override
   Future<void> updateDwellingById(
-      {required String oldGlobalId, required String newGlobalId}) async {
-    await _dao.dwellingDao
-        .updateDwellingById(oldGlobalId: oldGlobalId, newGlobalId: newGlobalId);
+      {required String oldGlobalId,
+      required String newGlobalId,
+      required int downloadId}) async {
+    await _dao.dwellingDao.updateDwellingById(
+      oldGlobalId: oldGlobalId,
+      newGlobalId: newGlobalId,
+      downloadId: downloadId,
+    );
   }
 
   @override
@@ -79,8 +91,9 @@ class DwellingRepository implements IDwellingRepository {
   }
 
   @override
-  Future<Dwelling> getDwellingDetailsByObjectId(int objectId) async {
-    return _dao.dwellingDao.getDwellingsByObjectId(objectId);
+  Future<Dwelling> getDwellingDetailsByObjectId(
+      int objectId, int downloadId) async {
+    return _dao.dwellingDao.getDwellingsByObjectId(objectId, downloadId);
   }
 
   Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {
@@ -88,8 +101,8 @@ class DwellingRepository implements IDwellingRepository {
   }
 
   @override
-  Future<void> markAsUnchanged(String globalId) async {
-    await _dao.dwellingDao.markAsUnmodified(globalId);
+  Future<void> markAsUnchanged(String globalId, int downloadId) async {
+    await _dao.dwellingDao.markAsUnmodified(globalId, downloadId);
   }
 
   @override

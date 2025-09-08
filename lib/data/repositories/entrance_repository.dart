@@ -39,24 +39,16 @@ class EntranceRepository implements IEntranceRepository {
   Future<void> updateEntranceOffline(EntrancesCompanion entrance) =>
       _dao.entranceDao.updateEntrance(entrance);
 
-  @override
-  Future<void> deleteEntrance(String globalId) async {
-    await _dao.entranceDao.deleteEntrance(globalId);
-  }
 
   @override
-  Future<void> deleteEntrances() async {
-    await _dao.entranceDao.deleteEntrances();
-  }
-
-  @override
-  Future<Entrance?> getEntranceById(String globalId) =>
-      _dao.entranceDao.getEntranceById(globalId);
+  Future<Entrance?> getEntranceById(String globalId, int downloadId) =>
+      _dao.entranceDao.getEntranceById(globalId, downloadId);
 
   @override
   Future<List<Entrance>> getEntrancesByBuildingId(
-      List<String> buildingGlobalIds) async {
-    return await _dao.entranceDao.getEntrancesByBuildingId(buildingGlobalIds);
+      List<String> buildingGlobalIds, int downloadId) async {
+    return await _dao.entranceDao
+        .getEntrancesByBuildingId(buildingGlobalIds, downloadId);
   }
 
   @override
@@ -71,9 +63,14 @@ class EntranceRepository implements IEntranceRepository {
 
   @override
   Future<void> updateEntranceEntBldGlobalID(
-      {required String globalId, required String newEntBldGlobalID}) async {
+      {required String globalId,
+      required String newEntBldGlobalID,
+      required int downloadId}) async {
     await _dao.entranceDao.updateEntranceEntBldGlobalID(
-        globalId: globalId, newEntBldGlobalID: newEntBldGlobalID);
+      globalId: globalId,
+      newEntBldGlobalID: newEntBldGlobalID,
+      downloadId: downloadId,
+    );
   }
 
   @override
@@ -92,7 +89,7 @@ class EntranceRepository implements IEntranceRepository {
       _dao.entranceDao.deleteUnmodifiedEntrances(downloadId);
 
   @override
-  Future<void> markAsUnchanged(String globalId) async {
-    await _dao.entranceDao.markAsUnmodified(globalId);
+  Future<void> markAsUnchanged(String globalId, int downloadId) async {
+    await _dao.entranceDao.markAsUnmodified(globalId, downloadId);
   }
 }

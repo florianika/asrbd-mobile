@@ -76,15 +76,16 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     try {
       List<BuildingEntity> buildings =
           await syncUseCase.getBuildingsToSync(data.id);
-      await syncUseCase.syncBuildings(buildings);
+      await syncUseCase.syncBuildings(buildings, data.id);
 
       List<EntranceEntity> entrances =
           await syncUseCase.getEntrancesToSync(data.id);
-      await syncUseCase.syncEntrances(entrances);
+
+      await syncUseCase.syncEntrances(entrances, data.id);
 
       List<DwellingEntity> dwellings =
           await syncUseCase.getDwellingsToSync(data.id);
-      await syncUseCase.syncDwellings(dwellings);
+      await syncUseCase.syncDwellings(dwellings, data.id);
 
       await syncUseCase.deleteUnmodifiedObjects(data.id);
 

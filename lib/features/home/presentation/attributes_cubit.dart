@@ -128,7 +128,7 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showDwellingAttributes(
-      int? dwellingObjectID, bool isOffline) async {
+      int? dwellingObjectID, bool isOffline, int? downloadId) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
@@ -150,7 +150,10 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final dwelling = await dwellingUseCases.getDwellingDetails(
-          dwellingObjectID, isOffline);
+        dwellingObjectID,
+        isOffline,
+        downloadId,
+      );
 
       // Store permanently
       _persistentDwelling = dwelling;
@@ -170,8 +173,12 @@ class AttributesCubit extends Cubit<AttributesState> {
     }
   }
 
-  Future<void> showEntranceAttributes(String? entranceGlobalID,
-      String? buildingGlobalID, bool isOffline) async {
+  Future<void> showEntranceAttributes(
+    String? entranceGlobalID,
+    String? buildingGlobalID,
+    bool isOffline,
+    int? downloadId,
+  ) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
@@ -192,7 +199,10 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final entrance = await entranceUseCases.getEntranceDetails(
-          entranceGlobalID, isOffline);
+        entranceGlobalID,
+        isOffline,
+        downloadId,
+      );
 
       // Store permanently
       _persistentEntrance = entrance;
@@ -212,7 +222,10 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showBuildingAttributes(
-      String? buildingGlobalID, bool isOffline) async {
+    String? buildingGlobalID,
+    bool isOffline,
+    int? downloadId,
+  ) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
@@ -233,7 +246,10 @@ class AttributesCubit extends Cubit<AttributesState> {
       }
 
       final building = await buildingUseCases.getBuildingDetails(
-          buildingGlobalID, isOffline);
+        buildingGlobalID,
+        isOffline,
+        downloadId,
+      );
 
       // Store permanently
       _persistentBuilding = building;
