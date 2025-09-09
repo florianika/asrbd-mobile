@@ -16,8 +16,10 @@ import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:math' as math;
@@ -292,7 +294,7 @@ class _OfflineMapState extends State<OfflineMap> {
         buildings.map((entity) => entity.globalId!).toList();
 
     if (buildingIds.isEmpty) return;
-    
+
     List<EntranceEntity> entrances =
         await entranceRepository.getEntrances(buildingIds);
 
@@ -348,15 +350,9 @@ class _OfflineMapState extends State<OfflineMap> {
 
   @override
   Widget build(BuildContext context) {
-    final tileProvider = FMTCTileProvider(
-      stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
-    );
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Offline Data Downloader'),
-        backgroundColor: Colors.blueGrey[800],
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -429,11 +425,19 @@ class _OfflineMapState extends State<OfflineMap> {
               },
             ),
             children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.asrdb.al',
-                tileProvider: tileProvider,
-              ),
+              BlocConsumer<TileCubit, TileState>(
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    return TileLayer(
+                      urlTemplate: state.basemapUrl,
+                      userAgentPackageName: AppConfig.userAgentPackageName,
+                      tileProvider: FMTCTileProvider(
+                        stores: {
+                          state.storeName: BrowseStoreStrategy.readUpdateCreate
+                        },
+                      ),
+                    );
+                  }),
               // Show download area as polygon overlay that updates dynamically
               if (_mapReady && _currentZoom >= AppConfig.minZoomDownload)
                 PolygonLayer(

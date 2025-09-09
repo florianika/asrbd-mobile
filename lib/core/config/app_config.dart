@@ -4,8 +4,6 @@ class AppConfig {
   static const String appName = 'ASRBD';
   static const String version = '1.0.0';
 
-  static const double tabletBreakpoint = 600.0;
-
   static const String defaultLanguage = 'sq';
 
   // API configurations
@@ -13,20 +11,16 @@ class AppConfig {
   static String fieldWorkWebSocket = dotenv.env['API_SOCKET_URL'] ?? "";
   static const int apiTimeout = 300; // seconds
 
-
   static String esriUriPath = dotenv.env['ESRI_API_PATH'] ?? "";
   static String esriUriScheme = dotenv.env['ESRI_API_SCHEME'] ?? "";
   static String esriUriHost = dotenv.env['ESRI_API_HOST'] ?? "";
 
-  static String esriMunicipalityUriPath = dotenv.env['ESRI_MUNICIPALITY_PATH'] ?? "";
+  static String esriMunicipalityUriPath =
+      dotenv.env['ESRI_MUNICIPALITY_PATH'] ?? "";
   static String esriMunicipalityUriScheme =
       dotenv.env['ESRI_MUNICIPALITY_SCHEME'] ?? "";
   static String esriMunicipalityUriHost =
       dotenv.env['ESRI_MUNICIPALITY_HOST'] ?? "";
-
-  static const double defaultLatitude = 41.3351224;
-  static const double defaultLongitude = 19.8276994;
-  // static const double scale = 72000;
 
   //maximum number of buildings that can be downloaded for offline use
   static const int maxNoBuildings = 50;
@@ -49,4 +43,17 @@ class AppConfig {
   static const int dwellingLayerId = 2;
   static const int streetLayerId = 3;
   static const int municipalityLayerId = 7;
+
+  //map store name to be used by FMTCStore to use basemap.
+  static const String mapTerrainStoreName = "mapStoreTerrain";
+  static const String mapSatelliteStoreName = "mapStoreSatellite";
+
+  static const String basemapSatelliteUrl =
+      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+  static const String basemapTerrainUrl =
+      "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+  //this agent is used while consumin open street map. do not remove it in order to not get blocked by open street map
+  static const String userAgentPackageName = "com.asrdb.al";
 }

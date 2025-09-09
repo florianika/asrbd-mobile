@@ -51,9 +51,7 @@ class ViewMap extends StatefulWidget {
 
 class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
-
-  // Map<String, dynamic>? buildingsData;
-  // Map<String, dynamic>? entranceData;
+  
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'review';

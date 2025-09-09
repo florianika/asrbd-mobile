@@ -67,7 +67,8 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
 
   await FMTCObjectBoxBackend().initialise();
-  await FMTCStore('mapStore').manage.create();
+  await FMTCStore(AppConfig.mapTerrainStoreName).manage.create();
+  await FMTCStore(AppConfig.mapSatelliteStoreName).manage.create();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
@@ -75,7 +76,6 @@ void main() async {
   ]);
 
   await dotenv.load();
-  // await LocalStorageService().init();
 
   sl.registerLazySingleton<StreetApi>(() => StreetApi());
 
@@ -84,12 +84,6 @@ void main() async {
   await legendService.loadLegendConfigs();
   await Hive.initFlutter();
   await StreetDatabase.database;
-
-  // final Directory appDocDir = await getApplicationDocumentsDirectory();
-  // final String offlineMapsPath = '${appDocDir.path}/offline_maps/';
-
-  // final tileIndex = TileIndexService(offlineMapsPath);
-  // await tileIndex.preloadTiles();
 
   sl.registerSingleton<DatabaseService>(DatabaseService());
 
@@ -187,12 +181,11 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             navigatorKey: rootNavigatorKey,
             title: AppConfig.appName,
-            locale:
-                Locale(langCode), // Update locale based on the LangCubit state
+            locale: Locale(langCode),
             supportedLocales: AppLocalizations.supportedLocales,
             onGenerateRoute: RouteManager.generateRoute,
-            theme: AppTheme.lightTheme(), // Use the light theme
-            darkTheme: AppTheme.darkTheme(), // Use the dark theme
+            theme: AppTheme.lightTheme(),
+            darkTheme: AppTheme.darkTheme(),
             themeMode: ThemeMode.system,
             localizationsDelegates: const [
               AppLocalizations.delegate,

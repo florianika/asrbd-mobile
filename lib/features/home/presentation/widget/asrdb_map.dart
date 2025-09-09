@@ -293,9 +293,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
-    final tileProvider = FMTCTileProvider(
-      stores: const {'mapStore': BrowseStoreStrategy.readUpdateCreate},
-    );
+    // final tileProvider = FMTCTileProvider(
+    //   stores: const {
+    //     AppConfig.mapStoreName: BrowseStoreStrategy.readUpdateCreate
+    //   },
+    // );
 
     return BlocConsumer<TileCubit, TileState>(
         listener: (context, state) {},
@@ -335,9 +337,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
             ),
             children: [
               TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.asrdb.al',
-                  tileProvider: tileProvider),
+                urlTemplate: state.basemapUrl,
+                userAgentPackageName: AppConfig.userAgentPackageName,
+                tileProvider: FMTCTileProvider(
+                  stores: {
+                    state.storeName: BrowseStoreStrategy.readUpdateCreate
+                  },
+                ),
+              ),
               MunicipalityMarker(
                 isOffline: state.isOffline,
                 municipalityId: state.download?.municipalityId,

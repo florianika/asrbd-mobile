@@ -7,7 +7,7 @@ import 'package:asrdb/features/auth/presentation/views/login_view.dart';
 
 class 
 RouteManager {
-  static const String homeRoute = '/home';
+  static const String homeRoute = '/';
   static const String loginRoute = '/login';
   static const String profileRoute = '/profile';
   static const String downloadMapRoute = '/download-map';

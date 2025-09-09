@@ -1,3 +1,4 @@
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -8,8 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
 
 class MapAppBar extends StatefulWidget implements PreferredSizeWidget {
-  final String? msg;
-  const MapAppBar({super.key, this.msg});
+  final String? title;
+  const MapAppBar({super.key, this.title});
 
   @override
   State<MapAppBar> createState() => _MapAppBarState();
@@ -20,7 +21,6 @@ class MapAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _MapAppBarState extends State<MapAppBar> {
   bool? _previousFieldWorkStatus;
-  // bool _showBadge = false;
 
   @override
   Widget build(BuildContext context) {
@@ -30,19 +30,17 @@ class _MapAppBarState extends State<MapAppBar> {
 
         // Detect change in field work status
         if (_previousFieldWorkStatus != null &&
-            _previousFieldWorkStatus != isActive) {
-          // _showBadge = true;
-        }
+            _previousFieldWorkStatus != isActive) {}
         _previousFieldWorkStatus = isActive;
-
-        // final hasStatusUpdate = _showBadge;
 
         return AppBar(
           title: BlocConsumer<TileCubit, TileState>(
             listener: (context, state) {},
             builder: (context, state) {
               return Text(
-                'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}, ${state.download?.id}, ${state.download?.municipalityId}',
+                widget.title == null
+                    ? 'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}'
+                    : widget.title!,
                 style: TextStyle(
                     fontSize: 12,
                     color: state.isOffline ? Colors.red : Colors.green),
@@ -72,7 +70,7 @@ class _MapAppBarState extends State<MapAppBar> {
             ),
             BlocBuilder<TileCubit, TileState>(
               builder: (context, tileState) {
-               if (tileState.isOffline) {
+                if (tileState.isOffline) {
                   return const SizedBox.shrink();
                 }
                 return Row(
@@ -81,9 +79,12 @@ class _MapAppBarState extends State<MapAppBar> {
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.layers, size: 25),
                       onSelected: (String result) {
-                        // Handle basemap selection
+                        context.read<TileCubit>().setBasemap(result == "terrain"
+                            ? AppConfig.basemapTerrainUrl
+                            : AppConfig.basemapSatelliteUrl);
                       },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
                         PopupMenuItem<String>(
                           value: 'terrain',
                           child: Row(
@@ -110,9 +111,10 @@ class _MapAppBarState extends State<MapAppBar> {
                     ),
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.download, size: 25),
-                      onSelected: (String result) =>
-                          Navigator.pushNamed(context, RouteManager.downloadMapRoute),
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                      onSelected: (String result) => Navigator.pushNamed(
+                          context, RouteManager.downloadMapRoute),
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
                         PopupMenuItem<String>(
                           value: 'download',
                           child: Row(
