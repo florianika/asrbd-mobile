@@ -51,10 +51,9 @@ class ViewMap extends StatefulWidget {
 
 class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
-  late String tileDirPath = '';
 
-  Map<String, dynamic>? buildingsData;
-  Map<String, dynamic>? entranceData;
+  // Map<String, dynamic>? buildingsData;
+  // Map<String, dynamic>? entranceData;
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'review';
@@ -423,7 +422,7 @@ class _ViewMapState extends State<ViewMap> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MapAppBar(msg: ''),
+      appBar: MapAppBar(),
       drawer: const SideMenu(),
       body: BlocBuilder<LoadingCubit, LoadingState>(
         builder: (context, state) {

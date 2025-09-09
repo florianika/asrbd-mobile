@@ -51,7 +51,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   final GlobalKey mapKey = GlobalKey();
 
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
-  LatLngBounds? visibleBounds;
+  // LatLngBounds? visibleBounds;
   // late String tileDirPath = '';
   double zoom = 0;
   String? _selectedGlobalId;
@@ -72,9 +72,25 @@ class _AsrdbMapState extends State<AsrdbMap> {
     super.dispose();
   }
 
-  void _goToCurrentLocation() async {
+  void _onMapReady() async {
     final location = await LocationService.getCurrentLocation();
     widget.mapController.move(location, AppConfig.initZoom);
+
+    if (!mounted) return;
+
+    bool isOffline = context.read<TileCubit>().isOffline;
+    DownloadEntity? download = context.read<TileCubit>().download;
+    final userService = sl<UserService>();
+
+    context.read<BuildingCubit>().getBuildings(
+        widget.mapController.camera.visibleBounds,
+        AppConfig.buildingMinZoom,
+        isOffline
+            ? (download?.municipalityId ?? 0)
+            : userService.userInfo!.municipality,
+        isOffline,
+        download?.id);
+
     setState(() {
       _userLocation = location;
       _showLocationMarker = true;
@@ -300,18 +316,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 state.isOffline,
                 state.download?.id,
               ),
-              onMapReady: () => {
-                _goToCurrentLocation(),
-                context.read<BuildingCubit>().getBuildings(
-                    widget.mapController.camera.visibleBounds,
-                    AppConfig.buildingMinZoom,
-                    state.isOffline
-                        ? (state.download?.municipalityId ?? 0)
-                        : userService.userInfo!.municipality,
-                    state.isOffline,
-                    state.download?.id),
-                visibleBounds = widget.mapController.camera.visibleBounds,
-              },
+              onMapReady: _onMapReady,
               onMapEvent: (event) {
                 if (event is MapEventMoveEnd) {
                   final camera = widget.mapController.camera;

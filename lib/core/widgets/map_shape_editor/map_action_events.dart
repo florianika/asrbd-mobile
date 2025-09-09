@@ -43,6 +43,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final attributeCubit = context.read<AttributesCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
     DownloadEntity? download = context.read<TileCubit>().download;
+    final userService = sl<UserService>();
 
     loadingCubit.show();
 
@@ -60,10 +61,17 @@ class _MapActionEventsState extends State<MapActionEvents> {
         download?.id,
       );
 
-      widget.mapController.move(
-        widget.mapController.camera.center,
-        widget.mapController.camera.zoom + 0.3,
-      );
+      if (!mounted) return;
+
+      await context.read<BuildingCubit>().getBuildings(
+            widget.mapController.camera.visibleBounds,
+            widget.mapController.camera.zoom,
+            isOffline
+                ? download!.municipalityId!
+                : userService.userInfo!.municipality,
+            isOffline,
+            download?.id,
+          );
 
       loadingCubit.hide();
 
@@ -73,7 +81,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         isOffline,
         download?.id,
       );
-      
+
       if (mounted) {
         NotifierService.showMessage(
           context,
