@@ -1,6 +1,5 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/models/record_status.dart';
-import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
 import 'package:asrdb/data/mapper/dwelling_mapper.dart';
 import 'package:asrdb/data/mapper/entrance_mapper.dart';

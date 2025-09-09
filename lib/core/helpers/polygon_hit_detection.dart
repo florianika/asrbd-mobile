@@ -1,4 +1,3 @@
-import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:geodesy/geodesy.dart';
 

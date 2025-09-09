@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
-import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
@@ -41,7 +40,7 @@ class _OfflineMapState extends State<OfflineMap> {
   bool _mapReady = false;
 
   bool _isDownloading = false;
-  double _downloadProgress = 0.0;
+  // double _downloadProgress = 0.0;
   String _downloadStatus = '';
 
   LatLngBounds? _downloadBounds;
@@ -218,7 +217,7 @@ class _OfflineMapState extends State<OfflineMap> {
   Future<void> _downloadData(String downloadName) async {
     setState(() {
       _isDownloading = true;
-      _downloadProgress = 0.0;
+
       _downloadStatus = 'Initializing download...';
     });
 
@@ -267,7 +266,6 @@ class _OfflineMapState extends State<OfflineMap> {
     } finally {
       setState(() {
         _isDownloading = false;
-        _downloadProgress = 0.0;
         _downloadStatus = '';
       });
     }

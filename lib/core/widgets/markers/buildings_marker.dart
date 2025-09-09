@@ -29,7 +29,7 @@ class BuildingsMarker extends StatelessWidget {
   static final Map<String, Polygon> _polygonCache = {};
 
   // ✅ Track last known building list to avoid unnecessary entrance calls
-  static List<String>? _lastBuildingIds;
+  // static List<String>? _lastBuildingIds;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class BuildingsMarker extends StatelessWidget {
           // ✅ Only call getEntrances if building list actually changed
           // if (buildingIds.isNotEmpty &&
           //     !_listEquals(buildingIds, _lastBuildingIds)) {
-          _lastBuildingIds = List.from(buildingIds);
+          // _lastBuildingIds = List.from(buildingIds);
 
           bool isOffline = context.read<TileCubit>().isOffline;
           DownloadEntity? download = context.read<TileCubit>().download;
@@ -237,20 +237,20 @@ class BuildingsMarker extends StatelessWidget {
   }
 
   // ✅ Helper to compare lists
-  bool _listEquals(List<String>? list1, List<String>? list2) {
-    if (list1 == null && list2 == null) return true;
-    if (list1 == null || list2 == null) return false;
-    if (list1.length != list2.length) return false;
+  // bool _listEquals(List<String>? list1, List<String>? list2) {
+  //   if (list1 == null && list2 == null) return true;
+  //   if (list1 == null || list2 == null) return false;
+  //   if (list1.length != list2.length) return false;
 
-    final set1 = list1.toSet();
-    final set2 = list2.toSet();
-    return set1.length == set2.length && set1.containsAll(set2);
-  }
+  //   final set1 = list1.toSet();
+  //   final set2 = list2.toSet();
+  //   return set1.length == set2.length && set1.containsAll(set2);
+  // }
 
   // ✅ Call this method periodically to prevent memory leaks
   static void clearCache() {
     _polygonCache.clear();
-    _lastBuildingIds = null;
+    // _lastBuildingIds = null;
   }
 
   // ✅ Method to clear cache for specific building (useful when updating coordinates)

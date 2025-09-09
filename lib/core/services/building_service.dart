@@ -6,7 +6,6 @@ import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 
 class BuildingService {
   final BuildingApi buildingApi;

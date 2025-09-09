@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/service_mode.dart';
 import 'package:asrdb/domain/entities/municipality_entity.dart';

@@ -1,3 +1,4 @@
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
@@ -102,7 +103,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: Colors.cyan.withValues(alpha: 0.1 + 0.05 * _glowAnimation.value),
+                          color: Colors.cyan.withValues(
+                              alpha: 0.1 + 0.05 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
@@ -119,16 +121,16 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         width: 300,
                         height: 300,
                         decoration: BoxDecoration(
-                          color: Colors.blue.withValues(alpha: 0.08 + 0.02 * _glowAnimation.value),
+                          color: Colors.blue.withValues(
+                              alpha: 0.08 + 0.02 * _glowAnimation.value),
                           shape: BoxShape.circle,
                         ),
                       );
                     },
                   ),
                 ),
-                
                 Column(
-                  children: <Widget>[      
+                  children: <Widget>[
                     Container(
                       height: 160,
                       decoration: BoxDecoration(
@@ -175,14 +177,18 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                                         ],
                                       ),
                                       border: Border.all(
-                                        color: Colors.cyan.withValues(alpha: 0.5),
+                                        color:
+                                            Colors.cyan.withValues(alpha: 0.5),
                                         width: 2,
                                       ),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.cyan.withValues(alpha: 0.3),
-                                          blurRadius: 20 + 10 * _glowAnimation.value,
-                                          spreadRadius: 5 + 3 * _glowAnimation.value,
+                                          color: Colors.cyan
+                                              .withValues(alpha: 0.3),
+                                          blurRadius:
+                                              20 + 10 * _glowAnimation.value,
+                                          spreadRadius:
+                                              5 + 3 * _glowAnimation.value,
                                         ),
                                       ],
                                     ),
@@ -196,7 +202,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'ASRDB',
+                                AppConfig.appName,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -206,7 +212,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                                     Shadow(
                                       offset: const Offset(0, 2),
                                       blurRadius: 4,
-                                      color: Colors.black.withValues(alpha: 0.3),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.3),
                                     ),
                                   ],
                                 ),
@@ -225,56 +232,60 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                         ),
                       ),
                     ),
-                    
                     Expanded(
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            _buildMenuItem(
-                              context,
-                              icon: Icons.map_outlined,
-                              title: 'View Maps',
-                              subtitle: 'Downloaded offline maps',
-                              onTap: () {
-                                Navigator.pushNamed(context, RouteManager.downloadedMapList);
-                              },
-                            ),
-                            
-                            const SizedBox(height: 10),
-                             _buildMenuItem(
-                              context,
-                              icon: Icons.settings_outlined,
-                              title: 'Settings',
-                              subtitle: 'App configuration',
-                              onTap: () {
-                                Navigator.pushNamed(context, RouteManager.settingsRoute);
-                              },
-                            ),
-                            
-                            const SizedBox(height: 10),
-                            _buildMenuItem(
-                              context,
-                              icon: Icons.person_outline,
-                              title: 'Profile',
-                              subtitle: 'User account details',
-                              onTap: () {
-                                // Handle profile tap
-                              },
-                            ),
-                            
-                            const SizedBox(height: 10),
-                            _buildMenuItem(
-                              context,
-                              icon: Icons.help_outline,
-                              title: 'Help & Support',
-                              subtitle: 'Get assistance',
-                              onTap: () {
-                                // Handle help tap
-                              },
-                            ),
-                          ],
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              _buildMenuItem(
+                                context,
+                                icon: Icons.map_outlined,
+                                title: 'View Maps',
+                                subtitle: 'Downloaded offline maps',
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, RouteManager.downloadedMapList);
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              _buildMenuItem(
+                                context,
+                                icon: Icons.settings_outlined,
+                                title: 'Settings',
+                                subtitle: 'App configuration',
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, RouteManager.settingsRoute);
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              _buildMenuItem(
+                                context,
+                                icon: Icons.person_outline,
+                                title: 'Profile',
+                                subtitle: 'User account details',
+                                onTap: () {
+                                  // Handle profile tap
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              _buildMenuItem(
+                                context,
+                                icon: Icons.help_outline,
+                                title: 'Help & Support',
+                                subtitle: 'Get assistance',
+                                onTap: () {
+                                  // Handle help tap
+                                },
+                              ),
+                              const SizedBox(
+                                  height:
+                                      16), // Extra space at bottom for scroll
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -296,7 +307,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                           ),
                           const SizedBox(height: 12),
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
@@ -306,7 +318,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               ),
                             ),
                             child: Text(
-                              'Version 1.0.0',
+                              'Version ${AppConfig.version}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,

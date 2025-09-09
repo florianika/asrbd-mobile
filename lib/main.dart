@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
@@ -12,7 +11,6 @@ import 'package:asrdb/core/services/note_service.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/street_service.dart';
-import 'package:asrdb/core/services/tile_index_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/data/repositories/building_repository.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';

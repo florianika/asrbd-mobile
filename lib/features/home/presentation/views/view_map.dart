@@ -15,7 +15,7 @@ import 'package:asrdb/core/widgets/legend/legend_widget.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/core/widgets/map_shape_editor/map_geometry_editor.dart';
 import 'package:asrdb/core/widgets/map_shape_editor/map_action_events.dart';
-import 'package:asrdb/core/widgets/side_menu.dart';
+import 'package:asrdb/core/widgets/side_menu/side_menu.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
