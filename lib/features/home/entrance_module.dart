@@ -2,6 +2,7 @@ import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/services/database_service.dart';
 import 'package:asrdb/core/services/entrance_service.dart';
 import 'package:asrdb/data/repositories/entrance_repository.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
@@ -24,7 +25,7 @@ void initEntranceModule(GetIt slEntrance) {
 
   // Register use cases
   slEntrance.registerLazySingleton<EntranceUseCases>(
-      () => EntranceUseCases(slEntrance<EntranceRepository>()));
+      () => EntranceUseCases(slEntrance<EntranceRepository>(), slEntrance<BuildingUseCases>()));
 
   // Register Cubit (State Management)
   slEntrance.registerFactory<EntranceCubit>(() => EntranceCubit(

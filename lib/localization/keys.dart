@@ -47,6 +47,7 @@ class Keys {
   static const String successUpdateBuilding = 'successUpdateBuilding';
   static const String successAddEntrance = 'successAddEntrance';
   static const String successUpdateEntrance = 'successUpdateEntrance';
+  static const String entranceDistanceValidationError = 'entranceDistanceValidationError';
   static const String successAddDwelling = 'successAddDwelling';
   static const String successUpdateDwelling = 'successUpdateDwelling';
   static const String invalidShape = 'invalidShape';

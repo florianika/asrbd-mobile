@@ -26,6 +26,7 @@ import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_building_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/edit_entrance_marker.dart';
 import 'package:asrdb/features/home/presentation/widget/markers/location_tag_marker.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -240,6 +241,49 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
+  void _handleMapTap(LatLng position, bool isOffline, int? downloadId) async {
+    try {
+      final geometryEditor = context.read<GeometryEditorCubit>();
+      
+      if (geometryEditor.isEditing) {
+        if (geometryEditor.selectedType == EntityType.entrance) {
+          final attributeCubit = context.read<AttributesCubit>();
+          final buildingGlobalId = attributeCubit.currentBuildingGlobalId;
+          
+          if (buildingGlobalId != null) {
+            await geometryEditor.onMapTapWithValidation(
+              position,
+              buildingGlobalId,
+              isOffline,
+              downloadId,
+            );
+            
+            final validationError = geometryEditor.entranceCubit.validationError;
+            if (validationError != null && mounted) {
+              NotifierService.showMessage(
+                context,
+                message: AppLocalizations.of(context).translate(validationError).replaceAll('{distance}', AppConfig.maxEntranceDistanceFromBuilding.toString()),
+                type: MessageType.warning,
+              );
+            }
+          } else {
+            geometryEditor.onMapTap(position);
+          }
+        } else {
+          geometryEditor.onMapTap(position);
+        }
+      } else {
+        _handleBuildingOnTap(position, isOffline, downloadId);
+      }
+    } catch (e) {
+      NotifierService.showMessage(
+        context,
+        message: e.toString(),
+        type: MessageType.error,
+      );
+    }
+  }
+
   void _handleBuildingOnTap(LatLng position, bool isOffline, int? downloadId) {
     try {
       context.read<DwellingCubit>().closeDwellings();
@@ -313,7 +357,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
               onTap: (TapPosition position, LatLng latlng) =>
-                  _handleBuildingOnTap(
+                  _handleMapTap(
                 latlng,
                 state.isOffline,
                 state.download?.id,

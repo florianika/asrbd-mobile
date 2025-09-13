@@ -57,6 +57,7 @@ class LocalizedEn {
     Keys.successUpdateBuilding: "Building was successfully updated.",
     Keys.successAddEntrance: "Entrance was successfully added.",
     Keys.successUpdateEntrance: "Entrance was successfully updated.",
+    Keys.entranceDistanceValidationError: "Entrance must be within {distance} meters of the building",
     Keys.successAddDwelling: "Dwelling was successfully added.",
     Keys.successUpdateDwelling: "Dwelling was successfully updated.",
     Keys.startValidationSuccess: "Validation started successfully",

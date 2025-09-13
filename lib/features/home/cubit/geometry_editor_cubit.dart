@@ -66,20 +66,17 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
   EditorMode _mode = EditorMode.view;
   bool _showAdditionalUI = false;
 
-  // Handle long press on entrance
   void onEntranceLongPress(EntranceEntity entrance) {
     _selectedType = EntityType.entrance;
     _mode = EditorMode.edit;
     _showAdditionalUI = true;
 
-    // Set the entrance cubit to edit mode
     entranceCubit.setEntrance(
       entrance,
       isDrawing: false,
       isMovingPoint: true,
     );
 
-    // Reset building cubit
     buildingCubit.setState(
       points: [],
       isDrawing: false,
@@ -89,20 +86,17 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     _emitCurrentState();
   }
 
-  // Handle long press on building
   void onBuildingLongPress(BuildingEntity building) {
     _selectedType = EntityType.building;
     _mode = EditorMode.edit;
     _showAdditionalUI = true;
 
-    // Set the building cubit to edit mode
     buildingCubit.setBuildingFromEntity(
       building,
       isDrawing: false,
       isMovingPoint: true,
     );
 
-    // Reset entrance cubit
     entranceCubit.setState(
       point: null,
       isDrawing: false,
@@ -112,7 +106,6 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     _emitCurrentState();
   }
 
-  // Start creating new entrance
   void startCreatingEntrance() {
     _selectedType = EntityType.entrance;
     _mode = EditorMode.create;
@@ -133,7 +126,6 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     _emitCurrentState();
   }
 
-  // Start creating new building
   void startCreatingBuilding() {
     _selectedType = EntityType.building;
     _mode = EditorMode.create;
@@ -154,12 +146,10 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     _emitCurrentState();
   }
 
-  // Handle map tap during creation
   void onMapTap(LatLng point) {
     if (_mode == EditorMode.create) {
       if (_selectedType == EntityType.entrance) {
         entranceCubit.addPoint(point);
-        // Automatically finish entrance creation after adding point
         finishCreation();
       } else if (_selectedType == EntityType.building) {
         buildingCubit.addPoint(point);
@@ -167,10 +157,46 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     }
   }
 
-  // ✅ Additional helper methods for easier access
+  Future<void> onMapTapWithValidation(
+    LatLng point,
+    String? buildingGlobalId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
+    if (_mode == EditorMode.create) {
+      if (_selectedType == EntityType.entrance && buildingGlobalId != null) {
+        await entranceCubit.addPointWithValidation(
+          point,
+          buildingGlobalId,
+          isOffline,
+          downloadId,
+        );
+        finishCreation();
+      } else if (_selectedType == EntityType.building) {
+        buildingCubit.addPoint(point);
+      }
+    }
+  }
+
   void updateEntrancePoint(LatLng newPoint) {
     if (_selectedType == EntityType.entrance) {
       entranceCubit.updatePoint(newPoint);
+    }
+  }
+
+  Future<void> updateEntrancePointWithValidation(
+    LatLng newPoint,
+    String? buildingGlobalId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
+    if (_selectedType == EntityType.entrance && buildingGlobalId != null) {
+      await entranceCubit.updatePointWithValidation(
+        newPoint,
+        buildingGlobalId,
+        isOffline,
+        downloadId,
+      );
     }
   }
 

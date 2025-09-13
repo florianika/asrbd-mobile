@@ -55,6 +55,7 @@ class LocalizedAl {
     Keys.successUpdateBuilding: "Ndertesa u përditësua me sukses.",
     Keys.successAddEntrance: "Hyrja u shtua me sukses.",
     Keys.successUpdateEntrance: "Hyrja u përditësua me sukses.",
+    Keys.entranceDistanceValidationError: "Hyrja duhet të jetë brenda {distance} metrave nga ndërtesa",
     Keys.successAddDwelling: "Apartamenti u shtua me sukses.",
     Keys.successUpdateDwelling: "Apartamenti u përditësua me sukses.",
     Keys.startValidationSuccess: "Nisja e validimit u krye me sukses",

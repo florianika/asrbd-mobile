@@ -307,94 +307,108 @@ class GeometryHelper {
     return LatLng(centroidLat, centroidLng);
   }
 
-  // static bool isPointOrValidPolygon(List<LatLng> coords) {
-  //   if (coords.isEmpty) return false;
+  static bool validateEntranceDistanceFromBuilding(
+    LatLng entrancePoint,
+    List<List<LatLng>> buildingPolygon,
+    double maxDistanceMeters,
+  ) {
+    if (buildingPolygon.isEmpty || buildingPolygon.first.isEmpty) {
+      return false;
+    }
 
-  //   // Case 1: Single point
-  //   if (coords.length == 1) return true;
+    final geodesy = Geodesy();
+    final buildingExteriorRing = buildingPolygon.first;
 
-  //   // Case 2: Polygon (≥3 points, valid shape)
-  //   if (coords.length >= 3) {
-  //     final totalPoints = coords.length;
+    if (_isPointInPolygon(entrancePoint, buildingExteriorRing)) {
+      return true;
+    }
 
-  //     // Check all segment pairs (including wraparound)
-  //     for (int i = 0; i < totalPoints; i++) {
-  //       LatLng a1 = coords[i];
-  //       LatLng a2 = coords[(i + 1) % totalPoints];
+    double minDistance = double.infinity;
 
-  //       for (int j = i + 1; j < totalPoints; j++) {
-  //         // Skip adjacent or identical segments
-  //         if ((i - j).abs() <= 1 || (i == 0 && j == totalPoints - 1)) continue;
+    for (int i = 0; i < buildingExteriorRing.length - 1; i++) {
+      final edgeStart = buildingExteriorRing[i];
+      final edgeEnd = buildingExteriorRing[i + 1];
+      
+      final closestPointOnEdge = _closestPointOnSegment(entrancePoint, edgeStart, edgeEnd);
+      final distanceToEdge = geodesy.distanceBetweenTwoGeoPoints(entrancePoint, closestPointOnEdge);
+      
+      if (distanceToEdge < minDistance) {
+        minDistance = distanceToEdge.toDouble();
+      }
+    }
 
-  //         LatLng b1 = coords[j];
-  //         LatLng b2 = coords[(j + 1) % totalPoints];
+    if (buildingExteriorRing.length > 2) {
+      final edgeStart = buildingExteriorRing.last;
+      final edgeEnd = buildingExteriorRing.first;
+      
+      final closestPointOnEdge = _closestPointOnSegment(entrancePoint, edgeStart, edgeEnd);
+      final distanceToEdge = geodesy.distanceBetweenTwoGeoPoints(entrancePoint, closestPointOnEdge);
+      
+      if (distanceToEdge < minDistance) {
+        minDistance = distanceToEdge.toDouble();
+      }
+    }
 
-  //         if (_segmentsIntersect(a1, a2, b1, b2)) {
-  //           return false; // Invalid polygon: intersection found
-  //         }
-  //       }
-  //     }
+    return minDistance <= maxDistanceMeters;
+  }
 
-  //     return true;
-  //   }
+  static bool validateEntranceDistanceFromBuildingWithTurf(
+    LatLng entrancePoint,
+    List<List<LatLng>> buildingPolygon,
+    double maxDistanceMeters,
+  ) {
+    if (buildingPolygon.isEmpty || buildingPolygon.first.isEmpty) {
+      return false;
+    }
 
-  //   return false;
-  // }
+    try {
+      final point = turf.Point(
+        coordinates: turf.Position.of([entrancePoint.longitude, entrancePoint.latitude])
+      );
 
-  // static bool _segmentsIntersect(LatLng p1, LatLng p2, LatLng q1, LatLng q2) {
-  //   int orientation(LatLng a, LatLng b, LatLng c) {
-  //     double val = (b.longitude - a.longitude) * (c.latitude - b.latitude) -
-  //         (b.latitude - a.latitude) * (c.longitude - b.longitude);
-  //     if (val == 0) return 0;
-  //     return val > 0 ? 1 : 2;
-  //   }
+      final polygon = turf.Polygon(
+        coordinates: [
+          buildingPolygon.first.map((coord) => 
+            turf.Position.of([coord.longitude, coord.latitude])
+          ).toList()
+        ]
+      );
 
-  //   bool onSegment(LatLng a, LatLng b, LatLng c) {
-  //     return min(a.latitude, c.latitude) <= b.latitude &&
-  //         max(a.latitude, c.latitude) >= b.latitude &&
-  //         min(a.longitude, c.longitude) <= b.longitude &&
-  //         max(a.longitude, c.longitude) >= b.longitude;
-  //   }
+      if (turf.booleanWithin(point, polygon)) {
+        return true;
+      }
 
-  //   int o1 = orientation(p1, p2, q1);
-  //   int o2 = orientation(p1, p2, q2);
-  //   int o3 = orientation(q1, q2, p1);
-  //   int o4 = orientation(q1, q2, p2);
+      return validateEntranceDistanceFromBuilding(
+        entrancePoint,
+        buildingPolygon,
+        maxDistanceMeters,
+      );
+    } catch (e) {
+      return validateEntranceDistanceFromBuilding(
+        entrancePoint,
+        buildingPolygon,
+        maxDistanceMeters,
+      );
+    }
+  }
 
-  //   if (o1 != o2 && o3 != o4) return true;
+  static bool _isPointInPolygon(LatLng point, List<LatLng> polygon) {
+    if (polygon.length < 3) return false;
 
-  //   if (o1 == 0 && onSegment(p1, q1, p2)) return true;
-  //   if (o2 == 0 && onSegment(p1, q2, p2)) return true;
-  //   if (o3 == 0 && onSegment(q1, p1, q2)) return true;
-  //   if (o4 == 0 && onSegment(q1, p2, q2)) return true;
+    bool inside = false;
+    int j = polygon.length - 1;
 
-  //   return false;
-  // }
+    for (int i = 0; i < polygon.length; j = i++) {
+      if (((polygon[i].latitude > point.latitude) != (polygon[j].latitude > point.latitude)) &&
+          (point.longitude < (polygon[j].longitude - polygon[i].longitude) *
+                  (point.latitude - polygon[i].latitude) /
+                  (polygon[j].latitude - polygon[i].latitude) +
+              polygon[i].longitude)) {
+        inside = !inside;
+      }
+    }
 
-  // static List<List<LatLng>> convertGeometryCoordinates(
-  //     Map<String, dynamic> geometry) {
-  //   final coordinates = geometry['coordinates'];
+    return inside;
+  }
 
-  //   if (coordinates == null || coordinates is! List) {
-  //     throw ArgumentError(
-  //         'Invalid geometry: coordinates missing or not a List');
-  //   }
-
-  //   return coordinates.map<List<LatLng>>((ring) {
-  //     if (ring is! List) {
-  //       throw ArgumentError('Invalid ring: expected a List of points');
-  //     }
-  //     return ring.map<LatLng>((pointMap) {
-  //       if (pointMap is! Map) {
-  //         throw ArgumentError('Invalid point: expected a Map with lat/lng');
-  //       }
-  //       final lat = pointMap['lat'];
-  //       final lng = pointMap['lng'];
-  //       if (lat == null || lng == null) {
-  //         throw ArgumentError('Point missing lat or lng');
-  //       }
-  //       return LatLng(lat.toDouble(), lng.toDouble());
-  //     }).toList();
-  //   }).toList();
-  // }
 }

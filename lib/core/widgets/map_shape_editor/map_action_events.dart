@@ -1,3 +1,4 @@
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
@@ -110,6 +111,39 @@ class _MapActionEventsState extends State<MapActionEvents> {
       geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
     } else if (geometryEditor.selectedType == EntityType.entrance) {
       geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
+    }
+  }
+
+  Future<void> _addPointWithValidation() async {
+    final geometryEditor = context.read<GeometryEditorCubit>();
+    final attributeCubit = context.read<AttributesCubit>();
+    bool isOffline = context.read<TileCubit>().isOffline;
+    DownloadEntity? download = context.read<TileCubit>().download;
+
+    if (geometryEditor.selectedType == EntityType.building) {
+      geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
+    } else if (geometryEditor.selectedType == EntityType.entrance) {
+      final buildingGlobalId = attributeCubit.currentBuildingGlobalId;
+      
+      if (buildingGlobalId != null) {
+        await geometryEditor.entranceCubit.addPointWithValidation(
+          widget.mapController.camera.center,
+          buildingGlobalId,
+          isOffline,
+          download?.id,
+        );
+        
+        final validationError = geometryEditor.entranceCubit.validationError;
+        if (validationError != null && mounted) {
+          NotifierService.showMessage(
+            context,
+            message: AppLocalizations.of(context).translate(validationError).replaceAll('{distance}', AppConfig.maxEntranceDistanceFromBuilding.toString()),
+            type: MessageType.warning,
+          );
+        }
+      } else {
+        geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
+      }
     }
   }
 
@@ -348,7 +382,13 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             icon: Icons.add_location_alt_outlined,
                             heroTag: 'pin',
                             isEnabled: geometryEditor.canAddPoint,
-                            onPressed: _addPoint,
+                            onPressed: () async {
+                              if (geometryEditor.selectedType == EntityType.entrance) {
+                                await _addPointWithValidation();
+                              } else {
+                                _addPoint();
+                              }
+                            },
                           ),
 
                           const SizedBox(height: 20),
