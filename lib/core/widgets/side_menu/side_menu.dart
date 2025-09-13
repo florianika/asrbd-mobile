@@ -1,6 +1,10 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
+import 'package:asrdb/localization/localization.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'dart:ui';
 
 class SideMenu extends StatefulWidget {
@@ -220,7 +224,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Mobile App',
+                                AppLocalizations.of(context).translate(Keys.mobileApp),
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 14,
@@ -243,8 +247,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.map_outlined,
-                                title: 'View Maps',
-                                subtitle: 'Downloaded offline maps',
+                                title: AppLocalizations.of(context).translate(Keys.viewMaps),
+                                subtitle: AppLocalizations.of(context).translate(Keys.viewMapsSubtitle),
                                 onTap: () {
                                   Navigator.pushNamed(
                                       context, RouteManager.downloadedMapList);
@@ -254,8 +258,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.settings_outlined,
-                                title: 'Settings',
-                                subtitle: 'App configuration',
+                                title: AppLocalizations.of(context).translate(Keys.settings),
+                                subtitle: AppLocalizations.of(context).translate(Keys.settingsSubtitle),
                                 onTap: () {
                                   Navigator.pushNamed(
                                       context, RouteManager.settingsRoute);
@@ -265,8 +269,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.person_outline,
-                                title: 'Profile',
-                                subtitle: 'User account details',
+                                title: AppLocalizations.of(context).translate(Keys.profile),
+                                subtitle: AppLocalizations.of(context).translate(Keys.profileSubtitle),
                                 onTap: () {
                                   // Handle profile tap
                                 },
@@ -275,10 +279,20 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.help_outline,
-                                title: 'Help & Support',
-                                subtitle: 'Get assistance',
+                                title: AppLocalizations.of(context).translate(Keys.helpSupport),
+                                subtitle: AppLocalizations.of(context).translate(Keys.helpSupportSubtitle),
                                 onTap: () {
                                   // Handle help tap
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              _buildMenuItem(
+                                context,
+                                icon: Icons.logout,
+                                title: AppLocalizations.of(context).translate(Keys.logout),
+                                subtitle: AppLocalizations.of(context).translate(Keys.logoutSubtitle),
+                                onTap: () {
+                                  _showLogoutDialog(context);
                                 },
                               ),
                               const SizedBox(
@@ -456,5 +470,60 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context).translate(Keys.logoutConfirmation)),
+          content: Text(AppLocalizations.of(context).translate(Keys.logoutConfirmationMessage)),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(AppLocalizations.of(context).translate(Keys.cancel)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _performLogout(context);
+              },
+              child: Text(AppLocalizations.of(context).translate(Keys.logout)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _performLogout(BuildContext context) async {
+    // Close the drawer first
+    Navigator.of(context).pop();
+    
+    try {
+      // Perform logout
+      await context.read<AuthCubit>().logout();
+      
+      // Navigate to login screen and clear the navigation stack
+      if (context.mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          RouteManager.loginRoute,
+          (route) => false,
+        );
+      }
+    } catch (error) {
+      // Show error message if logout fails
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${AppLocalizations.of(context).translate(Keys.logoutError)}: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

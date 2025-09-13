@@ -86,9 +86,20 @@ class LocalizedEn {
     Keys.schemaFilesUpdateFailed: 'Failed to update schema files',
     // Logout translations
     Keys.logout: 'Logout',
-    Keys.logoutSubtitle: 'Sign out of your account',
+    Keys.logoutSubtitle: 'Sign out',
     Keys.logoutConfirmation: 'Confirm Logout',
     Keys.logoutConfirmationMessage: 'Are you sure you want to logout?',
-    Keys.logoutSuccess: 'Logged out successfully'
+    Keys.logoutSuccess: 'Logged out successfully',
+    Keys.logoutError: 'Logout failed',
+    
+    // Side menu translations
+    Keys.mobileApp: 'Mobile',
+    Keys.viewMaps: 'View Maps',
+    Keys.viewMapsSubtitle: 'Downloaded offline maps',
+    Keys.settingsSubtitle: 'App configuration',
+    Keys.profile: 'Profile',
+    Keys.profileSubtitle: 'User account details',
+    Keys.helpSupport: 'Help & Support',
+    Keys.helpSupportSubtitle: 'Get assistance'
   };
 }

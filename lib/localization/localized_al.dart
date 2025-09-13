@@ -84,6 +84,17 @@ class LocalizedAl {
     Keys.logoutSubtitle: 'Dil nga llogaria juaj',
     Keys.logoutConfirmation: 'Konfirmo Daljen',
     Keys.logoutConfirmationMessage: 'Jeni i sigurt që doni të dilni?',
-    Keys.logoutSuccess: 'U dil me sukses'
+    Keys.logoutSuccess: 'U dol me sukses',
+    Keys.logoutError: 'Dështoi dalja',
+    
+    // Side menu translations
+    Keys.mobileApp: 'Mobile',
+    Keys.viewMaps: 'Shiko Hartat',
+    Keys.viewMapsSubtitle: 'Hartat e shkarkuara offline',
+    Keys.settingsSubtitle: 'Konfigurimi i aplikacionit',
+    Keys.profile: 'Profili',
+    Keys.profileSubtitle: 'Detajet e llogarisë së përdoruesit',
+    Keys.helpSupport: 'Ndihmë & Mbështetje',
+    Keys.helpSupportSubtitle: 'Merrni ndihmë'
   };
 }
