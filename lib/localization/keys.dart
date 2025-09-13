@@ -77,4 +77,15 @@ class Keys {
   static const String logoutConfirmation = 'logoutConfirmation';
   static const String logoutConfirmationMessage = 'logoutConfirmationMessage';
   static const String logoutSuccess = 'logoutSuccess';
+  static const String logoutError = 'logoutError';
+  
+  // Side menu keys
+  static const String mobileApp = 'mobileApp';
+  static const String viewMaps = 'viewMaps';
+  static const String viewMapsSubtitle = 'viewMapsSubtitle';
+  static const String settingsSubtitle = 'settingsSubtitle';
+  static const String profile = 'profile';
+  static const String profileSubtitle = 'profileSubtitle';
+  static const String helpSupport = 'helpSupport';
+  static const String helpSupportSubtitle = 'helpSupportSubtitle';
 }
