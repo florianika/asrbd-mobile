@@ -78,4 +78,5 @@ class Keys {
   static const String logoutConfirmation = 'logoutConfirmation';
   static const String logoutConfirmationMessage = 'logoutConfirmationMessage';
   static const String logoutSuccess = 'logoutSuccess';
+  static const String fieldRequired = 'fieldRequired';
 }

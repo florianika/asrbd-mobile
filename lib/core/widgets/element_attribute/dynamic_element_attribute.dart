@@ -9,6 +9,8 @@ import 'package:asrdb/core/models/validation/validaton_result.dart';
 import 'package:asrdb/core/services/schema_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/chat/notes_modal.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -143,17 +145,23 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       schemaItems = schemaService.dwellingSchema;
     }
 
-    schemaItems.attributes.map((attribute) {
-      final itemFound =
-          widget.schema.where((x) => x.name == attribute.name).first;
-
-      final value = formValues[itemFound.name];
-      if (!itemFound.nullable && (value == null || value.toString().isEmpty)) {
-        passedValidation = false;
-        validationErrors[itemFound.name] =
-            '${attribute.label.al} duhet plotesuar';
+    for (final field in widget.schema) {
+      if (field.required) {
+        final value = formValues[field.name];
+        if (value == null || value.toString().isEmpty) {
+          passedValidation = false;      
+          final attribute = schemaItems.attributes
+              .where((attr) => attr.name == field.name)
+              .firstOrNull;
+          final fieldName = attribute?.label.al ?? field.alias;
+          final errorMessage = AppLocalizations.of(context)
+              .translate(Keys.fieldRequired)
+              .replaceAll('{fieldName}', fieldName);
+          
+          validationErrors[field.name] = errorMessage;
+        }
       }
-    });
+    }
 
     setState(() {});
 

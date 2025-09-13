@@ -85,6 +85,7 @@ class LocalizedAl {
     Keys.logoutSubtitle: 'Dil nga llogaria juaj',
     Keys.logoutConfirmation: 'Konfirmo Daljen',
     Keys.logoutConfirmationMessage: 'Jeni i sigurt që doni të dilni?',
-    Keys.logoutSuccess: 'U dil me sukses'
+    Keys.logoutSuccess: 'U dol me sukses',
+    Keys.fieldRequired: '{fieldName} duhet plotesuar'
   };
 }

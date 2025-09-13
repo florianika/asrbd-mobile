@@ -4,6 +4,7 @@ class FieldSchema {
   final String type;
   final bool editable;
   final bool nullable;
+  final bool required;
   final dynamic defaultValue;
   final List<Map<String, dynamic>>? codedValues;
 
@@ -13,6 +14,7 @@ class FieldSchema {
     required this.type,
     required this.editable,
     required this.nullable,
+    required this.required,
     this.defaultValue,
     this.codedValues,
   });
@@ -24,6 +26,7 @@ class FieldSchema {
       type: json['type'],
       editable: json['editable'] ?? false,
       nullable: json['nullable'] ?? true,
+      required: json['required'] ?? false,
       defaultValue: json['defaultValue'],
       codedValues: (json['domain']?['codedValues'] as List?)
           ?.map((e) => {

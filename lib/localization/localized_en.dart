@@ -90,6 +90,7 @@ class LocalizedEn {
     Keys.logoutSubtitle: 'Sign out of your account',
     Keys.logoutConfirmation: 'Confirm Logout',
     Keys.logoutConfirmationMessage: 'Are you sure you want to logout?',
-    Keys.logoutSuccess: 'Logged out successfully'
+    Keys.logoutSuccess: 'Logged out successfully',
+    Keys.fieldRequired: '{fieldName} must be filled'
   };
 }
