@@ -15,4 +15,8 @@ class AuthRepository {
   Future<AuthEsriResponse> loginEsri() async {
     return await authService.loginEsri();
   }
+
+  Future<void> logout() async {
+    return await authService.logout();
+  }
 }

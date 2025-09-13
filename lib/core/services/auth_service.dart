@@ -127,5 +127,16 @@ class AuthService {
     }
   }
 
-
+  Future<void> logout() async {
+    try {
+      // Clear all stored tokens
+      await _storage.remove(key: StorageKeys.accessToken);
+      await _storage.remove(key: StorageKeys.refreshToken);
+      await _storage.remove(key: StorageKeys.idhToken);
+      await _storage.remove(key: StorageKeys.esriAccessToken);
+      await _storage.remove(key: StorageKeys.userProfile);
+    } catch (e) {
+      throw Exception('Logout failed: $e');
+    }
+  }
 }

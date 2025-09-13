@@ -16,4 +16,10 @@ class AuthUseCases {
 
     return authResponse;
   }
+
+  // Use case for logging out
+  Future<void> logout() async {
+    await _authRepository.logout();
+    await _storageRepository.clear();
+  }
 }

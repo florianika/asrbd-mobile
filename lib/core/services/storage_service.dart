@@ -62,6 +62,15 @@ Future<Map<String, dynamic>> getMap({
     return value;
   }
 
+  // Remove a specific key
+  Future<void> remove({
+    String boxName = HiveBoxes.validations,
+    required String key,
+  }) async {
+    final box = await _getBox(boxName);
+    await box.delete(key);
+  }
+
   // Clear all stored values
   Future<bool> clear({
     String boxName = HiveBoxes.validations,
