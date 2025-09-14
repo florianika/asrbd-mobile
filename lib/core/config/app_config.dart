@@ -37,6 +37,9 @@ class AppConfig {
   //minimum zoom level for the map in order to load buildings
   static const double buildingMinZoom = 16.0;
 
+  //maximum distance in meters for entrance validation from building
+  static const double maxEntranceDistanceFromBuilding = 2.0;
+
   //esri layer IDs
   static const int entranceLayerId = 0;
   static const int buildingLayerId = 1;

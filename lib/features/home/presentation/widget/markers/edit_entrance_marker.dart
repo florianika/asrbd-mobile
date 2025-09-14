@@ -1,5 +1,10 @@
+import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/cubit/entrance_geometry_cubit.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -134,7 +139,7 @@ class EditEntranceMarker extends StatelessWidget {
                 children: [
                   // Drop target for the entire map area
                   DragTarget<LatLng>(
-                    onAcceptWithDetails: (details) {
+                    onAcceptWithDetails: (details) async {
                       final RenderBox? renderBox = mapKey.currentContext
                           ?.findRenderObject() as RenderBox?;
                       if (renderBox != null) {
@@ -148,8 +153,28 @@ class EditEntranceMarker extends StatelessWidget {
                         final latLng =
                             mapController.camera.offsetToCrs(adjustedPosition);
 
-                        // ✅ Update the entrance point position through GeometryEditorCubit
-                        geometryEditor.entranceCubit.updatePoint(latLng);
+                        final entrance = geometryEditor.entranceCubit.originalEntrance;
+                        final buildingGlobalId = entrance?.entBldGlobalID;
+                        
+                        if (buildingGlobalId != null) {
+                          await geometryEditor.updateEntrancePointWithValidation(
+                            latLng,
+                            buildingGlobalId,
+                            context.read<TileCubit>().isOffline,
+                            context.read<TileCubit>().download?.id,
+                          );
+                          
+                          final validationError = geometryEditor.entranceCubit.validationError;
+                          if (validationError != null) {
+                            NotifierService.showMessage(
+                              context,
+                              message: AppLocalizations.of(context).translate(validationError).replaceAll('{distance}', AppConfig.maxEntranceDistanceFromBuilding.toString()),
+                              type: MessageType.warning,
+                            );
+                          }
+                        } else {
+                          geometryEditor.entranceCubit.updatePoint(latLng);
+                        }
                       }
                     },
                     builder: (context, candidateData, rejectedData) {

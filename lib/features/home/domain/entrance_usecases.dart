@@ -1,6 +1,7 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
@@ -11,14 +12,17 @@ import 'package:asrdb/data/repositories/entrance_repository.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/domain/entities/save_result.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
+import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/main.dart';
+import 'package:latlong2/latlong.dart';
 
 class EntranceUseCases {
   final EntranceRepository _entranceRepository;
   final JsonFileService _jsonFileService = JsonFileService();
+  final BuildingUseCases _buildingUseCases;
 
-  EntranceUseCases(this._entranceRepository);
+  EntranceUseCases(this._entranceRepository, this._buildingUseCases);
 
   Future<List<EntranceEntity>> getEntrances(double zoom,
       List<String> entBldGlobalID, bool isOffline, int? downloadId) async {
@@ -143,6 +147,34 @@ class EntranceUseCases {
         entrance,
         downloadId!,
       );
+    }
+  }
+
+  Future<bool> validateEntranceDistanceFromBuilding(
+    LatLng entranceCoordinates,
+    String buildingGlobalId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
+    try {
+      final building = await _buildingUseCases.getBuildingDetails(
+        buildingGlobalId,
+        isOffline,
+        downloadId,
+      );
+
+      if (building.coordinates.isEmpty) {
+        return false;
+      }
+
+      return GeometryHelper.validateEntranceDistanceFromBuildingWithTurf(
+        entranceCoordinates,
+        building.coordinates,
+        AppConfig.maxEntranceDistanceFromBuilding,
+      );
+    } catch (e) {
+      print('Warning: Could not validate entrance distance: $e');
+      return true;
     }
   }
 }

@@ -1,7 +1,10 @@
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
+import 'package:asrdb/features/home/domain/entrance_usecases.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:get_it/get_it.dart';
 
 abstract class EntranceGeometryState {}
 
@@ -9,8 +12,9 @@ class EntranceGeometry extends EntranceGeometryState {
   final EntranceEntity? entrance;
   final bool isDrawing;
   final bool isMovingPoint;
+  final String? validationError;
 
-  EntranceGeometry(this.entrance, this.isDrawing, this.isMovingPoint);
+  EntranceGeometry(this.entrance, this.isDrawing, this.isMovingPoint, [this.validationError]);
 }
 
 class EntranceGeometryCubit extends Cubit<EntranceGeometryState> {
@@ -21,6 +25,7 @@ class EntranceGeometryCubit extends Cubit<EntranceGeometryState> {
   ShapeType _type = ShapeType.point;
   bool _isDrawing = false;
   bool _isMovingPoint = false;
+  String? _validationError;
 
   final List<LatLng?> _undoStack = [];
   final List<LatLng?> _redoStack = [];
@@ -31,7 +36,7 @@ class EntranceGeometryCubit extends Cubit<EntranceGeometryState> {
         ? _createUpdatedEntrance()
         : (_point != null ? EntranceEntity(coordinates: _point!) : null);
 
-    emit(EntranceGeometry(entrance, _isDrawing, _isMovingPoint));
+    emit(EntranceGeometry(entrance, _isDrawing, _isMovingPoint, _validationError));
   }
 
   // ✅ Create updated entrance with new coordinates but keeping original data
@@ -106,14 +111,72 @@ class EntranceGeometryCubit extends Cubit<EntranceGeometryState> {
   void addPoint(LatLng point) {
     _pushToUndo();
     _redoStack.clear();
-
     _point = point;
+    _validationError = null;
+    _emitCurrentState();
+  }
+
+  Future<void> addPointWithValidation(
+    LatLng point,
+    String buildingGlobalId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
+    _pushToUndo();
+    _redoStack.clear();
+    _point = point;
+    _validationError = null;
+
+    try {
+      final entranceUseCases = GetIt.instance<EntranceUseCases>();
+      final isValidDistance = await entranceUseCases.validateEntranceDistanceFromBuilding(
+        point,
+        buildingGlobalId,
+        isOffline,
+        downloadId,
+      );
+
+      if (!isValidDistance) {
+        _validationError = Keys.entranceDistanceValidationError;
+      }
+    } catch (e) {
+      _validationError = "Could not validate entrance distance: $e";
+    }
+
     _emitCurrentState();
   }
 
   void updatePoint(LatLng point) {
-    // For updating existing point during movement
     _point = point;
+    _validationError = null;
+    _emitCurrentState();
+  }
+
+  Future<void> updatePointWithValidation(
+    LatLng point,
+    String buildingGlobalId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
+    _point = point;
+    _validationError = null;
+
+    try {
+      final entranceUseCases = GetIt.instance<EntranceUseCases>();
+      final isValidDistance = await entranceUseCases.validateEntranceDistanceFromBuilding(
+        point,
+        buildingGlobalId,
+        isOffline,
+        downloadId,
+      );
+
+      if (!isValidDistance) {
+        _validationError = Keys.entranceDistanceValidationError;
+      }
+    } catch (e) {
+      _validationError = "Could not validate entrance distance: $e";
+    }
+
     _emitCurrentState();
   }
 
@@ -161,15 +224,14 @@ class EntranceGeometryCubit extends Cubit<EntranceGeometryState> {
   bool get canRedo => _redoStack.isNotEmpty;
   bool get hasPoint => _point != null;
 
-  // ✅ Get the original entrance that was provided
   EntranceEntity? get originalEntrance => _originalEntrance;
 
-  // ✅ Get the current entrance (with updated coordinates)
   EntranceEntity? get currentEntrance {
     final currentState = state;
     return currentState is EntranceGeometry ? currentState.entrance : null;
   }
 
-  // ✅ Check if we're editing an existing entrance vs creating new
   bool get isEditingExisting => _originalEntrance != null;
+
+  String? get validationError => _validationError;
 }
