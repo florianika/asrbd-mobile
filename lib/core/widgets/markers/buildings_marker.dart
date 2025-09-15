@@ -16,11 +16,13 @@ import 'package:crypto/crypto.dart';
 class BuildingsMarker extends StatelessWidget {
   final String attributeLegend;
   final MapController mapController;
+  final bool isSatellite;
 
   const BuildingsMarker({
     super.key,
     required this.attributeLegend,
     required this.mapController,
+    required this.isSatellite,
   });
 
   static final _legendService = sl<LegendService>();
@@ -132,7 +134,8 @@ class BuildingsMarker extends StatelessWidget {
 
         return PolygonLayer(
           polygons: validBuildings
-              .map((building) => _getCachedPolygon(building, context))
+              .map((building) =>
+                  _getCachedPolygon(building, context, isSatellite))
               .where((polygon) => polygon.points.isNotEmpty)
               .toList(),
         );
@@ -182,7 +185,9 @@ class BuildingsMarker extends StatelessWidget {
   }
 
   // ✅ Cached polygon creation with coordinate-aware cache key
-  Polygon _getCachedPolygon(dynamic building, BuildContext context) {
+  // ✅ Cached polygon creation with coordinate-aware cache key
+  Polygon _getCachedPolygon(
+      dynamic building, BuildContext context, bool isSatellite) {
     int? value;
 
     if (attributeLegend == 'quality') {
@@ -199,53 +204,36 @@ class BuildingsMarker extends StatelessWidget {
       return Polygon(points: []);
     }
 
-    // ✅ Create cache key that includes building ID, attribute legend, value, AND coordinates hash
+    // ✅ Cache key without isSatellite (geometry + attributes only)
     final coordinateHash = _generateCoordinateHash(building.coordinates);
     final cacheKey =
         '${building.globalId}_${attributeLegend}_${value}_$coordinateHash';
 
-    return _polygonCache.putIfAbsent(cacheKey, () {
-      try {
-        final fillColor = (_legendService.getColorForValue(
-                  LegendType.building,
-                  attributeLegend,
-                  value!,
-                ) ??
-                Colors.black)
-            .withValues(alpha: 0.5);
-
-        return Polygon(
-          hitValue: building.globalId,
-          points: building.coordinates.first,
-          color: fillColor,
-          borderStrokeWidth: 1.0,
-          borderColor: Colors.blue.withValues(alpha: 0.3),
-        );
-      } catch (e) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            NotifierService.showMessage(
-              context,
-              message: 'Error rendering building: ${e.toString()}',
-              type: MessageType.error,
-            );
-          }
-        });
-        return Polygon(points: []);
-      }
+    // ✅ Store only base polygon geometry in cache
+    final basePolygon = _polygonCache.putIfAbsent(cacheKey, () {
+      return Polygon(
+        hitValue: building.globalId,
+        points: building.coordinates.first,
+        borderStrokeWidth: 1.0,
+      );
     });
+  
+    final fillColor = (_legendService.getColorForValue(
+          LegendType.building,
+          attributeLegend,
+          value,
+        ) ??
+        Colors.black);
+
+    return Polygon(
+      hitValue: basePolygon.hitValue,
+      points: basePolygon.points,
+      borderStrokeWidth: isSatellite ? 6.0 : 1.0,
+      color:
+          isSatellite ? Colors.transparent : fillColor.withValues(alpha: 0.5),
+      borderColor: isSatellite ? fillColor : Colors.blue.withValues(alpha: 0.3),
+    );
   }
-
-  // ✅ Helper to compare lists
-  // bool _listEquals(List<String>? list1, List<String>? list2) {
-  //   if (list1 == null && list2 == null) return true;
-  //   if (list1 == null || list2 == null) return false;
-  //   if (list1.length != list2.length) return false;
-
-  //   final set1 = list1.toSet();
-  //   final set2 = list2.toSet();
-  //   return set1.length == set2.length && set1.containsAll(set2);
-  // }
 
   // ✅ Call this method periodically to prevent memory leaks
   static void clearCache() {

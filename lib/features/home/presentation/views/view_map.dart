@@ -51,7 +51,7 @@ class ViewMap extends StatefulWidget {
 
 class _ViewMapState extends State<ViewMap> {
   MapController mapController = MapController();
-  
+
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
   String attributeLegend = 'review';
@@ -451,12 +451,16 @@ class _ViewMapState extends State<ViewMap> {
                       Positioned(
                         top: 20,
                         right: 20,
-                        child: CombinedLegendWidget(
-                          buildingLegends: buildingLegends,
-                          initialBuildingAttribute: attributeLegend,
-                          entranceLegends: entranceLegends,
-                          onChange: onLegendChangeAttribute,
-                        ),
+                        child: BlocBuilder<TileCubit, TileState>(
+                            builder: (context, state) {
+                          return CombinedLegendWidget(
+                            buildingLegends: buildingLegends,
+                            initialBuildingAttribute: attributeLegend,
+                            entranceLegends: entranceLegends,
+                            onChange: onLegendChangeAttribute,
+                            isSatellite: state.isSatellite,
+                          );
+                        }),
                       ),
                       Visibility(
                         visible: false,

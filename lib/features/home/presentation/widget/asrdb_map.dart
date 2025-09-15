@@ -337,12 +337,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
-    // final tileProvider = FMTCTileProvider(
-    //   stores: const {
-    //     AppConfig.mapStoreName: BrowseStoreStrategy.readUpdateCreate
-    //   },
-    // );
-
+   
     return BlocConsumer<TileCubit, TileState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -414,6 +409,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               BuildingsMarker(
                 attributeLegend: widget.attributeLegend,
                 mapController: widget.mapController,
+                isSatellite: state.isSatellite,
               ),
               SelectedBuildingMarker(
                 selectedBuildingGlobalId: _selectedBuildingGlobalId,

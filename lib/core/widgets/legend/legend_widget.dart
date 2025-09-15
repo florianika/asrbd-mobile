@@ -8,6 +8,7 @@ class CombinedLegendWidget extends StatefulWidget {
   final String initialBuildingAttribute;
   final List<Legend> entranceLegends;
   final Function onChange;
+  final bool isSatellite;
 
   const CombinedLegendWidget({
     super.key,
@@ -15,6 +16,7 @@ class CombinedLegendWidget extends StatefulWidget {
     required this.initialBuildingAttribute,
     required this.entranceLegends,
     required this.onChange,
+    required this.isSatellite,
   });
 
   @override
@@ -211,8 +213,12 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
                               },
                             ),
                             content: buildingLegend
-                                .map((legend) =>
-                                    _buildLegendItem(legend, isBuilding: true))
+                                .map((legend) => _buildLegendItem(
+                                      legend,
+                                      isBuilding: true,
+                                      isSatellite:
+                                          widget.isSatellite, // 👈 forward here
+                                    ))
                                 .toList(),
                           ),
 
@@ -311,7 +317,8 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     );
   }
 
-  Widget _buildLegendItem(Legend legend, {bool isBuilding = false}) {
+  Widget _buildLegendItem(Legend legend,
+      {bool isBuilding = false, bool isSatellite = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -321,7 +328,10 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
             height: 16,
             child: isBuilding
                 ? CustomPaint(
-                    painter: PolygonPainter(color: legend.color),
+                    painter: PolygonPainter(
+                      color: legend.color,
+                      isSatellite: isSatellite,
+                    ),
                   )
                 : Container(
                     width: 12,
@@ -350,29 +360,36 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
 
 class PolygonPainter extends CustomPainter {
   final Color color;
+  final bool isSatellite;
 
-  PolygonPainter({required this.color});
+  PolygonPainter({required this.color, required this.isSatellite});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
     final path = Path();
-
-    // Create a shape similar to the building polygon in the image
-    // It looks like an angular, house-like shape
-    path.moveTo(size.width * 0.15, size.height * 0.3); // Left side start
-    path.lineTo(size.width * 0.5, size.height * 0.05); // Top peak
-    path.lineTo(size.width * 0.85, size.height * 0.3); // Right side
-    path.lineTo(size.width * 0.9, size.height * 0.85); // Bottom right
-    path.lineTo(size.width * 0.1, size.height * 0.9); // Bottom left
+    path.moveTo(size.width * 0.15, size.height * 0.3);
+    path.lineTo(size.width * 0.5, size.height * 0.05);
+    path.lineTo(size.width * 0.85, size.height * 0.3);
+    path.lineTo(size.width * 0.9, size.height * 0.85);
+    path.lineTo(size.width * 0.1, size.height * 0.9);
     path.close();
 
-    canvas.drawPath(path, paint);
+    // Fill: transparent in satellite mode
+    final fillPaint = Paint()
+      ..color = isSatellite ? Colors.transparent : color
+      ..style = PaintingStyle.fill;
+
+    // Border: thicker in satellite mode
+    final borderPaint = Paint()
+      ..color = color
+      ..strokeWidth = isSatellite ? 3.0 : 1.0
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawPath(path, fillPaint);
+    canvas.drawPath(path, borderPaint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant PolygonPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.isSatellite != isSatellite;
 }

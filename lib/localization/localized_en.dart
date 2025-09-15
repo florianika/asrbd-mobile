@@ -91,7 +91,7 @@ class LocalizedEn {
     Keys.logoutConfirmation: 'Confirm Logout',
     Keys.logoutConfirmationMessage: 'Are you sure you want to logout?',
     Keys.logoutSuccess: 'Logged out successfully',
-    Keys.fieldRequired: '{fieldName} must be filled'
+    Keys.fieldRequired: '{fieldName} must be filled',
     Keys.logoutError: 'Logout failed',
     
     // Side menu translations

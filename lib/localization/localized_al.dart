@@ -86,7 +86,7 @@ class LocalizedAl {
     Keys.logoutConfirmation: 'Konfirmo Daljen',
     Keys.logoutConfirmationMessage: 'Jeni i sigurt që doni të dilni?',
     Keys.logoutSuccess: 'U dol me sukses',
-    Keys.fieldRequired: '{fieldName} duhet plotesuar'
+    Keys.fieldRequired: '{fieldName} duhet plotesuar',
     Keys.logoutError: 'Dështoi dalja',
     
     // Side menu translations
