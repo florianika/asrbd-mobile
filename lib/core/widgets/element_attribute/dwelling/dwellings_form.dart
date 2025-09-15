@@ -567,14 +567,14 @@ class _DwellingFormState extends State<DwellingForm> {
       grouped[floor]!.add(dwelling);
     }
 
-    // Sort floors numerically
+    // Sort floors numerically in descending order (10 to 1)
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) {
         if (a == 'Unknown') return 1;
         if (b == 'Unknown') return -1;
         final aNum = int.tryParse(a) ?? 0;
         final bNum = int.tryParse(b) ?? 0;
-        return aNum.compareTo(bNum);
+        return bNum.compareTo(aNum); 
       });
 
     return Map.fromEntries(
