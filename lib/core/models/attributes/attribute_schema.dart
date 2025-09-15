@@ -49,6 +49,7 @@ class SchemaAttribute {
   final bool internal;
   final String section;
   final dynamic order;
+   final bool required;
 
   SchemaAttribute({
     required this.name,
@@ -58,6 +59,7 @@ class SchemaAttribute {
     required this.internal,
     required this.section,
     required this.order,
+    required this.required,
   });
 
   factory SchemaAttribute.fromJson(Map<String, dynamic> json) {
@@ -70,6 +72,7 @@ class SchemaAttribute {
       internal: _parseBool(json['internal']),
       section: json['section'] as String,
       order: json['order'],
+      required: _parseBool(json['required']),
     );
   }
 
@@ -82,6 +85,7 @@ class SchemaAttribute {
       'internal': internal,
       'section': section,
       'order': order,
+      'required': required,
     };
   }
 
