@@ -88,6 +88,16 @@ class Keys {
   static const String settingsSubtitle = 'settingsSubtitle';
   static const String profile = 'profile';
   static const String profileSubtitle = 'profileSubtitle';
+  static const String userInformation = 'userInformation';
+  static const String tokenInformation = 'tokenInformation';
+  static const String userId = 'userId';
+  static const String role = 'role';
+  static const String municipalityId = 'municipalityId';
+  static const String email = 'email';
+  static const String issuedAt = 'issuedAt';
+  static const String expiresAt = 'expiresAt';
+  static const String issuer = 'issuer';
+  static const String audience = 'audience';
   static const String helpSupport = 'helpSupport';
   static const String helpSupportSubtitle = 'helpSupportSubtitle';
 }

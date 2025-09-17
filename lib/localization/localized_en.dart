@@ -101,6 +101,16 @@ class LocalizedEn {
     Keys.settingsSubtitle: 'App configuration',
     Keys.profile: 'Profile',
     Keys.profileSubtitle: 'User account details',
+    Keys.userInformation: 'User Information',
+    Keys.tokenInformation: 'Token Information',
+    Keys.userId: 'User ID',
+    Keys.role: 'Role',
+    Keys.municipalityId: 'Municipality ID',
+    Keys.email: 'Email',
+    Keys.issuedAt: 'Issued At',
+    Keys.expiresAt: 'Expires At',
+    Keys.issuer: 'Issuer',
+    Keys.audience: 'Audience',
     Keys.helpSupport: 'Help & Support',
     Keys.helpSupportSubtitle: 'Get assistance'
   };

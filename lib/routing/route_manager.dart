@@ -2,6 +2,7 @@ import 'package:asrdb/features/home/presentation/views/view_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map_list.dart';
 import 'package:asrdb/features/settings/presentation/views/settings_view.dart';
+import 'package:asrdb/features/profile/presentation/views/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
 
@@ -30,6 +31,9 @@ RouteManager {
 
       case settingsRoute:
         return MaterialPageRoute(builder: (_) => const SettingsView());
+
+      case profileRoute:
+        return MaterialPageRoute(builder: (_) => const ProfileView());
 
       default:
         return _errorRoute();

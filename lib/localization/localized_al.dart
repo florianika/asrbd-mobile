@@ -96,6 +96,16 @@ class LocalizedAl {
     Keys.settingsSubtitle: 'Konfigurimi i aplikacionit',
     Keys.profile: 'Profili',
     Keys.profileSubtitle: 'Detajet e llogarisë së përdoruesit',
+    Keys.userInformation: 'Informacioni i Përdoruesit',
+    Keys.tokenInformation: 'Informacioni i Token-it',
+    Keys.userId: 'ID e Përdoruesit',
+    Keys.role: 'Roli',
+    Keys.municipalityId: 'ID e Bashkisë',
+    Keys.email: 'Email',
+    Keys.issuedAt: 'Lëshuar Më',
+    Keys.expiresAt: 'Skadon Më',
+    Keys.issuer: 'Lëshuesi',
+    Keys.audience: 'Audienca',
     Keys.helpSupport: 'Ndihmë & Mbështetje',
     Keys.helpSupportSubtitle: 'Merrni ndihmë'
   };
