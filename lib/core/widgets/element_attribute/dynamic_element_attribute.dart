@@ -12,6 +12,7 @@ import 'package:asrdb/core/widgets/chat/notes_modal.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -145,17 +146,21 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       schemaItems = schemaService.dwellingSchema;
     }
 
-    for (final attribute in schemaItems.attributes) {
-      final itemFound =
-          widget.schema.where((x) => x.name == attribute.name).first;
+   for (final attribute in schemaItems.attributes) {final itemFound = widget.schema.firstWhereOrNull(
+    (x) => x.name == attribute.name);
 
-      final value = formValues[itemFound.name];
-      if (attribute.required && (value == null || value.toString().isEmpty)) {
-        passedValidation = false;
-        final localizedMessage = AppLocalizations.of(context).translate(Keys.fieldRequired);
-        validationErrors[itemFound.name] = localizedMessage.replaceAll('{fieldName}', itemFound.alias);
-      }
-    }
+  if (itemFound == null) continue;
+
+  final value = formValues[itemFound.name];
+  if (attribute.required && (value == null || value.toString().isEmpty)) {
+    passedValidation = false;
+    final localizedMessage =
+        AppLocalizations.of(context).translate(Keys.fieldRequired);
+
+    validationErrors[itemFound.name] =
+        localizedMessage.replaceAll('{fieldName}', itemFound.alias);
+  }
+}
 
     setState(() {});
 
