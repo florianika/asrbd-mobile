@@ -145,21 +145,22 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       schemaItems = schemaService.dwellingSchema;
     }
 
-   for (final attribute in schemaItems.attributes) {final itemFound = widget.schema.firstWhereOrNull(
-    (x) => x.name == attribute.name);
+    for (final attribute in schemaItems.attributes) {
+      final itemFound =
+          widget.schema.firstWhereOrNull((x) => x.name == attribute.name);
 
-  if (itemFound == null) continue;
+      if (itemFound == null) continue;
 
-  final value = formValues[itemFound.name];
-  if (attribute.required && (value == null || value.toString().isEmpty)) {
-    passedValidation = false;
-    final localizedMessage =
-        AppLocalizations.of(context).translate(Keys.fieldRequired);
+      final value = formValues[itemFound.name];
+      if (attribute.required && (value == null || value.toString().isEmpty)) {
+        passedValidation = false;
+        final localizedMessage =
+            AppLocalizations.of(context).translate(Keys.fieldRequired);
 
-    validationErrors[itemFound.name] =
-        localizedMessage.replaceAll('{fieldName}', itemFound.alias);
-  }
-}
+        validationErrors[itemFound.name] =
+            localizedMessage.replaceAll('{fieldName}', itemFound.alias);
+      }
+    }
 
     setState(() {});
 

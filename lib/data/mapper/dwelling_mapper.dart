@@ -6,34 +6,34 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
 // DTO -> DwellingsCompanion
-extension DwellingDtoToDrift on DwellingDto {
-  DwellingsCompanion toCompanion() {
-    return DwellingsCompanion(
-      globalId: Value(globalId ?? const Uuid().v4()),
-      objectId: Value(objectId),
-      dwlEntGlobalId:
-          Value(dwlEntGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
-      dwlAddressId: Value.absentIfNull(dwlAddressID),
-      dwlQuality: Value(dwlQuality ?? 9),
-      dwlFloor: Value.absentIfNull(dwlFloor),
-      dwlApartNumber: Value.absentIfNull(dwlApartNumber),
-      dwlStatus: Value(dwlStatus ?? 4),
-      dwlYearConstruction: Value.absentIfNull(dwlYearConstruction),
-      dwlYearElimination: Value.absentIfNull(dwlYearElimination),
-      dwlType: Value.absentIfNull(dwlType),
-      dwlOwnership: Value.absentIfNull(dwlOwnership),
-      dwlOccupancy: Value.absentIfNull(dwlOccupancy),
-      dwlSurface: Value.absentIfNull(dwlSurface),
-      dwlToilet: Value.absentIfNull(dwlToilet),
-      dwlBath: Value.absentIfNull(dwlBath),
-      dwlHeatingFacility: Value.absentIfNull(dwlHeatingFacility),
-      dwlHeatingEnergy: Value.absentIfNull(dwlHeatingEnergy),
-      dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
-      dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
-      geometryType: Value.absentIfNull(geometryType),
-    );
-  }
-}
+// extension DwellingDtoToDrift on DwellingDto {
+//   DwellingsCompanion toCompanion() {
+//     return DwellingsCompanion(
+//       globalId: Value(globalId ?? const Uuid().v4()),
+//       objectId: Value(objectId),
+//       dwlEntGlobalId:
+//           Value(dwlEntGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
+//       dwlAddressId: Value.absentIfNull(dwlAddressID),
+//       dwlQuality: Value(dwlQuality ?? 9),
+//       dwlFloor: Value.absentIfNull(dwlFloor),
+//       dwlApartNumber: Value.absentIfNull(dwlApartNumber),
+//       dwlStatus: Value(dwlStatus ?? 4),
+//       dwlYearConstruction: Value.absentIfNull(dwlYearConstruction),
+//       dwlYearElimination: Value.absentIfNull(dwlYearElimination),
+//       dwlType: Value.absentIfNull(dwlType),
+//       dwlOwnership: Value.absentIfNull(dwlOwnership),
+//       dwlOccupancy: Value.absentIfNull(dwlOccupancy),
+//       dwlSurface: Value.absentIfNull(dwlSurface),
+//       dwlToilet: Value.absentIfNull(dwlToilet),
+//       dwlBath: Value.absentIfNull(dwlBath),
+//       dwlHeatingFacility: Value.absentIfNull(dwlHeatingFacility),
+//       dwlHeatingEnergy: Value.absentIfNull(dwlHeatingEnergy),
+//       dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
+//       dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
+//       geometryType: Value.absentIfNull(geometryType),
+//     );
+//   }
+// }
 
 var uuid = const Uuid();
 
@@ -47,25 +47,25 @@ extension DwellingEntityToDrift on DwellingEntity {
           ? Value(dwlEntGlobalID!)
           : Value('{00000000-0000-0000-0000-000000000000}'),
       objectId: Value(objectId),
-      dwlAddressId: Value.absentIfNull(dwlAddressID),
+      dwlAddressId: Value(dwlAddressID),
       dwlQuality: dwlQuality != null ? Value(dwlQuality!) : Value(9),
-      dwlFloor: Value.absentIfNull(dwlFloor),
-      dwlApartNumber: Value.absentIfNull(dwlApartNumber),
+      dwlFloor: Value(dwlFloor),
+      dwlApartNumber: Value(dwlApartNumber),
       dwlStatus: dwlStatus != null ? Value(dwlStatus!) : Value(4),
-      dwlYearConstruction: Value.absentIfNull(dwlYearConstruction),
-      dwlYearElimination: Value.absentIfNull(dwlYearElimination),
-      dwlType: Value.absentIfNull(dwlType),
-      dwlOwnership: Value.absentIfNull(dwlOwnership),
-      dwlOccupancy: Value.absentIfNull(dwlOccupancy),
-      dwlSurface: Value.absentIfNull(dwlSurface),
-      dwlToilet: Value.absentIfNull(dwlToilet),
-      dwlBath: Value.absentIfNull(dwlBath),
-      dwlHeatingFacility: Value.absentIfNull(dwlHeatingFacility),
-      dwlHeatingEnergy: Value.absentIfNull(dwlHeatingEnergy),
-      dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
-      dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
-      geometryType: Value.absentIfNull(geometryType),
-      downloadId: Value.absentIfNull(downloadId),
+      dwlYearConstruction: Value(dwlYearConstruction),
+      dwlYearElimination: Value(dwlYearElimination),
+      dwlType: Value(dwlType),
+      dwlOwnership: Value(dwlOwnership),
+      dwlOccupancy: Value(dwlOccupancy),
+      dwlSurface: Value(dwlSurface),
+      dwlToilet: Value(dwlToilet),
+      dwlBath: Value(dwlBath),
+      dwlHeatingFacility: Value(dwlHeatingFacility),
+      dwlHeatingEnergy: Value(dwlHeatingEnergy),
+      dwlAirConditioner: Value(dwlAirConditioner),
+      dwlSolarPanel: Value(dwlSolarPanel),
+      geometryType: Value(geometryType),
+      downloadId: Value(downloadId),
     );
   }
 }

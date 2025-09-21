@@ -125,62 +125,37 @@ class DwellingDto {
   }
 
   Map<String, dynamic> toGeoJsonFeature() {
-    final attributes = <String, dynamic>{};
-
-    // Always include OBJECTID since it's required
-    attributes["OBJECTID"] = objectId;
-
-    // Only add non-null attributes
-    if (globalId != null) attributes["GlobalID"] = globalId;
-    if (dwlEntGlobalID != null) attributes["DwlEntGlobalID"] = dwlEntGlobalID;
-    if (dwlCensus2023 != null) attributes["DwlCensus2023"] = dwlCensus2023;
-    if (externalCreatorDate != null) {
-      attributes["external_creator_date"] =
-          externalCreatorDate!.millisecondsSinceEpoch;
-    }
-    if (externalEditorDate != null) {
-      attributes["external_editor_date"] =
-          externalEditorDate!.millisecondsSinceEpoch;
-    }
-    if (dwlAddressID != null) attributes["DwlAddressID"] = dwlAddressID;
-    if (dwlQuality != null) attributes["DwlQuality"] = dwlQuality;
-    if (dwlFloor != null) attributes["DwlFloor"] = dwlFloor;
-    if (dwlApartNumber != null) attributes["DwlApartNumber"] = dwlApartNumber;
-    if (dwlStatus != null) attributes["DwlStatus"] = dwlStatus;
-    if (dwlYearConstruction != null) {
-      attributes["DwlYearConstruction"] = dwlYearConstruction;
-    }
-    if (dwlYearElimination != null) {
-      attributes["DwlYearElimination"] = dwlYearElimination;
-    }
-    if (dwlType != null) attributes["DwlType"] = dwlType;
-    if (dwlOwnership != null) attributes["DwlOwnership"] = dwlOwnership;
-    if (dwlOccupancy != null) attributes["DwlOccupancy"] = dwlOccupancy;
-    if (dwlSurface != null) attributes["DwlSurface"] = dwlSurface;
-    if (dwlToilet != null) attributes["DwlToilet"] = dwlToilet;
-    if (dwlBath != null) attributes["DwlBath"] = dwlBath;
-    if (dwlHeatingFacility != null) {
-      attributes["DwlHeatingFacility"] = dwlHeatingFacility;
-    }
-    if (dwlHeatingEnergy != null) {
-      attributes["DwlHeatingEnergy"] = dwlHeatingEnergy;
-    }
-    if (dwlAirConditioner != null) {
-      attributes["DwlAirConditioner"] = dwlAirConditioner;
-    }
-    if (dwlSolarPanel != null) attributes["DwlSolarPanel"] = dwlSolarPanel;
-    if (createdUser != null) attributes["created_user"] = createdUser;
-    if (createdDate != null) {
-      attributes["created_date"] = createdDate!.millisecondsSinceEpoch;
-    }
-    if (lastEditedUser != null) attributes["last_edited_user"] = lastEditedUser;
-    if (lastEditedDate != null) {
-      attributes["last_edited_date"] = lastEditedDate!.millisecondsSinceEpoch;
-    }
-    if (externalCreator != null) {
-      attributes["external_creator"] = externalCreator;
-    }
-    if (externalEditor != null) attributes["external_editor"] = externalEditor;
+    final attributes = <String, dynamic>{
+      "OBJECTID": objectId,
+      "GlobalID": globalId,
+      "DwlEntGlobalID": dwlEntGlobalID,
+      "DwlCensus2023": dwlCensus2023,
+      "external_creator_date": externalCreatorDate?.millisecondsSinceEpoch,
+      "external_editor_date": externalEditorDate?.millisecondsSinceEpoch,
+      "DwlAddressID": dwlAddressID,
+      "DwlQuality": dwlQuality,
+      "DwlFloor": dwlFloor,
+      "DwlApartNumber": dwlApartNumber,
+      "DwlStatus": dwlStatus,
+      "DwlYearConstruction": dwlYearConstruction,
+      "DwlYearElimination": dwlYearElimination,
+      "DwlType": dwlType,
+      "DwlOwnership": dwlOwnership,
+      "DwlOccupancy": dwlOccupancy,
+      "DwlSurface": dwlSurface,
+      "DwlToilet": dwlToilet,
+      "DwlBath": dwlBath,
+      "DwlHeatingFacility": dwlHeatingFacility,
+      "DwlHeatingEnergy": dwlHeatingEnergy,
+      "DwlAirConditioner": dwlAirConditioner,
+      "DwlSolarPanel": dwlSolarPanel,
+      "created_user": createdUser,
+      "created_date": createdDate?.millisecondsSinceEpoch,
+      "last_edited_user": lastEditedUser,
+      "last_edited_date": lastEditedDate?.millisecondsSinceEpoch,
+      "external_creator": externalCreator,
+      "external_editor": externalEditor,
+    };
 
     return {
       "type": "Feature",

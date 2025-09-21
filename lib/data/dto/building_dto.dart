@@ -196,82 +196,49 @@ class BuildingDto {
   }
 
   Map<String, dynamic> toGeoJsonFeature() {
-    final attributes = <String, dynamic>{};
-
-    // Always include OBJECTID since it's required
-    attributes["OBJECTID"] = objectId;
-
-    // Only add non-null attributes
-    if (shapeLength != null) attributes["Shape__Length"] = shapeLength;
-    if (shapeArea != null) attributes["Shape__Area"] = shapeArea;
-    if (globalId != null) attributes["GlobalID"] = globalId;
-    if (bldCensus2023 != null) attributes["BldCensus2023"] = bldCensus2023;
-    if (bldQuality != null) attributes["BldQuality"] = bldQuality;
-    if (bldMunicipality != null) {
-      attributes["BldMunicipality"] = bldMunicipality;
-    }
-    if (bldEnumArea != null) attributes["BldEnumArea"] = bldEnumArea;
-    if (bldLatitude != null) attributes["BldLatitude"] = bldLatitude;
-    if (bldLongitude != null) attributes["BldLongitude"] = bldLongitude;
-    if (bldCadastralZone != null) {
-      attributes["BldCadastralZone"] = bldCadastralZone;
-    }
-    if (bldProperty != null) attributes["BldProperty"] = bldProperty;
-    if (bldPermitNumber != null) {
-      attributes["BldPermitNumber"] = bldPermitNumber;
-    }
-    if (bldPermitDate != null) {
-      attributes["BldPermitDate"] = bldPermitDate!.microsecondsSinceEpoch;
-    }
-    if (bldStatus != null) attributes["BldStatus"] = bldStatus;
-    if (bldYearConstruction != null) {
-      attributes["BldYearConstruction"] = bldYearConstruction;
-    }
-    if (bldYearDemolition != null) {
-      attributes["BldYearDemolition"] = bldYearDemolition;
-    }
-    if (bldType != null) attributes["BldType"] = bldType;
-    if (bldClass != null) attributes["BldClass"] = bldClass;
-    if (bldArea != null) attributes["BldArea"] = bldArea;
-    if (bldFloorsAbove != null) attributes["BldFloorsAbove"] = bldFloorsAbove;
-    if (bldHeight != null) attributes["BldHeight"] = bldHeight;
-    if (bldVolume != null) attributes["BldVolume"] = bldVolume;
-    if (bldWasteWater != null) attributes["BldWasteWater"] = bldWasteWater;
-    if (bldElectricity != null) attributes["BldElectricity"] = bldElectricity;
-    if (bldPipedGas != null) attributes["BldPipedGas"] = bldPipedGas;
-    if (bldElevator != null) attributes["BldElevator"] = bldElevator;
-    if (createdUser != null) attributes["created_user"] = createdUser;
-    if (createdDate != null) {
-      attributes["created_date"] = createdDate!.millisecondsSinceEpoch;
-    }
-    if (lastEditedUser != null) attributes["last_edited_user"] = lastEditedUser;
-    if (lastEditedDate != null) {
-      attributes["last_edited_date"] = lastEditedDate!.microsecondsSinceEpoch;
-    }
-    if (bldCentroidStatus != null) {
-      attributes["BldCentroidStatus"] = bldCentroidStatus;
-    }
-    if (bldDwellingRecs != null) {
-      attributes["BldDwellingRecs"] = bldDwellingRecs;
-    }
-    if (bldEntranceRecs != null) {
-      attributes["BldEntranceRecs"] = bldEntranceRecs;
-    }
-    if (bldAddressID != null) attributes["BldAddressID"] = bldAddressID;
-    if (externalCreator != null) {
-      attributes["external_creator"] = externalCreator;
-    }
-    if (externalEditor != null) attributes["external_editor"] = externalEditor;
-    if (bldReview != null) attributes["BldReview"] = bldReview;
-    if (bldWaterSupply != null) attributes["BldWaterSupply"] = bldWaterSupply;
-    if (externalCreatorDate != null) {
-      attributes["external_creator_date"] =
-          externalCreatorDate!.millisecondsSinceEpoch;
-    }
-    if (externalEditorDate != null) {
-      attributes["external_editor_date"] =
-          externalEditorDate!.millisecondsSinceEpoch;
-    }
+    final attributes = <String, dynamic>{
+      "OBJECTID": objectId,
+      "Shape__Length": shapeLength,
+      "Shape__Area": shapeArea,
+      "GlobalID": globalId,
+      "BldCensus2023": bldCensus2023,
+      "BldQuality": bldQuality,
+      "BldMunicipality": bldMunicipality,
+      "BldEnumArea": bldEnumArea,
+      "BldLatitude": bldLatitude,
+      "BldLongitude": bldLongitude,
+      "BldCadastralZone": bldCadastralZone,
+      "BldProperty": bldProperty,
+      "BldPermitNumber": bldPermitNumber,
+      "BldPermitDate": bldPermitDate?.microsecondsSinceEpoch,
+      "BldStatus": bldStatus,
+      "BldYearConstruction": bldYearConstruction,
+      "BldYearDemolition": bldYearDemolition,
+      "BldType": bldType,
+      "BldClass": bldClass,
+      "BldArea": bldArea,
+      "BldFloorsAbove": bldFloorsAbove,
+      "BldHeight": bldHeight,
+      "BldVolume": bldVolume,
+      "BldWasteWater": bldWasteWater,
+      "BldElectricity": bldElectricity,
+      "BldPipedGas": bldPipedGas,
+      "BldElevator": bldElevator,
+      "created_user": createdUser,
+      "created_date": createdDate?.millisecondsSinceEpoch,
+      "last_edited_user": lastEditedUser,
+      "last_edited_date": lastEditedDate?.microsecondsSinceEpoch,
+      "BldCentroidStatus": bldCentroidStatus,
+      "BldDwellingRecs": bldDwellingRecs,
+      "BldEntranceRecs": bldEntranceRecs,
+      "BldAddressID": bldAddressID,
+      "external_creator": externalCreator,
+      "external_editor": externalEditor,
+      "BldReview": bldReview,
+      "BldWaterSupply": bldWaterSupply,
+      "external_creator_date": externalCreatorDate?.millisecondsSinceEpoch,
+      "external_editor_date": externalEditorDate?.millisecondsSinceEpoch,
+    };
 
     return {
       "type": "Feature",

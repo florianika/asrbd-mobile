@@ -72,10 +72,10 @@ class ApiEndpoints {
       host: esriBaseUri.host,
       path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
       queryParameters: {
-        'where': 'BldMunicipality = $municipalityId',
+        'where': 'BldMunicipality = $municipalityId AND BldStatus <> 6', // Exclude deleted buildings
         'geometry': geometry,
         'geometryType': 'esriGeometryEnvelope',
-        'inSR': '4326',      
+        'inSR': '4326',
         'spatialRel': 'esriSpatialRelIntersects',
         'outFields': '*',
         'returnGeometry': 'true',

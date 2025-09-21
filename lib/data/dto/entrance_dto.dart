@@ -131,54 +131,32 @@ class EntranceDto {
   }
 
   Map<String, dynamic> toGeoJsonFeature() {
-    final attributes = <String, dynamic>{};
-
-    // Always include OBJECTID since it's required
-    attributes["OBJECTID"] = objectId;
-
-    // Only add non-null attributes
-    if (globalId != null) attributes["GlobalID"] = globalId;
-    if (entCensus2023 != null) attributes["EntCensus2023"] = entCensus2023;
-    if (externalCreatorDate != null) {
-      attributes["external_creator_date"] =
-          externalCreatorDate!.millisecondsSinceEpoch;
-    }
-    if (externalEditorDate != null) {
-      attributes["external_editor_date"] =
-          externalEditorDate!.millisecondsSinceEpoch;
-    }
-    if (entBldGlobalID != null) attributes["EntBldGlobalID"] = entBldGlobalID;
-    if (entAddressID != null) attributes["EntAddressID"] = entAddressID;
-    if (entQuality != null) attributes["EntQuality"] = entQuality;
-    if (entLatitude != null) attributes["EntLatitude"] = entLatitude;
-    if (entLongitude != null) attributes["EntLongitude"] = entLongitude;
-    if (entPointStatus != null) attributes["EntPointStatus"] = entPointStatus;
-    if (entStrGlobalID != null) attributes["EntStrGlobalID"] = entStrGlobalID;
-    if (entBuildingNumber != null) {
-      attributes["EntBuildingNumber"] = entBuildingNumber;
-    }
-    if (entEntranceNumber != null) {
-      attributes["EntEntranceNumber"] = entEntranceNumber;
-    }
-    if (entTown != null) attributes["EntTown"] = entTown;
-    if (entZipCode != null) attributes["EntZipCode"] = entZipCode;
-    if (entDwellingRecs != null)
-      attributes["EntDwellingRecs"] = entDwellingRecs;
-    if (entDwellingExpec != null) {
-      attributes["EntDwellingExpec"] = entDwellingExpec;
-    }
-    if (createdUser != null) attributes["created_user"] = createdUser;
-    if (createdDate != null) {
-      attributes["created_date"] = createdDate!.millisecondsSinceEpoch;
-    }
-    if (lastEditedUser != null) attributes["last_edited_user"] = lastEditedUser;
-    if (lastEditedDate != null) {
-      attributes["last_edited_date"] = lastEditedDate!.millisecondsSinceEpoch;
-    }
-    if (externalCreator != null) {
-      attributes["external_creator"] = externalCreator;
-    }
-    if (externalEditor != null) attributes["external_editor"] = externalEditor;
+    final attributes = <String, dynamic>{
+      "OBJECTID": objectId,
+      "GlobalID": globalId,
+      "EntCensus2023": entCensus2023,
+      "external_creator_date": externalCreatorDate?.millisecondsSinceEpoch,
+      "external_editor_date": externalEditorDate?.millisecondsSinceEpoch,
+      "EntBldGlobalID": entBldGlobalID,
+      "EntAddressID": entAddressID,
+      "EntQuality": entQuality,
+      "EntLatitude": entLatitude,
+      "EntLongitude": entLongitude,
+      "EntPointStatus": entPointStatus,
+      "EntStrGlobalID": entStrGlobalID,
+      "EntBuildingNumber": entBuildingNumber,
+      "EntEntranceNumber": entEntranceNumber,
+      "EntTown": entTown,
+      "EntZipCode": entZipCode,
+      "EntDwellingRecs": entDwellingRecs,
+      "EntDwellingExpec": entDwellingExpec,
+      "created_user": createdUser,
+      "created_date": createdDate?.millisecondsSinceEpoch,
+      "last_edited_user": lastEditedUser,
+      "last_edited_date": lastEditedDate?.millisecondsSinceEpoch,
+      "external_creator": externalCreator,
+      "external_editor": externalEditor,
+    };
 
     return {
       "type": "Feature",

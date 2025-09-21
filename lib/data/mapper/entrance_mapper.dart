@@ -8,32 +8,32 @@ import 'package:latlong2/latlong.dart';
 import 'package:uuid/uuid.dart';
 
 // DTO -> EntrancesCompanion
-extension EntranceDtoToDrift on EntranceDto {
-  EntrancesCompanion toCompanion() {
-    return EntrancesCompanion(
-      globalId: Value(globalId ?? const Uuid().v4()),
-      objectId: Value.absentIfNull(objectId),
-      entBldGlobalId:
-          Value(entBldGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
-      entAddressId: Value.absentIfNull(entAddressID),
-      entQuality: Value.absentIfNull(entQuality),
-      entLatitude: Value.absentIfNull(entLatitude),
-      entLongitude: Value.absentIfNull(entLongitude),
-      entPointStatus: Value.absentIfNull(entPointStatus),
-      entStrGlobalId: Value.absentIfNull(entStrGlobalID),
-      entBuildingNumber: Value.absentIfNull(entBuildingNumber),
-      entEntranceNumber: Value.absentIfNull(entEntranceNumber),
-      entTown: Value.absentIfNull(entTown),
-      entZipCode: Value.absentIfNull(entZipCode),
-      entDwellingRecs: Value.absentIfNull(entDwellingRecs),
-      entDwellingExpec: Value.absentIfNull(entDwellingExpec),
-      geometryType: Value(geometryType),
-      coordinates: Value(coordinates != null
-          ? jsonEncode([coordinates!.longitude, coordinates!.latitude])
-          : jsonEncode(null)),
-    );
-  }
-}
+// extension EntranceDtoToDrift on EntranceDto {
+//   EntrancesCompanion toCompanion() {
+//     return EntrancesCompanion(
+//       globalId: Value(globalId ?? const Uuid().v4()),
+//       objectId: Value.absentIfNull(objectId),
+//       entBldGlobalId:
+//           Value(entBldGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
+//       entAddressId: Value.absentIfNull(entAddressID),
+//       entQuality: Value.absentIfNull(entQuality),
+//       entLatitude: Value.absentIfNull(entLatitude),
+//       entLongitude: Value.absentIfNull(entLongitude),
+//       entPointStatus: Value.absentIfNull(entPointStatus),
+//       entStrGlobalId: Value.absentIfNull(entStrGlobalID),
+//       entBuildingNumber: Value.absentIfNull(entBuildingNumber),
+//       entEntranceNumber: Value.absentIfNull(entEntranceNumber),
+//       entTown: Value.absentIfNull(entTown),
+//       entZipCode: Value.absentIfNull(entZipCode),
+//       entDwellingRecs: Value.absentIfNull(entDwellingRecs),
+//       entDwellingExpec: Value.absentIfNull(entDwellingExpec),
+//       geometryType: Value(geometryType),
+//       coordinates: Value(coordinates != null
+//           ? jsonEncode([coordinates!.longitude, coordinates!.latitude])
+//           : jsonEncode(null)),
+//     );
+//   }
+// }
 
 var uuid = const Uuid();
 
@@ -43,7 +43,7 @@ extension EntranceEntityToDrift on EntranceEntity {
     return EntrancesCompanion(
       recordStatus: Value(recordStatus),
       globalId: Value(globalId ?? uuid.v4()),
-      objectId: Value.absentIfNull(objectId),
+      objectId: Value(objectId),
       entBldGlobalId: entBldGlobalID != null
           ? Value(entBldGlobalID!)
           : Value('{00000000-0000-0000-0000-000000000000}'),
@@ -53,14 +53,14 @@ extension EntranceEntityToDrift on EntranceEntity {
       entLongitude: entLongitude != null ? Value(entLongitude!) : Value(0),
       entPointStatus:
           entPointStatus != null ? Value(entPointStatus!) : Value(1),
-      entStrGlobalId: Value.absentIfNull(entStrGlobalID),
-      entBuildingNumber: Value.absentIfNull(entBuildingNumber),
-      entEntranceNumber: Value.absentIfNull(entEntranceNumber),
-      entTown: Value.absentIfNull(entTown),
-      entZipCode: Value.absentIfNull(entZipCode),
-      entDwellingRecs: Value.absentIfNull(entDwellingRecs),
-      entDwellingExpec: Value.absentIfNull(entDwellingExpec),
-      geometryType: Value.absentIfNull(geometryType),
+      entStrGlobalId: Value(entStrGlobalID),
+      entBuildingNumber: Value(entBuildingNumber),
+      entEntranceNumber: Value(entEntranceNumber),
+      entTown: Value(entTown),
+      entZipCode: Value(entZipCode),
+      entDwellingRecs: Value(entDwellingRecs),
+      entDwellingExpec: Value(entDwellingExpec),
+      geometryType: Value(geometryType),
       coordinates:
           Value(jsonEncode([coordinates!.longitude, coordinates!.latitude])),
       downloadId: Value(downloadId),
