@@ -203,7 +203,9 @@ class SyncUseCases {
         } else {
           await _buildingRepository.updateBuildingFeature(building);
           await _buildingRepository.markAsUnchanged(
-              building.globalId!, downloadId);
+            building.globalId!,
+            downloadId,
+          );
         }
       } catch (e, st) {
         print('Failed to sync building ${building.globalId}: $e\n$st');

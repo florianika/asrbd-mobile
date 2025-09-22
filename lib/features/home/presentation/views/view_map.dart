@@ -232,9 +232,14 @@ class _ViewMapState extends State<ViewMap> {
         }
       }
 
-      if (buildingUseCase.intersectsWithOtherBuildings(building, buildings)) {
+      String? intersectedBuildingId =
+          buildingUseCase.intersectsWithOtherBuildings(building, buildings);
+      if (intersectedBuildingId != null) {
         // Show dialog asking user to confirm intersection
-        final shouldProceed = await _showIntersectionDialog();
+        final shouldProceed = await _showIntersectionDialog(
+          building.globalId!,
+          intersectedBuildingId,
+        );
 
         if (!shouldProceed) {
           // User cancelled, don't proceed with saving
@@ -271,7 +276,8 @@ class _ViewMapState extends State<ViewMap> {
     }
   }
 
-  Future<bool> _showIntersectionDialog() async {
+  Future<bool> _showIntersectionDialog(
+      String selectedGlobalId, String intersectedGlobalId) async {
     return await showDialog<bool>(
           context: context,
           barrierDismissible: false, // Prevent dismissing by tapping outside
@@ -279,8 +285,8 @@ class _ViewMapState extends State<ViewMap> {
             return AlertDialog(
               title: Text(AppLocalizations.of(context)
                   .translate(Keys.intersectionDetected)),
-              content: Text(AppLocalizations.of(context)
-                  .translate(Keys.intersectionMessage)),
+              content: Text(
+                  '${AppLocalizations.of(context).translate(Keys.intersectionMessage)} - $selectedGlobalId i $intersectedGlobalId'),
               actions: [
                 TextButton(
                   onPressed: () {

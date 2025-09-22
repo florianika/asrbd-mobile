@@ -40,7 +40,6 @@ class _OfflineMapState extends State<OfflineMap> {
   bool _mapReady = false;
 
   bool _isDownloading = false;
-  // double _downloadProgress = 0.0;
   String _downloadStatus = '';
 
   LatLngBounds? _downloadBounds;
@@ -100,8 +99,6 @@ class _OfflineMapState extends State<OfflineMap> {
       final noBuildings = await buildingRepository.buildingService
           .getBuildingsCount(
               _downloadBounds!, userService.userInfo!.municipality);
-
-      print('Building count in bounds: $noBuildings');
 
       if (noBuildings > AppConfig.maxNoBuildings) {
         if (!mounted) return;
@@ -244,9 +241,6 @@ class _OfflineMapState extends State<OfflineMap> {
 
       // Download buildings, entrances, and dwellings
       await _downloadAllData(downloadId, downloadName);
-
-      // Save metadata
-      // await _saveMetadata(downloadId, downloadName);
 
       if (!mounted) return;
 

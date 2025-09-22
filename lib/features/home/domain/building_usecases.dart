@@ -143,14 +143,14 @@ class BuildingUseCases {
     }).toList();
   }
 
-  bool intersectsWithOtherBuildings(
+  String? intersectsWithOtherBuildings(
     BuildingEntity building,
     List<BuildingEntity> buildings,
   ) {
-    if (buildings.isEmpty) return false;
+    if (buildings.isEmpty) return null;
 
-    final buildingsToCheck =
-        buildings.where((x) => x.globalId != building.globalId);
+    final buildingsToCheck = buildings.where(
+        (x) => x.globalId!.toLowerCase() != building.globalId!.toLowerCase());
 
     List<List<LatLng>> newBuildingCoordinates =
         _closePolygon(building.coordinates);
@@ -172,11 +172,11 @@ class BuildingUseCases {
 
       final geom2 = turf.Polygon(coordinates: toTurfCoords(bCoordinates));
       if (turf.booleanIntersects(geom1, geom2)) {
-        return true;
+        return b.globalId;
       }
     }
 
-    return false;
+    return null;
   }
 
   Future<SaveResult> saveBuilding(
