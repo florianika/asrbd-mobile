@@ -1,3 +1,4 @@
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -393,7 +394,7 @@ class BuildingDto {
       shapeArea: entity.shapeArea,
       globalId: entity.globalId,
       bldCensus2023: entity.bldCensus2023,
-      bldQuality: entity.bldQuality,
+      bldQuality: entity.bldQuality ?? DefaultData.untestedData,
       bldMunicipality: entity.bldMunicipality,
       bldEnumArea: entity.bldEnumArea,
       bldLatitude: entity.bldLatitude,
@@ -402,24 +403,26 @@ class BuildingDto {
       bldProperty: entity.bldProperty,
       bldPermitNumber: entity.bldPermitNumber,
       bldPermitDate: entity.bldPermitDate,
-      bldStatus: entity.bldStatus,
+      bldStatus: entity.bldStatus ?? DefaultData.bldStatusExisting,
       bldYearConstruction: entity.bldYearConstruction,
       bldYearDemolition: entity.bldYearDemolition,
-      bldType: entity.bldType,
-      bldClass: entity.bldClass,
+      bldType: entity.bldType ?? DefaultData.bldTypeUnknown,
+      bldClass: entity.bldClass ?? DefaultData.bldClassUnknown,
       bldArea: entity.bldArea,
       bldFloorsAbove: entity.bldFloorsAbove,
       bldHeight: entity.bldHeight,
       bldVolume: entity.bldVolume,
-      bldWasteWater: entity.bldWasteWater,
-      bldElectricity: entity.bldElectricity,
-      bldPipedGas: entity.bldPipedGas,
-      bldElevator: entity.bldElevator,
+      bldWasteWater: entity.bldWasteWater ?? DefaultData.bldWasteWaterUnknown,
+      bldElectricity:
+          entity.bldElectricity ?? DefaultData.bldElectricityUnknown,
+      bldPipedGas: entity.bldPipedGas ?? DefaultData.bldPipedGasUnknown,
+      bldElevator: entity.bldElevator ?? DefaultData.bldElevatorUnknown,
       createdUser: entity.createdUser,
       createdDate: entity.createdDate,
       lastEditedUser: entity.lastEditedUser,
       lastEditedDate: entity.lastEditedDate,
-      bldCentroidStatus: entity.bldCentroidStatus,
+      bldCentroidStatus:
+          entity.bldCentroidStatus ?? DefaultData.bldCentroidStatus,
       bldDwellingRecs: entity.bldDwellingRecs,
       bldEntranceRecs: entity.bldEntranceRecs,
       bldAddressID: entity.bldAddressID,

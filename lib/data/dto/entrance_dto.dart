@@ -1,3 +1,4 @@
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -228,10 +229,10 @@ class EntranceDto {
       externalEditorDate: externalEditorDate,
       entBldGlobalID: entBldGlobalID,
       entAddressID: entAddressID,
-      entQuality: entQuality,
+      entQuality: entQuality ?? DefaultData.entQualityUntested,
       entLatitude: entLatitude,
       entLongitude: entLongitude,
-      entPointStatus: entPointStatus,
+      entPointStatus: entPointStatus ?? DefaultData.entPointStatus,
       entStrGlobalID: entStrGlobalID,
       entBuildingNumber: entBuildingNumber,
       entEntranceNumber: entEntranceNumber,

@@ -1,3 +1,4 @@
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 
 class DwellingDto {
@@ -245,29 +246,31 @@ class DwellingDto {
     return DwellingDto(
       objectId: entity.objectId,
       geometryType: entity.geometryType,
-      // coordinates: entity.coordinates,
       globalId: entity.globalId,
       dwlEntGlobalID: entity.dwlEntGlobalID,
       dwlCensus2023: entity.dwlCensus2023,
       externalCreatorDate: entity.externalCreatorDate,
       externalEditorDate: entity.externalEditorDate,
       dwlAddressID: entity.dwlAddressID,
-      dwlQuality: entity.dwlQuality,
+      dwlQuality: entity.dwlQuality ?? DefaultData.dwlQualityUntested,
       dwlFloor: entity.dwlFloor,
       dwlApartNumber: entity.dwlApartNumber,
-      dwlStatus: entity.dwlStatus,
+      dwlStatus: entity.dwlStatus ?? DefaultData.dwlStatusExisting,
       dwlYearConstruction: entity.dwlYearConstruction,
       dwlYearElimination: entity.dwlYearElimination,
-      dwlType: entity.dwlType,
-      dwlOwnership: entity.dwlOwnership,
-      dwlOccupancy: entity.dwlOccupancy,
+      dwlType: entity.dwlType ?? DefaultData.dwlTypeUnknown,
+      dwlOwnership: entity.dwlOwnership ?? DefaultData.dwlOwnershipUnknown,
+      dwlOccupancy: entity.dwlOccupancy ?? DefaultData.dwlOccupancyUnknown,
       dwlSurface: entity.dwlSurface,
-      dwlToilet: entity.dwlToilet,
-      dwlBath: entity.dwlBath,
-      dwlHeatingFacility: entity.dwlHeatingFacility,
-      dwlHeatingEnergy: entity.dwlHeatingEnergy,
-      dwlAirConditioner: entity.dwlAirConditioner,
-      dwlSolarPanel: entity.dwlSolarPanel,
+      dwlToilet: entity.dwlToilet ?? DefaultData.dwlToiletUnknown,
+      dwlBath: entity.dwlBath ?? DefaultData.dwlBathUnknown,
+      dwlHeatingFacility:
+          entity.dwlHeatingFacility ?? DefaultData.dwlHeatingFacilityUnkown,
+      dwlHeatingEnergy:
+          entity.dwlHeatingEnergy ?? DefaultData.dwlHeatingEnergyUnkown,
+      dwlAirConditioner:
+          entity.dwlAirConditioner ?? DefaultData.dwlAirConditionerUnkown,
+      dwlSolarPanel: entity.dwlSolarPanel ?? DefaultData.dwlSolarPanelUnkown,
       createdUser: entity.createdUser,
       createdDate: entity.createdDate,
       lastEditedUser: entity.lastEditedUser,

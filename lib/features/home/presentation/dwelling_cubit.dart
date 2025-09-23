@@ -80,37 +80,4 @@ class DwellingCubit extends Cubit<DwellingState> {
     }
   }
 
-  // Future<void> addDwellingFeature(
-  //   Map<String, dynamic> attributes,
-  //   String buildingGlobalId,
-  // ) async {
-  //   emit(DwellingLoading());
-  //   try {
-  //     emit(DwellingAddResponse(
-  //         await dwellingUseCases.addDwellingFeature(attributes, buildingGlobalId)));
-  //   } catch (e) {
-  //     emit(DwellingError(e.toString()));
-  //   }
-  // }
-
-  // Future<void> updateDwellingFeature(Map<String, dynamic> attributes, String buildingGlobalId) async {
-  //   emit(DwellingLoading());
-  //   try {
-  //     emit(DwellingUpdateResponse(
-  //         await dwellingUseCases.updateDwellingFeature(attributes, buildingGlobalId)));
-  //   } catch (e) {
-  //     emit(DwellingError(e.toString()));
-  //   }
-  // }
-
-  // Future<void> getDwellingDetails(int? objectId, bool isOffline) async {
-  //   emit(DwellingLoading());
-  //   try {
-  //     attributesCubit.showAttributes(true);
-  //     await attributesCubit.showDwellingAttributes(objectId!);
-  //     // emit(Dwelling(await attributesCubit.showDwellingAttributes(objectId!)));
-  //   } catch (e) {
-  //     emit(DwellingError(e.toString()));
-  //   }
-  // }
 }

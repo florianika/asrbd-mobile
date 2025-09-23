@@ -111,9 +111,9 @@ class DwellingUseCases {
 
   Future<SaveResult> saveDwelling(
       DwellingEntity dwelling, bool isOffline, int? downloadId) async {
-    bool isNewEntrance = dwelling.globalId == null;
+    bool isNewDwelling = dwelling.globalId == null;
 
-    if (isNewEntrance) {
+    if (isNewDwelling) {
       String globalId =
           await _createNewDwelling(dwelling, isOffline, downloadId);
       return SaveResult(true, Keys.successAddDwelling, globalId);

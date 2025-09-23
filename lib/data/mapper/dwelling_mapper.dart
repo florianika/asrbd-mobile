@@ -1,39 +1,9 @@
 import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/drift/app_database.dart';
-import 'package:asrdb/data/dto/dwelling_dto.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
-// DTO -> DwellingsCompanion
-// extension DwellingDtoToDrift on DwellingDto {
-//   DwellingsCompanion toCompanion() {
-//     return DwellingsCompanion(
-//       globalId: Value(globalId ?? const Uuid().v4()),
-//       objectId: Value(objectId),
-//       dwlEntGlobalId:
-//           Value(dwlEntGlobalID ?? '{00000000-0000-0000-0000-000000000000}'),
-//       dwlAddressId: Value.absentIfNull(dwlAddressID),
-//       dwlQuality: Value(dwlQuality ?? 9),
-//       dwlFloor: Value.absentIfNull(dwlFloor),
-//       dwlApartNumber: Value.absentIfNull(dwlApartNumber),
-//       dwlStatus: Value(dwlStatus ?? 4),
-//       dwlYearConstruction: Value.absentIfNull(dwlYearConstruction),
-//       dwlYearElimination: Value.absentIfNull(dwlYearElimination),
-//       dwlType: Value.absentIfNull(dwlType),
-//       dwlOwnership: Value.absentIfNull(dwlOwnership),
-//       dwlOccupancy: Value.absentIfNull(dwlOccupancy),
-//       dwlSurface: Value.absentIfNull(dwlSurface),
-//       dwlToilet: Value.absentIfNull(dwlToilet),
-//       dwlBath: Value.absentIfNull(dwlBath),
-//       dwlHeatingFacility: Value.absentIfNull(dwlHeatingFacility),
-//       dwlHeatingEnergy: Value.absentIfNull(dwlHeatingEnergy),
-//       dwlAirConditioner: Value.absentIfNull(dwlAirConditioner),
-//       dwlSolarPanel: Value.absentIfNull(dwlSolarPanel),
-//       geometryType: Value.absentIfNull(geometryType),
-//     );
-//   }
-// }
 
 var uuid = const Uuid();
 
