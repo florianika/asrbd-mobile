@@ -1,4 +1,5 @@
 import 'package:asrdb/core/db/street_database.dart';
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
@@ -26,11 +27,14 @@ class DynamicElementAttribute extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   final Future<void> Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
+  final void Function()? onEdit;
+  final void Function()? onCancel;
   final bool readOnly;
   final bool showButtons;
   final List<ValidationResult>? validationResults;
   final List<LatLng>? entrancePointsOnMap;
   final LatLngBounds? visibleBounds;
+  final FormContext formContext;
 
   const DynamicElementAttribute({
     required this.schema,
@@ -40,11 +44,14 @@ class DynamicElementAttribute extends StatefulWidget {
     this.initialData,
     this.onSave,
     this.onClose,
+    this.onEdit,
+    this.onCancel,
     this.showButtons = true,
     this.readOnly = false,
     this.validationResults,
     this.entrancePointsOnMap,
     this.visibleBounds,
+    this.formContext = FormContext.view,
     super.key,
   });
 
@@ -170,13 +177,26 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   String _getHeaderTitle() {
+    String baseTitle;
     switch (widget.selectedShapeType) {
       case ShapeType.polygon:
-        return 'Building';
+        baseTitle = 'Building';
+        break;
       case ShapeType.point:
-        return 'Entrance';
+        baseTitle = 'Entrance';
+        break;
       case ShapeType.noShape:
-        return 'Dwelling';
+        baseTitle = 'Dwelling';
+        break;
+    }
+    
+    switch (widget.formContext) {
+      case FormContext.view:
+        return 'View $baseTitle';
+      case FormContext.edit:
+        return 'Edit $baseTitle';
+      case FormContext.add:
+        return 'Add $baseTitle';
     }
   }
 
@@ -184,13 +204,30 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-      child: Text(
-        _getHeaderTitle(),
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              _getHeaderTitle(),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          if (widget.formContext.showEditButton && widget.onEdit != null)
+            TextButton.icon(
+              onPressed: widget.onEdit,
+              icon: const Icon(Icons.edit, size: 18),
+              label: const Text('Edit'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -307,7 +344,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       filled: true,
-      fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
+      fillColor: widget.formContext.isReadOnly ? Colors.grey[100] : Colors.grey[50],
       suffixIcon: validationResult != null
           ? Icon(
               Icons.priority_high,
@@ -379,8 +416,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               controller: controller,
               focusNode: focusNode,
               readOnly:
-                  widget.readOnly || attribute.display.enumerator == "read",
-              enabled: !widget.readOnly && elementFound.editable,
+                  widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+              enabled: !widget.formContext.isReadOnly && elementFound.editable,
               decoration: _getInputDecoration(attribute, elementFound).copyWith(
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -396,7 +433,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                           size: 16,
                         ),
                       ),
-                    if (controller.text.isNotEmpty && !widget.readOnly)
+                    if (controller.text.isNotEmpty && !widget.formContext.isReadOnly)
                       IconButton(
                         icon: Icon(Icons.clear, color: Colors.grey[600]),
                         onPressed: () {
@@ -632,8 +669,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               controller: controller,
               focusNode: focusNode,
               readOnly:
-                  widget.readOnly || attribute.display.enumerator == "read",
-              enabled: !widget.readOnly && elementFound.editable,
+                  widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+              enabled: !widget.formContext.isReadOnly && elementFound.editable,
               decoration: _getInputDecoration(attribute, elementFound).copyWith(
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -649,7 +686,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                           size: 16,
                         ),
                       ),
-                    if (controller.text.isNotEmpty && !widget.readOnly)
+                    if (controller.text.isNotEmpty && !widget.formContext.isReadOnly)
                       IconButton(
                         icon: Icon(Icons.clear, color: Colors.grey[600]),
                         onPressed: () {
@@ -981,7 +1018,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                             ),
                           ))
                   .toList(),
-              onChanged: (!widget.readOnly && elementFound.editable)
+              onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
                   ? (val) => formValues[elementFound.name] =
                       EsriTypeConversion.convert(elementFound.type, val)
                   : null,
@@ -1030,11 +1067,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         TextFormField(
           key: ValueKey(elementFound.name),
           controller: _controllers[elementFound.name],
-          readOnly: widget.readOnly || attribute.display.enumerator == "read",
-          enabled: !widget.readOnly && elementFound.editable,
+          readOnly: widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+          enabled: !widget.formContext.isReadOnly && elementFound.editable,
           decoration: inputDecoration,
           style: const TextStyle(color: Colors.black87, fontSize: 14),
-          onChanged: (!widget.readOnly && elementFound.editable)
+          onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
               ? (val) => formValues[elementFound.name] =
                   EsriTypeConversion.convert(elementFound.type, val)
               : null,

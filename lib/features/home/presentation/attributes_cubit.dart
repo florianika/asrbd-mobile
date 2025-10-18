@@ -29,6 +29,7 @@ class Attributes extends AttributesState {
   final String? buildingGlobalId;
   final String? entranceGlobalId;
   final int? dwellingObjectId;
+  final bool isNewlyCreated;
 
   Attributes(
     this.schema,
@@ -39,6 +40,7 @@ class Attributes extends AttributesState {
     this.dwellingObjectId, {
     this.viewDwelling = false,
     this.showAttributes = false,
+    this.isNewlyCreated = false,
   });
 
   @override
@@ -51,6 +53,7 @@ class Attributes extends AttributesState {
         dwellingObjectId,
         viewDwelling,
         showAttributes,
+        isNewlyCreated,
       ];
 
   Attributes copyWith({
@@ -177,8 +180,9 @@ class AttributesCubit extends Cubit<AttributesState> {
     String? entranceGlobalID,
     String? buildingGlobalID,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    bool isNewlyCreated = false,
+  }) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
@@ -194,6 +198,7 @@ class AttributesCubit extends Cubit<AttributesState> {
           entranceGlobalID,
           null,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
@@ -215,6 +220,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         entranceGlobalID,
         null,
         showAttributes: true,
+        isNewlyCreated: isNewlyCreated,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -224,8 +230,9 @@ class AttributesCubit extends Cubit<AttributesState> {
   Future<void> showBuildingAttributes(
     String? buildingGlobalID,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    bool isNewlyCreated = false,
+  }) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
@@ -241,6 +248,7 @@ class AttributesCubit extends Cubit<AttributesState> {
           null,
           null,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
@@ -262,6 +270,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: isNewlyCreated,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -315,6 +324,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: true,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -341,6 +351,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: true,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));

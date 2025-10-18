@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:asrdb/core/constants/default_data.dart';
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -59,6 +60,9 @@ class _ViewMapState extends State<ViewMap> {
   bool isLoading = false;
   LatLngBounds? visibleBounds;
   double zoom = 0;
+  
+  // Form mode state
+  FormContext _currentFormContext = FormContext.view;
 
   Timer? _debounce;
 
@@ -313,6 +317,26 @@ class _ViewMapState extends State<ViewMap> {
     // Trick to trigger fetch of data again
     mapController.move(
         mapController.camera.center, mapController.camera.zoom + 0.01);
+    
+    // Reset form context to view mode after successful save
+    setState(() {
+      _currentFormContext = FormContext.view;
+    });
+  }
+
+  FormContext _getFormContext(AttributesState state) {
+    // If we're manually in edit mode, use that
+    if (_currentFormContext == FormContext.edit) {
+      return FormContext.edit;
+    }
+    
+    // Check if this is a newly created entity
+    if (state is Attributes && state.isNewlyCreated) {
+      return FormContext.add;
+    }
+    
+    // Default to view mode for existing entities
+    return FormContext.view;
   }
 
   void _handleSaveError(dynamic error) {
@@ -497,6 +521,11 @@ class _ViewMapState extends State<ViewMap> {
                         message: state.message,
                         type: MessageType.error,
                       );
+                    } else if (state is Attributes) {
+                      // Reset form context when attributes change
+                      setState(() {
+                        _currentFormContext = FormContext.view;
+                      });
                     }
                   },
                   builder: (context, state) {
@@ -521,9 +550,39 @@ class _ViewMapState extends State<ViewMap> {
                               setState(() {
                                 highlightedBuildingIds = null;
                                 highlightMarkersGlobalId = [];
+                                _currentFormContext = FormContext.view; // Reset to view mode
                               });
                             },
                             finishReviewing: _finishReviewing,
+                            formContext: _getFormContext(state),
+                            onEdit: () {
+                              // Only allow edit mode if we're not in add mode
+                              final currentContext = _getFormContext(state);
+                              if (currentContext != FormContext.add) {
+                                setState(() {
+                                  _currentFormContext = FormContext.edit;
+                                });
+                              }
+                            },
+                            onCancel: () {
+                              final currentContext = _getFormContext(state);
+                              if (currentContext == FormContext.add) {
+                                // In add mode, cancel should close the form
+                                context
+                                    .read<AttributesCubit>()
+                                    .showAttributes(false);
+                                setState(() {
+                                  highlightedBuildingIds = null;
+                                  highlightMarkersGlobalId = [];
+                                  _currentFormContext = FormContext.view;
+                                });
+                              } else {
+                                // In edit mode, cancel should return to view mode
+                                setState(() {
+                                  _currentFormContext = FormContext.view;
+                                });
+                              }
+                            },
                           );
                   },
                 )

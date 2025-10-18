@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/entity_type.dart';
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
@@ -25,6 +26,9 @@ class TabletElementAttribute extends StatefulWidget {
   final bool readOnly;
   final Function startReviewing;
   final Function finishReviewing;
+  final FormContext formContext;
+  final void Function()? onEdit;
+  final void Function()? onCancel;
 
   const TabletElementAttribute(
       {super.key,
@@ -36,7 +40,10 @@ class TabletElementAttribute extends StatefulWidget {
       required this.save,
       required this.startReviewing,
       this.readOnly = false,
-      required this.finishReviewing});
+      required this.finishReviewing,
+      this.formContext = FormContext.view,
+      this.onEdit,
+      this.onCancel});
 
   @override
   State<TabletElementAttribute> createState() =>
@@ -122,6 +129,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                               entranceOutsideVisibleArea:
                                   widget.entranceOutsideVisibleArea,
                               initialData: widget.initialData,
+                              formContext: widget.formContext,
+                              onEdit: widget.onEdit,
+                              onCancel: widget.onCancel,
                               onSave: (formValues) async =>
                                   await widget.save(formValues),
                               validationResults: validationResult,
@@ -154,9 +164,11 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   }
                 },
                 onClose: () => widget.onClose(),
+                onCancel: widget.onCancel,
                 globalId: widget.initialData['GlobalID'],
                 startReviewingBuilding: widget.startReviewing,
                 finishReviewingBuilding: widget.finishReviewing,
+                formContext: widget.formContext,
                 openDwelling: () => {
                   context.read<DwellingCubit>().getDwellings(
                         widget.initialData['GlobalID'],

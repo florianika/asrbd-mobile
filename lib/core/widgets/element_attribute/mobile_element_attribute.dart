@@ -1,3 +1,4 @@
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/dynamic_element_attribute.dart';
@@ -5,13 +6,17 @@ import 'package:asrdb/core/widgets/element_attribute/event_button_attribute.dart
 import 'package:flutter/material.dart';
 
 void mobileElementAttribute(
-  BuildContext context,
-  List<FieldSchema> schema,
-  ShapeType shapeType,
-  bool entranceOutsideVisibleArea,
-  Map<String, dynamic> initialData,
-  void Function() onSave,
-) {
+  BuildContext context, {
+  required List<FieldSchema> schema,
+  required ShapeType shapeType,
+  required bool entranceOutsideVisibleArea,
+  required Map<String, dynamic> initialData,
+  required FormContext formContext,
+  required void Function() onSave,
+  void Function()? onEdit,
+  void Function()? onCancel,
+  void Function()? onClose,
+}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -51,16 +56,22 @@ void mobileElementAttribute(
                         selectedShapeType: shapeType,
                         entranceOutsideVisibleArea: entranceOutsideVisibleArea,
                         initialData: initialData,
-                        // onSave: (formValues) async {
-                        //   await onSave(formValues);
-                        // },
+                        formContext: formContext,
+                        onEdit: onEdit,
+                        onCancel: onCancel,
+                        onClose: onClose,
+                        onSave: (formValues) async {
+                          onSave();
+                        },
                       ),
                     ),
                     EventButtonAttribute(
                       onSave: onSave,
-                      onClose: null,
+                      onClose: onClose,
+                      onCancel: onCancel,
                       openDwelling: () => (),
                       selectedShapeType: shapeType,
+                      formContext: formContext,
                     ),
                   ],
                 ),
