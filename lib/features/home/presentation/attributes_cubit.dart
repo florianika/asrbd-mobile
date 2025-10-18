@@ -146,8 +146,9 @@ class AttributesCubit extends Cubit<AttributesState> {
           null,
           null,
           null,
-          viewDwelling: true,
+          viewDwelling: false,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
