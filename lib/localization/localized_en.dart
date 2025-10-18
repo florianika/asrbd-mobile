@@ -123,6 +123,7 @@ class LocalizedEn {
     Keys.dwelling: 'Dwelling',
     Keys.viewDetails: 'View Details',
     Keys.viewAndEdit: 'View and Edit',
-    Keys.addNew: 'Add New'
+    Keys.addNew: 'Add New',
+    Keys.addFirstDwelling: 'Add First Dwelling'
   };
 }

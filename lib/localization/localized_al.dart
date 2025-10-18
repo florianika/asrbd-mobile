@@ -118,6 +118,7 @@ class LocalizedAl {
     Keys.dwelling: 'Banesë',
     Keys.viewDetails: 'Shiko Detajet',
     Keys.viewAndEdit: 'Shiko dhe Ndrysho',
-    Keys.addNew: 'Shto të Re'
+    Keys.addNew: 'Shto të Re',
+    Keys.addFirstDwelling: 'Shto Banesën e Parë'
   };
 }

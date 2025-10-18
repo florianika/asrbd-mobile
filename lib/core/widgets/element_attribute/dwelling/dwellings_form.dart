@@ -521,7 +521,7 @@ class _DwellingFormState extends State<DwellingForm> {
           ElevatedButton.icon(
             onPressed: _onAddNewDwelling,
             icon: const Icon(Icons.add),
-            label: const Text('Add First Dwelling'),
+            label: Text(AppLocalizations.of(context).translate(Keys.addFirstDwelling)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(

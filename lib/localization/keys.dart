@@ -111,4 +111,5 @@ class Keys {
   static const String viewDetails = 'viewDetails';
   static const String viewAndEdit = 'viewAndEdit';
   static const String addNew = 'addNew';
+  static const String addFirstDwelling = 'addFirstDwelling';
 }
