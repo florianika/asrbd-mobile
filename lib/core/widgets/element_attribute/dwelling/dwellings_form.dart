@@ -32,7 +32,6 @@ class _DwellingFormState extends State<DwellingForm> {
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
-  DwellingEntity? _viewPendingRow;
   final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
   final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
@@ -80,15 +79,8 @@ class _DwellingFormState extends State<DwellingForm> {
         } else if (state is DwellingAttributes) {
           setState(() {
             _dwellingSchema = state.attributes;
-            _showDwellingForm = _viewPendingRow == null;
+            _showDwellingForm = true;
           });
-
-          if (_viewPendingRow != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showViewDialog(_viewPendingRow!);
-              _viewPendingRow = null;
-            });
-          }
         } else if (state is DwellingError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -396,25 +388,10 @@ class _DwellingFormState extends State<DwellingForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton.icon(
-                onPressed: () => _onViewDwelling(dwelling),
-                icon: const Icon(Icons.visibility, size: 18),
-                label: Text(AppLocalizations.of(context).translate(Keys.viewDetails)),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () => _onEditDwelling(dwelling),
                 icon: const Icon(Icons.edit, size: 18),
-                label: Text(AppLocalizations.of(context).translate(Keys.edit)),
+                label: Text(AppLocalizations.of(context).translate(Keys.viewAndEdit)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -784,67 +761,7 @@ class _DwellingFormState extends State<DwellingForm> {
     }
   }
 
-  void _onViewDwelling(DwellingEntity row) {
-    if (_dwellingSchema.isEmpty) {
-      _viewPendingRow = row;
-      context.read<DwellingCubit>().getDwellingAttibutes();
-      return;
-    }
-    _showViewDialog(row);
-  }
 
-  void _showViewDialog(DwellingEntity row) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Dialog(
-        insetPadding: const EdgeInsets.all(24),
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: SizedBox(
-          width: 700,
-          height: 750,
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Dwelling Details',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: TabletElementAttribute(
-                  schema: _dwellingSchema,
-                  selectedShapeType: ShapeType.noShape,
-                  entranceOutsideVisibleArea: false,
-                  initialData: row.toMap(),
-                  onClose: () => Navigator.pop(context),
-                  save: (_) async {},
-                  readOnly: true,
-                  startReviewing: () => {},
-                  finishReviewing: () => {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();

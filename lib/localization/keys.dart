@@ -109,5 +109,6 @@ class Keys {
   static const String entrance = 'entrance';
   static const String dwelling = 'dwelling';
   static const String viewDetails = 'viewDetails';
+  static const String viewAndEdit = 'viewAndEdit';
   static const String addNew = 'addNew';
 }
