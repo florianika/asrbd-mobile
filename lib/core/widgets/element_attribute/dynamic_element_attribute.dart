@@ -177,27 +177,35 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   String _getHeaderTitle() {
-    String baseTitle;
+    String baseTitleKey;
     switch (widget.selectedShapeType) {
       case ShapeType.polygon:
-        baseTitle = 'Building';
+        baseTitleKey = Keys.building;
         break;
       case ShapeType.point:
-        baseTitle = 'Entrance';
+        baseTitleKey = Keys.entrance;
         break;
       case ShapeType.noShape:
-        baseTitle = 'Dwelling';
+        baseTitleKey = Keys.dwelling;
         break;
     }
     
+    String actionKey;
     switch (widget.formContext) {
       case FormContext.view:
-        return 'View $baseTitle';
+        actionKey = Keys.view;
+        break;
       case FormContext.edit:
-        return 'Edit $baseTitle';
+        actionKey = Keys.edit;
+        break;
       case FormContext.add:
-        return 'Add $baseTitle';
+        actionKey = Keys.add;
+        break;
     }
+    
+    final baseTitle = AppLocalizations.of(context).translate(baseTitleKey);
+    final action = AppLocalizations.of(context).translate(actionKey);
+    return '$action $baseTitle';
   }
 
   Widget _buildHeader() {

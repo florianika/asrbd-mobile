@@ -8,6 +8,8 @@ import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -236,7 +238,7 @@ class _DwellingFormState extends State<DwellingForm> {
             ElevatedButton.icon(
               onPressed: _onAddNewDwelling,
               icon: const Icon(Icons.add, size: 20),
-              label: const Text('Shto'),
+              label: Text(AppLocalizations.of(context).translate(Keys.addNew)),
               style: ElevatedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -397,7 +399,7 @@ class _DwellingFormState extends State<DwellingForm> {
               OutlinedButton.icon(
                 onPressed: () => _onViewDwelling(dwelling),
                 icon: const Icon(Icons.visibility, size: 18),
-                label: const Text('View Details'),
+                label: Text(AppLocalizations.of(context).translate(Keys.viewDetails)),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -412,7 +414,7 @@ class _DwellingFormState extends State<DwellingForm> {
               ElevatedButton.icon(
                 onPressed: () => _onEditDwelling(dwelling),
                 icon: const Icon(Icons.edit, size: 18),
-                label: const Text('Edit'),
+                label: Text(AppLocalizations.of(context).translate(Keys.edit)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,

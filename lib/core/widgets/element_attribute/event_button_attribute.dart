@@ -182,9 +182,9 @@ class EventButtonAttribute extends StatelessWidget {
                       padding:
                           const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.orange),
+                    child: Text(
+                      AppLocalizations.of(context).translate(Keys.cancel),
+                      style: const TextStyle(color: Colors.orange),
                     ),
                   ),
                 ),

@@ -112,6 +112,16 @@ class LocalizedEn {
     Keys.issuer: 'Issuer',
     Keys.audience: 'Audience',
     Keys.helpSupport: 'Help & Support',
-    Keys.helpSupportSubtitle: 'Get assistance'
+    Keys.helpSupportSubtitle: 'Get assistance',
+    
+    // Add/View/Edit form titles
+    Keys.add: 'Add',
+    Keys.view: 'View',
+    Keys.edit: 'Edit',
+    Keys.building: 'Building',
+    Keys.entrance: 'Entrance',
+    Keys.dwelling: 'Dwelling',
+    Keys.viewDetails: 'View Details',
+    Keys.addNew: 'Add New'
   };
 }
