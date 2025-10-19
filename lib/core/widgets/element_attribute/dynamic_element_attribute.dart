@@ -252,9 +252,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     final sectionOrder = [
       'title',
-      'technical',
       'identification',
-      'info',
+      'description',
       'history'
     ];
     Map<String, List<dynamic>> sections = {};
@@ -290,13 +289,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       switch (section.toLowerCase()) {
         case 'title':
           return Icons.title;
-        case 'technical':
-          return Icons.settings;
         case 'identification':
           return Icons.badge;
         case 'map':
           return Icons.map;
-        case 'info':
+        case 'description':
           return Icons.info_outline;
         case 'history':
           return Icons.history;
