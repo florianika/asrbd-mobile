@@ -1,7 +1,9 @@
 import 'package:asrdb/core/models/legend/legend.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CombinedLegendWidget extends StatefulWidget {
   final Map<String, List<Legend>> buildingLegends;
@@ -34,6 +36,8 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
   late AnimationController _legendAnimationController;
   late Animation<double> _buildingAnimation;
   late Animation<double> _entranceAnimation;
+  
+  final Set<String> _selectedBuildingLegendIds = {};
 
   @override
   void initState() {
@@ -106,6 +110,33 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
         _legendAnimationController.reverse();
       }
     });
+  }
+
+  void _toggleBuildingLegendSelection(String legendId) {
+    setState(() {
+      if (_selectedBuildingLegendIds.contains(legendId)) {
+        _selectedBuildingLegendIds.remove(legendId);
+      } else {
+        _selectedBuildingLegendIds.add(legendId);
+      }
+    });
+
+    context.read<BuildingCubit>().filterBuildingsByLegends(
+      _selectedBuildingLegendIds, 
+      _currentBuildingAttribute
+    );
+  }
+
+  void _clearAllSelections() {
+    setState(() {
+      _selectedBuildingLegendIds.clear();
+    });
+
+    context.read<BuildingCubit>().clearFilters();
+  }
+
+  String _getBuildingLegendId(Legend legend) {
+    return legend.value.toString();
   }
 
   @override
@@ -208,18 +239,20 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
                                   setState(() {
                                     widget.onChange(val);
                                     _currentBuildingAttribute = val;
+                                    _selectedBuildingLegendIds.clear();
                                   });
+                                  context.read<BuildingCubit>().clearFilters();
                                 }
                               },
                             ),
                             content: buildingLegend
-                                .map((legend) => _buildLegendItem(
+                                .map((legend) => _buildBuildingLegendItem(
                                       legend,
-                                      isBuilding: true,
-                                      isSatellite:
-                                          widget.isSatellite, // 👈 forward here
+                                      isSatellite: widget.isSatellite,
                                     ))
                                 .toList(),
+                            showClearButton: _selectedBuildingLegendIds.isNotEmpty,
+                            onClear: _clearAllSelections,
                           ),
 
                           const SizedBox(height: 16),
@@ -232,9 +265,9 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
                             onToggle: _toggleEntranceSection,
                             animation: _entranceAnimation,
                             content: widget.entranceLegends
-                                .map((legend) =>
-                                    _buildLegendItem(legend, isBuilding: false))
+                                .map((legend) => _buildEntranceLegendItem(legend))
                                 .toList(),
+                            showClearButton: false,
                           ),
                         ],
                       ),
@@ -264,6 +297,8 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     required Animation<double> animation,
     Widget? dropdown,
     required List<Widget> content,
+    bool showClearButton = false,
+    VoidCallback? onClear,
   }) {
     return Column(
       children: [
@@ -309,7 +344,45 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
           child: Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Column(
-              children: content,
+              children: [
+                ...content,
+                if (showClearButton && onClear != null) ...[
+                  const SizedBox(height: 8),
+                  InkWell(
+                    onTap: onClear,
+                    borderRadius: BorderRadius.circular(4),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xFFE5E7EB),
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.clear_all,
+                            size: 16,
+                            color: Color(0xFF6B7280),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Clear All',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF6B7280),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -317,30 +390,68 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     );
   }
 
-  Widget _buildLegendItem(Legend legend,
-      {bool isBuilding = false, bool isSatellite = false}) {
+  Widget _buildBuildingLegendItem(Legend legend, {bool isSatellite = false}) {
+    final legendId = _getBuildingLegendId(legend);
+    final isSelected = _selectedBuildingLegendIds.contains(legendId);
+
+    return InkWell(
+      onTap: () => _toggleBuildingLegendSelection(legendId),
+      borderRadius: BorderRadius.circular(4),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFEFF6FF) : Colors.transparent,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CustomPaint(
+                painter: PolygonPainter(
+                  color: legend.color,
+                  isSatellite: isSatellite,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                legend.label,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isSelected ? const Color(0xFF374151) : const Color(0xFF6B7280),
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEntranceLegendItem(Legend legend) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       child: Row(
         children: [
           SizedBox(
             width: 16,
             height: 16,
-            child: isBuilding
-                ? CustomPaint(
-                    painter: PolygonPainter(
-                      color: legend.color,
-                      isSatellite: isSatellite,
-                    ),
-                  )
-                : Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: legend.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+            child: Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(
+                color: legend.color,
+                shape: BoxShape.circle,
+              ),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(

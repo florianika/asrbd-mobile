@@ -30,9 +30,6 @@ class BuildingsMarker extends StatelessWidget {
   // ✅ Add polygon caching to prevent recreation
   static final Map<String, Polygon> _polygonCache = {};
 
-  // ✅ Track last known building list to avoid unnecessary entrance calls
-  // static List<String>? _lastBuildingIds;
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<BuildingCubit, BuildingState>(
@@ -49,11 +46,6 @@ class BuildingsMarker extends StatelessWidget {
               .whereType<String>()
               .where((id) => id.isNotEmpty)
               .toList();
-
-          // ✅ Only call getEntrances if building list actually changed
-          // if (buildingIds.isNotEmpty &&
-          //     !_listEquals(buildingIds, _lastBuildingIds)) {
-          // _lastBuildingIds = List.from(buildingIds);
 
           bool isOffline = context.read<TileCubit>().isOffline;
           DownloadEntity? download = context.read<TileCubit>().download;
