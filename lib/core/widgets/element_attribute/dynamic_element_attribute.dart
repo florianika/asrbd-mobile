@@ -993,76 +993,89 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     elementFound.defaultValue?.toString() ?? '';
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${_getLocalizedLabel(attribute)}:',
-                key: ValueKey('${elementFound.name}_label'),
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  displayValue,
-                  key: ValueKey(elementFound.name),
-                  style: const TextStyle(
-                    color: Colors.black87,
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${_getLocalizedLabel(attribute)}:',
+                  key: ValueKey('${elementFound.name}_label'),
+                  style: TextStyle(
+                    color: Colors.grey[700],
                     fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-              if (validationResult != null)
-                Icon(
-                  Icons.priority_high,
-                  color: validationResult.level == ValidationLevel.error
-                      ? Colors.red
-                      : Colors.orange,
-                  size: 16,
-                ),
-            ],
-          ),
-        ),
-        if (validationResult != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, left: 12),
-            child: Row(
-              children: [
-                Icon(
-                  validationResult.level == ValidationLevel.error
-                      ? Icons.error_outline
-                      : Icons.warning_amber_outlined,
-                  color: validationResult.level == ValidationLevel.error
-                      ? Colors.red
-                      : Colors.orange,
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    validationResult.message,
-                    style: TextStyle(
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
-                      fontSize: 12,
+                    displayValue,
+                    key: ValueKey(elementFound.name),
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+                if (validationResult != null)
+                  Icon(
+                    Icons.priority_high,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
               ],
             ),
           ),
-      ],
+          if (validationResult != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    validationResult.level == ValidationLevel.error
+                        ? Icons.error_outline
+                        : Icons.warning_amber_outlined,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      validationResult.message,
+                      style: TextStyle(
+                        color: validationResult.level == ValidationLevel.error
+                            ? Colors.red
+                            : Colors.orange,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 
