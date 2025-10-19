@@ -253,7 +253,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     final sectionOrder = [
       'title',
       'technical',
-      'identifier',
+      'identification',
       'info',
       'history'
     ];
@@ -292,7 +292,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           return Icons.title;
         case 'technical':
           return Icons.settings;
-        case 'identifier':
+        case 'identification':
           return Icons.badge;
         case 'map':
           return Icons.map;
