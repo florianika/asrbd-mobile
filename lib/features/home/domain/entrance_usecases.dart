@@ -40,6 +40,21 @@ class EntranceUseCases {
     }
   }
 
+  Future<List<EntranceEntity>> getEntrancesByBuildingId(
+      String? entBldGlobalID, bool isOffline, int? downloadId) async {
+    if (entBldGlobalID == null) return [];
+
+    if (!isOffline) {
+      return await _entranceRepository
+          .getEntrancesByBuildingIdOnline(entBldGlobalID);
+    } else {
+      List<Entrance> entrances = await _entranceRepository
+          .getEntrancesByBuildingId([entBldGlobalID], downloadId!);
+
+      return entrances.toEntityList();
+    }
+  }
+
   Future<EntranceEntity> getEntranceDetails(
     String globalId,
     bool isOffline,

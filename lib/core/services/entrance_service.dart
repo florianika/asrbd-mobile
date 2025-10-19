@@ -11,6 +11,45 @@ class EntranceService {
   EntranceService(this.entranceApi);
 
   final StorageService _storage = StorageService();
+
+  Future<List<EntranceEntity>> getEntrancesByBuildingId(
+      String buildingGlobalId) async {
+    try {
+      String? esriToken =
+          await _storage.getString(key: StorageKeys.esriAccessToken);
+      if (esriToken == null) throw Exception('Login failed:');
+
+      final response =
+          await entranceApi.getEntrancesByBuildingId(esriToken, buildingGlobalId);
+
+      // Here you would parse the response and handle tokens, errors, etc.
+      if (response.statusCode == 200) {
+        var mapData = response.data as Map<String, dynamic>;
+        if (mapData.keys.contains('error')) {
+          throw Exception(
+              'Error fetching entrances: ${mapData['error']['message']}');
+        } else {
+          final data = response.data as Map<String, dynamic>;
+          final features = data['features'] as List<dynamic>? ?? [];
+
+          final List<EntranceDto> entranceDtos = features
+              .map((feature) => EntranceDto.fromGeoJsonFeature(
+                  feature as Map<String, dynamic>))
+              .toList();
+
+          final entranceEntites =
+              entranceDtos.map((dto) => dto.toEntity()).toList();
+
+          return entranceEntites;
+        }
+      } else {
+        throw Exception('Get entrances');
+      }
+    } catch (e) {
+      throw Exception('Get entrances: $e');
+    }
+  }
+
   // Login method
   Future<List<EntranceEntity>> getEntrances(
       List<String> entBldGlobalID) async {

@@ -244,12 +244,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
   void _handleMapTap(LatLng position, bool isOffline, int? downloadId) async {
     try {
       final geometryEditor = context.read<GeometryEditorCubit>();
-      
+
       if (geometryEditor.isEditing) {
         if (geometryEditor.selectedType == EntityType.entrance) {
           final attributeCubit = context.read<AttributesCubit>();
           final buildingGlobalId = attributeCubit.currentBuildingGlobalId;
-          
+
           if (buildingGlobalId != null) {
             await geometryEditor.onMapTapWithValidation(
               position,
@@ -257,12 +257,16 @@ class _AsrdbMapState extends State<AsrdbMap> {
               isOffline,
               downloadId,
             );
-            
-            final validationError = geometryEditor.entranceCubit.validationError;
+
+            final validationError =
+                geometryEditor.entranceCubit.validationError;
             if (validationError != null && mounted) {
               NotifierService.showMessage(
                 context,
-                message: AppLocalizations.of(context).translate(validationError).replaceAll('{distance}', AppConfig.maxEntranceDistanceFromBuilding.toString()),
+                message: AppLocalizations.of(context)
+                    .translate(validationError)
+                    .replaceAll('{distance}',
+                        AppConfig.maxEntranceDistanceFromBuilding.toString()),
                 type: MessageType.warning,
               );
             }
@@ -295,6 +299,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (buildingFound != null) {
         context.read<AttributesCubit>().showBuildingAttributes(
             buildingFound.globalId, isOffline, downloadId);
+
+        context.read<EntranceCubit>().getEntranceByGlobalId(
+            buildingFound.globalId!, isOffline, downloadId);
 
         final storageResponsitory = sl<StorageRepository>();
         storageResponsitory.saveString(
@@ -337,7 +344,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
   @override
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
-   
+
     return BlocConsumer<TileCubit, TileState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -351,8 +358,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       state.download!.centerLat!, state.download!.centerLng!))
                   : currentPosition,
               initialZoom: AppConfig.initZoom,
-              onTap: (TapPosition position, LatLng latlng) =>
-                  _handleMapTap(
+              onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
                 latlng,
                 state.isOffline,
                 state.download?.id,

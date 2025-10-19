@@ -15,6 +15,10 @@ class EntranceRepository implements IEntranceRepository {
     return await entranceService.getEntrances(entBldGlobalID);
   }
 
+  Future<List<EntranceEntity>> getEntrancesByBuildingIdOnline(String entBldGlobalID) async {
+    return await entranceService.getEntrancesByBuildingId(entBldGlobalID);
+  }
+
   Future<EntranceEntity> getEntranceDetails(String globalId) async {
     return await entranceService.getEntranceDetails(globalId);
   }

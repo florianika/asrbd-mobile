@@ -2,10 +2,7 @@ import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
-import 'package:asrdb/domain/entities/download_entity.dart';
-import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
-import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,27 +37,6 @@ class BuildingsMarker extends StatelessWidget {
             message: state.message,
             type: MessageType.error,
           );
-        } else if (state is Buildings && state.buildings.isNotEmpty) {
-          final buildingIds = state.buildings
-              .map((building) => building.globalId)
-              .whereType<String>()
-              .where((id) => id.isNotEmpty)
-              .toList();
-
-          bool isOffline = context.read<TileCubit>().isOffline;
-          DownloadEntity? download = context.read<TileCubit>().download;
-          // ✅ Debounce entrance calls to avoid rapid fire
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (context.mounted) {
-              context.read<EntranceCubit>().getEntrances(
-                    mapController.camera.zoom,
-                    buildingIds,
-                    isOffline,
-                    download?.id,
-                  );
-            }
-          });
-          // }
         }
       },
       // ✅ Much stricter buildWhen - only rebuild when building data meaningfully changes
@@ -209,7 +185,7 @@ class BuildingsMarker extends StatelessWidget {
         borderStrokeWidth: 1.0,
       );
     });
-  
+
     final fillColor = (_legendService.getColorForValue(
           LegendType.building,
           attributeLegend,
