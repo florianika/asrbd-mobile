@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum FormContext {
   view,
   edit,
@@ -30,5 +32,16 @@ extension FormContextExtension on FormContext {
 
   bool get showCancelButton {
     return this == FormContext.edit;
+  }
+
+  String get statusText {
+    switch (this) {
+      case FormContext.view:
+        return 'View Mode';
+      case FormContext.edit:
+        return 'Edit Mode';
+      case FormContext.add:
+        return 'Add Mode';
+    }
   }
 }

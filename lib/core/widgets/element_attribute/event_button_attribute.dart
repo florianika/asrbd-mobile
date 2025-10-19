@@ -175,7 +175,7 @@ class EventButtonAttribute extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.orange),
+                      side: const BorderSide(color: Colors.red),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -184,7 +184,7 @@ class EventButtonAttribute extends StatelessWidget {
                     ),
                     child: Text(
                       AppLocalizations.of(context).translate(Keys.cancel),
-                      style: const TextStyle(color: Colors.orange),
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 ),
@@ -201,7 +201,7 @@ class EventButtonAttribute extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: onSave,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
+                      backgroundColor: Colors.green,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

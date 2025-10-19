@@ -30,6 +30,7 @@ import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
@@ -139,6 +140,7 @@ class _ViewMapState extends State<ViewMap> {
     final entranceUseCase = sl<DwellingUseCases>();
     final attributeCubit = sl<AttributesCubit>();
     final checkUseCase = sl<CheckUseCases>();
+    final dwellingCubit = context.read<DwellingCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
@@ -162,6 +164,16 @@ class _ViewMapState extends State<ViewMap> {
               '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
           type: response.success ? MessageType.success : MessageType.error,
         );
+
+       if (response.success) {
+          attributeCubit.showAttributes(false);
+          
+          await dwellingCubit.getDwellings(
+            attributeCubit.currentEntranceGlobalId,
+            isOffline,
+            download?.id,
+          );
+        }
       }
     } on Exception catch (e) {
       if (!mounted) return;
@@ -318,9 +330,10 @@ class _ViewMapState extends State<ViewMap> {
     mapController.move(
         mapController.camera.center, mapController.camera.zoom + 0.01);
     
-    // Reset form context to view mode after successful save
     setState(() {
       _currentFormContext = FormContext.view;
+      highlightedBuildingIds = null;
+      highlightMarkersGlobalId = [];
     });
   }
 
@@ -526,6 +539,12 @@ class _ViewMapState extends State<ViewMap> {
                       setState(() {
                         _currentFormContext = FormContext.view;
                       });
+                    } else {
+                        setState(() {
+                        highlightedBuildingIds = null;
+                        highlightMarkersGlobalId = [];
+                        _currentFormContext = FormContext.view;
+                      });
                     }
                   },
                   builder: (context, state) {
@@ -544,9 +563,9 @@ class _ViewMapState extends State<ViewMap> {
                             save: _onSave,
                             startReviewing: _startReviewing,
                             onClose: () {
-                              context
-                                  .read<AttributesCubit>()
-                                  .showAttributes(false);
+                              context.read<AttributesCubit>().clearAllSelections();
+                              context.read<GeometryEditorCubit>().cancelOperation();
+                              context.read<BuildingCubit>().clearSelectedBuilding();
                               setState(() {
                                 highlightedBuildingIds = null;
                                 highlightMarkersGlobalId = [];
@@ -567,10 +586,9 @@ class _ViewMapState extends State<ViewMap> {
                             onCancel: () {
                               final currentContext = _getFormContext(state);
                               if (currentContext == FormContext.add) {
-                                // In add mode, cancel should close the form
-                                context
-                                    .read<AttributesCubit>()
-                                    .showAttributes(false);
+                                context.read<AttributesCubit>().clearAllSelections();
+                                context.read<GeometryEditorCubit>().cancelOperation();
+                                context.read<BuildingCubit>().clearSelectedBuilding();
                                 setState(() {
                                   highlightedBuildingIds = null;
                                   highlightMarkersGlobalId = [];

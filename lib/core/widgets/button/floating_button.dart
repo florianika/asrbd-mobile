@@ -6,6 +6,7 @@ class FloatingButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isEnabled;
   final bool isVisible;
+  final String? tooltip;
   const FloatingButton({
     super.key,
     required this.icon,
@@ -13,6 +14,7 @@ class FloatingButton extends StatelessWidget {
     this.onPressed,
     required this.isEnabled,
     this.isVisible = true,
+    this.tooltip,
   });
 
   @override
@@ -21,13 +23,16 @@ class FloatingButton extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return FloatingActionButton(
-      heroTag: heroTag,
-      mini: true,
-      backgroundColor: Colors.white,
-      foregroundColor: isEnabled ? Colors.black : Colors.grey,
-      onPressed: isEnabled ? onPressed : null,
-      child: Icon(icon),
+    return Tooltip(
+      message: tooltip ?? '',
+      child: FloatingActionButton(
+        heroTag: heroTag,
+        mini: true,
+        backgroundColor: Colors.white,
+        foregroundColor: isEnabled ? Colors.black : Colors.grey,
+        onPressed: isEnabled ? onPressed : null,
+        child: Icon(icon),
+      ),
     );
   }
 }

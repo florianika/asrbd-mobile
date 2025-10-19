@@ -10,6 +10,9 @@ import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
+import 'package:asrdb/core/db/hive_boxes.dart';
+import 'package:get_it/get_it.dart';
 
 abstract class AttributesState extends Equatable {
   @override
@@ -400,6 +403,24 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   void clearSelections() {
     toggleAttributesVisibility(false);
+  }
+
+   void clearAllSelections() {
+    _persistentEntrance = null;
+    _persistentBuilding = null;
+    _persistentDwelling = null;
+    
+    toggleAttributesVisibility(false);
+    
+    try {
+      final storageRepository = GetIt.instance<StorageRepository>();
+      storageRepository.remove(
+        boxName: HiveBoxes.selectedBuilding,
+        key: 'currentBuildingGlobalId',
+      );
+    } catch (e) {
+      // Ignore storage errors
+    }
   }
 
   // Optional: method to clear persistent values

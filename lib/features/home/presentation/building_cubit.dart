@@ -195,6 +195,11 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(Buildings([]));
   }
 
+   void clearSelectedBuilding() {
+    _selectedBuildingGlobalId = null;
+    emit(Buildings(_buildings));
+  }
+
   // ✅ Public getter to access buildings anytime
   List<BuildingEntity> get buildings => List.unmodifiable(_buildings);
 

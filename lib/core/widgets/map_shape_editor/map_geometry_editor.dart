@@ -65,11 +65,14 @@ class MapGeometryEditor extends StatelessWidget {
           left: 20,
           child: FloatingButton(
             heroTag: 'rectangle',
-            isEnabled: true,
+            isEnabled: attributeContext.currentBuildingGlobalId == null,
             onPressed: () => {
               context.read<GeometryEditorCubit>().startCreatingBuilding(),
             },
             icon: Icons.hexagon_outlined,
+            tooltip: attributeContext.currentBuildingGlobalId == null 
+                ? 'Add Building' 
+                : 'Cannot add building while one is selected',
           ),
         ),
         Positioned(
@@ -84,6 +87,10 @@ class MapGeometryEditor extends StatelessWidget {
             isEnabled: attributeContext.currentBuildingGlobalId != null &&
                 attributeContext.shapeType == ShapeType.polygon,
             icon: Icons.adjust,
+            tooltip: (attributeContext.currentBuildingGlobalId != null &&
+                attributeContext.shapeType == ShapeType.polygon)
+                ? 'Add Entrance'
+                : 'Select a building first to add entrance',
           ),
         ),
       ],
