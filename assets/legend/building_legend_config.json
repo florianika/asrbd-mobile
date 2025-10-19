@@ -5,73 +5,69 @@
       "value": 1
     },
     "Mungesa në të dhënat": {
-      "color": "#455A64",
+      "color": "#0000FF",
       "value": 2
     },
     "Të dhëna kontradiktore": {
-      "color": "#6A1B9A",
+      "color": "#EE0000",
       "value": 3
     },
     "Të dhëna të patestuara": {
-      "color": "#00796B",
+      "color": "#ffa503",
       "value": 9
-    },
-    "Të dhëna të fshira": {
-      "color": "#303F9F",
-      "value": 0
     }
   },
   "review": {
     "Nuk ka nevojë për rishikim": {
-      "color": "#1976D2",
+      "color": "#66BB6A",
       "value": 1
     },
     "Rishikimi i aprovuar": {
-      "color": "#7B1FA2",
+      "color": "#88CA8B",
       "value": 2
     },
     "Rishikimi i ekzekutuar": {
-      "color": "#1565C0",
+      "color": "#FBC02D",
       "value": 3
     },
     "Rishikimi në pritje": {
-      "color": "#0277BD",
+      "color": "#FA8A2E",
       "value": 4
     },
     "Rishikimi i rihapur": {
-      "color": "#039BE5",
+      "color": "#ED4C3B",
       "value": 5
     },
     "Kërkohet rishikim": {
-      "color": "#AD1457",
+      "color": "#BE2212",
       "value": 6
     }
   },
   "status": {
     "Leja e ndërtimit e lëshuar": {
-      "color": "#43A047",
+      "color": "#8ace02",
       "value": 1
     },
     "Në ndërtim": {
-      "color": "#F9A825",
+      "color": "#5ca300",
       "value": 2
     },
     "Ekzistuese": {
-      "color": "#0288D1",
+      "color": "#b51a63",
       "value": 4
     },
     "E rrënuar": {
-      "color": "#FB8C00",
+      "color": "#f57600",
       "value": 5
     },
     "E shkatërruar / nuk ekziston më": {
-      "color": "#D32F2F",
+      "color": "#c5c5c5",
       "value": 6
     }
   },
   "centroidStatus": {
     "Vlera zëvendësuese": {
-      "color": "#66BB6A",
+      "color": "#D097D9",
       "value": 1
     },
     "Vlera e importuar": {
@@ -87,7 +83,7 @@
       "value": 5
     },
     "Vlera e vjetëruar": {
-      "color": "#FBC02D",
+      "color": "#A6A6A6",
       "value": 6
     }
   },
