@@ -153,6 +153,15 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
   }
 
+    String _getLocalizedDescription(dynamic attribute) {
+    // Use cached language to avoid context access during build
+    if (_currentLanguage == 'sq') {
+      return attribute.description.al;
+    } else {
+      return attribute.description.en;
+    }
+  }
+
   @override
   void dispose() {
     for (final controller in _controllers.values) {
@@ -446,10 +455,22 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TypeAheadField<Street>(
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypeAheadField<Street>(
           key: ValueKey(elementFound.name),
           controller: _controllers[elementFound.name],
           builder: (context, controller, focusNode) {
@@ -683,7 +704,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ],
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -709,10 +731,22 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           }).toList()
         : allTownOptions;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TypeAheadField<Map<String, dynamic>>(
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypeAheadField<Map<String, dynamic>>(
           key: ValueKey(elementFound.name),
           controller: _controllers[elementFound.name],
           builder: (context, controller, focusNode) {
@@ -938,7 +972,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ],
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -946,88 +981,101 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       dynamic attribute, dynamic elementFound, String sectionName) {
     final validationResult = _getValidationResult(elementFound.name);
     if (sectionName.toLowerCase() == 'history') {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            margin: const EdgeInsets.only(bottom: 4),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: validationResult != null
-                    ? (validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : Colors.orange)
-                    : Colors.grey[200]!,
-                width: validationResult != null ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${_getLocalizedLabel(attribute)}:',
-                  key: ValueKey('${elementFound.name}_label'),
-                  style: TextStyle(
-                    color: Colors.grey[700],
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
+      return Tooltip(
+        message: _getLocalizedDescription(attribute),
+        preferBelow: false,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: validationResult != null
+                      ? (validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange)
+                      : Colors.grey[200]!,
+                  width: validationResult != null ? 1.5 : 1,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
-                    key: ValueKey(elementFound.name),
-                    style: const TextStyle(
-                      color: Colors.black87,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_getLocalizedLabel(attribute)}:',
+                    key: ValueKey('${elementFound.name}_label'),
+                    style: TextStyle(
+                      color: Colors.grey[700],
                       fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ),
-                if (validationResult != null)
-                  Icon(
-                    Icons.priority_high,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : Colors.orange,
-                    size: 16,
-                  ),
-              ],
-            ),
-          ),
-          if (validationResult != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 6, left: 12),
-              child: Row(
-                children: [
-                  Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : Icons.warning_amber_outlined,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : Colors.orange,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      validationResult.message,
-                      style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : Colors.orange,
-                        fontSize: 12,
+                      '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+                      key: ValueKey(elementFound.name),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 13,
                       ),
                     ),
                   ),
+                  if (validationResult != null)
+                    Icon(
+                      Icons.priority_high,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
                 ],
               ),
             ),
-        ],
+            if (validationResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      validationResult.level == ValidationLevel.error
+                          ? Icons.error_outline
+                          : Icons.warning_amber_outlined,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        validationResult.message,
+                        style: TextStyle(
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     }
     if (elementFound.name == 'EntStrGlobalID') {
@@ -1041,66 +1089,148 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     final inputDecoration = _getInputDecoration(attribute, elementFound);
 
     if (elementFound.codedValues != null) {
-      return Column(
+      return Tooltip(
+        message: _getLocalizedDescription(attribute),
+        preferBelow: false,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MouseRegion(
+              cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                  ? SystemMouseCursors.forbidden
+                  : SystemMouseCursors.click,
+              child: AbsorbPointer(
+                absorbing: attribute.display.enumerator == "read",
+                child: DropdownButtonFormField<Object?>(
+                  key: ValueKey('${elementFound.name}_${widget.hashCode}'),
+                  isExpanded: true,
+                  decoration: inputDecoration,
+                  value: () {
+                    // Get the intended value
+                    final intendedValue = widget.initialData![elementFound.name] ??
+                        elementFound.defaultValue;
+
+                    // Check if this value exists in codedValues
+                    final availableCodes = elementFound.codedValues!
+                        .map((code) => code['code'])
+                        .toSet();
+
+                    // Only return the value if it exists in the dropdown items
+                    return availableCodes.contains(intendedValue)
+                        ? intendedValue
+                        : null;
+                  }(),
+                  items: elementFound.codedValues!
+                      .map<DropdownMenuItem<Object?>>(
+                          (code) => DropdownMenuItem<Object?>(
+                                key: ValueKey(
+                                    '${elementFound.name}_${code['name']}_${widget.hashCode}'),
+                                value: code['code'],
+                                child: Text(
+                                  code['name'].toString(),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                                          ? Colors.grey[600]
+                                          : Colors.black87, 
+                                      fontSize: 14),
+                                ),
+                              ))
+                      .toList(),
+                  onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
+                      ? (val) => formValues[elementFound.name] =
+                          EsriTypeConversion.convert(elementFound.type, val)
+                      : null,
+                  disabledHint: Text(
+                    formValues[elementFound.name]?.toString() ?? _getLocalizedLabel(attribute),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  style: TextStyle(
+                    color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                        ? Colors.grey[600]
+                        : Colors.black87, 
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+            if (validationResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      validationResult.level == ValidationLevel.error
+                          ? Icons.error_outline
+                          : Icons.warning_amber_outlined,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        validationResult.message,
+                        style: TextStyle(
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MouseRegion(
             cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
                 ? SystemMouseCursors.forbidden
-                : SystemMouseCursors.click,
-            child: AbsorbPointer(
-              absorbing: attribute.display.enumerator == "read",
-              child: DropdownButtonFormField<Object?>(
-                key: ValueKey('${elementFound.name}_${widget.hashCode}'),
-                isExpanded: true,
-                decoration: inputDecoration,
-                value: () {
-                  // Get the intended value
-                  final intendedValue = widget.initialData![elementFound.name] ??
-                      elementFound.defaultValue;
-
-                  // Check if this value exists in codedValues
-                  final availableCodes = elementFound.codedValues!
-                      .map((code) => code['code'])
-                      .toSet();
-
-                  // Only return the value if it exists in the dropdown items
-                  return availableCodes.contains(intendedValue)
-                      ? intendedValue
-                      : null;
-                }(),
-                items: elementFound.codedValues!
-                    .map<DropdownMenuItem<Object?>>(
-                        (code) => DropdownMenuItem<Object?>(
-                              key: ValueKey(
-                                  '${elementFound.name}_${code['name']}_${widget.hashCode}'),
-                              value: code['code'],
-                              child: Text(
-                                code['name'].toString(),
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
-                                        ? Colors.grey[600]
-                                        : Colors.black87, 
-                                    fontSize: 14),
-                              ),
-                            ))
-                    .toList(),
-                onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
-                    ? (val) => formValues[elementFound.name] =
-                        EsriTypeConversion.convert(elementFound.type, val)
-                    : null,
-                disabledHint: Text(
-                  formValues[elementFound.name]?.toString() ?? _getLocalizedLabel(attribute),
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-                style: TextStyle(
-                  color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
-                      ? Colors.grey[600]
-                      : Colors.black87, 
-                  fontSize: 14,
-                ),
+                : SystemMouseCursors.text,
+            child: TextFormField(
+              key: ValueKey(elementFound.name),
+              controller: _controllers[elementFound.name],
+              readOnly: widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+              enabled: !widget.formContext.isReadOnly && elementFound.editable,
+              decoration: inputDecoration,
+              style: TextStyle(
+                color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                    ? Colors.grey[600]
+                    : Colors.black87, 
+                fontSize: 14,
               ),
+              onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
+                  ? (val) => formValues[elementFound.name] =
+                      EsriTypeConversion.convert(elementFound.type, val)
+                  : null,
             ),
           ),
           if (validationResult != null)
@@ -1114,7 +1244,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                         : Icons.warning_amber_outlined,
                     color: validationResult.level == ValidationLevel.error
                         ? Colors.red
-                        : Colors.orange,
+                        : const Color.fromARGB(255, 241, 193, 2),
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1133,63 +1263,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ),
             ),
         ],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MouseRegion(
-          cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
-              ? SystemMouseCursors.forbidden
-              : SystemMouseCursors.text,
-          child: TextFormField(
-            key: ValueKey(elementFound.name),
-            controller: _controllers[elementFound.name],
-            readOnly: widget.formContext.isReadOnly || attribute.display.enumerator == "read",
-            enabled: !widget.formContext.isReadOnly && elementFound.editable,
-            decoration: inputDecoration,
-            style: TextStyle(
-              color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
-                  ? Colors.grey[600]
-                  : Colors.black87, 
-              fontSize: 14,
-            ),
-            onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
-                ? (val) => formValues[elementFound.name] =
-                    EsriTypeConversion.convert(elementFound.type, val)
-                : null,
-          ),
-        ),
-        if (validationResult != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, left: 12),
-            child: Row(
-              children: [
-                Icon(
-                  validationResult.level == ValidationLevel.error
-                      ? Icons.error_outline
-                      : Icons.warning_amber_outlined,
-                  color: validationResult.level == ValidationLevel.error
-                      ? Colors.red
-                      : const Color.fromARGB(255, 241, 193, 2),
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    validationResult.message,
-                    style: TextStyle(
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
+      ),
     );
   }
 
