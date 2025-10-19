@@ -63,6 +63,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
+  String _currentLanguage = 'sq'; // Default to Albanian
   ValidationResult? _getValidationResult(String fieldName) {
     if (widget.validationResults == null) return null;
     return widget.validationResults!
@@ -82,6 +83,18 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     if (widget.initialData != oldWidget.initialData &&
         widget.initialData != null) {
       _initializeForm(widget.initialData!);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update language when dependencies change (including locale changes)
+    final newLanguage = Localizations.localeOf(context).languageCode;
+    if (newLanguage != _currentLanguage) {
+      setState(() {
+        _currentLanguage = newLanguage;
+      });
     }
   }
 
@@ -129,6 +142,15 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
 
     return townOption['name'].toString();
+  }
+
+  String _getLocalizedLabel(dynamic attribute) {
+    // Use cached language to avoid context access during build
+    if (_currentLanguage == 'sq') {
+      return attribute.label.al;
+    } else {
+      return attribute.label.en;
+    }
   }
 
   @override
@@ -345,7 +367,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     final isEditMode = widget.formContext == FormContext.edit;
 
     return InputDecoration(
-      labelText: '${attribute.label.al} (${attribute.name})',
+      labelText: '${_getLocalizedLabel(attribute)} (${attribute.name})',
       labelStyle: TextStyle(
         color: isReadOnly ? Colors.grey[500] : Colors.grey[600], 
         fontSize: 14,
@@ -946,7 +968,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${attribute.label.al}:',
+                  '${_getLocalizedLabel(attribute)}:',
                   key: ValueKey('${elementFound.name}_label'),
                   style: TextStyle(
                     color: Colors.grey[700],
@@ -1069,7 +1091,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                         EsriTypeConversion.convert(elementFound.type, val)
                     : null,
                 disabledHint: Text(
-                  formValues[elementFound.name]?.toString() ?? attribute.label.al,
+                  formValues[elementFound.name]?.toString() ?? _getLocalizedLabel(attribute),
                   style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 style: TextStyle(

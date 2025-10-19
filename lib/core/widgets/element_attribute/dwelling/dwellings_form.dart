@@ -39,7 +39,17 @@ class _DwellingFormState extends State<DwellingForm> {
 
   late Map<String, String> _columnLabels;
   late List<String> _columnOrder;
+  String _currentLanguage = 'sq'; // Default to Albanian
   // String? buildingGlobalId = '';
+
+  String _getLocalizedLabel(dynamic attribute) {
+    // Use cached language to avoid context access during build
+    if (_currentLanguage == 'sq') {
+      return attribute.label.al;
+    } else {
+      return attribute.label.en;
+    }
+  }
 
   @override
   void initState() {
@@ -56,7 +66,7 @@ class _DwellingFormState extends State<DwellingForm> {
     final dwellingSchema = schemaService.dwellingSchema;
 
     _columnLabels = {
-      for (var attr in dwellingSchema.attributes) attr.name: attr.label.al,
+      for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
     };
 
     _columnOrder = dwellingSchema.attributes
@@ -65,6 +75,24 @@ class _DwellingFormState extends State<DwellingForm> {
         .toList();
 
     // context.read<DwellingCubit>().getDwellings(globalId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update language when dependencies change (including locale changes)
+    final newLanguage = Localizations.localeOf(context).languageCode;
+    if (newLanguage != _currentLanguage) {
+      setState(() {
+        _currentLanguage = newLanguage;
+        // Update column labels with new language
+        final schemaService = sl<SchemaService>();
+        final dwellingSchema = schemaService.dwellingSchema;
+        _columnLabels = {
+          for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
+        };
+      });
+    }
   }
 
   @override
