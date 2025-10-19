@@ -83,6 +83,7 @@ class SchemaAttribute {
     return {
       'name': name,
       'label': label.toJson(),
+      'description':description.toJson(),
       'display': display.toJson(),
       'selectable': selectable,
       'internal': internal,
