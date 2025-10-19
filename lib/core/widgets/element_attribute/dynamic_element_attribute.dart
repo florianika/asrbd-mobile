@@ -145,7 +145,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   String _getLocalizedLabel(dynamic attribute) {
-    // Use cached language to avoid context access during build
     if (_currentLanguage == 'sq') {
       return attribute.label.al;
     } else {
@@ -153,8 +152,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
   }
 
-    String _getLocalizedDescription(dynamic attribute) {
-    // Use cached language to avoid context access during build
+   String _getLocalizedDescription(dynamic attribute) {
     if (_currentLanguage == 'sq') {
       return attribute.description.al;
     } else {
@@ -977,9 +975,106 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
+  Widget _buildReadOnlyLabel(dynamic attribute, dynamic elementFound) {
+    final validationResult = _getValidationResult(elementFound.name);
+    
+    // Get the display value
+    String displayValue = '';
+    if (elementFound.codedValues != null) {
+      // For coded values, find the name that matches the code
+      final currentValue = formValues[elementFound.name] ?? elementFound.defaultValue;
+      final codedValue = elementFound.codedValues!.firstWhere(
+        (code) => code['code'] == currentValue,
+        orElse: () => {'name': currentValue?.toString() ?? ''},
+      );
+      displayValue = codedValue['name'].toString();
+    } else {
+      displayValue = formValues[elementFound.name]?.toString() ?? 
+                    elementFound.defaultValue?.toString() ?? '';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${_getLocalizedLabel(attribute)}:',
+                key: ValueKey('${elementFound.name}_label'),
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  displayValue,
+                  key: ValueKey(elementFound.name),
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              if (validationResult != null)
+                Icon(
+                  Icons.priority_high,
+                  color: validationResult.level == ValidationLevel.error
+                      ? Colors.red
+                      : Colors.orange,
+                  size: 16,
+                ),
+            ],
+          ),
+        ),
+        if (validationResult != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 12),
+            child: Row(
+              children: [
+                Icon(
+                  validationResult.level == ValidationLevel.error
+                      ? Icons.error_outline
+                      : Icons.warning_amber_outlined,
+                  color: validationResult.level == ValidationLevel.error
+                      ? Colors.red
+                      : Colors.orange,
+                  size: 16,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    validationResult.message,
+                    style: TextStyle(
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildFormField(
       dynamic attribute, dynamic elementFound, String sectionName) {
     final validationResult = _getValidationResult(elementFound.name);
+    
+    // If the field is read-only, render as a bold label
+    if (attribute.display.enumerator == "read") {
+      return _buildReadOnlyLabel(attribute, elementFound);
+    }
+    
     if (sectionName.toLowerCase() == 'history') {
       return Tooltip(
         message: _getLocalizedDescription(attribute),

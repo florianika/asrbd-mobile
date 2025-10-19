@@ -45,12 +45,12 @@ class SchemaAttribute {
   final String name;
   final AttributeLabel label;
   final AttributeDisplay display;
-   final AttributeDescription description;
+  final AttributeDescription description;
   final bool selectable;
   final bool internal;
   final String section;
   final dynamic order;
-   final bool required;
+  final bool required;
 
   SchemaAttribute({
     required this.name,
