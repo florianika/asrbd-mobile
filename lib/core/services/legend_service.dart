@@ -11,8 +11,6 @@ class LegendService {
     await Future.wait([
       _loadConfigFile(
           'assets/legend/building_legend_config.json', LegendType.building),
-      _loadConfigFile(
-          'assets/legend/entrance_legend_config.json', LegendType.entrance),
     ]);
   }
 

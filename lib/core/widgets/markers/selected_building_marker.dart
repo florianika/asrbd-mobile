@@ -18,9 +18,9 @@ class SelectedBuildingMarker extends StatelessWidget {
 
   // ✅ Static styling properties to avoid recreation
   static const Color _fillColor =
-      Color.fromRGBO(255, 0, 0, 0.7); // Colors.red with alpha 0.7
-  static const Color _borderColor = Color.fromRGBO(215, 25, 11, 0.3);
-  static const double _borderWidth = 8.0;
+      Color.fromRGBO(255, 255, 0, 1); // Colors.red with alpha 0.7
+  static const Color _borderColor = Color.fromRGBO(130, 127, 0, 1);
+  static const double _borderWidth = 12.0;
 
   // ✅ Highlight styling properties
   static const Color _highlightBorderColor = Color.fromRGBO(255, 0, 0, 0.8);
