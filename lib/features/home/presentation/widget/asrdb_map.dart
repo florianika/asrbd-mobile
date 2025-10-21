@@ -292,6 +292,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     try {
       context.read<DwellingCubit>().closeDwellings();
       context.read<AttributesCubit>().clearSelections();
+      context.read<AttributesCubit>().setPersistentEntrance(null);
       final buildingList = context.read<BuildingCubit>().buildings;
       final buildingFound =
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
@@ -416,6 +417,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 attributeLegend: widget.attributeLegend,
                 mapController: widget.mapController,
                 isSatellite: state.isSatellite,
+                highlightBuildingGlobalId: _highlightBuildingGlobalId,
               ),
               SelectedBuildingMarker(
                 selectedBuildingGlobalId: _selectedBuildingGlobalId,
