@@ -56,9 +56,7 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                 final isSelected = entrance.globalId == currentEntId;
                 final isPolygonMatch = shapeType == ShapeType.polygon &&
                     entrance.entBldGlobalID == currentBldId;
-
               
-
                 final label = EntranceHelper.entranceLabel(
                   entrance.entBuildingNumber,
                   entrance.entEntranceNumber,

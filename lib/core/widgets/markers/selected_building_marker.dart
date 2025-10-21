@@ -22,9 +22,6 @@ class SelectedBuildingMarker extends StatelessWidget {
   static const Color _borderColor = Color.fromRGBO(130, 127, 0, 1);
   static const double _borderWidth = 12.0;
 
-  // ✅ Highlight styling properties
-  static const Color _highlightBorderColor = Color.fromRGBO(130, 127, 0, 1);
-  static const double _highlightBorderWidth = 2.0;
 
   @override
   Widget build(BuildContext context) {
