@@ -18,13 +18,10 @@ class SelectedBuildingMarker extends StatelessWidget {
 
   // ✅ Static styling properties to avoid recreation
   static const Color _fillColor =
-      Color.fromRGBO(255, 0, 0, 0.7); // Colors.red with alpha 0.7
-  static const Color _borderColor = Color.fromRGBO(215, 25, 11, 0.3);
-  static const double _borderWidth = 8.0;
+      Color.fromRGBO(255, 255, 0, 1); // Colors.red with alpha 0.7
+  static const Color _borderColor = Color.fromRGBO(130, 127, 0, 1);
+  static const double _borderWidth = 12.0;
 
-  // ✅ Highlight styling properties
-  static const Color _highlightBorderColor = Color.fromRGBO(255, 0, 0, 0.8);
-  static const double _highlightBorderWidth = 2.0;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +45,9 @@ class SelectedBuildingMarker extends StatelessWidget {
       buildWhen: (previous, current) {
         // Don't rebuild if no building is selected or highlighted
         if (selectedBuildingGlobalId == null &&
-            highlightBuildingGlobalId == null) return false;
+            highlightBuildingGlobalId == null) {
+          return false;
+        }
 
         // Only rebuild if the state type changes or the selected/highlighted building data changes
         if (previous.runtimeType != current.runtimeType) return true;
@@ -116,41 +115,40 @@ class SelectedBuildingMarker extends StatelessWidget {
         }
 
         // ✅ Handle highlighted building (new glow effect logic)
-        if (highlightBuildingGlobalId != null) {
-          final highlightBuilding =
-              _findBuilding(state.buildings, highlightBuildingGlobalId!);
+        // if (highlightBuildingGlobalId != null) {
+        //   final highlightBuilding =
+        //       _findBuilding(state.buildings, highlightBuildingGlobalId!);
 
-          if (highlightBuilding != null &&
-              highlightBuilding.coordinates.isNotEmpty &&
-              highlightBuilding.coordinates.first.isNotEmpty) {
-            // Add multiple border glow layers (no fill color)
-            // Outer glow layers with increasing border widths for stronger glow effect
-            for (int i = 5; i >= 1; i--) {
-              polygons.add(
-                Polygon(
-                  hitValue: highlightBuilding.globalId,
-                  points: highlightBuilding.coordinates.first,
-                  color: Colors.transparent, // No background fill
-                  borderStrokeWidth: _highlightBorderWidth +
-                      (i * 3.0), // Larger increments for stronger glow
-                  borderColor: Color.fromRGBO(255, 0, 0,
-                      0.6 - (i * 0.08)), // Higher opacity for stronger glow
-                ),
-              );
-            }
+        //   if (highlightBuilding != null &&
+        //       highlightBuilding.coordinates.isNotEmpty &&
+        //       highlightBuilding.coordinates.first.isNotEmpty) {
+        //     // Add multiple border glow layers (no fill color)
+        //     // Outer glow layers with increasing border widths for stronger glow effect
+        //     for (int i = 5; i >= 1; i--) {
+        //       polygons.add(
+        //         Polygon(
+        //           hitValue: highlightBuilding.globalId,
+        //           points: highlightBuilding.coordinates.first,
+        //           color: Colors.transparent, // No background fill
+                
+        //           borderColor: Color.fromRGBO(255, 0, 0,
+        //               0.6 - (i * 0.08)), 
+        //         ),
+        //       );
+        //     }
 
-            // Main highlighted polygon border (no fill)
-            polygons.add(
-              Polygon(
-                hitValue: highlightBuilding.globalId,
-                points: highlightBuilding.coordinates.first,
-                color: Colors.transparent, // No background fill
-                borderStrokeWidth: _highlightBorderWidth,
-                borderColor: _highlightBorderColor,
-              ),
-            );
-          }
-        }
+        //     // Main highlighted polygon border (no fill)
+        //     polygons.add(
+        //       Polygon(
+        //         hitValue: highlightBuilding.globalId,
+        //         points: highlightBuilding.coordinates.first,
+        //         color: Colors.transparent, // No background fill
+        //         borderStrokeWidth: _highlightBorderWidth,
+        //         borderColor: _highlightBorderColor,
+        //       ),
+        //     );
+        //   }
+        // }
 
         // ✅ Return empty widget if no polygons to display
         if (polygons.isEmpty) {

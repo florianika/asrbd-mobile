@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class CombinedLegendWidget extends StatefulWidget {
   final Map<String, List<Legend>> buildingLegends;
   final String initialBuildingAttribute;
-  final List<Legend> entranceLegends;
   final Function onChange;
   final bool isSatellite;
 
@@ -16,7 +15,6 @@ class CombinedLegendWidget extends StatefulWidget {
     super.key,
     required this.buildingLegends,
     required this.initialBuildingAttribute,
-    required this.entranceLegends,
     required this.onChange,
     required this.isSatellite,
   });
@@ -29,13 +27,10 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
     with TickerProviderStateMixin {
   late String _currentBuildingAttribute;
   bool _isBuildingSectionExpanded = true;
-  bool _isEntranceSectionExpanded = false;
   bool _isWholeLegendExpanded = true;
   late AnimationController _buildingAnimationController;
-  late AnimationController _entranceAnimationController;
   late AnimationController _legendAnimationController;
   late Animation<double> _buildingAnimation;
-  late Animation<double> _entranceAnimation;
   
   final Set<String> _selectedBuildingLegendIds = {};
 
@@ -48,10 +43,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _entranceAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
     _legendAnimationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -61,20 +52,14 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
       parent: _buildingAnimationController,
       curve: Curves.easeOut,
     );
-    _entranceAnimation = CurvedAnimation(
-      parent: _entranceAnimationController,
-      curve: Curves.easeOut,
-    );
 
     _buildingAnimationController.forward();
-    _entranceAnimationController.reverse();
     _legendAnimationController.forward();
   }
 
   @override
   void dispose() {
     _buildingAnimationController.dispose();
-    _entranceAnimationController.dispose();
     _legendAnimationController.dispose();
     super.dispose();
   }
@@ -86,17 +71,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
         _buildingAnimationController.forward();
       } else {
         _buildingAnimationController.reverse();
-      }
-    });
-  }
-
-  void _toggleEntranceSection() {
-    setState(() {
-      _isEntranceSectionExpanded = !_isEntranceSectionExpanded;
-      if (_isEntranceSectionExpanded) {
-        _entranceAnimationController.forward();
-      } else {
-        _entranceAnimationController.reverse();
       }
     });
   }
@@ -253,21 +227,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
                                 .toList(),
                             showClearButton: _selectedBuildingLegendIds.isNotEmpty,
                             onClear: _clearAllSelections,
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Entrances Section
-                          _buildSection(
-                            title: AppLocalizations.of(context)
-                                .translate(Keys.legendEntrances),
-                            isExpanded: _isEntranceSectionExpanded,
-                            onToggle: _toggleEntranceSection,
-                            animation: _entranceAnimation,
-                            content: widget.entranceLegends
-                                .map((legend) => _buildEntranceLegendItem(legend))
-                                .toList(),
-                            showClearButton: false,
                           ),
                         ],
                       ),
@@ -432,38 +391,6 @@ class _CombinedLegendWidgetState extends State<CombinedLegendWidget>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEntranceLegendItem(Legend legend) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: legend.color,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              legend.label,
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

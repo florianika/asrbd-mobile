@@ -499,7 +499,6 @@ class _ViewMapState extends State<ViewMap> {
                           return CombinedLegendWidget(
                             buildingLegends: buildingLegends,
                             initialBuildingAttribute: attributeLegend,
-                            entranceLegends: entranceLegends,
                             onChange: onLegendChangeAttribute,
                             isSatellite: state.isSatellite,
                           );

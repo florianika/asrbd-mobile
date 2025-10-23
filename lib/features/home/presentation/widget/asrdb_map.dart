@@ -173,8 +173,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     }
   }
 
-  // double? _previousZoom;
-  // SIMPLE FIX: Just adjust the debounce timing based on offline/online mode
   void _onPositionChanged(
     MapCamera camera,
     bool hasGesture,
@@ -183,11 +181,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
     int? downloadId,
   ) {
     try {
-      // final zoomChanged = _previousZoom == null || _previousZoom != camera.zoom;
-      // _previousZoom = camera.zoom;
-
-      // if (!hasGesture && !zoomChanged) return;
-
       if (_debounce?.isActive ?? false) _debounce!.cancel();
 
       // KEY FIX: Use longer debounce for offline mode
@@ -244,6 +237,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
   void _handleMapTap(LatLng position, bool isOffline, int? downloadId) async {
     try {
       final geometryEditor = context.read<GeometryEditorCubit>();
+      context.read<AttributesCubit>().setPersistentBuilding(null);
+      context.read<AttributesCubit>().setPersistentEntrance(null);
+      context.read<EntranceCubit>().clearEntrances();
+
+      setState(() {
+        _selectedBuildingGlobalId = null;
+        _highlightBuildingGlobalId = null;
+      });
 
       if (geometryEditor.isEditing) {
         if (geometryEditor.selectedType == EntityType.entrance) {
@@ -292,6 +293,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
     try {
       context.read<DwellingCubit>().closeDwellings();
       context.read<AttributesCubit>().clearSelections();
+      context.read<AttributesCubit>().setPersistentEntrance(null);
       final buildingList = context.read<BuildingCubit>().buildings;
       final buildingFound =
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
@@ -416,6 +418,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 attributeLegend: widget.attributeLegend,
                 mapController: widget.mapController,
                 isSatellite: state.isSatellite,
+                highlightBuildingGlobalId: _highlightBuildingGlobalId,
               ),
               SelectedBuildingMarker(
                 selectedBuildingGlobalId: _selectedBuildingGlobalId,

@@ -56,17 +56,7 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                 final isSelected = entrance.globalId == currentEntId;
                 final isPolygonMatch = shapeType == ShapeType.polygon &&
                     entrance.entBldGlobalID == currentBldId;
-
-                final fillColor = isSelected
-                    ? Colors.red.withValues(alpha: 0.7)
-                    : (legendService.getColorForValue(
-                              LegendType.entrance,
-                              widget.attributeLegend,
-                              entrance.entQuality ?? 9,
-                            ) ??
-                            Colors.black)
-                        .withValues(alpha: 0.5);
-
+              
                 final label = EntranceHelper.entranceLabel(
                   entrance.entBuildingNumber,
                   entrance.entEntranceNumber,
@@ -87,23 +77,25 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                           width: markerSize,
                           height: markerSize,
                           decoration: BoxDecoration(
-                            color: fillColor,
+                            color: Color.fromRGBO(255, 255, 0, 1),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isPolygonMatch
-                                  ? Colors.red.withValues(alpha: 0.6)
-                                  : Colors.black.withValues(alpha: 0.6),
-                              width: isPolygonMatch ? 3 : 1,
+                              color: 
+                              // isPolygonMatch
+                              //     ? Colors.red.withValues(alpha: 0.6)
+                              //     : Colors.black.withValues(alpha: 0.6),
+                              Color.fromRGBO(130, 127, 0, 1),
+                              width: isSelected ? 4 : 1,
                             ),
-                            boxShadow: isPolygonMatch
-                                ? [
-                                    BoxShadow(
-                                      color: Colors.red.withValues(alpha: 0.2),
-                                      blurRadius: 10,
-                                      spreadRadius: 3,
-                                    ),
-                                  ]
-                                : null,
+                            // boxShadow: isPolygonMatch
+                            //     ? [
+                            //         BoxShadow(
+                            //           color: Colors.red.withValues(alpha: 0.2),
+                            //           blurRadius: 10,
+                            //           spreadRadius: 3,
+                            //         ),
+                            //       ]
+                            //     : null,
                           ),
                         ),
                         if (isPolygonMatch && label != null)

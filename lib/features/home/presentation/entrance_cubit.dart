@@ -148,14 +148,23 @@ class EntranceCubit extends Cubit<EntranceState> {
   bool get hasEntrances => _entrances.isNotEmpty;
 
   /// ✅ Get specific entrance by globalId
-  void getEntranceByGlobalId(String entBldGlobalIDs,
-      bool isOffline, int? downloadId) async {
+  void getEntranceByGlobalId(
+      String entBldGlobalIDs, bool isOffline, int? downloadId) async {
     emit(EntranceLoading());
     try {
       final entrances = await entranceUseCases.getEntrancesByBuildingId(
           entBldGlobalIDs, isOffline, downloadId);
       _entrances = entrances;
       emit(Entrances(entrances));
+    } catch (e) {
+      emit(EntranceError(e.toString()));
+    }
+  }
+
+  void clearEntrances() {
+    emit(EntranceLoading());
+    try {
+      emit(Entrances([]));
     } catch (e) {
       emit(EntranceError(e.toString()));
     }
