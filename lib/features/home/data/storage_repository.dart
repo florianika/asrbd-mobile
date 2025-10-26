@@ -48,4 +48,11 @@ class StorageRepository {
   }) async {
     return await _storageService.containsKey(key: key);
   }
+
+  Future<void> remove({
+    String boxName = HiveBoxes.validations,
+    required String key,
+  }) async {
+    await _storageService.remove(boxName: boxName, key: key);
+  }
 }

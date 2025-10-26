@@ -1,4 +1,5 @@
 import 'package:asrdb/core/db/street_database.dart';
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/helpers/esri_type_conversion.dart';
@@ -26,11 +27,14 @@ class DynamicElementAttribute extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   final Future<void> Function(Map<String, dynamic>)? onSave;
   final void Function()? onClose;
+  final void Function()? onEdit;
+  final void Function()? onCancel;
   final bool readOnly;
   final bool showButtons;
   final List<ValidationResult>? validationResults;
   final List<LatLng>? entrancePointsOnMap;
   final LatLngBounds? visibleBounds;
+  final FormContext formContext;
 
   const DynamicElementAttribute({
     required this.schema,
@@ -40,11 +44,14 @@ class DynamicElementAttribute extends StatefulWidget {
     this.initialData,
     this.onSave,
     this.onClose,
+    this.onEdit,
+    this.onCancel,
     this.showButtons = true,
     this.readOnly = false,
     this.validationResults,
     this.entrancePointsOnMap,
     this.visibleBounds,
+    this.formContext = FormContext.view,
     super.key,
   });
 
@@ -56,6 +63,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   final Map<String, dynamic> formValues = {};
   final Map<String, String?> validationErrors = {};
   final Map<String, TextEditingController> _controllers = {};
+  String _currentLanguage = 'sq'; // Default to Albanian
   ValidationResult? _getValidationResult(String fieldName) {
     if (widget.validationResults == null) return null;
     return widget.validationResults!
@@ -75,6 +83,18 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     if (widget.initialData != oldWidget.initialData &&
         widget.initialData != null) {
       _initializeForm(widget.initialData!);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update language when dependencies change (including locale changes)
+    final newLanguage = Localizations.localeOf(context).languageCode;
+    if (newLanguage != _currentLanguage) {
+      setState(() {
+        _currentLanguage = newLanguage;
+      });
     }
   }
 
@@ -124,6 +144,22 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     return townOption['name'].toString();
   }
 
+  String _getLocalizedLabel(dynamic attribute) {
+    if (_currentLanguage == 'sq') {
+      return attribute.label.al;
+    } else {
+      return attribute.label.en;
+    }
+  }
+
+   String _getLocalizedDescription(dynamic attribute) {
+    if (_currentLanguage == 'sq') {
+      return attribute.description.al;
+    } else {
+      return attribute.description.en;
+    }
+  }
+
   @override
   void dispose() {
     for (final controller in _controllers.values) {
@@ -170,27 +206,65 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   }
 
   String _getHeaderTitle() {
+    String baseTitleKey;
     switch (widget.selectedShapeType) {
       case ShapeType.polygon:
-        return 'Building';
+        baseTitleKey = Keys.building;
+        break;
       case ShapeType.point:
-        return 'Entrance';
+        baseTitleKey = Keys.entrance;
+        break;
       case ShapeType.noShape:
-        return 'Dwelling';
+        baseTitleKey = Keys.dwelling;
+        break;
     }
+    
+    String actionKey;
+    switch (widget.formContext) {
+      case FormContext.view:
+        actionKey = Keys.view;
+        break;
+      case FormContext.edit:
+        actionKey = Keys.edit;
+        break;
+      case FormContext.add:
+        actionKey = Keys.add;
+        break;
+    }
+    
+    final baseTitle = AppLocalizations.of(context).translate(baseTitleKey);
+    final action = AppLocalizations.of(context).translate(actionKey);
+    return '$action $baseTitle';
   }
 
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-      child: Text(
-        _getHeaderTitle(),
-        style: const TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.black87,
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              _getHeaderTitle(),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          if (widget.formContext.showEditButton && widget.onEdit != null)
+            TextButton.icon(
+              onPressed: widget.onEdit,
+              icon: const Icon(Icons.edit, size: 18),
+              label: Text(AppLocalizations.of(context).translate(Keys.edit)),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.blue,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -207,9 +281,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     final sectionOrder = [
       'title',
-      'technical',
-      'identifier',
-      'info',
+      'identification',
+      'description',
       'history'
     ];
     Map<String, List<dynamic>> sections = {};
@@ -245,13 +318,11 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       switch (section.toLowerCase()) {
         case 'title':
           return Icons.title;
-        case 'technical':
-          return Icons.settings;
-        case 'identifier':
+        case 'identification':
           return Icons.badge;
         case 'map':
           return Icons.map;
-        case 'info':
+        case 'description':
           return Icons.info_outline;
         case 'history':
           return Icons.history;
@@ -299,15 +370,20 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
   InputDecoration _getInputDecoration(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
+    final isReadOnly = widget.formContext.isReadOnly || attribute.display.enumerator == "read";
+    final isEditMode = widget.formContext == FormContext.edit;
 
     return InputDecoration(
-      labelText: '${attribute.label.al} (${attribute.name})',
-      labelStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
+      labelText: '${_getLocalizedLabel(attribute)} (${attribute.name})',
+      labelStyle: TextStyle(
+        color: isReadOnly ? Colors.grey[500] : Colors.grey[600], 
+        fontSize: 14,
+      ),
       errorText: validationErrors[elementFound.name],
       errorStyle: const TextStyle(color: Colors.red, fontSize: 12),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       filled: true,
-      fillColor: widget.readOnly ? Colors.grey[100] : Colors.grey[50],
+      fillColor: isReadOnly ? Colors.grey[200] : Colors.white,
       suffixIcon: validationResult != null
           ? Icon(
               Icons.priority_high,
@@ -324,8 +400,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ? (validationResult.level == ValidationLevel.error
                   ? Colors.red
                   : Colors.orange)
-              : Colors.grey[300]!,
-          width: validationResult != null ? 1.5 : 1,
+              : (isEditMode 
+                  ? Colors.grey[700]!
+                  : Colors.grey[300]!),
+          width: validationResult != null ? 1.5 : (isEditMode ? 2 : 1),
         ),
       ),
       enabledBorder: OutlineInputBorder(
@@ -335,8 +413,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ? (validationResult.level == ValidationLevel.error
                   ? Colors.red
                   : Colors.orange)
-              : Colors.grey[300]!,
-          width: validationResult != null ? 1.5 : 1,
+              : (isEditMode 
+                  ? Colors.grey[700]!
+                  : Colors.grey[300]!),
+          width: validationResult != null ? 1.5 : (isEditMode ? 2 : 1),
         ),
       ),
       focusedBorder: OutlineInputBorder(
@@ -346,7 +426,9 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ? (validationResult.level == ValidationLevel.error
                   ? Colors.red
                   : Colors.orange)
-              : Colors.grey[600]!,
+              : (isEditMode 
+                  ? Colors.grey[800]!
+                  : Colors.grey[600]!),
           width: 1.5,
         ),
       ),
@@ -360,7 +442,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey[200]!, width: 1),
+        borderSide: BorderSide(
+          color: isReadOnly ? Colors.grey[400]! : Colors.grey[200]!, 
+          width: 1,
+        ),
       ),
     );
   }
@@ -368,49 +453,71 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TypeAheadField<Street>(
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypeAheadField<Street>(
           key: ValueKey(elementFound.name),
           controller: _controllers[elementFound.name],
           builder: (context, controller, focusNode) {
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              readOnly:
-                  widget.readOnly || attribute.display.enumerator == "read",
-              enabled: !widget.readOnly && elementFound.editable,
-              decoration: _getInputDecoration(attribute, elementFound).copyWith(
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (validationResult != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Icon(
-                          Icons.priority_high,
-                          color: validationResult.level == ValidationLevel.error
-                              ? Colors.red
-                              : Colors.orange,
-                          size: 16,
+            return MouseRegion(
+              cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                  ? SystemMouseCursors.forbidden
+                  : SystemMouseCursors.text,
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                readOnly:
+                    widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+                enabled: !widget.formContext.isReadOnly && elementFound.editable,
+                decoration: _getInputDecoration(attribute, elementFound).copyWith(
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (validationResult != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Icon(
+                            Icons.priority_high,
+                            color: validationResult.level == ValidationLevel.error
+                                ? Colors.red
+                                : Colors.orange,
+                            size: 16,
+                          ),
                         ),
-                      ),
-                    if (controller.text.isNotEmpty && !widget.readOnly)
-                      IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey[600]),
-                        onPressed: () {
-                          controller.clear();
-                          formValues[elementFound.name] = null;
-                          focusNode.requestFocus();
-                        },
-                      )
-                    else
-                      Icon(Icons.location_on, color: Colors.grey[600]),
-                  ],
+                      if (controller.text.isNotEmpty && !widget.formContext.isReadOnly)
+                        IconButton(
+                          icon: Icon(Icons.clear, color: Colors.grey[600]),
+                          onPressed: () {
+                            controller.clear();
+                            formValues[elementFound.name] = null;
+                            focusNode.requestFocus();
+                          },
+                        )
+                      else
+                        Icon(Icons.location_on, color: Colors.grey[600]),
+                    ],
+                  ),
+                ),
+                style: TextStyle(
+                  color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                      ? Colors.grey[600]
+                      : Colors.black87, 
+                  fontSize: 14,
                 ),
               ),
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
             );
           },
           suggestionsCallback: (pattern) async {
@@ -595,7 +702,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ],
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -621,49 +729,71 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           }).toList()
         : allTownOptions;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TypeAheadField<Map<String, dynamic>>(
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TypeAheadField<Map<String, dynamic>>(
           key: ValueKey(elementFound.name),
           controller: _controllers[elementFound.name],
           builder: (context, controller, focusNode) {
-            return TextField(
-              controller: controller,
-              focusNode: focusNode,
-              readOnly:
-                  widget.readOnly || attribute.display.enumerator == "read",
-              enabled: !widget.readOnly && elementFound.editable,
-              decoration: _getInputDecoration(attribute, elementFound).copyWith(
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (validationResult != null)
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Icon(
-                          Icons.priority_high,
-                          color: validationResult.level == ValidationLevel.error
-                              ? Colors.red
-                              : Colors.orange,
-                          size: 16,
+            return MouseRegion(
+              cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                  ? SystemMouseCursors.forbidden
+                  : SystemMouseCursors.text,
+              child: TextField(
+                controller: controller,
+                focusNode: focusNode,
+                readOnly:
+                    widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+                enabled: !widget.formContext.isReadOnly && elementFound.editable,
+                decoration: _getInputDecoration(attribute, elementFound).copyWith(
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (validationResult != null)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Icon(
+                            Icons.priority_high,
+                            color: validationResult.level == ValidationLevel.error
+                                ? Colors.red
+                                : Colors.orange,
+                            size: 16,
+                          ),
                         ),
-                      ),
-                    if (controller.text.isNotEmpty && !widget.readOnly)
-                      IconButton(
-                        icon: Icon(Icons.clear, color: Colors.grey[600]),
-                        onPressed: () {
-                          controller.clear();
-                          formValues[elementFound.name] = null;
-                          focusNode.requestFocus();
-                        },
-                      )
-                    else
-                      Icon(Icons.location_city, color: Colors.grey[600]),
-                  ],
+                      if (controller.text.isNotEmpty && !widget.formContext.isReadOnly)
+                        IconButton(
+                          icon: Icon(Icons.clear, color: Colors.grey[600]),
+                          onPressed: () {
+                            controller.clear();
+                            formValues[elementFound.name] = null;
+                            focusNode.requestFocus();
+                          },
+                        )
+                      else
+                        Icon(Icons.location_city, color: Colors.grey[600]),
+                    ],
+                  ),
+                ),
+                style: TextStyle(
+                  color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                      ? Colors.grey[600]
+                      : Colors.black87, 
+                  fontSize: 14,
                 ),
               ),
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
             );
           },
           suggestionsCallback: (pattern) async {
@@ -840,37 +970,51 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ],
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildFormField(
-      dynamic attribute, dynamic elementFound, String sectionName) {
+  Widget _buildReadOnlyLabel(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
-    if (sectionName.toLowerCase() == 'history') {
-      return Column(
+    
+    // Get the display value
+    String displayValue = '';
+    if (elementFound.codedValues != null) {
+      // For coded values, find the name that matches the code
+      final currentValue = formValues[elementFound.name] ?? elementFound.defaultValue;
+      final codedValue = elementFound.codedValues!.firstWhere(
+        (code) => code['code'] == currentValue,
+        orElse: () => {'name': currentValue?.toString() ?? ''},
+      );
+      displayValue = codedValue['name'].toString();
+    } else {
+      displayValue = formValues[elementFound.name]?.toString() ?? 
+                    elementFound.defaultValue?.toString() ?? '';
+    }
+
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            margin: const EdgeInsets.only(bottom: 4),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: validationResult != null
-                    ? (validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : Colors.orange)
-                    : Colors.grey[200]!,
-                width: validationResult != null ? 1.5 : 1,
-              ),
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${attribute.label.al}:',
+                  '${_getLocalizedLabel(attribute)}:',
                   key: ValueKey('${elementFound.name}_label'),
                   style: TextStyle(
                     color: Colors.grey[700],
@@ -881,11 +1025,12 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+                    displayValue,
                     key: ValueKey(elementFound.name),
                     style: const TextStyle(
                       color: Colors.black87,
                       fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -930,6 +1075,115 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFormField(
+      dynamic attribute, dynamic elementFound, String sectionName) {
+    final validationResult = _getValidationResult(elementFound.name);
+    
+    // If the field is read-only, render as a bold label
+    if (attribute.display.enumerator == "read") {
+      return _buildReadOnlyLabel(attribute, elementFound);
+    }
+    
+    if (sectionName.toLowerCase() == 'history') {
+      return Tooltip(
+        message: _getLocalizedDescription(attribute),
+        preferBelow: false,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              margin: const EdgeInsets.only(bottom: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: validationResult != null
+                      ? (validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange)
+                      : Colors.grey[200]!,
+                  width: validationResult != null ? 1.5 : 1,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${_getLocalizedLabel(attribute)}:',
+                    key: ValueKey('${elementFound.name}_label'),
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${formValues[elementFound.name] ?? elementFound.defaultValue ?? ''}',
+                      key: ValueKey(elementFound.name),
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                  if (validationResult != null)
+                    Icon(
+                      Icons.priority_high,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
+                ],
+              ),
+            ),
+            if (validationResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      validationResult.level == ValidationLevel.error
+                          ? Icons.error_outline
+                          : Icons.warning_amber_outlined,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        validationResult.message,
+                        style: TextStyle(
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       );
     }
     if (elementFound.name == 'EntStrGlobalID') {
@@ -943,53 +1197,148 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     final inputDecoration = _getInputDecoration(attribute, elementFound);
 
     if (elementFound.codedValues != null) {
-      return Column(
+      return Tooltip(
+        message: _getLocalizedDescription(attribute),
+        preferBelow: false,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 13,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            MouseRegion(
+              cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                  ? SystemMouseCursors.forbidden
+                  : SystemMouseCursors.click,
+              child: AbsorbPointer(
+                absorbing: attribute.display.enumerator == "read",
+                child: DropdownButtonFormField<Object?>(
+                  key: ValueKey('${elementFound.name}_${widget.hashCode}'),
+                  isExpanded: true,
+                  decoration: inputDecoration,
+                  value: () {
+                    // Get the intended value
+                    final intendedValue = widget.initialData![elementFound.name] ??
+                        elementFound.defaultValue;
+
+                    // Check if this value exists in codedValues
+                    final availableCodes = elementFound.codedValues!
+                        .map((code) => code['code'])
+                        .toSet();
+
+                    // Only return the value if it exists in the dropdown items
+                    return availableCodes.contains(intendedValue)
+                        ? intendedValue
+                        : null;
+                  }(),
+                  items: elementFound.codedValues!
+                      .map<DropdownMenuItem<Object?>>(
+                          (code) => DropdownMenuItem<Object?>(
+                                key: ValueKey(
+                                    '${elementFound.name}_${code['name']}_${widget.hashCode}'),
+                                value: code['code'],
+                                child: Text(
+                                  code['name'].toString(),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                                          ? Colors.grey[600]
+                                          : Colors.black87, 
+                                      fontSize: 14),
+                                ),
+                              ))
+                      .toList(),
+                  onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
+                      ? (val) => formValues[elementFound.name] =
+                          EsriTypeConversion.convert(elementFound.type, val)
+                      : null,
+                  disabledHint: Text(
+                    formValues[elementFound.name]?.toString() ?? _getLocalizedLabel(attribute),
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  style: TextStyle(
+                    color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                        ? Colors.grey[600]
+                        : Colors.black87, 
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+            if (validationResult != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 12),
+                child: Row(
+                  children: [
+                    Icon(
+                      validationResult.level == ValidationLevel.error
+                          ? Icons.error_outline
+                          : Icons.warning_amber_outlined,
+                      color: validationResult.level == ValidationLevel.error
+                          ? Colors.red
+                          : Colors.orange,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        validationResult.message,
+                        style: TextStyle(
+                          color: validationResult.level == ValidationLevel.error
+                              ? Colors.red
+                              : Colors.orange,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AbsorbPointer(
-            absorbing: attribute.display.enumerator == "read",
-            child: DropdownButtonFormField<Object?>(
-              key: ValueKey('${elementFound.name}_${widget.hashCode}'),
-              isExpanded: true,
+          MouseRegion(
+            cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                ? SystemMouseCursors.forbidden
+                : SystemMouseCursors.text,
+            child: TextFormField(
+              key: ValueKey(elementFound.name),
+              controller: _controllers[elementFound.name],
+              readOnly: widget.formContext.isReadOnly || attribute.display.enumerator == "read",
+              enabled: !widget.formContext.isReadOnly && elementFound.editable,
               decoration: inputDecoration,
-              value: () {
-                // Get the intended value
-                final intendedValue = widget.initialData![elementFound.name] ??
-                    elementFound.defaultValue;
-
-                // Check if this value exists in codedValues
-                final availableCodes = elementFound.codedValues!
-                    .map((code) => code['code'])
-                    .toSet();
-
-                // Only return the value if it exists in the dropdown items
-                return availableCodes.contains(intendedValue)
-                    ? intendedValue
-                    : null;
-              }(),
-              items: elementFound.codedValues!
-                  .map<DropdownMenuItem<Object?>>(
-                      (code) => DropdownMenuItem<Object?>(
-                            key: ValueKey(
-                                '${elementFound.name}_${code['name']}_${widget.hashCode}'),
-                            value: code['code'],
-                            child: Text(
-                              code['name'].toString(),
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  color: Colors.black87, fontSize: 14),
-                            ),
-                          ))
-                  .toList(),
-              onChanged: (!widget.readOnly && elementFound.editable)
+              style: TextStyle(
+                color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                    ? Colors.grey[600]
+                    : Colors.black87, 
+                fontSize: 14,
+              ),
+              onChanged: (!widget.formContext.isReadOnly && elementFound.editable)
                   ? (val) => formValues[elementFound.name] =
                       EsriTypeConversion.convert(elementFound.type, val)
                   : null,
-              disabledHint: Text(
-                formValues[elementFound.name]?.toString() ?? attribute.label.al,
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
-              ),
-              style: const TextStyle(color: Colors.black87, fontSize: 14),
             ),
           ),
           if (validationResult != null)
@@ -1003,7 +1352,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                         : Icons.warning_amber_outlined,
                     color: validationResult.level == ValidationLevel.error
                         ? Colors.red
-                        : Colors.orange,
+                        : const Color.fromARGB(255, 241, 193, 2),
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1022,53 +1371,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ),
             ),
         ],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextFormField(
-          key: ValueKey(elementFound.name),
-          controller: _controllers[elementFound.name],
-          readOnly: widget.readOnly || attribute.display.enumerator == "read",
-          enabled: !widget.readOnly && elementFound.editable,
-          decoration: inputDecoration,
-          style: const TextStyle(color: Colors.black87, fontSize: 14),
-          onChanged: (!widget.readOnly && elementFound.editable)
-              ? (val) => formValues[elementFound.name] =
-                  EsriTypeConversion.convert(elementFound.type, val)
-              : null,
-        ),
-        if (validationResult != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, left: 12),
-            child: Row(
-              children: [
-                Icon(
-                  validationResult.level == ValidationLevel.error
-                      ? Icons.error_outline
-                      : Icons.warning_amber_outlined,
-                  color: validationResult.level == ValidationLevel.error
-                      ? Colors.red
-                      : const Color.fromARGB(255, 241, 193, 2),
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    validationResult.message,
-                    style: TextStyle(
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
+      ),
     );
   }
 

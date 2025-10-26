@@ -10,6 +10,9 @@ import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/dwelling_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:asrdb/features/home/data/storage_repository.dart';
+import 'package:asrdb/core/db/hive_boxes.dart';
+import 'package:get_it/get_it.dart';
 
 abstract class AttributesState extends Equatable {
   @override
@@ -29,6 +32,7 @@ class Attributes extends AttributesState {
   final String? buildingGlobalId;
   final String? entranceGlobalId;
   final int? dwellingObjectId;
+  final bool isNewlyCreated;
 
   Attributes(
     this.schema,
@@ -39,6 +43,7 @@ class Attributes extends AttributesState {
     this.dwellingObjectId, {
     this.viewDwelling = false,
     this.showAttributes = false,
+    this.isNewlyCreated = false,
   });
 
   @override
@@ -51,6 +56,7 @@ class Attributes extends AttributesState {
         dwellingObjectId,
         viewDwelling,
         showAttributes,
+        isNewlyCreated,
       ];
 
   Attributes copyWith({
@@ -143,8 +149,9 @@ class AttributesCubit extends Cubit<AttributesState> {
           null,
           null,
           null,
-          viewDwelling: true,
+          viewDwelling: false,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
@@ -177,8 +184,9 @@ class AttributesCubit extends Cubit<AttributesState> {
     String? entranceGlobalID,
     String? buildingGlobalID,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    bool isNewlyCreated = false,
+  }) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await entranceUseCases.getEntranceAttributes();
@@ -194,6 +202,7 @@ class AttributesCubit extends Cubit<AttributesState> {
           entranceGlobalID,
           null,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
@@ -215,6 +224,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         entranceGlobalID,
         null,
         showAttributes: true,
+        isNewlyCreated: isNewlyCreated,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -224,8 +234,9 @@ class AttributesCubit extends Cubit<AttributesState> {
   Future<void> showBuildingAttributes(
     String? buildingGlobalID,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    bool isNewlyCreated = false,
+  }) async {
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await buildingUseCases.getBuildingAttibutes();
@@ -241,6 +252,7 @@ class AttributesCubit extends Cubit<AttributesState> {
           null,
           null,
           showAttributes: true,
+          isNewlyCreated: true,
         ));
         return;
       }
@@ -262,6 +274,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: isNewlyCreated,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -315,6 +328,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: true,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -341,6 +355,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         null,
         null,
         showAttributes: true,
+        isNewlyCreated: true,
       ));
     } catch (e) {
       emit(AttributesError(e.toString()));
@@ -388,6 +403,24 @@ class AttributesCubit extends Cubit<AttributesState> {
 
   void clearSelections() {
     toggleAttributesVisibility(false);
+  }
+
+   void clearAllSelections() {
+    _persistentEntrance = null;
+    _persistentBuilding = null;
+    _persistentDwelling = null;
+    
+    toggleAttributesVisibility(false);
+    
+    try {
+      final storageRepository = GetIt.instance<StorageRepository>();
+      storageRepository.remove(
+        boxName: HiveBoxes.selectedBuilding,
+        key: 'currentBuildingGlobalId',
+      );
+    } catch (e) {
+      // Ignore storage errors
+    }
   }
 
   // Optional: method to clear persistent values

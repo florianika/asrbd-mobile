@@ -1,4 +1,5 @@
 import 'package:asrdb/core/constants/default_data.dart';
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
@@ -26,6 +27,8 @@ class EventButtonAttribute extends StatelessWidget {
   final Function? startReviewingBuilding;
   final Function? finishReviewingBuilding;
   final String? globalId;
+  final FormContext formContext;
+  final void Function()? onCancel;
 
   const EventButtonAttribute({
     super.key,
@@ -38,6 +41,8 @@ class EventButtonAttribute extends StatelessWidget {
     this.globalId,
     this.startReviewingBuilding,
     this.finishReviewingBuilding,
+    this.formContext = FormContext.view,
+    this.onCancel,
   });
 
   @override
@@ -139,48 +144,80 @@ class EventButtonAttribute extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          if (onClose != null)
-            SizedBox(
-              width: buttonWidth,
-              height: buttonHeight,
-              child: OutlinedButton(
-                onPressed: () => onClose!(),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          // Left side buttons
+          Row(
+            children: [
+              if (onClose != null)
+                SizedBox(
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  child: OutlinedButton(
+                    onPressed: () => onClose!(),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context).translate(Keys.close),
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                child: Text(
-                  AppLocalizations.of(context).translate(Keys.close),
-                  style: const TextStyle(color: Colors.black),
+              if (formContext.showCancelButton && onCancel != null) ...[
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  child: OutlinedButton(
+                    onPressed: onCancel,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.red),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      AppLocalizations.of(context).translate(Keys.cancel),
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          SizedBox(
-            width: buttonWidth,
-            height: buttonHeight,
-            child: ElevatedButton(
-              onPressed: onSave,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-              child: Text(AppLocalizations.of(context).translate(Keys.save)),
-            ),
+              ],
+            ],
           ),
-          BlocBuilder<FieldWorkCubit, FieldWorkStatus>(
-            builder: (context, fieldWorkStatus) {
-              return BlocBuilder<TileCubit, TileState>(
-                builder: (context, tileState) {
-                  return SpeedDial(
+          // Right side buttons
+          Row(
+            children: [
+              if (formContext.showSaveButton)
+                SizedBox(
+                  width: buttonWidth,
+                  height: buttonHeight,
+                  child: ElevatedButton(
+                    onPressed: onSave,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(AppLocalizations.of(context).translate(Keys.save)),
+                  ),
+                ),
+              const SizedBox(width: 8),
+              BlocBuilder<FieldWorkCubit, FieldWorkStatus>(
+                builder: (context, fieldWorkStatus) {
+                  return BlocBuilder<TileCubit, TileState>(
+                    builder: (context, tileState) {
+                      return SpeedDial(
                     animatedIcon: AnimatedIcons.menu_close,
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
@@ -258,6 +295,8 @@ class EventButtonAttribute extends StatelessWidget {
                 },
               );
             },
+          ),
+            ],
           ),
         ],
       ),

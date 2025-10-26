@@ -81,6 +81,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         null,
         isOffline,
         download?.id,
+        isNewlyCreated: true,
       );
 
       if (mounted) {
@@ -232,6 +233,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         response.data,
         isOffline,
         download?.id,
+        isNewlyCreated: true,
       );
 
       if (mounted) {

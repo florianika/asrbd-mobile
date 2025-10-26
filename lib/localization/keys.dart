@@ -100,4 +100,16 @@ class Keys {
   static const String audience = 'audience';
   static const String helpSupport = 'helpSupport';
   static const String helpSupportSubtitle = 'helpSupportSubtitle';
+  
+  // Add/View/Edit form titles
+  static const String add = 'add';
+  static const String view = 'view';
+  static const String edit = 'edit';
+  static const String building = 'building';
+  static const String entrance = 'entrance';
+  static const String dwelling = 'dwelling';
+  static const String viewDetails = 'viewDetails';
+  static const String viewAndEdit = 'viewAndEdit';
+  static const String addNew = 'addNew';
+  static const String addFirstDwelling = 'addFirstDwelling';
 }

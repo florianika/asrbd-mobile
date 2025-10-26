@@ -1,3 +1,4 @@
+import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/widgets/element_attribute/tablet_element_attribute.dart';
@@ -15,6 +16,9 @@ class ViewAttribute extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) save;
   final Function startReviewing;
   final Function finishReviewing;
+  final FormContext formContext;
+  final void Function()? onEdit;
+  final void Function()? onCancel;
 
   const ViewAttribute({
     super.key,
@@ -27,6 +31,9 @@ class ViewAttribute extends StatefulWidget {
     required this.isLoading,
     required this.startReviewing,
     required this.finishReviewing,
+    this.formContext = FormContext.view,
+    this.onEdit,
+    this.onCancel,
   });
 
   @override
@@ -69,6 +76,9 @@ class _ViewAttributeState extends State<ViewAttribute> {
               startReviewing: widget.startReviewing,
               onClose: widget.onClose,
               finishReviewing: widget.finishReviewing,
+              formContext: widget.formContext,
+              onEdit: widget.onEdit,
+              onCancel: widget.onCancel,
             ),
     );
   }

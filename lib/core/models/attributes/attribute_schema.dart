@@ -45,15 +45,17 @@ class SchemaAttribute {
   final String name;
   final AttributeLabel label;
   final AttributeDisplay display;
+  final AttributeDescription description;
   final bool selectable;
   final bool internal;
   final String section;
   final dynamic order;
-   final bool required;
+  final bool required;
 
   SchemaAttribute({
     required this.name,
     required this.label,
+    required this.description,
     required this.display,
     required this.selectable,
     required this.internal,
@@ -66,6 +68,7 @@ class SchemaAttribute {
     return SchemaAttribute(
       name: json['name'] as String,
       label: AttributeLabel.fromJson(json['label'] as Map<String, dynamic>),
+      description: AttributeDescription.fromJson(json['description'] as Map<String, dynamic>),
       display:
           AttributeDisplay.fromJson(json['display'] as Map<String, dynamic>),
       selectable: _parseBool(json['selectable']),
@@ -80,6 +83,7 @@ class SchemaAttribute {
     return {
       'name': name,
       'label': label.toJson(),
+      'description':description.toJson(),
       'display': display.toJson(),
       'selectable': selectable,
       'internal': internal,
@@ -109,6 +113,30 @@ class AttributeLabel {
 
   factory AttributeLabel.fromJson(Map<String, dynamic> json) {
     return AttributeLabel(
+      en: json['en'] as String,
+      al: json['al'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'en': en,
+      'al': al,
+    };
+  }
+}
+
+class AttributeDescription {
+  final String en;
+  final String al;
+
+  AttributeDescription({
+    required this.en,
+    required this.al,
+  });
+
+  factory AttributeDescription.fromJson(Map<String, dynamic> json) {
+    return AttributeDescription(
       en: json['en'] as String,
       al: json['al'] as String,
     );

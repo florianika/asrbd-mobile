@@ -6,8 +6,12 @@ import 'package:asrdb/core/widgets/side_container.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
+import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,13 +34,22 @@ class _DwellingFormState extends State<DwellingForm> {
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
   bool _isEditMode = false;
-  DwellingEntity? _viewPendingRow;
   final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
   final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
   late Map<String, String> _columnLabels;
   late List<String> _columnOrder;
+  String _currentLanguage = 'sq'; // Default to Albanian
   // String? buildingGlobalId = '';
+
+  String _getLocalizedLabel(dynamic attribute) {
+    // Use cached language to avoid context access during build
+    if (_currentLanguage == 'sq') {
+      return attribute.label.al;
+    } else {
+      return attribute.label.en;
+    }
+  }
 
   @override
   void initState() {
@@ -53,7 +66,7 @@ class _DwellingFormState extends State<DwellingForm> {
     final dwellingSchema = schemaService.dwellingSchema;
 
     _columnLabels = {
-      for (var attr in dwellingSchema.attributes) attr.name: attr.label.al,
+      for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
     };
 
     _columnOrder = dwellingSchema.attributes
@@ -62,6 +75,24 @@ class _DwellingFormState extends State<DwellingForm> {
         .toList();
 
     // context.read<DwellingCubit>().getDwellings(globalId);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Update language when dependencies change (including locale changes)
+    final newLanguage = Localizations.localeOf(context).languageCode;
+    if (newLanguage != _currentLanguage) {
+      setState(() {
+        _currentLanguage = newLanguage;
+        // Update column labels with new language
+        final schemaService = sl<SchemaService>();
+        final dwellingSchema = schemaService.dwellingSchema;
+        _columnLabels = {
+          for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
+        };
+      });
+    }
   }
 
   @override
@@ -78,15 +109,8 @@ class _DwellingFormState extends State<DwellingForm> {
         } else if (state is DwellingAttributes) {
           setState(() {
             _dwellingSchema = state.attributes;
-            _showDwellingForm = _viewPendingRow == null;
+            _showDwellingForm = true;
           });
-
-          if (_viewPendingRow != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _showViewDialog(_viewPendingRow!);
-              _viewPendingRow = null;
-            });
-          }
         } else if (state is DwellingError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message)),
@@ -135,6 +159,9 @@ class _DwellingFormState extends State<DwellingForm> {
                               readOnly: false,
                               initialData: _initialData,
                               onClose: () {
+                                context.read<AttributesCubit>().clearAllSelections();
+                                context.read<GeometryEditorCubit>().cancelOperation();
+                                context.read<BuildingCubit>().clearSelectedBuilding();
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;
@@ -142,6 +169,9 @@ class _DwellingFormState extends State<DwellingForm> {
                               },
                               save: (formValues) async {
                                 await _onSaveDwelling(formValues);
+                                context.read<AttributesCubit>().clearAllSelections();
+                                context.read<GeometryEditorCubit>().cancelOperation();
+                                context.read<BuildingCubit>().clearSelectedBuilding();
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;
@@ -236,7 +266,7 @@ class _DwellingFormState extends State<DwellingForm> {
             ElevatedButton.icon(
               onPressed: _onAddNewDwelling,
               icon: const Icon(Icons.add, size: 20),
-              label: const Text('Shto'),
+              label: Text(AppLocalizations.of(context).translate(Keys.addNew)),
               style: ElevatedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -394,25 +424,10 @@ class _DwellingFormState extends State<DwellingForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              OutlinedButton.icon(
-                onPressed: () => _onViewDwelling(dwelling),
-                icon: const Icon(Icons.visibility, size: 18),
-                label: const Text('View Details'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () => _onEditDwelling(dwelling),
                 icon: const Icon(Icons.edit, size: 18),
-                label: const Text('Edit'),
+                label: Text(AppLocalizations.of(context).translate(Keys.viewAndEdit)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -542,7 +557,7 @@ class _DwellingFormState extends State<DwellingForm> {
           ElevatedButton.icon(
             onPressed: _onAddNewDwelling,
             icon: const Icon(Icons.add),
-            label: const Text('Add First Dwelling'),
+            label: Text(AppLocalizations.of(context).translate(Keys.addFirstDwelling)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -782,67 +797,7 @@ class _DwellingFormState extends State<DwellingForm> {
     }
   }
 
-  void _onViewDwelling(DwellingEntity row) {
-    if (_dwellingSchema.isEmpty) {
-      _viewPendingRow = row;
-      context.read<DwellingCubit>().getDwellingAttibutes();
-      return;
-    }
-    _showViewDialog(row);
-  }
 
-  void _showViewDialog(DwellingEntity row) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => Dialog(
-        insetPadding: const EdgeInsets.all(24),
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: SizedBox(
-          width: 700,
-          height: 750,
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Dwelling Details',
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    )
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: TabletElementAttribute(
-                  schema: _dwellingSchema,
-                  selectedShapeType: ShapeType.noShape,
-                  entranceOutsideVisibleArea: false,
-                  initialData: row.toMap(),
-                  onClose: () => Navigator.pop(context),
-                  save: (_) async {},
-                  readOnly: true,
-                  startReviewing: () => {},
-                  finishReviewing: () => {},
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();
@@ -868,17 +823,8 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
-    if (_isEditMode) {
-      //   await context
-      //       .read<DwellingCubit>()
-      //       .updateDwellingFeature(attributes, buildingGlobalId);
-      // } else {
-      //   await context
-      //       .read<DwellingCubit>()
-      //       .addDwellingFeature(attributes, buildingGlobalId);
 
-      widget.onSave(attributes);
-    }
+    widget.onSave(attributes);
 
     setState(() {
       _showDwellingForm = false;

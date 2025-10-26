@@ -107,6 +107,18 @@ class LocalizedAl {
     Keys.issuer: 'Lëshuesi',
     Keys.audience: 'Audienca',
     Keys.helpSupport: 'Ndihmë & Mbështetje',
-    Keys.helpSupportSubtitle: 'Merrni ndihmë'
+    Keys.helpSupportSubtitle: 'Merrni ndihmë',
+    
+    // Add/View/Edit form titles
+    Keys.add: 'Shto',
+    Keys.view: 'Shiko',
+    Keys.edit: 'Ndrysho',
+    Keys.building: 'Ndërtesën',
+    Keys.entrance: 'Hyrjen',
+    Keys.dwelling: 'Banesën',
+    Keys.viewDetails: 'Shiko Detajet',
+    Keys.viewAndEdit: 'Shiko dhe Ndrysho',
+    Keys.addNew: 'Shto të Re',
+    Keys.addFirstDwelling: 'Shto Banesën e Parë'
   };
 }
