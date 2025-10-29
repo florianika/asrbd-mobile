@@ -58,7 +58,8 @@ class BuildingCubit extends Cubit<BuildingState> {
 
   String? _selectedBuildingGlobalId;
   List<BuildingEntity> _buildings = [];
-  List<BuildingEntity> _allBuildings = []; // Store original unfiltered buildings
+  List<BuildingEntity> _allBuildings =
+      []; // Store original unfiltered buildings
   Set<String> _selectedLegendLabels = {};
   String? _currentAttribute;
 
@@ -69,20 +70,32 @@ class BuildingCubit extends Cubit<BuildingState> {
     this.outputLogsCubit,
   ) : super(BuildingInitial());
 
-  Future<void> getBuildings(LatLngBounds? bounds, double zoom,
-      int municipalityId, bool isOffline, int? downloadId) async {
+  /// Get buildings by bounds
+  Future<void> getBuildings(
+    LatLngBounds? bounds,
+    double zoom,
+    int municipalityId,
+    bool isOffline,
+    int? downloadId,
+  ) async {
     emit(BuildingLoading());
     try {
       final buildings = await buildingUseCases.getBuildings(
-          bounds, zoom, municipalityId, isOffline, downloadId);
-      _allBuildings = List.from(buildings); // Store original copy
-      _buildings = _applyFilters(_allBuildings); // Apply existing filters
+        bounds,
+        zoom,
+        municipalityId,
+        isOffline,
+        downloadId,
+      );
+      _allBuildings = List.from(buildings);
+      _buildings = _applyFilters(_allBuildings); 
       emit(Buildings(_buildings));
     } catch (e) {
       emit(BuildingError(e.toString()));
     }
   }
 
+  /// Update building coordinates
   Future<void> updateBuildingCoordinates(BuildingEntity building) async {
     if (_buildings.isEmpty) return;
 
@@ -96,12 +109,14 @@ class BuildingCubit extends Cubit<BuildingState> {
       if (buildingIndex != -1) {
         buildings[buildingIndex] = building;
         _buildings = buildings;
+
+        // Also update in the original list
         final allBuildingsIndex =
             _allBuildings.indexWhere((b) => b.globalId == building.globalId);
         if (allBuildingsIndex != -1) {
           _allBuildings[allBuildingsIndex] = building;
         }
-        
+
         emit(Buildings(buildings));
       } else {
         emit(BuildingError('Building not found'));
@@ -111,17 +126,17 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
-
+  /// Filter buildings by selected legends
   void filterBuildingsByLegends(
       Set<String> selectedLegendLabels, String currentAttribute) {
     _selectedLegendLabels = selectedLegendLabels;
     _currentAttribute = currentAttribute;
-    
+
     _buildings = _applyFilters(_allBuildings);
     emit(Buildings(List.from(_buildings)));
   }
 
-
+  /// Apply current filters to a list of buildings
   List<BuildingEntity> _applyFilters(List<BuildingEntity> buildings) {
     if (_selectedLegendLabels.isEmpty || _currentAttribute == null) {
       return List.from(buildings);
@@ -156,6 +171,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     return filtered;
   }
 
+  /// Clear all filters and restore original buildings
   void clearFilters() {
     _selectedLegendLabels.clear();
     _currentAttribute = null;
@@ -163,39 +179,39 @@ class BuildingCubit extends Cubit<BuildingState> {
     emit(Buildings(List.from(_buildings)));
   }
 
-  
+  /// Add new building to the stored list
   void addBuilding(BuildingEntity building) {
     _buildings.add(building);
-    _allBuildings.add(building); 
+    _allBuildings.add(building); // Add to original list too
     emit(Buildings(List.from(_buildings)));
   }
 
-
+  /// Update an existing building in the stored list
   void updateBuilding(BuildingEntity updatedBuilding) {
     final index =
         _buildings.indexWhere((b) => b.globalId == updatedBuilding.globalId);
     if (index != -1) {
       _buildings[index] = updatedBuilding;
     }
-    
- 
+
+    // Also update in original list
     final allIndex =
         _allBuildings.indexWhere((b) => b.globalId == updatedBuilding.globalId);
     if (allIndex != -1) {
       _allBuildings[allIndex] = updatedBuilding;
     }
-    
+
     emit(Buildings(List.from(_buildings)));
   }
 
-
+  /// Remove building from stored list
   void removeBuilding(String globalId) {
     _buildings.removeWhere((building) => building.globalId == globalId);
     _allBuildings.removeWhere((building) => building.globalId == globalId);
     emit(Buildings(List.from(_buildings)));
   }
 
-
+  /// Load attribute schema
   Future<void> getBuildingAttributes() async {
     emit(BuildingLoading());
     try {
@@ -206,13 +222,20 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
-
+  /// Public getter for current globalId
   String? get globalId => _selectedBuildingGlobalId;
+
+  /// Public method to manually set and emit globalId
   void selectBuildingByGlobalId(String? globalId) {
     _selectedBuildingGlobalId = globalId;
     emit(BuildingGlobalId(globalId));
   }
 
+   void clearSelectedBuilding() {
+    _selectedBuildingGlobalId = null;
+    emit(Buildings(_buildings));
+  }
+  
   Future<void> getBuildingsCount(
       LatLngBounds bounds, int municipalityId) async {
     emit(BuildingLoading());
@@ -228,21 +251,25 @@ class BuildingCubit extends Cubit<BuildingState> {
   void clearBuildings() {
     _selectedBuildingGlobalId = null;
     _buildings.clear();
-    _allBuildings.clear();
+    _allBuildings.clear(); // Clear both lists
     _selectedLegendLabels.clear();
     _currentAttribute = null;
     emit(Buildings([]));
   }
 
-   void clearSelectedBuilding() {
-    _selectedBuildingGlobalId = null;
-    emit(Buildings(_buildings));
-  }
-
+  // Public getter to access buildings anytime
   List<BuildingEntity> get buildings => List.unmodifiable(_buildings);
+
+  // Get all buildings (unfiltered)
   List<BuildingEntity> get allBuildings => List.unmodifiable(_allBuildings);
+
+  // Check if we have buildings loaded
   bool get hasBuildings => _buildings.isNotEmpty;
+
+  // Check if filters are active
   bool get hasActiveFilters => _selectedLegendLabels.isNotEmpty;
+
+  // Get specific building by globalId
   BuildingEntity? getBuildingByGlobalId(String globalId) {
     try {
       return _buildings.firstWhere((b) => b.globalId == globalId);
@@ -251,8 +278,13 @@ class BuildingCubit extends Cubit<BuildingState> {
     }
   }
 
+  // Get building count (filtered)
   int get buildingCount => _buildings.length;
+
+  // Get total building count (unfiltered)
   int get totalBuildingCount => _allBuildings.length;
+
+  // Get currently selected building
   BuildingEntity? get selectedBuilding {
     if (_selectedBuildingGlobalId == null) return null;
     return getBuildingByGlobalId(_selectedBuildingGlobalId!);
