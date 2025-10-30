@@ -158,8 +158,8 @@ class EventButtonAttribute extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     child: Text(
                       AppLocalizations.of(context).translate(Keys.close),
@@ -179,8 +179,8 @@ class EventButtonAttribute extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
                     child: Text(
                       AppLocalizations.of(context).translate(Keys.cancel),
@@ -206,10 +206,11 @@ class EventButtonAttribute extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
-                    child: Text(AppLocalizations.of(context).translate(Keys.save)),
+                    child:
+                        Text(AppLocalizations.of(context).translate(Keys.save)),
                   ),
                 ),
               const SizedBox(width: 8),
@@ -218,84 +219,86 @@ class EventButtonAttribute extends StatelessWidget {
                   return BlocBuilder<TileCubit, TileState>(
                     builder: (context, tileState) {
                       return SpeedDial(
-                    animatedIcon: AnimatedIcons.menu_close,
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    elevation: 8.0,
-                    buttonSize: const Size(buttonWidth, buttonHeight),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    overlayColor: Colors.grey,
-                    overlayOpacity: 0.2,
-                    children: [
-                      if (selectedShapeType == ShapeType.point)
-                        SpeedDialChild(
-                          child: const Icon(Icons.home_work),
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          label: AppLocalizations.of(context)
-                              .translate(Keys.manageDwellings),
-                          labelBackgroundColor: Colors.white,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                          onTap: () => openDwelling(),
+                        animatedIcon: AnimatedIcons.menu_close,
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        elevation: 8.0,
+                        buttonSize: const Size(buttonWidth, buttonHeight),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      if (selectedShapeType == ShapeType.polygon && !tileState.isOffline)
-                        SpeedDialChild(
-                          child: const Icon(Icons.check_circle),
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          label: AppLocalizations.of(context)
-                              .translate(Keys.validateData),
-                          labelBackgroundColor: Colors.white,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                          onTap: () => validateData(),
-                        ),
-                      if (selectedShapeType == ShapeType.polygon)
-                        SpeedDialChild(
-                          child: const Icon(Icons.start),
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          label: AppLocalizations.of(context)
-                              .translate(Keys.startReviewing),
-                          labelBackgroundColor: Colors.white,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                          onTap: () =>
-                              startReviewing(fieldWorkStatus.isFieldworkTime),
-                        ),
-                      if (selectedShapeType == ShapeType.polygon)
-                        SpeedDialChild(
-                          child: const Icon(Icons.stop),
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          label: AppLocalizations.of(context)
-                              .translate(Keys.finishReviewing),
-                          labelBackgroundColor: Colors.white,
-                          labelStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                            fontSize: 14,
-                          ),
-                          onTap: () => finishReviewing(),
-                        ),
-                    ],
+                        overlayColor: Colors.grey,
+                        overlayOpacity: 0.2,
+                        children: [
+                          if (selectedShapeType == ShapeType.point)
+                            SpeedDialChild(
+                              child: const Icon(Icons.home_work),
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.manageDwellings),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: () => openDwelling(),
+                            ),
+                          if (selectedShapeType == ShapeType.polygon &&
+                              !tileState.isOffline)
+                            SpeedDialChild(
+                              child: const Icon(Icons.check_circle),
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.validateData),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: () => validateData(),
+                            ),
+                          if (selectedShapeType == ShapeType.polygon &&
+                              (bldReview == 5 || bldReview == 6) && fieldWorkStatus.isFieldworkTime)
+                            SpeedDialChild(
+                              child: const Icon(Icons.start),
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.startReviewing),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: () => startReviewing(
+                                  fieldWorkStatus.isFieldworkTime),
+                            ),
+                          if (selectedShapeType == ShapeType.polygon && (bldReview == 5 || bldReview == 4|| bldReview == 6) && fieldWorkStatus.isFieldworkTime) 
+                            SpeedDialChild(
+                              child: const Icon(Icons.stop),
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.finishReviewing),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: () => finishReviewing(),
+                            ),
+                        ],
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
+              ),
             ],
           ),
         ],

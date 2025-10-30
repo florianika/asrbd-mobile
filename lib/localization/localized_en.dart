@@ -57,7 +57,8 @@ class LocalizedEn {
     Keys.successUpdateBuilding: "Building was successfully updated.",
     Keys.successAddEntrance: "Entrance was successfully added.",
     Keys.successUpdateEntrance: "Entrance was successfully updated.",
-    Keys.entranceDistanceValidationError: "Entrance must be within {distance} meters of the building",
+    Keys.entranceDistanceValidationError:
+        "Entrance must be within {distance} meters of the building",
     Keys.successAddDwelling: "Dwelling was successfully added.",
     Keys.successUpdateDwelling: "Dwelling was successfully updated.",
     Keys.startValidationSuccess: "Validation started successfully",
@@ -76,11 +77,13 @@ class LocalizedEn {
     Keys.dataManagement: 'Data Management',
     Keys.updateAndManageData: 'Update and manage application data',
     Keys.updateJsonAttributes: 'Update JSON Attributes',
-    Keys.updateJsonAttributesDesc: 'Download and update building, entrance, and dwelling attribute files',
+    Keys.updateJsonAttributesDesc:
+        'Download and update building, entrance, and dwelling attribute files',
     Keys.updateSchemaFiles: 'Update Schema Files',
     Keys.updateSchemaFilesDesc: 'Download and update schema definition files',
     Keys.information: 'Information',
-    Keys.settingsInfoText: 'Use these options to update your local data files with the latest information from the server.',
+    Keys.settingsInfoText:
+        'Use these options to update your local data files with the latest information from the server.',
     Keys.jsonAttributesUpdatedSuccess: 'JSON attributes updated successfully',
     Keys.jsonAttributesUpdateFailed: 'Failed to update JSON attributes',
     Keys.schemaFilesUpdatedSuccess: 'Schema files updated successfully',
@@ -93,7 +96,7 @@ class LocalizedEn {
     Keys.logoutSuccess: 'Logged out successfully',
     Keys.fieldRequired: '{fieldName} must be filled',
     Keys.logoutError: 'Logout failed',
-    
+
     // Side menu translations
     Keys.mobileApp: 'Mobile',
     Keys.viewMaps: 'View Maps',
@@ -113,7 +116,7 @@ class LocalizedEn {
     Keys.audience: 'Audience',
     Keys.helpSupport: 'Help & Support',
     Keys.helpSupportSubtitle: 'Get assistance',
-    
+
     // Add/View/Edit form titles
     Keys.add: 'Add',
     Keys.view: 'View',
@@ -124,6 +127,8 @@ class LocalizedEn {
     Keys.viewDetails: 'View Details',
     Keys.viewAndEdit: 'View and Edit',
     Keys.addNew: 'Add New',
-    Keys.addFirstDwelling: 'Add First Dwelling'
+    Keys.addFirstDwelling: 'Add First Dwelling',
+    Keys.fieldWorkOverview: 'Fieldwork Overview',
+    Keys.fieldWorkOverviewSubtitle: 'Fieldwork Overview',
   };
 }

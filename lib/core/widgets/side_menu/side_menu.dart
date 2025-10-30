@@ -287,8 +287,10 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.person_outline,
-                                title: "test",
-                                subtitle: "test",
+                                title: AppLocalizations.of(context)
+                                    .translate(Keys.fieldWorkOverview),//"Fieldwork Overview",
+                                subtitle: AppLocalizations.of(context)
+                                    .translate(Keys.fieldWorkOverviewSubtitle),
                                 onTap: () {
                                   Navigator.pushNamed(
                                       context, RouteManager.testRoute);

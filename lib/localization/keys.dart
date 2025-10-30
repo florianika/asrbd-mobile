@@ -100,6 +100,8 @@ class Keys {
   static const String audience = 'audience';
   static const String helpSupport = 'helpSupport';
   static const String helpSupportSubtitle = 'helpSupportSubtitle';
+  static const String fieldWorkOverview = 'fieldWorkOverview';
+  static const String fieldWorkOverviewSubtitle = 'fieldWorkOverviewSubtitle';
   
   // Add/View/Edit form titles
   static const String add = 'add';
