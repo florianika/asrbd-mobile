@@ -161,10 +161,10 @@ class _MapAppBarState extends State<MapAppBar> {
               const SizedBox(width: 8),
               Text(
                 fieldWorkStatus.inError
-                    ? 'Ka ndodhur nje problem'
+                    ? AppLocalizations.of(context).translate(Keys.problemOccurred)
                     : fieldWorkStatus.isFieldworkTime
-                        ? 'Field Work Active'
-                        : 'Field Work Inactive',
+                        ? AppLocalizations.of(context).translate(Keys.fieldWorkActive)
+                        : AppLocalizations.of(context).translate(Keys.fieldWorkInactive),
                 style: TextStyle(
                   color: fieldWorkStatus.inError
                       ? Colors.orange
@@ -189,22 +189,22 @@ class _MapAppBarState extends State<MapAppBar> {
                         _buildDetailRow(
                             'ID:', fieldWorkStatus.fieldworkId.toString()),
                         const SizedBox(height: 8),
-                        _buildDetailRow('Status:', 'Active'),
+                        _buildDetailRow(AppLocalizations.of(context).translate(Keys.status), AppLocalizations.of(context).translate(Keys.active)),
                         const SizedBox(height: 8),
                         _buildDetailRow(
-                            'Started:', fieldWorkStatus.startTime ?? 'N/A'),
+                            AppLocalizations.of(context).translate(Keys.started), fieldWorkStatus.startTime ?? 'N/A'),
                         // const SizedBox(height: 8),
                         // _buildDetailRow('Location:', fieldWorkStatus.location ?? 'N/A'),
                       ],
                     )
-                  : const Text(
-                      'Field work is not opened yet. Please start a field work session to view details.',
-                      style: TextStyle(fontSize: 16),
+                  : Text(
+                      AppLocalizations.of(context).translate(Keys.fieldWorkNotOpenedMessage),
+                      style: const TextStyle(fontSize: 16),
                     ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(AppLocalizations.of(context).translate(Keys.close)),
             ),
           ],
         );

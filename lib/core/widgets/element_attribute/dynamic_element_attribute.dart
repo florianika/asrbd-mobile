@@ -17,6 +17,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
 class DynamicElementAttribute extends StatefulWidget {
@@ -117,6 +118,21 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         // Find the town name from coded values
         final townName = _getTownNameFromCode(field, rawValue);
         _updateOrCreateController(key, townName);
+      } else if (key == 'BldPermitDate' && rawValue != null) {
+        // Format date for display
+        DateTime? dateValue;
+        if (rawValue is DateTime) {
+          dateValue = rawValue;
+        } else if (rawValue is String) {
+          dateValue = DateTime.tryParse(rawValue);
+        } else if (rawValue is int) {
+          // Handle epoch milliseconds
+          dateValue = DateTime.fromMillisecondsSinceEpoch(rawValue);
+        }
+        final formattedDate = dateValue != null 
+            ? DateFormat('dd/MM/yyyy').format(dateValue) 
+            : '';
+        _updateOrCreateController(key, formattedDate);
       } else {
         _updateOrCreateController(key, value);
       }
@@ -975,6 +991,138 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     );
   }
 
+  Widget _buildDatePicker(dynamic attribute, dynamic elementFound) {
+    final validationResult = _getValidationResult(elementFound.name);
+    // Ensure controller exists in the map
+    if (!_controllers.containsKey(elementFound.name)) {
+      _controllers[elementFound.name] = TextEditingController();
+    }
+    final controller = _controllers[elementFound.name]!;
+    
+    // Parse current date from controller text
+    DateTime? selectedDate;
+    if (controller.text.isNotEmpty) {
+      selectedDate = DateFormat('dd/MM/yyyy').tryParse(controller.text);
+    }
+    
+    // Get initial date from form values if available
+    if (selectedDate == null && formValues[elementFound.name] != null) {
+      final rawValue = formValues[elementFound.name];
+      if (rawValue is DateTime) {
+        selectedDate = rawValue;
+      } else if (rawValue is String) {
+        selectedDate = DateTime.tryParse(rawValue);
+      } else if (rawValue is int) {
+        selectedDate = DateTime.fromMillisecondsSinceEpoch(rawValue);
+      }
+    }
+
+    return Tooltip(
+      message: _getLocalizedDescription(attribute),
+      preferBelow: false,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 13,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MouseRegion(
+            cursor: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                ? SystemMouseCursors.forbidden
+                : SystemMouseCursors.click,
+            child: InkWell(
+              onTap: (!widget.formContext.isReadOnly && elementFound.editable)
+                  ? () async {
+                      // Show date picker, only allowing dates up to today (previous dates)
+                      final DateTime now = DateTime.now();
+                      final DateTime firstDate = DateTime(1900, 1, 1);
+                      final DateTime lastDate = DateTime(now.year, now.month, now.day);
+                      
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate ?? lastDate,
+                        firstDate: firstDate,
+                        lastDate: lastDate, // Only allow previous dates (up to today)
+                        helpText: _getLocalizedLabel(attribute),
+                        cancelText: AppLocalizations.of(context).translate(Keys.cancel),
+                        confirmText: AppLocalizations.of(context).translate(Keys.confirmationConfirm),
+                      );
+                      
+                      if (picked != null) {
+                        final formattedDate = DateFormat('dd/MM/yyyy').format(picked);
+                        controller.text = formattedDate;
+                        // Store as DateTime in formValues
+                        formValues[elementFound.name] = picked;
+                        setState(() {
+                          validationErrors.remove(elementFound.name);
+                        });
+                      }
+                    }
+                  : null,
+              child: InputDecorator(
+                decoration: _getInputDecoration(attribute, elementFound).copyWith(
+                  suffixIcon: Icon(
+                    Icons.calendar_today,
+                    color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+                    size: 20,
+                  ),
+                ),
+                child: Text(
+                  controller.text.isEmpty 
+                      ? _getLocalizedLabel(attribute) 
+                      : controller.text,
+                  style: TextStyle(
+                    color: (widget.formContext.isReadOnly || attribute.display.enumerator == "read")
+                        ? Colors.grey[600]
+                        : Colors.black87,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (validationResult != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6, left: 12),
+              child: Row(
+                children: [
+                  Icon(
+                    validationResult.level == ValidationLevel.error
+                        ? Icons.error_outline
+                        : Icons.warning_amber_outlined,
+                    color: validationResult.level == ValidationLevel.error
+                        ? Colors.red
+                        : Colors.orange,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      validationResult.message,
+                      style: TextStyle(
+                        color: validationResult.level == ValidationLevel.error
+                            ? Colors.red
+                            : Colors.orange,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReadOnlyLabel(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
     
@@ -1192,6 +1340,10 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
     if (elementFound.name == 'EntTown') {
       return _buildTownTypeAhead(attribute, elementFound);
+    }
+
+    if (elementFound.name == 'BldPermitDate') {
+      return _buildDatePicker(attribute, elementFound);
     }
 
     final inputDecoration = _getInputDecoration(attribute, elementFound);

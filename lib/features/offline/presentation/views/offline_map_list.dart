@@ -1,6 +1,8 @@
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/data/drift/app_database.dart';
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
@@ -123,19 +125,20 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
+        final localizations = AppLocalizations.of(context);
         return AlertDialog(
-          title: Text('Delete Downloaded Data'),
+          title: Text(localizations.translate(Keys.deleteDownloadedData)),
           content: Text(
-              'Are you sure you want to delete "${data.areaName}"?\n\nThis will permanently remove all buildings, entrances, and dwellings data for this area. This action cannot be undone.'),
+              localizations.translate(Keys.deleteConfirmMessage).replaceAll('{areaName}', data.areaName)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel'),
+              child: Text(localizations.translate(Keys.cancel)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(foregroundColor: Colors.red),
-              child: Text('Delete'),
+              child: Text(localizations.translate(Keys.delete)),
             ),
           ],
         );
@@ -148,9 +151,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
         _loadDownloadedData(); // Refresh the list
       } catch (e) {
+        final localizations = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting data: $e'),
+            content: Text(localizations.translate(Keys.errorDeletingData).replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -291,7 +295,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                           ),
                           Expanded(
                             child: Text(
-                              'Downloaded Areas',
+                              AppLocalizations.of(context).translate(Keys.downloadedAreas),
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -312,7 +316,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                 size: 24,
                               ),
                               onPressed: _loadDownloadedData,
-                              tooltip: 'Refresh',
+                              tooltip: AppLocalizations.of(context).translate(Keys.refresh),
                             ),
                           ),
                         ],
@@ -345,7 +349,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 16),
                                         Text(
-                                          'Loading downloaded areas...',
+                                          AppLocalizations.of(context).translate(Keys.loadingDownloadedAreas),
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -391,7 +395,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 24),
                                         Text(
-                                          'No offline areas found',
+                                          AppLocalizations.of(context).translate(Keys.noOfflineAreas),
                                           style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.white,
@@ -400,7 +404,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 12),
                                         Text(
-                                          'Download some areas to see them here',
+                                          AppLocalizations.of(context).translate(Keys.downloadSomeAreas),
                                           style: TextStyle(
                                             color: Colors.white
                                                 .withValues(alpha: 0.8),
@@ -569,7 +573,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                               (BuildContext
                                                                       context) =>
                                                                   [
-                                                            const PopupMenuItem<
+                                                            PopupMenuItem<
                                                                 String>(
                                                               value: 'apply',
                                                               child: Row(
@@ -582,12 +586,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(
-                                                                      'Apply Area'),
+                                                                  Text(AppLocalizations.of(context)
+                                                                      .translate(Keys.applyArea)),
                                                                 ],
                                                               ),
                                                             ),
-                                                            const PopupMenuItem<
+                                                            PopupMenuItem<
                                                                 String>(
                                                               value: 'sync',
                                                               child: Row(
@@ -600,12 +604,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(
-                                                                      'Synchronize'),
+                                                                  Text(AppLocalizations.of(context)
+                                                                      .translate(Keys.synchronize)),
                                                                 ],
                                                               ),
                                                             ),
-                                                            const PopupMenuItem<
+                                                            PopupMenuItem<
                                                                 String>(
                                                               value: 'delete',
                                                               child: Row(
@@ -618,8 +622,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(
-                                                                      'Delete'),
+                                                                  Text(AppLocalizations.of(context)
+                                                                      .translate(Keys.delete)),
                                                                 ],
                                                               ),
                                                             ),
@@ -662,7 +666,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                           ),
                                                           SizedBox(width: 6),
                                                           Text(
-                                                            'Has items pending synchronization',
+                                                            AppLocalizations.of(context).translate(Keys.hasPendingSync),
                                                             style: TextStyle(
                                                               fontSize: 12,
                                                               color: Colors
@@ -697,7 +701,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.calendar_today,
-                                                          'Downloaded',
+                                                          AppLocalizations.of(context).translate(Keys.downloaded),
                                                           _formatDate(
                                                               data.createdDate),
                                                           true,
@@ -706,7 +710,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.person,
-                                                          'User',
+                                                          AppLocalizations.of(context).translate(Keys.user),
                                                           data.email,
                                                           true,
                                                         ),
@@ -714,11 +718,11 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.sync,
-                                                          'Last Sync',
+                                                          AppLocalizations.of(context).translate(Keys.lastSync),
                                                           lastSync != null
                                                               ? _formatDate(
                                                                   lastSync)
-                                                              : 'Never',
+                                                              : AppLocalizations.of(context).translate(Keys.never),
                                                           true,
                                                         ),
                                                       ),

@@ -165,12 +165,17 @@ class AttributesCubit extends Cubit<AttributesState> {
       // Store permanently
       _persistentDwelling = dwelling;
 
+      // Preserve building and entrance IDs when navigating to dwelling
+      // This keeps the entrance selected when viewing dwelling
+      final preservedBuildingId = _persistentBuilding?.globalId;
+      final preservedEntranceId = _persistentEntrance?.globalId;
+
       emit(Attributes(
         schema,
         dwelling.toMap(),
         ShapeType.noShape,
-        null,
-        null,
+        preservedBuildingId,
+        preservedEntranceId,
         dwellingObjectID,
         viewDwelling: true,
         showAttributes: true,
@@ -391,8 +396,10 @@ class AttributesCubit extends Cubit<AttributesState> {
   DwellingEntity? get currentDwelling => _persistentDwelling;
 
   // Convenience getters for IDs (if still needed)
-  String? get currentBuildingGlobalId => _persistentBuilding?.globalId;
-  String? get currentEntranceGlobalId => _persistentEntrance?.globalId;
+  String? get currentBuildingGlobalId => _persistentBuilding?.globalId ?? 
+      (state is Attributes ? (state as Attributes).buildingGlobalId : null);
+  String? get currentEntranceGlobalId => _persistentEntrance?.globalId ?? 
+      (state is Attributes ? (state as Attributes).entranceGlobalId : null);
   int? get currentDwellingObjectId => _persistentDwelling?.objectId;
 
   ShapeType get shapeType =>

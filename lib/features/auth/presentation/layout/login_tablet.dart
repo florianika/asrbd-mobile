@@ -127,7 +127,7 @@ class _LoginTabletState extends State<LoginTablet> {
                                       height: 50.0,
                                       child: OutlinedButton(
                                         onPressed: () => _onUseOffline(context),
-                                        child: const Text('Use Offline'),
+                                        child: Text(AppLocalizations.of(context).translate(Keys.useOffline)),
                                       ),
                                     ),
                                   ),

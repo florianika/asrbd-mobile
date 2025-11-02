@@ -350,7 +350,31 @@ class _AsrdbMapState extends State<AsrdbMap> {
     return BlocConsumer<TileCubit, TileState>(
         listener: (context, state) {},
         builder: (context, state) {
-          return FlutterMap(
+          return BlocListener<AttributesCubit, AttributesState>(
+            listener: (context, attributesState) {
+              if (attributesState is Attributes && !attributesState.showAttributes) {
+                Future.delayed(const Duration(milliseconds: 250), () {
+                  if (!mounted) return;
+                  final currentState = context.read<AttributesCubit>().state;
+                  if (currentState is Attributes && !currentState.showAttributes) {
+                    // Only clear if form is truly closed (not viewing dwelling)
+                    // When navigating to dwelling, viewDwelling is true and showAttributes stays true
+                    // When form is closed, both are false
+                    if (_selectedBuildingGlobalId != null || _highlightBuildingGlobalId != null) {
+                      setState(() {
+                        _selectedBuildingGlobalId = null;
+                        _highlightBuildingGlobalId = null;
+                      });
+                    }
+                    // Only clear entrances if not viewing dwelling (entrance should stay visible when viewing dwelling)
+                    if (!currentState.viewDwelling) {
+                      context.read<EntranceCubit>().clearEntrances();
+                    }
+                  }
+                });
+              }
+            },
+            child: FlutterMap(
             key: mapKey,
             mapController: widget.mapController,
             options: MapOptions(
@@ -439,6 +463,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 mapController: widget.mapController,
               ),
             ],
+          ),
           );
         });
   }
