@@ -1,4 +1,5 @@
 import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +55,7 @@ class NotifierService {
                 scaffoldMessenger.hideCurrentMaterialBanner();
               },
               child: Text(
-                'Dismiss',
+                AppLocalizations.of(context).translate(Keys.dismiss),
                 style: TextStyle(
                   color: Colors.red.shade800,
                   fontWeight: FontWeight.bold,

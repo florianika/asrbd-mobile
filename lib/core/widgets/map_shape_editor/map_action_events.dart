@@ -19,6 +19,7 @@ import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
@@ -418,7 +419,13 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '${geometryEditor.selectedType == EntityType.entrance ? "Entrance" : "Building"} ${geometryEditor.mode == EditorMode.create ? "Creation" : "Edit"} Mode',
+                            geometryEditor.selectedType == EntityType.entrance
+                                ? (geometryEditor.mode == EditorMode.create
+                                    ? AppLocalizations.of(context).translate(Keys.entranceCreationMode)
+                                    : AppLocalizations.of(context).translate(Keys.entranceEditMode))
+                                : (geometryEditor.mode == EditorMode.create
+                                    ? AppLocalizations.of(context).translate(Keys.buildingCreationMode)
+                                    : AppLocalizations.of(context).translate(Keys.buildingEditMode)),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,

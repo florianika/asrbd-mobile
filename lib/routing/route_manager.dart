@@ -6,6 +6,8 @@ import 'package:asrdb/features/profile/presentation/views/profile_view.dart';
 import 'package:asrdb/features/test.dart';
 import 'package:flutter/material.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 
 class RouteManager {
   static const String homeRoute = '/';
@@ -47,10 +49,13 @@ class RouteManager {
 
   static Route<dynamic> _errorRoute() {
     return MaterialPageRoute(
-      builder: (_) => Scaffold(
-        appBar: AppBar(title: const Text('Error')),
-        body: const Center(child: Text('Page not found!')),
-      ),
+      builder: (context) {
+        final localizations = AppLocalizations.of(context);
+        return Scaffold(
+          appBar: AppBar(title: Text(localizations.translate(Keys.error))),
+          body: Center(child: Text(localizations.translate(Keys.pageNotFound))),
+        );
+      },
     );
   }
 }

@@ -4,6 +4,8 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/mapper/dwelling_mapper.dart';
@@ -144,68 +146,71 @@ class _OfflineMapState extends State<OfflineMap> {
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text('Download Offline Data'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Download Details:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('• Buildings: $buildingCount'),
-            Text(
-                '• Area: ${_downloadBounds!.north.toStringAsFixed(6)}, ${_downloadBounds!.west.toStringAsFixed(6)} to ${_downloadBounds!.south.toStringAsFixed(6)}, ${_downloadBounds!.east.toStringAsFixed(6)}'),
-            const SizedBox(height: 16),
-            const Text('Download Name:',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Enter a name for this download',
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      builder: (context) {
+        final localizations = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(localizations.translate(Keys.downloadOfflineData)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(localizations.translate(Keys.downloadDetails),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('• ${localizations.translate(Keys.buildings)} $buildingCount'),
+              Text(
+                  '• ${localizations.translate(Keys.area)} ${_downloadBounds!.north.toStringAsFixed(6)}, ${_downloadBounds!.west.toStringAsFixed(6)} to ${_downloadBounds!.south.toStringAsFixed(6)}, ${_downloadBounds!.east.toStringAsFixed(6)}'),
+              const SizedBox(height: 16),
+              Text(localizations.translate(Keys.downloadName),
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  hintText: localizations.translate(Keys.enterDownloadName),
+                  border: const OutlineInputBorder(),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                autofocus: true,
+                textCapitalization: TextCapitalization.words,
               ),
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
+              const SizedBox(height: 8),
+              Text(
+                localizations.translate(Keys.downloadNameHint),
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: Text(localizations.translate(Keys.cancel)),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'This name will be used to identify the downloaded data.',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey),
+            ElevatedButton(
+              onPressed: () {
+                final name = _nameController.text.trim();
+                if (name.isEmpty) {
+                  NotifierService.showMessage(
+                    context,
+                    message: localizations.translate(Keys.enterDownloadName),
+                    type: MessageType.warning,
+                  );
+                  return;
+                }
+                Navigator.of(context).pop({
+                  'proceed': true,
+                  'name': name,
+                });
+              },
+              child: Text(localizations.translate(Keys.download)),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(null),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = _nameController.text.trim();
-              if (name.isEmpty) {
-                NotifierService.showMessage(
-                  context,
-                  message: 'Please enter a name for the download',
-                  type: MessageType.warning,
-                );
-                return;
-              }
-              Navigator.of(context).pop({
-                'proceed': true,
-                'name': name,
-              });
-            },
-            child: const Text('Download'),
-          ),
-        ],
-      ),
+        );
+      },
     );
 
     return result;
@@ -344,7 +349,7 @@ class _OfflineMapState extends State<OfflineMap> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Offline Data Downloader'),
+        title: Text(AppLocalizations.of(context).translate(Keys.offlineDataDownloader)),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -355,45 +360,47 @@ class _OfflineMapState extends State<OfflineMap> {
                 if (_downloadBounds != null) {
                   showDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Download Area Info'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                              'Current Zoom: ${_currentZoom.toStringAsFixed(2)}'),
-                          const SizedBox(height: 8),
-                          const Text('Download Area:'),
-                          Text(
-                              'North: ${_downloadBounds!.north.toStringAsFixed(6)}'),
-                          Text(
-                              'South: ${_downloadBounds!.south.toStringAsFixed(6)}'),
-                          Text(
-                              'East: ${_downloadBounds!.east.toStringAsFixed(6)}'),
-                          Text(
-                              'West: ${_downloadBounds!.west.toStringAsFixed(6)}'),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('OK'),
+                    builder: (context) {
+                      final localizations = AppLocalizations.of(context);
+                      return AlertDialog(
+                        title: Text(localizations.translate(Keys.downloadAreaInfo)),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${localizations.translate(Keys.currentZoom)} ${_currentZoom.toStringAsFixed(2)}'),
+                            const SizedBox(height: 8),
+                            Text(localizations.translate(Keys.downloadArea)),
+                            Text(
+                                '${localizations.translate(Keys.north)} ${_downloadBounds!.north.toStringAsFixed(6)}'),
+                            Text(
+                                '${localizations.translate(Keys.south)} ${_downloadBounds!.south.toStringAsFixed(6)}'),
+                            Text(
+                                '${localizations.translate(Keys.east)} ${_downloadBounds!.east.toStringAsFixed(6)}'),
+                            Text(
+                                '${localizations.translate(Keys.west)} ${_downloadBounds!.west.toStringAsFixed(6)}'),
+                          ],
                         ),
-                      ],
-                    ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(localizations.translate(Keys.ok)),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 }
               } else {
                 NotifierService.showMessage(
                   context,
-                  message:
-                      'Zoom in to level ${AppConfig.minZoomDownload} or higher to see download area',
+                  message: AppLocalizations.of(context).translate(Keys.zoomInLevel).replaceAll('{level}', AppConfig.minZoomDownload.toString()),
                   type: MessageType.info,
                 );
               }
             },
-            tooltip: 'Show download info',
+            tooltip: AppLocalizations.of(context).translate(Keys.showDownloadInfo),
           ),
         ],
       ),
@@ -476,7 +483,7 @@ class _OfflineMapState extends State<OfflineMap> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Zoom in to level ${AppConfig.minZoomDownload} or higher to select download area',
+                  AppLocalizations.of(context).translate(Keys.zoomInLevel).replaceAll('{level}', AppConfig.minZoomDownload.toString()),
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
@@ -528,10 +535,10 @@ class _OfflineMapState extends State<OfflineMap> {
                   icon: Icon(
                       _isDownloading ? Icons.hourglass_empty : Icons.download),
                   label: Text(_isDownloading
-                      ? 'Downloading...'
+                      ? AppLocalizations.of(context).translate(Keys.downloading)
                       : _currentZoom < AppConfig.minZoomDownload
-                          ? 'Zoom in to Download'
-                          : 'Download Data'),
+                          ? AppLocalizations.of(context).translate(Keys.zoomInToDownload)
+                          : AppLocalizations.of(context).translate(Keys.downloadData)),
                   elevation: 8,
                 ),
               ],
