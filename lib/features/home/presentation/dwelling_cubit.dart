@@ -55,7 +55,10 @@ class DwellingCubit extends Cubit<DwellingState> {
       attributesCubit.showAttributes(false);
 
       final dwellings = await dwellingUseCases.getDwellings(
-          entranceGlobalId, isOffline, downloadId);
+        entranceGlobalId,
+        isOffline,
+        downloadId,
+      );
       emit(Dwellings(dwellings, true));
     } catch (e) {
       emit(DwellingError(e.toString()));
@@ -79,5 +82,4 @@ class DwellingCubit extends Cubit<DwellingState> {
       emit(DwellingError(e.toString()));
     }
   }
-
 }

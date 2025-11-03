@@ -66,7 +66,8 @@ class _DwellingFormState extends State<DwellingForm> {
     final dwellingSchema = schemaService.dwellingSchema;
 
     _columnLabels = {
-      for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
+      for (var attr in dwellingSchema.attributes)
+        attr.name: _getLocalizedLabel(attr),
     };
 
     _columnOrder = dwellingSchema.attributes
@@ -75,6 +76,26 @@ class _DwellingFormState extends State<DwellingForm> {
         .toList();
 
     // context.read<DwellingCubit>().getDwellings(globalId);
+  }
+
+  void handleOnClose() {
+    // context.read<AttributesCubit>().clearAllSelections();
+    // context.read<GeometryEditorCubit>().cancelOperation();
+    // context.read<BuildingCubit>().clearSelectedBuilding();
+    context.read<DwellingCubit>().closeDwellings();
+    setState(() {
+      _showDwellingForm = false;
+      _isEditMode = false;
+    });
+
+    String? entranceGlobalId =
+        context.read<AttributesCubit>().currentEntranceGlobalId;
+    String? buildingGlobalId =
+        context.read<AttributesCubit>().currentBuildingGlobalId;
+
+    context
+        .read<AttributesCubit>()
+        .showEntranceAttributes(entranceGlobalId, buildingGlobalId, false, 0);
   }
 
   @override
@@ -89,7 +110,8 @@ class _DwellingFormState extends State<DwellingForm> {
         final schemaService = sl<SchemaService>();
         final dwellingSchema = schemaService.dwellingSchema;
         _columnLabels = {
-          for (var attr in dwellingSchema.attributes) attr.name: _getLocalizedLabel(attr),
+          for (var attr in dwellingSchema.attributes)
+            attr.name: _getLocalizedLabel(attr),
         };
       });
     }
@@ -158,20 +180,18 @@ class _DwellingFormState extends State<DwellingForm> {
                               entranceOutsideVisibleArea: false,
                               readOnly: false,
                               initialData: _initialData,
-                              onClose: () {
-                                context.read<AttributesCubit>().clearAllSelections();
-                                context.read<GeometryEditorCubit>().cancelOperation();
-                                context.read<BuildingCubit>().clearSelectedBuilding();
-                                setState(() {
-                                  _showDwellingForm = false;
-                                  _isEditMode = false;
-                                });
-                              },
+                              onClose: handleOnClose,
                               save: (formValues) async {
                                 await _onSaveDwelling(formValues);
-                                context.read<AttributesCubit>().clearAllSelections();
-                                context.read<GeometryEditorCubit>().cancelOperation();
-                                context.read<BuildingCubit>().clearSelectedBuilding();
+                                context
+                                    .read<AttributesCubit>()
+                                    .clearAllSelections();
+                                context
+                                    .read<GeometryEditorCubit>()
+                                    .cancelOperation();
+                                context
+                                    .read<BuildingCubit>()
+                                    .clearSelectedBuilding();
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;
@@ -427,7 +447,8 @@ class _DwellingFormState extends State<DwellingForm> {
               ElevatedButton.icon(
                 onPressed: () => _onEditDwelling(dwelling),
                 icon: const Icon(Icons.edit, size: 18),
-                label: Text(AppLocalizations.of(context).translate(Keys.viewAndEdit)),
+                label: Text(
+                    AppLocalizations.of(context).translate(Keys.viewAndEdit)),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -557,7 +578,8 @@ class _DwellingFormState extends State<DwellingForm> {
           ElevatedButton.icon(
             onPressed: _onAddNewDwelling,
             icon: const Icon(Icons.add),
-            label: Text(AppLocalizations.of(context).translate(Keys.addFirstDwelling)),
+            label: Text(
+                AppLocalizations.of(context).translate(Keys.addFirstDwelling)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -589,7 +611,7 @@ class _DwellingFormState extends State<DwellingForm> {
         if (b == 'Unknown') return -1;
         final aNum = int.tryParse(a) ?? 0;
         final bNum = int.tryParse(b) ?? 0;
-        return bNum.compareTo(aNum); 
+        return bNum.compareTo(aNum);
       });
 
     return Map.fromEntries(
@@ -797,8 +819,6 @@ class _DwellingFormState extends State<DwellingForm> {
     }
   }
 
-
-
   void _onEditDwelling(DwellingEntity row) {
     context.read<DwellingCubit>().closeDwellings();
     bool isOffline = context.read<TileCubit>().isOffline;
@@ -808,9 +828,9 @@ class _DwellingFormState extends State<DwellingForm> {
         .showDwellingAttributes(row.objectId, isOffline, download?.id);
   }
 
-  void handleOnClose() {
-    context.read<DwellingCubit>().closeDwellings();
-  }
+  // void handleOnClose() {
+  //   context.read<DwellingCubit>().closeDwellings();
+  // }
 
   void _onAddNewDwelling() {
     context.read<DwellingCubit>().closeDwellings();
@@ -823,7 +843,6 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   Future<void> _onSaveDwelling(Map<String, dynamic> attributes) async {
-
     widget.onSave(attributes);
 
     setState(() {

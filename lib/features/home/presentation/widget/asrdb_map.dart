@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/message_type.dart';
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/helpers/polygon_hit_detection.dart';
 import 'package:asrdb/core/helpers/string_helper.dart';
@@ -38,11 +39,12 @@ class AsrdbMap extends StatefulWidget {
   final MapController mapController;
   final String attributeLegend;
   final void Function(bool)? onEntranceVisibilityChange;
-  const AsrdbMap(
-      {super.key,
-      required this.mapController,
-      required this.attributeLegend,
-      this.onEntranceVisibilityChange});
+  const AsrdbMap({
+    super.key,
+    required this.mapController,
+    required this.attributeLegend,
+    this.onEntranceVisibilityChange,
+  });
 
   @override
   State<AsrdbMap> createState() => _AsrdbMapState();
@@ -66,6 +68,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
+
 
   @override
   void dispose() {
@@ -352,118 +355,133 @@ class _AsrdbMapState extends State<AsrdbMap> {
         builder: (context, state) {
           return BlocListener<AttributesCubit, AttributesState>(
             listener: (context, attributesState) {
-              if (attributesState is Attributes && !attributesState.showAttributes) {
+              if (attributesState is Attributes &&
+                  !attributesState.showAttributes) {
                 Future.delayed(const Duration(milliseconds: 250), () {
                   if (!mounted) return;
                   final currentState = context.read<AttributesCubit>().state;
-                  if (currentState is Attributes && !currentState.showAttributes) {
+
+                  if (currentState is Attributes &&
+                      !currentState.showAttributes) {
+                    if (currentState.shapeType == ShapeType.polygon) {
+                      if (_selectedBuildingGlobalId != null ||
+                          _highlightBuildingGlobalId != null) {
+                        setState(() {
+                          _selectedBuildingGlobalId = null;
+                          _highlightBuildingGlobalId = null;
+                        });
+                        if (!currentState.viewDwelling) {
+                          context.read<EntranceCubit>().clearEntrances();
+                        }
+                      }
+                    }
                     // Only clear if form is truly closed (not viewing dwelling)
                     // When navigating to dwelling, viewDwelling is true and showAttributes stays true
                     // When form is closed, both are false
-                    if (_selectedBuildingGlobalId != null || _highlightBuildingGlobalId != null) {
-                      setState(() {
-                        _selectedBuildingGlobalId = null;
-                        _highlightBuildingGlobalId = null;
-                      });
-                    }
+                    // if (_selectedBuildingGlobalId != null || _highlightBuildingGlobalId != null) {
+                    //   setState(() {
+                    //     _selectedBuildingGlobalId = null;
+                    //     _highlightBuildingGlobalId = null;
+                    //   });
+                    // }
                     // Only clear entrances if not viewing dwelling (entrance should stay visible when viewing dwelling)
-                    if (!currentState.viewDwelling) {
-                      context.read<EntranceCubit>().clearEntrances();
-                    }
+                    // if (!currentState.viewDwelling) {
+                    //   context.read<EntranceCubit>().clearEntrances();
+                    // }
                   }
                 });
               }
             },
             child: FlutterMap(
-            key: mapKey,
-            mapController: widget.mapController,
-            options: MapOptions(
-              onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
-              initialCenter: state.isOffline
-                  ? (LatLng(
-                      state.download!.centerLat!, state.download!.centerLng!))
-                  : currentPosition,
-              initialZoom: AppConfig.initZoom,
-              onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
-                latlng,
-                state.isOffline,
-                state.download?.id,
-              ),
-              onMapReady: _onMapReady,
-              onMapEvent: (event) {
-                if (event is MapEventMoveEnd) {
-                  final camera = widget.mapController.camera;
+              key: mapKey,
+              mapController: widget.mapController,
+              options: MapOptions(
+                onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
+                initialCenter: state.isOffline
+                    ? (LatLng(
+                        state.download!.centerLat!, state.download!.centerLng!))
+                    : currentPosition,
+                initialZoom: AppConfig.initZoom,
+                onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
+                  latlng,
+                  state.isOffline,
+                  state.download?.id,
+                ),
+                onMapReady: _onMapReady,
+                onMapEvent: (event) {
+                  if (event is MapEventMoveEnd) {
+                    final camera = widget.mapController.camera;
 
-                  _onPositionChanged(
-                    camera,
-                    false, // hasGesture = false, since user stopped
-                    state.isOffline
-                        ? (state.download?.municipalityId ?? 0)
-                        : userService.userInfo!.municipality,
-                    state.isOffline,
-                    state.download?.id,
-                  );
-                }
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: state.basemapUrl,
-                userAgentPackageName: AppConfig.userAgentPackageName,
-                tileProvider: FMTCTileProvider(
-                  stores: {
-                    state.storeName: BrowseStoreStrategy.readUpdateCreate
-                  },
+                    _onPositionChanged(
+                      camera,
+                      false, // hasGesture = false, since user stopped
+                      state.isOffline
+                          ? (state.download?.municipalityId ?? 0)
+                          : userService.userInfo!.municipality,
+                      state.isOffline,
+                      state.download?.id,
+                    );
+                  }
+                },
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate: state.basemapUrl,
+                  userAgentPackageName: AppConfig.userAgentPackageName,
+                  tileProvider: FMTCTileProvider(
+                    stores: {
+                      state.storeName: BrowseStoreStrategy.readUpdateCreate
+                    },
+                  ),
                 ),
-              ),
-              MunicipalityMarker(
-                isOffline: state.isOffline,
-                municipalityId: state.download?.municipalityId,
-              ),
-              if (_showLocationMarker)
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: _userLocation!,
-                      width: 40,
-                      height: 40,
-                      child: const Icon(
-                        Icons.my_location,
-                        color: Colors.blueAccent,
-                        size: 30,
+                MunicipalityMarker(
+                  isOffline: state.isOffline,
+                  municipalityId: state.download?.municipalityId,
+                ),
+                if (_showLocationMarker)
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: _userLocation!,
+                        width: 40,
+                        height: 40,
+                        child: const Icon(
+                          Icons.my_location,
+                          color: Colors.blueAccent,
+                          size: 30,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                Center(
+                  child: LocationTagMarker(isActive: true),
                 ),
-              Center(
-                child: LocationTagMarker(isActive: true),
-              ),
-              BuildingsMarker(
-                attributeLegend: widget.attributeLegend,
-                mapController: widget.mapController,
-                isSatellite: state.isSatellite,
-                highlightBuildingGlobalId: _highlightBuildingGlobalId,
-              ),
-              SelectedBuildingMarker(
-                selectedBuildingGlobalId: _selectedBuildingGlobalId,
-                highlightBuildingGlobalId: _highlightBuildingGlobalId,
-              ),
-              EntrancesMarker(
-                onTap: _handleEntranceTap,
-                onLongPress: _onLongTapEntrance,
-                attributeLegend: widget.attributeLegend,
-                mapController: widget.mapController,
-              ),
-              EditBuildingMarker(
-                mapKey: mapKey,
-                mapController: widget.mapController,
-              ),
-              EditEntranceMarker(
-                mapKey: mapKey,
-                mapController: widget.mapController,
-              ),
-            ],
-          ),
+                BuildingsMarker(
+                  attributeLegend: widget.attributeLegend,
+                  mapController: widget.mapController,
+                  isSatellite: state.isSatellite,
+                  highlightBuildingGlobalId: _highlightBuildingGlobalId,
+                ),
+                SelectedBuildingMarker(
+                  selectedBuildingGlobalId: _selectedBuildingGlobalId,
+                  highlightBuildingGlobalId: _highlightBuildingGlobalId,
+                ),
+                EntrancesMarker(
+                  onTap: _handleEntranceTap,
+                  onLongPress: _onLongTapEntrance,
+                  attributeLegend: widget.attributeLegend,
+                  mapController: widget.mapController,
+                ),
+                EditBuildingMarker(
+                  mapKey: mapKey,
+                  mapController: widget.mapController,
+                ),
+                EditEntranceMarker(
+                  mapKey: mapKey,
+                  mapController: widget.mapController,
+                ),
+              ],
+            ),
           );
         });
   }

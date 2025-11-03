@@ -396,9 +396,11 @@ class AttributesCubit extends Cubit<AttributesState> {
   DwellingEntity? get currentDwelling => _persistentDwelling;
 
   // Convenience getters for IDs (if still needed)
-  String? get currentBuildingGlobalId => _persistentBuilding?.globalId ?? 
+  String? get currentBuildingGlobalId =>
+      _persistentBuilding?.globalId ??
       (state is Attributes ? (state as Attributes).buildingGlobalId : null);
-  String? get currentEntranceGlobalId => _persistentEntrance?.globalId ?? 
+  String? get currentEntranceGlobalId =>
+      _persistentEntrance?.globalId ??
       (state is Attributes ? (state as Attributes).entranceGlobalId : null);
   int? get currentDwellingObjectId => _persistentDwelling?.objectId;
 
@@ -412,13 +414,13 @@ class AttributesCubit extends Cubit<AttributesState> {
     toggleAttributesVisibility(false);
   }
 
-   void clearAllSelections() {
+  void clearAllSelections() {
     _persistentEntrance = null;
     _persistentBuilding = null;
     _persistentDwelling = null;
-    
+
     toggleAttributesVisibility(false);
-    
+
     try {
       final storageRepository = GetIt.instance<StorageRepository>();
       storageRepository.remove(
@@ -434,6 +436,16 @@ class AttributesCubit extends Cubit<AttributesState> {
   void clearPersistentSelections() {
     _persistentEntrance = null;
     _persistentBuilding = null;
+    _persistentDwelling = null;
+    toggleAttributesVisibility(false);
+  }
+
+  void clearPersistentSelectionsEntrance() {
+    _persistentEntrance = null;
+    toggleAttributesVisibility(false);
+  }
+
+  void clearPersistentSelectionsDwelling() {
     _persistentDwelling = null;
     toggleAttributesVisibility(false);
   }

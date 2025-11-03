@@ -54,13 +54,13 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
             return MarkerLayer(
               markers: state.entrances.map((entrance) {
                 final isSelected = entrance.globalId == currentEntId;
-                final isPolygonMatch = shapeType == ShapeType.polygon &&
-                    entrance.entBldGlobalID == currentBldId;
-              
-                final label = EntranceHelper.entranceLabel(
-                  entrance.entBuildingNumber,
-                  entrance.entEntranceNumber,
-                );
+                // final isPolygonMatch = shapeType == ShapeType.polygon &&
+                //     entrance.entBldGlobalID == currentBldId;
+
+                // final label = EntranceHelper.entranceLabel(
+                //   entrance.entBuildingNumber,
+                //   entrance.entEntranceNumber,
+                // );
 
                 return Marker(
                   width: markerSize,
@@ -80,11 +80,11 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                             color: Color.fromRGBO(255, 255, 0, 1),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: 
-                              // isPolygonMatch
-                              //     ? Colors.red.withValues(alpha: 0.6)
-                              //     : Colors.black.withValues(alpha: 0.6),
-                              Color.fromRGBO(130, 127, 0, 1),
+                              color:
+                                  // isPolygonMatch
+                                  //     ? Colors.red.withValues(alpha: 0.6)
+                                  //     : Colors.black.withValues(alpha: 0.6),
+                                  Color.fromRGBO(130, 127, 0, 1),
                               width: isSelected ? 4 : 1,
                             ),
                             // boxShadow: isPolygonMatch
@@ -98,7 +98,8 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                             //     : null,
                           ),
                         ),
-                        if (isPolygonMatch && label != null)
+                        if (/*isPolygonMatch && */ entrance.entEntranceNumber !=
+                            null)
                           Positioned(
                             bottom: markerSize + 5,
                             left: -15,
@@ -119,7 +120,7 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                                 ],
                               ),
                               child: Text(
-                                label,
+                                entrance.entEntranceNumber.toString(),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.bold,

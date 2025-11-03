@@ -61,7 +61,7 @@ class _ViewMapState extends State<ViewMap> {
   bool isLoading = false;
   LatLngBounds? visibleBounds;
   double zoom = 0;
-  
+
   // Form mode state
   FormContext _currentFormContext = FormContext.view;
 
@@ -165,9 +165,9 @@ class _ViewMapState extends State<ViewMap> {
           type: response.success ? MessageType.success : MessageType.error,
         );
 
-       if (response.success) {
+        if (response.success) {
           attributeCubit.showAttributes(false);
-          
+
           await dwellingCubit.getDwellings(
             attributeCubit.currentEntranceGlobalId,
             isOffline,
@@ -329,7 +329,7 @@ class _ViewMapState extends State<ViewMap> {
     // Trick to trigger fetch of data again
     mapController.move(
         mapController.camera.center, mapController.camera.zoom + 0.01);
-    
+
     setState(() {
       _currentFormContext = FormContext.view;
       highlightedBuildingIds = null;
@@ -342,12 +342,12 @@ class _ViewMapState extends State<ViewMap> {
     if (_currentFormContext == FormContext.edit) {
       return FormContext.edit;
     }
-    
+
     // Check if this is a newly created entity
     if (state is Attributes && state.isNewlyCreated) {
       return FormContext.add;
     }
-    
+
     // Default to view mode for existing entities
     return FormContext.view;
   }
@@ -460,6 +460,45 @@ class _ViewMapState extends State<ViewMap> {
     });
   }
 
+  void handleAttributeFormClose(ShapeType shapeType) {
+    // context.read<AttributesCubit>().clearAllSelections();
+    // context.read<GeometryEditorCubit>().cancelOperation();
+    // context.read<BuildingCubit>().clearSelectedBuilding();
+
+    if (shapeType == ShapeType.point) {
+      context.read<AttributesCubit>().clearPersistentSelectionsEntrance();
+
+      setState(() {
+        highlightedBuildingIds =
+            context.read<AttributesCubit>().currentBuildingGlobalId;
+        highlightMarkersGlobalId = [];
+        _currentFormContext = FormContext.view; // Reset to view mode
+      });
+
+      context.read<AttributesCubit>().showBuildingAttributes(
+            context.read<AttributesCubit>().currentBuildingGlobalId,
+            false,
+            0,
+          );
+    } else if (shapeType == ShapeType.polygon) {
+      context.read<AttributesCubit>().clearAllSelections();
+      context.read<GeometryEditorCubit>().cancelOperation();
+      context.read<BuildingCubit>().clearSelectedBuilding();
+
+      setState(() {
+        highlightedBuildingIds = null;
+        highlightMarkersGlobalId = [];
+        _currentFormContext = FormContext.view;
+      });
+    }
+
+    // setState(() {
+    //   highlightedBuildingIds = null;
+    //   highlightMarkersGlobalId = [];
+    //   _currentFormContext = FormContext.view; // Reset to view mode
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -539,7 +578,7 @@ class _ViewMapState extends State<ViewMap> {
                         _currentFormContext = FormContext.view;
                       });
                     } else {
-                        setState(() {
+                      setState(() {
                         highlightedBuildingIds = null;
                         highlightMarkersGlobalId = [];
                         _currentFormContext = FormContext.view;
@@ -561,16 +600,10 @@ class _ViewMapState extends State<ViewMap> {
                             isLoading: state is AttributesLoading || isLoading,
                             save: _onSave,
                             startReviewing: _startReviewing,
-                            onClose: () {
-                              context.read<AttributesCubit>().clearAllSelections();
-                              context.read<GeometryEditorCubit>().cancelOperation();
-                              context.read<BuildingCubit>().clearSelectedBuilding();
-                              setState(() {
-                                highlightedBuildingIds = null;
-                                highlightMarkersGlobalId = [];
-                                _currentFormContext = FormContext.view; // Reset to view mode
-                              });
-                            },
+                            onClose: () => handleAttributeFormClose(
+                                state is Attributes
+                                    ? state.shapeType
+                                    : ShapeType.point),
                             finishReviewing: _finishReviewing,
                             formContext: _getFormContext(state),
                             onEdit: () {
@@ -585,9 +618,15 @@ class _ViewMapState extends State<ViewMap> {
                             onCancel: () {
                               final currentContext = _getFormContext(state);
                               if (currentContext == FormContext.add) {
-                                context.read<AttributesCubit>().clearAllSelections();
-                                context.read<GeometryEditorCubit>().cancelOperation();
-                                context.read<BuildingCubit>().clearSelectedBuilding();
+                                context
+                                    .read<AttributesCubit>()
+                                    .clearAllSelections();
+                                context
+                                    .read<GeometryEditorCubit>()
+                                    .cancelOperation();
+                                context
+                                    .read<BuildingCubit>()
+                                    .clearSelectedBuilding();
                                 setState(() {
                                   highlightedBuildingIds = null;
                                   highlightMarkersGlobalId = [];
