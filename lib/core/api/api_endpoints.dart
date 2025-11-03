@@ -155,7 +155,7 @@ class ApiEndpoints {
         'distance': '',
         'units': 'esriSRUnit_Foot',
         'relationParam': '',
-        'outFields': 'GlobalID,OBJECTID,EntQuality,EntBldGlobalID',
+        'outFields': 'GlobalID,OBJECTID,EntQuality,EntBldGlobalID,EntEntranceNumber',
         'returnGeometry': 'true',
         'maxAllowableOffset': '',
         'geometryPrecision': '',

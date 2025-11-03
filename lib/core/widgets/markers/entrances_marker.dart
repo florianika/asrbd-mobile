@@ -1,6 +1,3 @@
-import 'package:asrdb/core/enums/legent_type.dart';
-import 'package:asrdb/core/enums/shape_type.dart';
-import 'package:asrdb/core/helpers/entrance_helper.dart';
 import 'package:asrdb/core/services/legend_service.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
@@ -39,9 +36,9 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
           listener: (context, state) {},
           builder: (context, state) {
             final attributesCubit = context.read<AttributesCubit>();
-            final currentBldId = attributesCubit.currentBuildingGlobalId;
+            // final currentBldId = attributesCubit.currentBuildingGlobalId;
             final currentEntId = attributesCubit.currentEntranceGlobalId;
-            final shapeType = attributesCubit.shapeType;
+            // final shapeType = attributesCubit.shapeType;
 
             if (state is! Entrances) {
               return SizedBox.shrink();
@@ -54,24 +51,17 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
             return MarkerLayer(
               markers: state.entrances.map((entrance) {
                 final isSelected = entrance.globalId == currentEntId;
-                // final isPolygonMatch = shapeType == ShapeType.polygon &&
-                //     entrance.entBldGlobalID == currentBldId;
-
-                // final label = EntranceHelper.entranceLabel(
-                //   entrance.entBuildingNumber,
-                //   entrance.entEntranceNumber,
-                // );
 
                 return Marker(
                   width: markerSize,
                   height: markerSize,
                   point: entrance.coordinates!,
                   child: GestureDetector(
-                    // behavior: HitTestBehavior.translucent,
                     onTap: () => widget.onTap(entrance),
                     onLongPress: () => widget.onLongPress(entrance),
                     child: Stack(
                       clipBehavior: Clip.none,
+                      alignment: Alignment.center,
                       children: [
                         Container(
                           width: markerSize,
@@ -80,53 +70,54 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                             color: Color.fromRGBO(255, 255, 0, 1),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color:
-                                  // isPolygonMatch
-                                  //     ? Colors.red.withValues(alpha: 0.6)
-                                  //     : Colors.black.withValues(alpha: 0.6),
-                                  Color.fromRGBO(130, 127, 0, 1),
+                              color: Color.fromRGBO(130, 127, 0, 1),
                               width: isSelected ? 4 : 1,
                             ),
-                            // boxShadow: isPolygonMatch
-                            //     ? [
-                            //         BoxShadow(
-                            //           color: Colors.red.withValues(alpha: 0.2),
-                            //           blurRadius: 10,
-                            //           spreadRadius: 3,
-                            //         ),
-                            //       ]
-                            //     : null,
                           ),
                         ),
-                        if (/*isPolygonMatch && */ entrance.entEntranceNumber !=
-                            null)
+                        if (entrance.entEntranceNumber != null)
                           Positioned(
-                            bottom: markerSize + 5,
-                            left: -15,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: Colors.black, width: 1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.2),
-                                    blurRadius: 4,
-                                    offset: const Offset(0, 2),
+                            bottom: markerSize + 8,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFF4A90E2),
+                                        Color(0xFF357ABD),
+                                      ],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.25),
+                                        blurRadius: 6,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Text(
-                                entrance.entEntranceNumber.toString(),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                                  child: Text(
+                                    entrance.entEntranceNumber!,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                CustomPaint(
+                                  size: Size(12, 8),
+                                  painter: BalloonTailPainter(),
+                                ),
+                              ],
                             ),
                           ),
                       ],
@@ -140,4 +131,24 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
       },
     );
   }
+}
+
+class BalloonTailPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Color(0xFF357ABD)
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(size.width / 2 - 6, 0)
+      ..lineTo(size.width / 2, size.height)
+      ..lineTo(size.width / 2 + 6, 0)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
