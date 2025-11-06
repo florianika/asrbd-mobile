@@ -6,9 +6,7 @@ import 'package:asrdb/core/widgets/side_container.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
-import 'package:asrdb/features/home/presentation/building_cubit.dart';
 import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
@@ -183,15 +181,8 @@ class _DwellingFormState extends State<DwellingForm> {
                               onClose: handleOnClose,
                               save: (formValues) async {
                                 await _onSaveDwelling(formValues);
-                                context
-                                    .read<AttributesCubit>()
-                                    .clearAllSelections();
-                                context
-                                    .read<GeometryEditorCubit>()
-                                    .cancelOperation();
-                                context
-                                    .read<BuildingCubit>()
-                                    .clearSelectedBuilding();
+                                // Don't clear selections when saving - only close the form
+                                // Building should stay selected after saving entrance
                                 setState(() {
                                   _showDwellingForm = false;
                                   _isEditMode = false;

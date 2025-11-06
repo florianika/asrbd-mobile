@@ -332,7 +332,15 @@ class _ViewMapState extends State<ViewMap> {
 
     setState(() {
       _currentFormContext = FormContext.view;
-      highlightedBuildingIds = null;
+      // Preserve building selection - only clear if there's no current building
+      // This keeps building selected when saving entrance
+      final attributesCubit = context.read<AttributesCubit>();
+      final currentBuildingId = attributesCubit.currentBuildingGlobalId;
+      if (currentBuildingId != null) {
+        highlightedBuildingIds = currentBuildingId;
+      } else {
+        highlightedBuildingIds = null;
+      }
       highlightMarkersGlobalId = [];
     });
   }
@@ -578,8 +586,18 @@ class _ViewMapState extends State<ViewMap> {
                         _currentFormContext = FormContext.view;
                       });
                     } else {
+                      // Preserve building selection when state changes
+                      // Only clear if there's no current building
+                      final attributesCubit = context.read<AttributesCubit>();
+                      final currentBuildingId = attributesCubit.currentBuildingGlobalId;
+                      
                       setState(() {
-                        highlightedBuildingIds = null;
+                        // Preserve building if it exists, otherwise clear
+                        if (currentBuildingId != null) {
+                          highlightedBuildingIds = currentBuildingId;
+                        } else {
+                          highlightedBuildingIds = null;
+                        }
                         highlightMarkersGlobalId = [];
                         _currentFormContext = FormContext.view;
                       });

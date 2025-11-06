@@ -110,7 +110,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<AttributesCubit>().clearSelections();
 
       setState(() {
-        _selectedBuildingGlobalId = null;
+        // Preserve building selection when clicking on entrance
+        _selectedBuildingGlobalId = entrance.entBldGlobalID;
         _highlightBuildingGlobalId = entrance.entBldGlobalID;
       });
 
@@ -364,14 +365,33 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   if (currentState is Attributes &&
                       !currentState.showAttributes) {
                     if (currentState.shapeType == ShapeType.polygon) {
-                      if (_selectedBuildingGlobalId != null ||
-                          _highlightBuildingGlobalId != null) {
-                        setState(() {
-                          _selectedBuildingGlobalId = null;
-                          _highlightBuildingGlobalId = null;
-                        });
-                        if (!currentState.viewDwelling) {
-                          context.read<EntranceCubit>().clearEntrances();
+                      // Check if we're creating an entrance - if so, preserve building selection
+                      final geometryEditor = context.read<GeometryEditorCubit>();
+                      final isCreatingEntrance = geometryEditor.isEditing && 
+                          geometryEditor.selectedType == EntityType.entrance;
+                      
+                      // Only clear building if we're NOT creating an entrance
+                      // Preserve building when transitioning to add entrance mode
+                      if (!isCreatingEntrance) {
+                        if (_selectedBuildingGlobalId != null ||
+                            _highlightBuildingGlobalId != null) {
+                          setState(() {
+                            _selectedBuildingGlobalId = null;
+                            _highlightBuildingGlobalId = null;
+                          });
+                          if (!currentState.viewDwelling) {
+                            context.read<EntranceCubit>().clearEntrances();
+                          }
+                        }
+                      } else {
+                        // We're creating an entrance - preserve the building selection
+                        final attributesCubit = context.read<AttributesCubit>();
+                        final buildingId = attributesCubit.currentBuildingGlobalId;
+                        if (buildingId != null) {
+                          setState(() {
+                            _selectedBuildingGlobalId = buildingId;
+                            _highlightBuildingGlobalId = buildingId;
+                          });
                         }
                       }
                     }
