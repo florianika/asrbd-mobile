@@ -498,6 +498,21 @@ class _ViewMapState extends State<ViewMap> {
         highlightMarkersGlobalId = [];
         _currentFormContext = FormContext.view;
       });
+    } else if (shapeType == ShapeType.noShape) {
+      final entranceGlobalId = context.read<AttributesCubit>().currentEntranceGlobalId;
+      final tileCubit = context.read<TileCubit>();
+      
+      context.read<AttributesCubit>().showAttributes(false);
+      
+      setState(() {
+        _currentFormContext = FormContext.view;
+      });
+      
+      context.read<DwellingCubit>().getDwellings(
+        entranceGlobalId,
+        tileCubit.isOffline,
+        tileCubit.download?.id,
+      );
     }
 
     // setState(() {

@@ -77,15 +77,18 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void handleOnClose() {
-    // context.read<AttributesCubit>().clearAllSelections();
+     // context.read<AttributesCubit>().clearAllSelections();
     // context.read<GeometryEditorCubit>().cancelOperation();
     // context.read<BuildingCubit>().clearSelectedBuilding();
-    context.read<DwellingCubit>().closeDwellings();
     setState(() {
       _showDwellingForm = false;
       _isEditMode = false;
     });
+  }
 
+  void handleBackToDwellingList() {
+    context.read<DwellingCubit>().closeDwellings();
+    
     String? entranceGlobalId =
         context.read<AttributesCubit>().currentEntranceGlobalId;
     String? buildingGlobalId =
@@ -219,7 +222,7 @@ class _DwellingFormState extends State<DwellingForm> {
             // Back button
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: handleOnClose,
+              onPressed: handleBackToDwellingList,
               tooltip: 'Go Back',
             ),
             const SizedBox(width: 8),
