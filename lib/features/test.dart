@@ -10,6 +10,7 @@ import 'package:asrdb/core/widgets/side_menu/side_menu.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
+import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -338,7 +339,21 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
     return Scaffold(
       drawer: const SideMenu(),
       appBar: AppBar(
-        title: const Text('Building Review'),
+        title: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushNamed(context, RouteManager.homeRoute);
+              },
+              tooltip: 'Back to Map',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 8),
+            const Text('Building Review'),
+          ],
+        ),
         actions: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

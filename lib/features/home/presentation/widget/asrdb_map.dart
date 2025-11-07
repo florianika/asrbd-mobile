@@ -473,9 +473,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       ),
                     ],
                   ),
-                Center(
-                  child: LocationTagMarker(isActive: true),
-                ),
                 BuildingsMarker(
                   attributeLegend: widget.attributeLegend,
                   mapController: widget.mapController,
@@ -499,6 +496,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 EditEntranceMarker(
                   mapKey: mapKey,
                   mapController: widget.mapController,
+                ),
+                Center(
+                  child: LocationTagMarker(isActive: true),
                 ),
               ],
             ),
