@@ -474,20 +474,35 @@ class _ViewMapState extends State<ViewMap> {
     // context.read<BuildingCubit>().clearSelectedBuilding();
 
     if (shapeType == ShapeType.point) {
-      context.read<AttributesCubit>().clearPersistentSelectionsEntrance();
+      final attributesCubit = context.read<AttributesCubit>();
+      final currentState = attributesCubit.state;
+      final isNewEntrance = currentState is Attributes && currentState.isNewlyCreated;
 
-      setState(() {
-        highlightedBuildingIds =
-            context.read<AttributesCubit>().currentBuildingGlobalId;
-        highlightMarkersGlobalId = [];
-        _currentFormContext = FormContext.view; // Reset to view mode
-      });
+      if (isNewEntrance) {
+        attributesCubit.clearAllSelections();
+        context.read<GeometryEditorCubit>().cancelOperation();
+        context.read<BuildingCubit>().clearSelectedBuilding();
 
-      context.read<AttributesCubit>().showBuildingAttributes(
-            context.read<AttributesCubit>().currentBuildingGlobalId,
-            false,
-            0,
-          );
+        setState(() {
+          highlightedBuildingIds = null;
+          highlightMarkersGlobalId = [];
+          _currentFormContext = FormContext.view;
+        });
+      } else {
+        attributesCubit.clearPersistentSelectionsEntrance();
+
+        setState(() {
+          highlightedBuildingIds = attributesCubit.currentBuildingGlobalId;
+          highlightMarkersGlobalId = [];
+          _currentFormContext = FormContext.view; // Reset to view mode
+        });
+
+        attributesCubit.showBuildingAttributes(
+          attributesCubit.currentBuildingGlobalId,
+          false,
+          0,
+        );
+      }
     } else if (shapeType == ShapeType.polygon) {
       context.read<AttributesCubit>().clearAllSelections();
       context.read<GeometryEditorCubit>().cancelOperation();

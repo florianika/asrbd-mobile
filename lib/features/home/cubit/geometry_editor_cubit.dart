@@ -296,6 +296,7 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
     // Then reset the UI
     entranceCubit.clearPoints();
     buildingCubit.clearPoints();
+    _selectedType = EntityType.none;
     _mode = EditorMode.view;
     _showAdditionalUI = false;
     _emitCurrentState();

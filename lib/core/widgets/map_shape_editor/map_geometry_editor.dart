@@ -63,34 +63,79 @@ class MapGeometryEditor extends StatelessWidget {
         Positioned(
           bottom: 90,
           left: 20,
-          child: FloatingButton(
-            heroTag: 'rectangle',
-            isEnabled: attributeContext.currentBuildingGlobalId == null,
-            onPressed: () => {
-              context.read<GeometryEditorCubit>().startCreatingBuilding(),
+          child: Builder(
+            builder: (context) {
+              final geometryEditor = context.watch<GeometryEditorCubit>();
+              final hasOpenForm = attributeContext.isShowingAttributes;
+              final isIdle = geometryEditor.mode == EditorMode.view;
+              final isEnabled = isIdle && !hasOpenForm;
+
+              String tooltip;
+              if (!isIdle) {
+                tooltip = 'Finish the current edit before adding a new building';
+              } else if (hasOpenForm) {
+                tooltip = 'Close the current form before adding a new building';
+              } else {
+                tooltip = 'Add Building';
+              }
+
+              return FloatingButton(
+                heroTag: 'rectangle',
+                isEnabled: isEnabled,
+                onPressed: isEnabled
+                    ? () {
+                        context
+                            .read<GeometryEditorCubit>()
+                            .startCreatingBuilding();
+                      }
+                    : null,
+                icon: Icons.hexagon_outlined,
+                tooltip: tooltip,
+              );
             },
-            icon: Icons.hexagon_outlined,
-            tooltip: attributeContext.currentBuildingGlobalId == null 
-                ? 'Add Building' 
-                : 'Cannot add building while one is selected',
           ),
         ),
         Positioned(
           bottom: 30,
           left: 20,
-          child: FloatingButton(
-            heroTag: 'entrance',
-            onPressed: () => {
-              context.read<GeometryEditorCubit>().startCreatingEntrance(),
-              context.read<AttributesCubit>().toggleAttributesVisibility(false)
+          child: Builder(
+            builder: (context) {
+              final geometryEditor = context.watch<GeometryEditorCubit>();
+              final isEditingEntrance =
+                  geometryEditor.selectedType == EntityType.entrance;
+              final hasBuildingSelected =
+                  attributeContext.currentBuildingGlobalId != null &&
+                      attributeContext.shapeType == ShapeType.polygon &&
+                      attributeContext.isShowingAttributes;
+
+              final isEnabled = isEditingEntrance || hasBuildingSelected;
+
+              String tooltip;
+              if (!isEnabled) {
+                tooltip = 'Select a building first to add entrance';
+              } else {
+                tooltip = 'Add Entrance';
+              }
+
+              return FloatingButton(
+                heroTag: 'entrance',
+                onPressed: isEnabled
+                    ? () {
+                        if (!isEditingEntrance) {
+                          context
+                              .read<GeometryEditorCubit>()
+                              .startCreatingEntrance();
+                          context
+                              .read<AttributesCubit>()
+                              .toggleAttributesVisibility(false);
+                        }
+                      }
+                    : null,
+                isEnabled: isEnabled,
+                icon: Icons.adjust,
+                tooltip: tooltip,
+              );
             },
-            isEnabled: attributeContext.currentBuildingGlobalId != null &&
-                attributeContext.shapeType == ShapeType.polygon,
-            icon: Icons.adjust,
-            tooltip: (attributeContext.currentBuildingGlobalId != null &&
-                attributeContext.shapeType == ShapeType.polygon)
-                ? 'Add Entrance'
-                : 'Select a building first to add entrance',
           ),
         ),
       ],
