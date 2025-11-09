@@ -38,11 +38,13 @@ import 'package:latlong2/latlong.dart';
 class AsrdbMap extends StatefulWidget {
   final MapController mapController;
   final String attributeLegend;
+  final String? selectedBuildingGlobalId;
   final void Function(bool)? onEntranceVisibilityChange;
   const AsrdbMap({
     super.key,
     required this.mapController,
     required this.attributeLegend,
+    this.selectedBuildingGlobalId,
     this.onEntranceVisibilityChange,
   });
 
@@ -54,8 +56,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   final GlobalKey mapKey = GlobalKey();
 
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
-  // LatLngBounds? visibleBounds;
-  // late String tileDirPath = '';
   double zoom = 0;
   String? _selectedGlobalId;
 
@@ -63,18 +63,34 @@ class _AsrdbMapState extends State<AsrdbMap> {
   bool _entranceOutsideVisibleArea = false;
 
   LatLng? _userLocation;
-  String? _selectedBuildingGlobalId;
-  String? _highlightBuildingGlobalId;
+  // String? _selectedBuildingGlobalId;
+  // String? _highlightBuildingGlobalId;
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
-
 
   @override
   void dispose() {
     _debounce?.cancel();
     super.dispose();
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _selectedBuildingGlobalId = widget.selectedBuildingGlobalId;
+  // }
+
+  // @override
+  // void didUpdateWidget(covariant AsrdbMap oldWidget) {
+  //   super.didUpdateWidget(oldWidget);
+
+  //   if (oldWidget.selectedBuildingGlobalId != widget.selectedBuildingGlobalId) {
+  //     setState(() {
+  //       _selectedBuildingGlobalId = widget.selectedBuildingGlobalId;
+  //     });
+  //   }
+  // }
 
   void _onMapReady() async {
     final location = await LocationService.getCurrentLocation();
@@ -107,13 +123,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
       bool isOffline = context.read<TileCubit>().isOffline;
       DownloadEntity? download = context.read<TileCubit>().download;
       _selectedGlobalId = entrance.globalId;
-      context.read<AttributesCubit>().clearSelections();
 
-      setState(() {
-        // Preserve building selection when clicking on entrance
-        _selectedBuildingGlobalId = entrance.entBldGlobalID;
-        _highlightBuildingGlobalId = entrance.entBldGlobalID;
-      });
+      context.read<AttributesCubit>().clearSelections();
+      context.read<AttributesCubit>().toggleAttributesVisibility(false);
 
       if (_selectedGlobalId == null) return;
 
@@ -151,11 +163,14 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
   void _checkEntranceVisibility(MapCamera camera) {
     List<EntranceEntity> entrances = context.read<EntranceCubit>().entrances;
+    final attributesContext = context.read<AttributesCubit>();
 
-    if (_selectedBuildingGlobalId != null && entrances.isNotEmpty) {
+    if (attributesContext.currentBuildingGlobalId != null &&
+        entrances.isNotEmpty) {
       final entrancePoints = entrances
-          .where(
-              (e) => e.entBldGlobalID?.toString() == _selectedBuildingGlobalId)
+          .where((e) =>
+              e.entBldGlobalID?.toString() ==
+              attributesContext.currentBuildingGlobalId)
           .map((e) => e.coordinates)
           .whereType<LatLng>()
           .toList();
@@ -200,9 +215,9 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 downloadId,
               );
         } else {
-          setState(() {
-            _selectedBuildingGlobalId = null;
-          });
+          // setState(() {
+          //   _selectedBuildingGlobalId = null;
+          // });
           context.read<BuildingCubit>().clearBuildings();
           context.read<AttributesCubit>().clearSelections();
         }
@@ -245,10 +260,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<AttributesCubit>().setPersistentEntrance(null);
       context.read<EntranceCubit>().clearEntrances();
 
-      setState(() {
-        _selectedBuildingGlobalId = null;
-        _highlightBuildingGlobalId = null;
-      });
+      // setState(() {
+      //   _selectedBuildingGlobalId = null;
+      //   _highlightBuildingGlobalId = null;
+      // });
 
       if (geometryEditor.isEditing) {
         if (geometryEditor.selectedType == EntityType.entrance) {
@@ -298,6 +313,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<DwellingCubit>().closeDwellings();
       context.read<AttributesCubit>().clearSelections();
       context.read<AttributesCubit>().setPersistentEntrance(null);
+      context.read<EntranceCubit>().clearEntrances();
       final buildingList = context.read<BuildingCubit>().buildings;
       final buildingFound =
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
@@ -314,11 +330,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
             boxName: HiveBoxes.selectedBuilding,
             key: 'currentBuildingGlobalId',
             value: buildingFound.globalId!);
-
-        setState(() {
-          _selectedBuildingGlobalId = buildingFound.globalId;
-          _highlightBuildingGlobalId = null;
-        });
 
         _checkEntranceVisibility(widget.mapController.camera);
 
@@ -355,63 +366,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         listener: (context, state) {},
         builder: (context, state) {
           return BlocListener<AttributesCubit, AttributesState>(
-            listener: (context, attributesState) {
-              if (attributesState is Attributes &&
-                  !attributesState.showAttributes) {
-                Future.delayed(const Duration(milliseconds: 250), () {
-                  if (!mounted) return;
-                  final currentState = context.read<AttributesCubit>().state;
-
-                  if (currentState is Attributes &&
-                      !currentState.showAttributes) {
-                    if (currentState.shapeType == ShapeType.polygon) {
-                      // Check if we're creating an entrance - if so, preserve building selection
-                      final geometryEditor = context.read<GeometryEditorCubit>();
-                      final isCreatingEntrance = geometryEditor.isEditing && 
-                          geometryEditor.selectedType == EntityType.entrance;
-                      
-                      // Only clear building if we're NOT creating an entrance
-                      // Preserve building when transitioning to add entrance mode
-                      if (!isCreatingEntrance) {
-                        if (_selectedBuildingGlobalId != null ||
-                            _highlightBuildingGlobalId != null) {
-                          setState(() {
-                            _selectedBuildingGlobalId = null;
-                            _highlightBuildingGlobalId = null;
-                          });
-                          if (!currentState.viewDwelling) {
-                            context.read<EntranceCubit>().clearEntrances();
-                          }
-                        }
-                      } else {
-                        // We're creating an entrance - preserve the building selection
-                        final attributesCubit = context.read<AttributesCubit>();
-                        final buildingId = attributesCubit.currentBuildingGlobalId;
-                        if (buildingId != null) {
-                          setState(() {
-                            _selectedBuildingGlobalId = buildingId;
-                            _highlightBuildingGlobalId = buildingId;
-                          });
-                        }
-                      }
-                    }
-                    // Only clear if form is truly closed (not viewing dwelling)
-                    // When navigating to dwelling, viewDwelling is true and showAttributes stays true
-                    // When form is closed, both are false
-                    // if (_selectedBuildingGlobalId != null || _highlightBuildingGlobalId != null) {
-                    //   setState(() {
-                    //     _selectedBuildingGlobalId = null;
-                    //     _highlightBuildingGlobalId = null;
-                    //   });
-                    // }
-                    // Only clear entrances if not viewing dwelling (entrance should stay visible when viewing dwelling)
-                    // if (!currentState.viewDwelling) {
-                    //   context.read<EntranceCubit>().clearEntrances();
-                    // }
-                  }
-                });
-              }
-            },
+            listener: (context, attributesState) {},
             child: FlutterMap(
               key: mapKey,
               mapController: widget.mapController,
@@ -477,11 +432,27 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   attributeLegend: widget.attributeLegend,
                   mapController: widget.mapController,
                   isSatellite: state.isSatellite,
-                  highlightBuildingGlobalId: _highlightBuildingGlobalId,
                 ),
-                SelectedBuildingMarker(
-                  selectedBuildingGlobalId: _selectedBuildingGlobalId,
-                  highlightBuildingGlobalId: _highlightBuildingGlobalId,
+                BlocBuilder<AttributesCubit, AttributesState>(
+                  builder: (context, state) {
+                    return SelectedBuildingMarker(
+                      selectedBuildingGlobalId: state is Attributes &&
+                              ((state.shapeType == ShapeType.polygon &&
+                                  state.showAttributes))
+                          ? state.buildingGlobalId
+                          : null,
+                      highlightBuildingGlobalId: (state is Attributes &&
+                              ((state.shapeType != ShapeType.polygon &&
+                                      state.showAttributes) ||
+                                  (state.shapeType == ShapeType.noShape &&
+                                      state.viewDwelling) ||
+                                  context
+                                      .read<GeometryEditorCubit>()
+                                      .isEditing))
+                          ? state.buildingGlobalId
+                          : null,
+                    );
+                  },
                 ),
                 EntrancesMarker(
                   onTap: _handleEntranceTap,

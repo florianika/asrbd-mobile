@@ -22,7 +22,6 @@ class SelectedBuildingMarker extends StatelessWidget {
   static const Color _borderColor = Color.fromRGBO(130, 127, 0, 1);
   static const double _borderWidth = 12.0;
 
-
   @override
   Widget build(BuildContext context) {
     // ✅ Early return if no building selected or highlighted
@@ -85,76 +84,36 @@ class SelectedBuildingMarker extends StatelessWidget {
         return false;
       },
       builder: (context, state) {
-        // ✅ Double-check null safety in builder
         if ((selectedBuildingGlobalId == null &&
                 highlightBuildingGlobalId == null) ||
             state is! Buildings) {
           return const SizedBox.shrink();
         }
 
-        List<Polygon> polygons = [];
+        final polygons = <Polygon>[];
 
-        // ✅ Handle selected building (existing logic)
-        if (selectedBuildingGlobalId != null) {
-          final selectedBuilding =
-              _findBuilding(state.buildings, selectedBuildingGlobalId!);
+        // Determine which building to draw
+        final idToUse = highlightBuildingGlobalId ?? selectedBuildingGlobalId;
+        final building = _findBuilding(state.buildings, idToUse!);
 
-          if (selectedBuilding != null &&
-              selectedBuilding.coordinates.isNotEmpty &&
-              selectedBuilding.coordinates.first.isNotEmpty) {
-            polygons.add(
-              Polygon(
-                hitValue: selectedBuilding.globalId,
-                points: selectedBuilding.coordinates.first,
-                color: _fillColor,
-                borderStrokeWidth: _borderWidth,
-                borderColor: _borderColor,
-              ),
-            );
-          }
+        if (building != null &&
+            building.coordinates.isNotEmpty &&
+            building.coordinates.first.isNotEmpty) {
+          final isHighlighted = highlightBuildingGlobalId != null &&
+              highlightBuildingGlobalId == building.globalId;
+
+          polygons.add(
+            Polygon(
+              hitValue: building.globalId,
+              points: building.coordinates.first,
+              color: _fillColor, // always yellow
+              borderStrokeWidth: isHighlighted ? 0 : _borderWidth,
+              borderColor: isHighlighted ? Colors.transparent : _borderColor,
+            ),
+          );
         }
 
-        // ✅ Handle highlighted building (new glow effect logic)
-        // if (highlightBuildingGlobalId != null) {
-        //   final highlightBuilding =
-        //       _findBuilding(state.buildings, highlightBuildingGlobalId!);
-
-        //   if (highlightBuilding != null &&
-        //       highlightBuilding.coordinates.isNotEmpty &&
-        //       highlightBuilding.coordinates.first.isNotEmpty) {
-        //     // Add multiple border glow layers (no fill color)
-        //     // Outer glow layers with increasing border widths for stronger glow effect
-        //     for (int i = 5; i >= 1; i--) {
-        //       polygons.add(
-        //         Polygon(
-        //           hitValue: highlightBuilding.globalId,
-        //           points: highlightBuilding.coordinates.first,
-        //           color: Colors.transparent, // No background fill
-                
-        //           borderColor: Color.fromRGBO(255, 0, 0,
-        //               0.6 - (i * 0.08)), 
-        //         ),
-        //       );
-        //     }
-
-        //     // Main highlighted polygon border (no fill)
-        //     polygons.add(
-        //       Polygon(
-        //         hitValue: highlightBuilding.globalId,
-        //         points: highlightBuilding.coordinates.first,
-        //         color: Colors.transparent, // No background fill
-        //         borderStrokeWidth: _highlightBorderWidth,
-        //         borderColor: _highlightBorderColor,
-        //       ),
-        //     );
-        //   }
-        // }
-
-        // ✅ Return empty widget if no polygons to display
-        if (polygons.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
+        if (polygons.isEmpty) return const SizedBox.shrink();
         return PolygonLayer(polygons: polygons);
       },
     );

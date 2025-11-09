@@ -57,13 +57,15 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
     this.storageRepository,
   ) : super(OutputLogsInitial());
 
-  Future<void> checkAutomatic(String buildingGlobalId) async {
+  Future<bool> checkAutomatic(String buildingGlobalId) async {
     try {
       await checkUseCases.checkAutomatic(buildingGlobalId);
       final validationResult =
           await outputLogsUseCases.getOutputLogs(buildingGlobalId);
+
       ProcessOutputLogResponse response = ProcessOutputLogResponse(
           processOutputLogDto: validationResult.processOutputLogDto);
+          
       bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
         (item) => item.errorLevel == 'error' || item.errorLevel == 'warning',
       );
@@ -72,9 +74,11 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
         value: jsonEncode(response.toJson()),
       );
       emit(OutputLogs(validationResult, hasErrorOrWarning));
+      return hasErrorOrWarning;
     } catch (e) {
       emit(
           OutputLogsError(e.toString(), DateTime.now().millisecondsSinceEpoch));
+          return false;
     }
   }
 

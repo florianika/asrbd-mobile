@@ -247,6 +247,19 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               const SizedBox(height: 16),
                               _buildMenuItem(
                                 context,
+                                icon: Icons.home,
+                                title: AppLocalizations.of(context)
+                                    .translate(Keys.homeTitle),
+                                subtitle: AppLocalizations.of(context)
+                                    .translate(Keys.homeSubtitle),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, RouteManager.homeRoute);
+                                },
+                              ),
+                              const SizedBox(height: 10),
+                              _buildMenuItem(
+                                context,
                                 icon: Icons.map_outlined,
                                 title: AppLocalizations.of(context)
                                     .translate(Keys.viewMaps),

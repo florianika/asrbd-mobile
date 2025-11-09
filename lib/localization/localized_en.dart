@@ -116,6 +116,8 @@ class LocalizedEn {
     Keys.audience: 'Audience',
     Keys.helpSupport: 'Help & Support',
     Keys.helpSupportSubtitle: 'Get assistance',
+    Keys.homeSubtitle: 'Home Page',
+    Keys.homeTitle: 'Homepage',
 
     // Add/View/Edit form titles
     Keys.add: 'Add',

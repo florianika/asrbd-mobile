@@ -126,7 +126,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
       geometryEditor.buildingCubit.addPoint(widget.mapController.camera.center);
     } else if (geometryEditor.selectedType == EntityType.entrance) {
       final buildingGlobalId = attributeCubit.currentBuildingGlobalId;
-      
+
       if (buildingGlobalId != null) {
         await geometryEditor.entranceCubit.addPointWithValidation(
           widget.mapController.camera.center,
@@ -134,17 +134,23 @@ class _MapActionEventsState extends State<MapActionEvents> {
           isOffline,
           download?.id,
         );
-        
+
         final validationError = geometryEditor.entranceCubit.validationError;
         if (validationError != null && mounted) {
+          final geometryEditor = context.read<GeometryEditorCubit>();
+          geometryEditor.undo();
           NotifierService.showMessage(
             context,
-            message: AppLocalizations.of(context).translate(validationError).replaceAll('{distance}', AppConfig.maxEntranceDistanceFromBuilding.toString()),
+            message: AppLocalizations.of(context)
+                .translate(validationError)
+                .replaceAll('{distance}',
+                    AppConfig.maxEntranceDistanceFromBuilding.toString()),
             type: MessageType.warning,
           );
         }
       } else {
-        geometryEditor.entranceCubit.addPoint(widget.mapController.camera.center);
+        geometryEditor.entranceCubit
+            .addPoint(widget.mapController.camera.center);
       }
     }
   }
@@ -386,7 +392,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
                             heroTag: 'pin',
                             isEnabled: geometryEditor.canAddPoint,
                             onPressed: () async {
-                              if (geometryEditor.selectedType == EntityType.entrance) {
+                              if (geometryEditor.selectedType ==
+                                  EntityType.entrance) {
                                 await _addPointWithValidation();
                               } else {
                                 _addPoint();
@@ -421,11 +428,15 @@ class _MapActionEventsState extends State<MapActionEvents> {
                           child: Text(
                             geometryEditor.selectedType == EntityType.entrance
                                 ? (geometryEditor.mode == EditorMode.create
-                                    ? AppLocalizations.of(context).translate(Keys.entranceCreationMode)
-                                    : AppLocalizations.of(context).translate(Keys.entranceEditMode))
+                                    ? AppLocalizations.of(context)
+                                        .translate(Keys.entranceCreationMode)
+                                    : AppLocalizations.of(context)
+                                        .translate(Keys.entranceEditMode))
                                 : (geometryEditor.mode == EditorMode.create
-                                    ? AppLocalizations.of(context).translate(Keys.buildingCreationMode)
-                                    : AppLocalizations.of(context).translate(Keys.buildingEditMode)),
+                                    ? AppLocalizations.of(context)
+                                        .translate(Keys.buildingCreationMode)
+                                    : AppLocalizations.of(context)
+                                        .translate(Keys.buildingEditMode)),
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 12,

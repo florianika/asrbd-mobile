@@ -62,8 +62,8 @@ class DwellingUseCases {
   Future<bool> _updateDwellingFeatureOnline(
       DwellingEntity dwelling, String buildingGlobalId) async {
     bool response = await _dwellingRepository.updateDwellingFeature(dwelling);
-    await _checkUseCases.checkAutomatic(
-        buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
+    // await _checkUseCases.checkAutomatic(
+    //     buildingGlobalId.toString().replaceAll('{', '').replaceAll('}', ''));
 
     return response;
   }

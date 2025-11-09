@@ -34,6 +34,7 @@ import 'package:asrdb/features/home/presentation/dwelling_cubit.dart';
 import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/features/home/presentation/widget/asrdb_map.dart';
 import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/localization/keys.dart';
@@ -56,6 +57,7 @@ class _ViewMapState extends State<ViewMap> {
 
   List<dynamic> highlightMarkersGlobalId = [];
   String? highlightedBuildingIds;
+  String? selectedBuildingIds;
   String attributeLegend = 'review';
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   bool isLoading = false;
@@ -139,7 +141,6 @@ class _ViewMapState extends State<ViewMap> {
       DwellingEntity dwelling, DownloadEntity? download) async {
     final entranceUseCase = sl<DwellingUseCases>();
     final attributeCubit = sl<AttributesCubit>();
-    final checkUseCase = sl<CheckUseCases>();
     final dwellingCubit = context.read<DwellingCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
 
@@ -152,9 +153,8 @@ class _ViewMapState extends State<ViewMap> {
       );
 
       if (mounted && !isOffline) {
-        await checkUseCase.checkAutomatic(attributeCubit
-            .currentEntrance!.entBldGlobalID
-            .removeCurlyBraces()!);
+        await context.read<OutputLogsCubit>().checkAutomatic(
+            attributeCubit.currentBuildingGlobalId!.removeCurlyBraces()!);
       }
 
       if (mounted) {
@@ -188,15 +188,15 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _saveEntrance(
       EntranceEntity entrance, DownloadEntity? download) async {
     final entranceUseCase = sl<EntranceUseCases>();
-    final checkUseCase = sl<CheckUseCases>();
     bool isOffline = context.read<TileCubit>().isOffline;
 
     try {
       SaveResult response =
           await entranceUseCase.saveEntrance(entrance, isOffline, download?.id);
 
-      if (!isOffline) {
-        await checkUseCase
+      if (!isOffline && mounted) {
+        await context
+            .read<OutputLogsCubit>()
             .checkAutomatic(entrance.entBldGlobalID.removeCurlyBraces()!);
       }
 
@@ -221,7 +221,6 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _saveBuilding(
       BuildingEntity building, DownloadEntity? download) async {
     final buildingUseCase = sl<BuildingUseCases>();
-    final checkUseCase = sl<CheckUseCases>();
     final buildingCubit = context.read<BuildingCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
 
@@ -269,9 +268,20 @@ class _ViewMapState extends State<ViewMap> {
         download?.id,
       );
 
-      if (!isOffline) {
-        await checkUseCase
-            .checkAutomatic(building.globalId.removeCurlyBraces()!);
+      if (!isOffline && mounted) {
+        // bool hasErrorOrWarning = false;
+        await context
+            .read<OutputLogsCubit>()
+            .checkAutomatic(building.globalId!.removeCurlyBraces()!);
+
+        // if (hasErrorOrWarning && mounted) {
+        //   NotifierService.showMessage(
+        //     context,
+        //     message:
+        //         'Validation errors or warnings detected for this building.',
+        //     type: response.success ? MessageType.success : MessageType.error,
+        //   );
+        // }
       }
 
       if (mounted) {
@@ -469,14 +479,11 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   void handleAttributeFormClose(ShapeType shapeType) {
-    // context.read<AttributesCubit>().clearAllSelections();
-    // context.read<GeometryEditorCubit>().cancelOperation();
-    // context.read<BuildingCubit>().clearSelectedBuilding();
-
     if (shapeType == ShapeType.point) {
       final attributesCubit = context.read<AttributesCubit>();
       final currentState = attributesCubit.state;
-      final isNewEntrance = currentState is Attributes && currentState.isNewlyCreated;
+      final isNewEntrance =
+          currentState is Attributes && currentState.isNewlyCreated;
 
       if (isNewEntrance) {
         attributesCubit.clearAllSelections();
@@ -486,27 +493,33 @@ class _ViewMapState extends State<ViewMap> {
         setState(() {
           highlightedBuildingIds = null;
           highlightMarkersGlobalId = [];
+          selectedBuildingIds = attributesCubit.currentBuildingGlobalId;
           _currentFormContext = FormContext.view;
         });
       } else {
         attributesCubit.clearPersistentSelectionsEntrance();
 
         setState(() {
-          highlightedBuildingIds = attributesCubit.currentBuildingGlobalId;
+          // highlightedBuildingIds = attributesCubit.currentBuildingGlobalId;
+          // selectedBuildingIds = attributesCubit.currentBuildingGlobalId;
           highlightMarkersGlobalId = [];
           _currentFormContext = FormContext.view; // Reset to view mode
         });
-
-        attributesCubit.showBuildingAttributes(
-          attributesCubit.currentBuildingGlobalId,
-          false,
-          0,
-        );
       }
+      attributesCubit.showBuildingAttributes(
+        attributesCubit.currentBuildingGlobalId,
+        false,
+        0,
+      );
+
+      setState(() {
+        selectedBuildingIds = attributesCubit.currentBuildingGlobalId;
+      });
     } else if (shapeType == ShapeType.polygon) {
       context.read<AttributesCubit>().clearAllSelections();
       context.read<GeometryEditorCubit>().cancelOperation();
       context.read<BuildingCubit>().clearSelectedBuilding();
+      context.read<EntranceCubit>().clearEntrances();
 
       setState(() {
         highlightedBuildingIds = null;
@@ -514,27 +527,22 @@ class _ViewMapState extends State<ViewMap> {
         _currentFormContext = FormContext.view;
       });
     } else if (shapeType == ShapeType.noShape) {
-      final entranceGlobalId = context.read<AttributesCubit>().currentEntranceGlobalId;
+      final entranceGlobalId =
+          context.read<AttributesCubit>().currentEntranceGlobalId;
       final tileCubit = context.read<TileCubit>();
-      
+
       context.read<AttributesCubit>().showAttributes(false);
-      
+
       setState(() {
         _currentFormContext = FormContext.view;
       });
-      
-      context.read<DwellingCubit>().getDwellings(
-        entranceGlobalId,
-        tileCubit.isOffline,
-        tileCubit.download?.id,
-      );
-    }
 
-    // setState(() {
-    //   highlightedBuildingIds = null;
-    //   highlightMarkersGlobalId = [];
-    //   _currentFormContext = FormContext.view; // Reset to view mode
-    // });
+      context.read<DwellingCubit>().getDwellings(
+            entranceGlobalId,
+            tileCubit.isOffline,
+            tileCubit.download?.id,
+          );
+    }
   }
 
   @override
@@ -555,6 +563,7 @@ class _ViewMapState extends State<ViewMap> {
                       AsrdbMap(
                         mapController: mapController,
                         attributeLegend: attributeLegend,
+                        // selectedBuildingGlobalId: selectedBuildingIds,
                         onEntranceVisibilityChange: (value) {
                           setState(() {
                             _entranceOutsideVisibleArea = value;
@@ -619,8 +628,9 @@ class _ViewMapState extends State<ViewMap> {
                       // Preserve building selection when state changes
                       // Only clear if there's no current building
                       final attributesCubit = context.read<AttributesCubit>();
-                      final currentBuildingId = attributesCubit.currentBuildingGlobalId;
-                      
+                      final currentBuildingId =
+                          attributesCubit.currentBuildingGlobalId;
+
                       setState(() {
                         // Preserve building if it exists, otherwise clear
                         if (currentBuildingId != null) {

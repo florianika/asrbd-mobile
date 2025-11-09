@@ -14,14 +14,13 @@ class BuildingsMarker extends StatelessWidget {
   final String attributeLegend;
   final MapController mapController;
   final bool isSatellite;
-  final String? highlightBuildingGlobalId;
 
-  const BuildingsMarker(
-      {super.key,
-      required this.attributeLegend,
-      required this.mapController,
-      required this.isSatellite,
-      this.highlightBuildingGlobalId});
+  const BuildingsMarker({
+    super.key,
+    required this.attributeLegend,
+    required this.mapController,
+    required this.isSatellite,
+  });
 
   static final _legendService = sl<LegendService>();
 
@@ -187,21 +186,27 @@ class BuildingsMarker extends StatelessWidget {
       );
     });
 
-    final fillColor = highlightBuildingGlobalId == building.globalId
-        ? Color.fromRGBO(255, 255, 0, 1)
-        : (_legendService.getColorForValue(
-              LegendType.building,
-              attributeLegend,
-              value,
-            ) ??
-            Colors.black);
+    final fillColor = _legendService.getColorForValue(
+          LegendType.building,
+          attributeLegend,
+          value,
+        ) ??
+        Colors.black;
+
+    // final fillColor = highlightBuildingGlobalId == building.globalId
+    //     ? Color.fromRGBO(255, 255, 0, 1)
+    //     : (_legendService.getColorForValue(
+    //           LegendType.building,
+    //           attributeLegend,
+    //           value,
+    //         ) ??
+    //         Colors.black);
 
     return Polygon(
       hitValue: basePolygon.hitValue,
       points: basePolygon.points,
       borderStrokeWidth: 1.0,
-      color:
-          isSatellite ? Colors.transparent : fillColor,
+      color: isSatellite ? Colors.transparent : fillColor,
       borderColor: isSatellite ? fillColor : Color.fromRGBO(130, 127, 0, 1),
     );
   }

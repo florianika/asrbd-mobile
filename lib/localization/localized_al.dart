@@ -108,6 +108,8 @@ class LocalizedAl {
     Keys.audience: 'Audienca',
     Keys.helpSupport: 'Ndihmë & Mbështetje',
     Keys.helpSupportSubtitle: 'Merrni ndihmë',
+    Keys.homeSubtitle: 'Faqja Kryesore',
+    Keys.homeTitle: 'Kryefaqja',
     
     // Add/View/Edit form titles
     Keys.add: 'Shto',

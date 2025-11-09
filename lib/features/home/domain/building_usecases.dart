@@ -97,8 +97,8 @@ class BuildingUseCases {
     // final globalId = attributes[GeneralFields.globalID];
 
     await _buildingRepository.updateBuildingFeature(building);
-    await _checkUseCases.checkAutomatic(
-        building.globalId.toString().replaceAll('{', '').replaceAll('}', ''));
+    // await _checkUseCases.checkAutomatic(
+    //     building.globalId.toString().replaceAll('{', '').replaceAll('}', ''));
     return building.globalId ?? '';
   }
 

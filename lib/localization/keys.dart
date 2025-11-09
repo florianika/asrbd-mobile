@@ -82,6 +82,8 @@ class Keys {
   static const String logoutError = 'logoutError';
   
   // Side menu keys
+  static const String homeTitle = 'homeTitle';
+  static const String homeSubtitle = 'homeSubttle';
   static const String mobileApp = 'mobileApp';
   static const String viewMaps = 'viewMaps';
   static const String viewMapsSubtitle = 'viewMapsSubtitle';

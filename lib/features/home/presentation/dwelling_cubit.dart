@@ -52,8 +52,9 @@ class DwellingCubit extends Cubit<DwellingState> {
       String? entranceGlobalId, bool isOffline, int? downloadId) async {
     emit(DwellingLoading());
     try {
-      attributesCubit.showAttributes(false);
+      // attributesCubit.showAttributes(false);
 
+      attributesCubit.showDwellingAttributes2(true);
       final dwellings = await dwellingUseCases.getDwellings(
         entranceGlobalId,
         isOffline,
@@ -68,6 +69,7 @@ class DwellingCubit extends Cubit<DwellingState> {
   void closeDwellings() {
     emit(DwellingLoading());
     try {
+      attributesCubit.showDwellingAttributes2(false);
       emit(Dwellings([], false));
     } catch (e) {
       emit(DwellingError(e.toString()));

@@ -133,6 +133,28 @@ class AttributesCubit extends Cubit<AttributesState> {
     toggleAttributesVisibility(show);
   }
 
+  Future<void> showDwellingAttributes2(bool showDwellingsAttributes) async {
+    if (showLoading) emit(AttributesLoading());
+    try {
+      final preservedBuildingId = _persistentBuilding?.globalId;
+      final preservedEntranceId = _persistentEntrance?.globalId;
+
+      emit(Attributes(
+        const [],
+        const {},
+        ShapeType.noShape,
+        preservedBuildingId,
+        preservedEntranceId,
+        null,
+        viewDwelling: showDwellingsAttributes,
+        showAttributes: !showDwellingsAttributes,
+      ));
+    } catch (e) {
+      emit(AttributesError(e.toString()));
+    }
+  }
+
+//deprecated
   Future<void> showDwellingAttributes(
       int? dwellingObjectID, bool isOffline, int? downloadId) async {
     if (showLoading) emit(AttributesLoading());
@@ -225,7 +247,7 @@ class AttributesCubit extends Cubit<AttributesState> {
         schema,
         entrance.toMap(),
         ShapeType.point,
-        entrance.globalId,
+        entrance.entBldGlobalID,
         entranceGlobalID,
         null,
         showAttributes: true,
