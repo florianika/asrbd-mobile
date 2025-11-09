@@ -67,7 +67,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
           processOutputLogDto: validationResult.processOutputLogDto);
           
       bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
-        (item) => item.errorLevel == 'error' || item.errorLevel == 'warning',
+        (item) => item.errorLevel == 'error' || item.errorLevel == 'warning' || item.errorLevel== "OWN",
       );
       await storageRepository.saveString(
         key: buildingGlobalId,

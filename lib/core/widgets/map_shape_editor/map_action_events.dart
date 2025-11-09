@@ -1,6 +1,7 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/helpers/geometry_helper.dart';
+import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
@@ -17,8 +18,10 @@ import 'package:asrdb/features/home/domain/building_usecases.dart';
 import 'package:asrdb/features/home/domain/entrance_usecases.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/building_cubit.dart';
+import 'package:asrdb/features/home/presentation/entrance_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
+import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/main.dart';
@@ -45,7 +48,6 @@ class _MapActionEventsState extends State<MapActionEvents> {
     final attributeCubit = context.read<AttributesCubit>();
     bool isOffline = context.read<TileCubit>().isOffline;
     DownloadEntity? download = context.read<TileCubit>().download;
-    final userService = sl<UserService>();
 
     loadingCubit.show();
 
@@ -63,17 +65,16 @@ class _MapActionEventsState extends State<MapActionEvents> {
         download?.id,
       );
 
+      if (mounted) {
+        await context
+            .read<OutputLogsCubit>()
+            .checkAutomatic(entrance.entBldGlobalID!.removeCurlyBraces()!);
+      }
+
       if (!mounted) return;
 
-      await context.read<BuildingCubit>().getBuildings(
-            widget.mapController.camera.visibleBounds,
-            widget.mapController.camera.zoom,
-            isOffline
-                ? download!.municipalityId!
-                : userService.userInfo!.municipality,
-            isOffline,
-            download?.id,
-          );
+      context.read<EntranceCubit>().getEntranceByGlobalId(
+          entrance.entBldGlobalID!, isOffline, download?.id);
 
       loadingCubit.hide();
 
@@ -224,16 +225,23 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       final userService = sl<UserService>();
 
-      await context.read<BuildingCubit>().getBuildings(
-            widget.mapController.camera.visibleBounds,
-            widget.mapController.camera.zoom,
-            isOffline
-                ? download!.municipalityId!
-                : userService.userInfo!.municipality,
-            isOffline,
-            download?.id,
-          );
+      if (mounted) {
+        await context
+            .read<OutputLogsCubit>()
+            .checkAutomatic(response.data.removeCurlyBraces()!);
+      }
 
+      if (mounted) {
+        await context.read<BuildingCubit>().getBuildings(
+              widget.mapController.camera.visibleBounds,
+              widget.mapController.camera.zoom,
+              isOffline
+                  ? download!.municipalityId!
+                  : userService.userInfo!.municipality,
+              isOffline,
+              download?.id,
+            );
+      }
       loadingCubit.hide();
 
       await attributeCubit.showBuildingAttributes(
