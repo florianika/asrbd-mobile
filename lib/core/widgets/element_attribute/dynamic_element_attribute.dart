@@ -491,6 +491,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
   Widget _buildStreetTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
+    final localizations = AppLocalizations.of(context);
 
     return Tooltip(
       message: _getLocalizedDescription(attribute),
@@ -566,6 +567,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             return data;
           },
           itemBuilder: (context, street) {
+            final typeLabel = localizations.translate(Keys.streetTypeLabel);
+            final idLabel = localizations.translate(Keys.streetIdLabel);
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
@@ -594,7 +597,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                           ),
                         ),
                         Text(
-                          'Type: ${street.strType} • ID: ${street.globalId}',
+                          '$typeLabel: ${street.strType} • $idLabel: ${street.globalId}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,
@@ -639,7 +642,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Error loading streets',
+                      localizations.translate(Keys.streetLoadError),
                       style: TextStyle(
                         color: Colors.red[600],
                         fontSize: 12,
@@ -670,7 +673,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Searching streets...',
+                    localizations.translate(Keys.streetLoading),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
@@ -693,7 +696,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   Icon(Icons.search_off, color: Colors.grey[500], size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'No streets found',
+                    localizations.translate(Keys.streetEmpty),
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -748,6 +751,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
   Widget _buildTownTypeAhead(dynamic attribute, dynamic elementFound) {
     final validationResult = _getValidationResult(elementFound.name);
+    final localizations = AppLocalizations.of(context);
 
     // Get the coded values for towns from the field schema
     final allTownOptions = elementFound.codedValues ?? [];
@@ -907,7 +911,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Error loading towns',
+                      localizations.translate(Keys.townLoadError),
                       style: TextStyle(
                         color: Colors.red[600],
                         fontSize: 12,
@@ -938,7 +942,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Loading towns...',
+                    localizations.translate(Keys.townLoading),
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
@@ -961,7 +965,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   Icon(Icons.search_off, color: Colors.grey[500], size: 16),
                   const SizedBox(width: 8),
                   Text(
-                    'No towns found',
+                    localizations.translate(Keys.townEmpty),
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontSize: 12,
@@ -1552,6 +1556,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     final sections = _groupAttributesBySection();
 
     return Stack(
@@ -1562,8 +1567,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             top: 10,
             left: 0,
             child: Tooltip(
-              message:
-                  "Heads up! The entrance linked to this building may be positioned far from the building.",
+              message: localizations.translate(Keys.entranceFarWarning),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.yellow[100],
@@ -1614,7 +1618,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
             right: 0,
             child: IconButton(
               icon: const Icon(Icons.comment, size: 20, color: Colors.grey),
-              tooltip: 'Comments',
+              tooltip: localizations.translate(Keys.comments),
               onPressed: () => showNotesForm(context: context),
             ),
           ),

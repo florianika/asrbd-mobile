@@ -29,6 +29,24 @@ class Keys {
   static const String finishReviewingTitle = 'finishReviewingTitle';
   static const String finishReviewingContent = 'finishReviewingContent';
   static const String manageDwellings = 'manageDwellings';
+  static const String dwellings = 'dwellings';
+  static const String floor = 'floor';
+  static const String noApartment = 'noApartment';
+  static const String goBack = 'goBack';
+  static const String dwellingTotalLabel = 'dwellingTotalLabel';
+  static const String dwellingCountSingle = 'dwellingCountSingle';
+  static const String dwellingCountPlural = 'dwellingCountPlural';
+  static const String notAvailable = 'notAvailable';
+  static const String apartmentNumber = 'apartmentNumber';
+  static const String unknown = 'unknown';
+  static const String issues = 'issues';
+  static const String noDwellingsFound = 'noDwellingsFound';
+  static const String addFirstDwellingPrompt = 'addFirstDwellingPrompt';
+  static const String dwellingQualityComplete = 'dwellingQualityComplete';
+  static const String dwellingQualityIncomplete = 'dwellingQualityIncomplete';
+  static const String dwellingQualityConflicted = 'dwellingQualityConflicted';
+  static const String dwellingQualityUntested = 'dwellingQualityUntested';
+  static const String dwellingQualityDeleted = 'dwellingQualityDeleted';
   static const String validateData = 'validateData';
   static const String validateDataUntestedData = 'validateDataUntestedData';
   static const String startReviewing = 'startReviewing';
@@ -88,6 +106,12 @@ class Keys {
   static const String viewMaps = 'viewMaps';
   static const String viewMapsSubtitle = 'viewMapsSubtitle';
   static const String settingsSubtitle = 'settingsSubtitle';
+  static const String streetLoadError = 'streetLoadError';
+  static const String streetLoading = 'streetLoading';
+  static const String streetEmpty = 'streetEmpty';
+  static const String townLoadError = 'townLoadError';
+  static const String townLoading = 'townLoading';
+  static const String townEmpty = 'townEmpty';
   static const String profile = 'profile';
   static const String profileSubtitle = 'profileSubtitle';
   static const String userInformation = 'userInformation';
@@ -116,6 +140,10 @@ class Keys {
   static const String viewAndEdit = 'viewAndEdit';
   static const String addNew = 'addNew';
   static const String addFirstDwelling = 'addFirstDwelling';
+  static const String streetTypeLabel = 'streetTypeLabel';
+  static const String streetIdLabel = 'streetIdLabel';
+  static const String entranceFarWarning = 'entranceFarWarning';
+  static const String comments = 'comments';
 
   // Section headers
   static const String sectionTitle = 'sectionTitle';
