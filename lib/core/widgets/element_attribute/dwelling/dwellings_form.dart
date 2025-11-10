@@ -27,11 +27,11 @@ class DwellingForm extends StatefulWidget {
 }
 
 class _DwellingFormState extends State<DwellingForm> {
+  static const String _unknownFloorKey = '_unknown';
   final List<DwellingEntity> _dwellingRows = [];
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
-  bool _isEditMode = false;
   final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
   final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
@@ -82,7 +82,6 @@ class _DwellingFormState extends State<DwellingForm> {
     // context.read<BuildingCubit>().clearSelectedBuilding();
     setState(() {
       _showDwellingForm = false;
-      _isEditMode = false;
     });
   }
 
@@ -189,7 +188,6 @@ class _DwellingFormState extends State<DwellingForm> {
                                 // Building should stay selected after saving entrance
                                 setState(() {
                                   _showDwellingForm = false;
-                                  _isEditMode = false;
                                 });
                               },
                               startReviewing: () => {},
@@ -213,6 +211,11 @@ class _DwellingFormState extends State<DwellingForm> {
     //     ? _dwellingRows.first['OBJECTID']?.toString() ?? "N/A"
     //     : "N/A";
 
+    final localizations = AppLocalizations.of(context);
+    final totalLabel = localizations
+        .translate(Keys.dwellingTotalLabel)
+        .replaceFirst('{count}', _dwellingRows.length.toString());
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -224,7 +227,7 @@ class _DwellingFormState extends State<DwellingForm> {
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: handleBackToDwellingList,
-              tooltip: 'Go Back',
+            tooltip: localizations.translate(Keys.goBack),
             ),
             const SizedBox(width: 8),
 
@@ -237,9 +240,10 @@ class _DwellingFormState extends State<DwellingForm> {
                     children: [
                       const Icon(Icons.home, color: Colors.blue, size: 24),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Dwellings',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)
+                            .translate(Keys.dwellings),
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
@@ -255,7 +259,7 @@ class _DwellingFormState extends State<DwellingForm> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
-                          '${_dwellingRows.length} total',
+                          totalLabel,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -317,8 +321,16 @@ class _DwellingFormState extends State<DwellingForm> {
 
   Widget _buildExpandableDwellingItem(DwellingEntity dwelling, int index) {
     final isExpanded = _expandedDwellings.contains(index);
-    // final floor = dwelling['DwlFloor']?.toString() ?? 'N/A';
-    final apartNumber = dwelling.dwlApartNumber?.toString() ?? 'N/A';
+    final localizations = AppLocalizations.of(context);
+    final apartNumber = dwelling.dwlApartNumber?.toString();
+    final trimmedApartmentNumber = apartNumber?.trim();
+    final hasApartmentNumber =
+        trimmedApartmentNumber != null && trimmedApartmentNumber.isNotEmpty;
+    final apartmentLabel = hasApartmentNumber
+        ? localizations
+            .translate(Keys.apartmentNumber)
+            .replaceFirst('{number}', trimmedApartmentNumber)
+        : localizations.translate(Keys.noApartment);
     final quality = dwelling.dwlQuality?.toString() ?? '0';
     final qualityInfo = _getQualityInfo(quality);
 
@@ -347,9 +359,7 @@ class _DwellingFormState extends State<DwellingForm> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          apartNumber != 'N/A'
-                              ? 'Apt $apartNumber'
-                              : 'No Apartment',
+                          apartmentLabel,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -489,19 +499,23 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   Widget _buildDataItem(String key, dynamic value) {
-    String displayValue = value?.toString() ?? 'N/A';
+    final localizations = AppLocalizations.of(context);
+    final rawValue = value?.toString();
+    String displayValue;
+    if (rawValue == null || rawValue.isEmpty) {
+      displayValue = localizations.translate(Keys.notAvailable);
+    } else {
+      displayValue = rawValue;
+    }
     String label = _columnLabels[key] ?? key;
 
     // Special handling for quality field
-    if (key == 'DwlQuality') {
-      const qualityLabels = {
-        '1': 'Complete (No errors)',
-        '2': 'Incomplete (Missing data)',
-        '3': 'Conflicted (Contradictory)',
-        '9': 'Untested',
-        '0': 'Deleted',
-      };
-      displayValue = qualityLabels[displayValue] ?? displayValue;
+    if (key == 'DwlQuality' && rawValue != null && rawValue.isNotEmpty) {
+      final qualityInfo = _getQualityInfo(rawValue);
+      final qualityLabel = qualityInfo['label'] as String?;
+      if (qualityLabel != null) {
+        displayValue = qualityLabel;
+      }
     }
 
     return Container(
@@ -543,6 +557,7 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   Widget _buildEmptyState() {
+    final localizations = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -554,7 +569,7 @@ class _DwellingFormState extends State<DwellingForm> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No dwellings found',
+            localizations.translate(Keys.noDwellingsFound),
             style: TextStyle(
               fontSize: 18,
               color: Colors.grey[600],
@@ -563,7 +578,7 @@ class _DwellingFormState extends State<DwellingForm> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Add your first dwelling to get started',
+            localizations.translate(Keys.addFirstDwellingPrompt),
             style: TextStyle(
               fontSize: 14,
               color: Colors.grey[500],
@@ -592,18 +607,19 @@ class _DwellingFormState extends State<DwellingForm> {
     final grouped = <String, List<DwellingEntity>>{};
 
     for (final dwelling in _dwellingRows) {
-      final floor = dwelling.dwlFloor?.toString() ?? 'Unknown';
-      if (!grouped.containsKey(floor)) {
-        grouped[floor] = [];
-      }
-      grouped[floor]!.add(dwelling);
+      final floorValue = dwelling.dwlFloor?.toString();
+      final key = (floorValue == null || floorValue.isEmpty)
+          ? _unknownFloorKey
+          : floorValue;
+      grouped.putIfAbsent(key, () => <DwellingEntity>[]);
+      grouped[key]!.add(dwelling);
     }
 
     // Sort floors numerically in descending order (10 to 1)
     final sortedKeys = grouped.keys.toList()
       ..sort((a, b) {
-        if (a == 'Unknown') return 1;
-        if (b == 'Unknown') return -1;
+        if (a == _unknownFloorKey) return 1;
+        if (b == _unknownFloorKey) return -1;
         final aNum = int.tryParse(a) ?? 0;
         final bNum = int.tryParse(b) ?? 0;
         return bNum.compareTo(aNum);
@@ -623,6 +639,16 @@ class _DwellingFormState extends State<DwellingForm> {
   Widget _buildFloorGroup(String floor, List<DwellingEntity> dwellings) {
     final isFloorExpanded = _expandedFloors.contains(floor);
     final hasErrors = _floorHasErrors(dwellings);
+    final localizations = AppLocalizations.of(context);
+    final floorLabel = floor == _unknownFloorKey
+        ? localizations.translate(Keys.unknown)
+        : floor;
+    final dwellingsCountKey = dwellings.length == 1
+        ? Keys.dwellingCountSingle
+        : Keys.dwellingCountPlural;
+    final dwellingsCountLabel = localizations
+        .translate(dwellingsCountKey)
+        .replaceFirst('{count}', dwellings.length.toString());
 
     return Card(
       elevation: isFloorExpanded ? 4 : 2,
@@ -644,7 +670,7 @@ class _DwellingFormState extends State<DwellingForm> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Floor $floor',
+                    '${localizations.translate(Keys.floor)} $floorLabel',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -661,7 +687,7 @@ class _DwellingFormState extends State<DwellingForm> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      '${dwellings.length} dwelling${dwellings.length != 1 ? 's' : ''}',
+                      dwellingsCountLabel,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -692,7 +718,7 @@ class _DwellingFormState extends State<DwellingForm> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Issues',
+                            localizations.translate(Keys.issues),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
@@ -757,7 +783,13 @@ class _DwellingFormState extends State<DwellingForm> {
         _expandedFloors.remove(floor);
         // Also collapse all dwellings in this floor
         for (final dwelling in _dwellingRows) {
-          if (dwelling.dwlFloor?.toString() == floor) {
+          final dwellingFloorValue = dwelling.dwlFloor?.toString();
+          final matchesFloor =
+              dwellingFloorValue != null && dwellingFloorValue == floor;
+          final isUnknownFloor = (dwellingFloorValue == null ||
+                  dwellingFloorValue.isEmpty) &&
+              floor == _unknownFloorKey;
+          if (matchesFloor || isUnknownFloor) {
             final index = _dwellingRows.indexOf(dwelling);
             _expandedDwellings.remove(index);
           }
@@ -779,37 +811,44 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   Map<String, dynamic> _getQualityInfo(String quality) {
+    final localizations = AppLocalizations.of(context);
+
     switch (quality) {
       case '1':
         return {
           'color': Colors.green,
           'icon': Icons.check_circle,
-          'label': 'Complete',
+          'label':
+              localizations.translate(Keys.dwellingQualityComplete),
         };
       case '2':
         return {
           'color': Colors.orange,
           'icon': Icons.warning,
-          'label': 'Incomplete',
+          'label':
+              localizations.translate(Keys.dwellingQualityIncomplete),
         };
       case '3':
         return {
           'color': Colors.red,
           'icon': Icons.error,
-          'label': 'Conflicted',
+          'label':
+              localizations.translate(Keys.dwellingQualityConflicted),
         };
       case '9':
         return {
           'color': Colors.blue,
           'icon': Icons.help_outline,
-          'label': 'Untested',
+          'label':
+              localizations.translate(Keys.dwellingQualityUntested),
         };
       case '0':
       default:
         return {
           'color': Colors.grey,
           'icon': Icons.delete_outline,
-          'label': 'Deleted',
+          'label':
+              localizations.translate(Keys.dwellingQualityDeleted),
         };
     }
   }
@@ -842,7 +881,6 @@ class _DwellingFormState extends State<DwellingForm> {
 
     setState(() {
       _showDwellingForm = false;
-      _isEditMode = false;
     });
   }
 }
