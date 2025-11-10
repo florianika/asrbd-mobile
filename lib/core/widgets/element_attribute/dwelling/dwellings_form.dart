@@ -77,7 +77,7 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   void handleOnClose() {
-     // context.read<AttributesCubit>().clearAllSelections();
+    // context.read<AttributesCubit>().clearAllSelections();
     // context.read<GeometryEditorCubit>().cancelOperation();
     // context.read<BuildingCubit>().clearSelectedBuilding();
     setState(() {
@@ -87,7 +87,7 @@ class _DwellingFormState extends State<DwellingForm> {
 
   void handleBackToDwellingList() {
     context.read<DwellingCubit>().closeDwellings();
-    
+
     String? entranceGlobalId =
         context.read<AttributesCubit>().currentEntranceGlobalId;
     String? buildingGlobalId =
@@ -116,7 +116,6 @@ class _DwellingFormState extends State<DwellingForm> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +226,7 @@ class _DwellingFormState extends State<DwellingForm> {
             IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.black),
               onPressed: handleBackToDwellingList,
-            tooltip: localizations.translate(Keys.goBack),
+              tooltip: localizations.translate(Keys.goBack),
             ),
             const SizedBox(width: 8),
 
@@ -241,8 +240,7 @@ class _DwellingFormState extends State<DwellingForm> {
                       const Icon(Icons.home, color: Colors.blue, size: 24),
                       const SizedBox(width: 12),
                       Text(
-                        AppLocalizations.of(context)
-                            .translate(Keys.dwellings),
+                        AppLocalizations.of(context).translate(Keys.dwellings),
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -786,9 +784,9 @@ class _DwellingFormState extends State<DwellingForm> {
           final dwellingFloorValue = dwelling.dwlFloor?.toString();
           final matchesFloor =
               dwellingFloorValue != null && dwellingFloorValue == floor;
-          final isUnknownFloor = (dwellingFloorValue == null ||
-                  dwellingFloorValue.isEmpty) &&
-              floor == _unknownFloorKey;
+          final isUnknownFloor =
+              (dwellingFloorValue == null || dwellingFloorValue.isEmpty) &&
+                  floor == _unknownFloorKey;
           if (matchesFloor || isUnknownFloor) {
             final index = _dwellingRows.indexOf(dwelling);
             _expandedDwellings.remove(index);
@@ -818,37 +816,32 @@ class _DwellingFormState extends State<DwellingForm> {
         return {
           'color': Colors.green,
           'icon': Icons.check_circle,
-          'label':
-              localizations.translate(Keys.dwellingQualityComplete),
+          'label': localizations.translate(Keys.dwellingQualityComplete),
         };
       case '2':
         return {
           'color': Colors.orange,
           'icon': Icons.warning,
-          'label':
-              localizations.translate(Keys.dwellingQualityIncomplete),
+          'label': localizations.translate(Keys.dwellingQualityIncomplete),
         };
       case '3':
         return {
           'color': Colors.red,
           'icon': Icons.error,
-          'label':
-              localizations.translate(Keys.dwellingQualityConflicted),
+          'label': localizations.translate(Keys.dwellingQualityConflicted),
         };
       case '9':
         return {
           'color': Colors.blue,
           'icon': Icons.help_outline,
-          'label':
-              localizations.translate(Keys.dwellingQualityUntested),
+          'label': localizations.translate(Keys.dwellingQualityUntested),
         };
       case '0':
       default:
         return {
           'color': Colors.grey,
           'icon': Icons.delete_outline,
-          'label':
-              localizations.translate(Keys.dwellingQualityDeleted),
+          'label': localizations.translate(Keys.dwellingQualityDeleted),
         };
     }
   }

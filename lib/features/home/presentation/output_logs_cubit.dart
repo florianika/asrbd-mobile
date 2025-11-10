@@ -65,10 +65,15 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
 
       ProcessOutputLogResponse response = ProcessOutputLogResponse(
           processOutputLogDto: validationResult.processOutputLogDto);
-          
-      bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
-        (item) => item.errorLevel == 'error' || item.errorLevel == 'warning' || item.errorLevel== "OWN",
+
+       bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
+        (item) =>
+            item.errorLevel == 'ERR' ||
+            item.errorLevel == 'WARN' ||
+            item.errorLevel == 'MISS' ||
+            item.errorLevel == 'OWN',
       );
+      
       await storageRepository.saveString(
         key: buildingGlobalId,
         value: jsonEncode(response.toJson()),
@@ -78,7 +83,7 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
     } catch (e) {
       emit(
           OutputLogsError(e.toString(), DateTime.now().millisecondsSinceEpoch));
-          return false;
+      return false;
     }
   }
 
@@ -91,7 +96,11 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
           processOutputLogDto: validationResult.processOutputLogDto);
 
       bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
-        (item) => item.errorLevel == 'ERR' || item.errorLevel == 'WARN' || item.errorLevel == 'MISS' || item.errorLevel == 'OWN',
+        (item) =>
+            item.errorLevel == 'ERR' ||
+            item.errorLevel == 'WARN' ||
+            item.errorLevel == 'MISS' ||
+            item.errorLevel == 'OWN',
       );
 
       await storageRepository.saveString(
@@ -113,14 +122,12 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
 
       if (cachedJson != null) {
         var parsed = ProcessOutputLogResponse.fromJson(jsonDecode(cachedJson));
- 
 
         emit(OutputLogs(parsed, null));
       } else {
         final freshData =
             await outputLogsUseCases.getOutputLogs(buildingGlobalId);
 
-      
         await storageRepository.saveString(
           key: buildingGlobalId,
           value: jsonEncode(freshData.toJson()),

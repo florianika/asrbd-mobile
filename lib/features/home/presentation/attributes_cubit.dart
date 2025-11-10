@@ -163,13 +163,15 @@ class AttributesCubit extends Cubit<AttributesState> {
       if (dwellingObjectID == null) {
         // Clear persistent dwelling when showing attributes for new dwelling
         _persistentDwelling = null;
+        final preservedBuildingId = _persistentBuilding?.globalId;
+        final preservedEntranceId = _persistentEntrance?.globalId;
 
         emit(Attributes(
           schema,
           const {},
           ShapeType.noShape,
-          null,
-          null,
+          preservedBuildingId,
+          preservedEntranceId,
           null,
           viewDwelling: false,
           showAttributes: true,

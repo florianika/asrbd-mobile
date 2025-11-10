@@ -105,21 +105,39 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                             }
                           },
                           builder: (context, state) {
-                            List<ValidationResult> validationResult = [];
+                            List<ValidationResult> fetchedValidationResults =
+                                [];
+
+                            String? normalizeId(Object? id) {
+                              if (id == null) return null;
+                              final s = id.toString().trim();
+                              return s
+                                  .replaceAll(RegExp(r'[\{\}\s]'), '')
+                                  .toUpperCase();
+                            }
+
+                            final targetId =
+                                normalizeId(widget.initialData['GlobalID']);
 
                             if (state is OutputLogs) {
-                              validationResult = state.validationResult
+                              fetchedValidationResults = state.validationResult
                                   .toValidationResults(useAlbanianMessage: true)
-                                  .where((x) =>
-                                      x.entityType ==
-                                      (widget.selectedShapeType ==
-                                              ShapeType.polygon
-                                          ? EntityType.building
-                                          : widget.selectedShapeType ==
-                                                  ShapeType.point
-                                              ? EntityType.entrance
-                                              : EntityType.dwelling))
-                                  .toList();
+                                  .where((x) {
+                                final xId = normalizeId(x.id);
+                                if (xId == null || targetId == null)
+                                  return false;
+
+                                final matchesEntity = x.entityType ==
+                                    (widget.selectedShapeType ==
+                                            ShapeType.polygon
+                                        ? EntityType.building
+                                        : widget.selectedShapeType ==
+                                                ShapeType.point
+                                            ? EntityType.entrance
+                                            : EntityType.dwelling);
+
+                                return matchesEntity && xId == targetId;
+                              }).toList();
                             }
 
                             return DynamicElementAttribute(
@@ -134,7 +152,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                               onCancel: widget.onCancel,
                               onSave: (formValues) async =>
                                   await widget.save(formValues),
-                              validationResults: validationResult,
+                              validationResults: fetchedValidationResults,
                               onClose: widget.onClose,
                               showButtons: false,
                               readOnly: widget.readOnly,
@@ -171,10 +189,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                 formContext: widget.formContext,
                 openDwelling: () => {
                   context.read<DwellingCubit>().getDwellings(
-                        widget.initialData['GlobalID'],
-                        context.read<TileCubit>().isOffline,
-                         context.read<TileCubit>().download?.id
-                      ),
+                      widget.initialData['GlobalID'],
+                      context.read<TileCubit>().isOffline,
+                      context.read<TileCubit>().download?.id),
                 },
                 selectedShapeType: widget.selectedShapeType,
               ),

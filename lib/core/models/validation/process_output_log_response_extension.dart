@@ -8,6 +8,11 @@ extension ProcessOutputLogResponseExtension on ProcessOutputLogResponse {
       {bool useAlbanianMessage = false}) {
     return processOutputLogDto.map((logDto) {
       return ValidationResult(
+        id: logDto.entityType == 'BUILDING'
+            ? logDto.bldId
+            : logDto.entityType == 'ENTRANCE'
+                ? logDto.entId
+                : logDto.dwlId,
         name: logDto.variable,
         entityType: logDto.entityType == 'BUILDING'
             ? EntityType.building
