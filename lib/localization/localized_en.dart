@@ -130,6 +130,9 @@ class LocalizedEn {
     Keys.viewAndEdit: 'View and Edit',
     Keys.addNew: 'Add New',
     Keys.addFirstDwelling: 'Add First Dwelling',
+    Keys.sectionTitle: '',
+    Keys.sectionIdentification: 'Identification',
+    Keys.sectionDescription: 'Description',
     Keys.fieldWorkOverview: 'Fieldwork Overview',
     Keys.fieldWorkOverviewSubtitle: 'Fieldwork Overview',
     

@@ -348,6 +348,29 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     }
 
     const sectionColor = Colors.black;
+    final localizations = AppLocalizations.of(context);
+    String localizedSectionName;
+    switch (sectionName.toLowerCase()) {
+      case 'title':
+        localizedSectionName = localizations.translate(Keys.sectionTitle);
+        break;
+      case 'identification':
+        localizedSectionName =
+            localizations.translate(Keys.sectionIdentification);
+        break;
+      case 'description':
+        localizedSectionName =
+            localizations.translate(Keys.sectionDescription);
+        break;
+      default:
+        localizedSectionName = sectionName.toUpperCase();
+    }
+
+    if (localizedSectionName == Keys.sectionTitle ||
+        localizedSectionName == Keys.sectionIdentification ||
+        localizedSectionName == Keys.sectionDescription) {
+      localizedSectionName = sectionName.toUpperCase();
+    }
 
     return Container(
       width: double.infinity,
@@ -361,7 +384,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
           ),
           const SizedBox(width: 10),
           Text(
-            sectionName.toUpperCase(),
+            localizedSectionName,
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,

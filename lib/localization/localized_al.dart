@@ -122,6 +122,9 @@ class LocalizedAl {
     Keys.viewAndEdit: 'Shiko dhe Ndrysho',
     Keys.addNew: 'Shto të Re',
     Keys.addFirstDwelling: 'Shto Banesën e Parë',
+    Keys.sectionTitle: '',
+    Keys.sectionIdentification: 'Variabla Identifikuese',
+    Keys.sectionDescription: 'Variabla Përshkruese',
     Keys.fieldWorkOverview: 'Përmbledhje Terreni',
     Keys.fieldWorkOverviewSubtitle: 'Përmbledhje Terreni',
     

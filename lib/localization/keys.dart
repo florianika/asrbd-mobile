@@ -116,6 +116,11 @@ class Keys {
   static const String viewAndEdit = 'viewAndEdit';
   static const String addNew = 'addNew';
   static const String addFirstDwelling = 'addFirstDwelling';
+
+  // Section headers
+  static const String sectionTitle = 'sectionTitle';
+  static const String sectionIdentification = 'sectionIdentification';
+  static const String sectionDescription = 'sectionDescription';
   
   // Offline map translations
   static const String ok = 'ok';
