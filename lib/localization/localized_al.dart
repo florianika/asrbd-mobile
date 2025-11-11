@@ -84,6 +84,13 @@ class LocalizedAl {
     Keys.fieldWorkNotOpened: "Puna ne terrent nuk eshte nisur.",
     Keys.blReviewWarning :"Per ndertesen e zgjedhur nuk kerkohet rishikim ose ka nje rishikim te rihapur (BldReview != 6 && BldReview!=5).",
     Keys.blReviewNoPending : "Ndertesa e zgjedhur nuk ka statusin e rishikimit ne pritje. (BldReview = 4)",
+    Keys.backToMap: 'Kthehu te Harta',
+    Keys.buildingReviewTitle: 'Rishikimi i Ndërtesave',
+    Keys.buildingReviewFilterAll: 'Të Gjitha',
+    Keys.buildingReviewFilterNeedsReview: 'Ri hapur / Rishikim',
+    Keys.loadingMapOverlay: 'Duke ngarkuar shtresën e hartës...',
+    Keys.errorLoadingOverlay: 'Gabim gjatë ngarkimit të shtresës',
+    Keys.noImageDataAvailable: 'Nuk ka të dhëna imazhi',
     // Settings page translations
     Keys.settings: 'Cilësimet',
     Keys.dataManagement: 'Menaxhimi i të Dhënave',

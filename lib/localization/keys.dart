@@ -74,6 +74,14 @@ class Keys {
   static const String fieldWorkNotOpened = 'fieldWorkNotOpened';
   static const String blReviewWarning = 'blReviewWarning';
   static const String blReviewNoPending = 'blReviewNoPending';
+  static const String backToMap = 'backToMap';
+  static const String buildingReviewTitle = 'buildingReviewTitle';
+  static const String buildingReviewFilterAll = 'buildingReviewFilterAll';
+  static const String buildingReviewFilterNeedsReview =
+      'buildingReviewFilterNeedsReview';
+  static const String loadingMapOverlay = 'loadingMapOverlay';
+  static const String errorLoadingOverlay = 'errorLoadingOverlay';
+  static const String noImageDataAvailable = 'noImageDataAvailable';
   
   // Settings page keys
   static const String settings = 'settings';

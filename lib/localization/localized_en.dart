@@ -90,6 +90,13 @@ class LocalizedEn {
         "The selected building does not require review or has a reopened review (BldReview != 6 && BldReview != 5).",
     Keys.blReviewNoPending:
         "The selected building does not have the review status pending. (BldReview = 4)",
+    Keys.backToMap: 'Back to Map',
+    Keys.buildingReviewTitle: 'Building Review',
+    Keys.buildingReviewFilterAll: 'All',
+    Keys.buildingReviewFilterNeedsReview: 'Reopened / Needs Review',
+    Keys.loadingMapOverlay: 'Loading map overlay...',
+    Keys.errorLoadingOverlay: 'Error Loading Overlay',
+    Keys.noImageDataAvailable: 'No image data available',
     // Settings page translations
     Keys.settings: 'Settings',
     Keys.dataManagement: 'Data Management',

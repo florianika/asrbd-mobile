@@ -8,8 +8,9 @@ import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/core/widgets/side_menu/side_menu.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
-import 'package:asrdb/features/home/presentation/widget/map_app_bar.dart';
 import 'package:asrdb/main.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -159,11 +160,9 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
   List<double> _currentVisibleBbox() {
     try {
       final bounds = _mapController.camera.visibleBounds;
-      if (bounds != null) {
-        final sw = bounds.southWest;
-        final ne = bounds.northEast;
-        return [sw.longitude, sw.latitude, ne.longitude, ne.latitude];
-      }
+      final sw = bounds.southWest;
+      final ne = bounds.northEast;
+      return [sw.longitude, sw.latitude, ne.longitude, ne.latitude];
     } catch (_) {}
     return [fallbackXmin, fallbackYmin, fallbackXmax, fallbackYmax];
   }
@@ -336,6 +335,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
     return Scaffold(
       drawer: const SideMenu(),
       appBar: AppBar(
@@ -346,12 +346,12 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
               onPressed: () {
                 Navigator.pushNamed(context, RouteManager.homeRoute);
               },
-              tooltip: 'Back to Map',
+              tooltip: localizations.translate(Keys.backToMap),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
             const SizedBox(width: 8),
-            const Text('Building Review'),
+            Text(localizations.translate(Keys.buildingReviewTitle)),
           ],
         ),
         actions: [
@@ -365,10 +365,14 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildFilterButton('Te Gjitha', BldReviewFilter.all,
-                    const Color.fromARGB(255, 80, 80, 80)), // dark grey
+                _buildFilterButton(
+                    localizations.translate(Keys.buildingReviewFilterAll),
+                    BldReviewFilter.all,
+                    const Color(0xFF1E88E5)), // vibrant blue
                 const SizedBox(width: 6),
-                _buildFilterButton('Ri hapur / Rishikim',
+                _buildFilterButton(
+                    localizations
+                        .translate(Keys.buildingReviewFilterNeedsReview),
                     BldReviewFilter.needsReview, const Color(0xFFBE2212)),
               ],
             ),
@@ -404,7 +408,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Loading map overlay...',
+                      localizations.translate(Keys.loadingMapOverlay),
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -434,7 +438,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Error Loading Overlay',
+                        localizations.translate(Keys.errorLoadingOverlay),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -468,7 +472,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'No image data available',
+                      localizations.translate(Keys.noImageDataAvailable),
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
