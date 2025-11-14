@@ -1,5 +1,6 @@
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
@@ -31,7 +32,7 @@ class DownloadedMapsViewer extends StatefulWidget {
 class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
   List<Download> _downloadedData = [];
   bool _isLoading = true;
-
+  final userService = sl<UserService>();
   @override
   void initState() {
     super.initState();
@@ -128,8 +129,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         final localizations = AppLocalizations.of(context);
         return AlertDialog(
           title: Text(localizations.translate(Keys.deleteDownloadedData)),
-          content: Text(
-              localizations.translate(Keys.deleteConfirmMessage).replaceAll('{areaName}', data.areaName)),
+          content: Text(localizations
+              .translate(Keys.deleteConfirmMessage)
+              .replaceAll('{areaName}', data.areaName)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -154,7 +156,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
         final localizations = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(localizations.translate(Keys.errorDeletingData).replaceAll('{error}', e.toString())),
+            content: Text(localizations
+                .translate(Keys.errorDeletingData)
+                .replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -294,13 +298,32 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                             },
                           ),
                           Expanded(
-                            child: Text(
-                              AppLocalizations.of(context).translate(Keys.downloadedAreas),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
+                            child: RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text:
+                                        'Perdoruesi: ${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}\n',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white.withOpacity(0.8),
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: AppLocalizations.of(context)
+                                        .translate(Keys.downloadedAreas),
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -316,7 +339,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                 size: 24,
                               ),
                               onPressed: _loadDownloadedData,
-                              tooltip: AppLocalizations.of(context).translate(Keys.refresh),
+                              tooltip: AppLocalizations.of(context)
+                                  .translate(Keys.refresh),
                             ),
                           ),
                         ],
@@ -349,7 +373,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 16),
                                         Text(
-                                          AppLocalizations.of(context).translate(Keys.loadingDownloadedAreas),
+                                          AppLocalizations.of(context)
+                                              .translate(
+                                                  Keys.loadingDownloadedAreas),
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
@@ -395,7 +421,8 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 24),
                                         Text(
-                                          AppLocalizations.of(context).translate(Keys.noOfflineAreas),
+                                          AppLocalizations.of(context)
+                                              .translate(Keys.noOfflineAreas),
                                           style: TextStyle(
                                             fontSize: 20,
                                             color: Colors.white,
@@ -404,7 +431,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                         ),
                                         SizedBox(height: 12),
                                         Text(
-                                          AppLocalizations.of(context).translate(Keys.downloadSomeAreas),
+                                          AppLocalizations.of(context)
+                                              .translate(
+                                                  Keys.downloadSomeAreas),
                                           style: TextStyle(
                                             color: Colors.white
                                                 .withValues(alpha: 0.8),
@@ -586,8 +615,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(AppLocalizations.of(context)
-                                                                      .translate(Keys.applyArea)),
+                                                                  Text(AppLocalizations.of(
+                                                                          context)
+                                                                      .translate(
+                                                                          Keys.applyArea)),
                                                                 ],
                                                               ),
                                                             ),
@@ -604,8 +635,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(AppLocalizations.of(context)
-                                                                      .translate(Keys.synchronize)),
+                                                                  Text(AppLocalizations.of(
+                                                                          context)
+                                                                      .translate(
+                                                                          Keys.synchronize)),
                                                                 ],
                                                               ),
                                                             ),
@@ -622,8 +655,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                                       size: 20),
                                                                   SizedBox(
                                                                       width: 8),
-                                                                  Text(AppLocalizations.of(context)
-                                                                      .translate(Keys.delete)),
+                                                                  Text(AppLocalizations.of(
+                                                                          context)
+                                                                      .translate(
+                                                                          Keys.delete)),
                                                                 ],
                                                               ),
                                                             ),
@@ -666,7 +701,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                           ),
                                                           SizedBox(width: 6),
                                                           Text(
-                                                            AppLocalizations.of(context).translate(Keys.hasPendingSync),
+                                                            AppLocalizations.of(
+                                                                    context)
+                                                                .translate(Keys
+                                                                    .hasPendingSync),
                                                             style: TextStyle(
                                                               fontSize: 12,
                                                               color: Colors
@@ -701,7 +739,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.calendar_today,
-                                                          AppLocalizations.of(context).translate(Keys.downloaded),
+                                                          AppLocalizations.of(
+                                                                  context)
+                                                              .translate(Keys
+                                                                  .downloaded),
                                                           _formatDate(
                                                               data.createdDate),
                                                           true,
@@ -710,7 +751,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.person,
-                                                          AppLocalizations.of(context).translate(Keys.user),
+                                                          AppLocalizations.of(
+                                                                  context)
+                                                              .translate(
+                                                                  Keys.user),
                                                           data.email,
                                                           true,
                                                         ),
@@ -718,11 +762,18 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                                       Expanded(
                                                         child: _buildInfoItem(
                                                           Icons.sync,
-                                                          AppLocalizations.of(context).translate(Keys.lastSync),
+                                                          AppLocalizations.of(
+                                                                  context)
+                                                              .translate(Keys
+                                                                  .lastSync),
                                                           lastSync != null
                                                               ? _formatDate(
                                                                   lastSync)
-                                                              : AppLocalizations.of(context).translate(Keys.never),
+                                                              : AppLocalizations
+                                                                      .of(
+                                                                          context)
+                                                                  .translate(Keys
+                                                                      .never),
                                                           true,
                                                         ),
                                                       ),

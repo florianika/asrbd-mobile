@@ -1,8 +1,10 @@
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
+import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
+import 'package:asrdb/main.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +23,7 @@ class MapAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _MapAppBarState extends State<MapAppBar> {
   bool? _previousFieldWorkStatus;
+  final userService = sl<UserService>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +40,38 @@ class _MapAppBarState extends State<MapAppBar> {
           title: BlocConsumer<TileCubit, TileState>(
             listener: (context, state) {},
             builder: (context, state) {
-              return Text(
-                widget.title == null
-                    ? 'ASRDB - ${state.isOffline ? 'OFFLINE' : 'ONLINE'}'
-                    : widget.title!,
-                style: TextStyle(
-                    fontSize: 12,
-                    color: state.isOffline ? Colors.red : Colors.green),
+              return RichText(
+                text: TextSpan(
+                  style: const TextStyle(
+                    color: Colors.black87,
+                  ),
+                  children: [
+                    TextSpan(
+                      text:
+                          'Perdoruesi: ${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}\n',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Modaliteti: ',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextSpan(
+                      text: state.isOffline ? 'OFFLINE' : 'ONLINE',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: state.isOffline ? Colors.red : Colors.green,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -161,10 +189,13 @@ class _MapAppBarState extends State<MapAppBar> {
               const SizedBox(width: 8),
               Text(
                 fieldWorkStatus.inError
-                    ? AppLocalizations.of(context).translate(Keys.problemOccurred)
+                    ? AppLocalizations.of(context)
+                        .translate(Keys.problemOccurred)
                     : fieldWorkStatus.isFieldworkTime
-                        ? AppLocalizations.of(context).translate(Keys.fieldWorkActive)
-                        : AppLocalizations.of(context).translate(Keys.fieldWorkInactive),
+                        ? AppLocalizations.of(context)
+                            .translate(Keys.fieldWorkActive)
+                        : AppLocalizations.of(context)
+                            .translate(Keys.fieldWorkInactive),
                 style: TextStyle(
                   color: fieldWorkStatus.inError
                       ? Colors.orange
@@ -189,16 +220,22 @@ class _MapAppBarState extends State<MapAppBar> {
                         _buildDetailRow(
                             'ID:', fieldWorkStatus.fieldworkId.toString()),
                         const SizedBox(height: 8),
-                        _buildDetailRow(AppLocalizations.of(context).translate(Keys.status), AppLocalizations.of(context).translate(Keys.active)),
+                        _buildDetailRow(
+                            AppLocalizations.of(context).translate(Keys.status),
+                            AppLocalizations.of(context)
+                                .translate(Keys.active)),
                         const SizedBox(height: 8),
                         _buildDetailRow(
-                            AppLocalizations.of(context).translate(Keys.started), fieldWorkStatus.startTime ?? 'N/A'),
+                            AppLocalizations.of(context)
+                                .translate(Keys.started),
+                            fieldWorkStatus.startTime ?? 'N/A'),
                         // const SizedBox(height: 8),
                         // _buildDetailRow('Location:', fieldWorkStatus.location ?? 'N/A'),
                       ],
                     )
                   : Text(
-                      AppLocalizations.of(context).translate(Keys.fieldWorkNotOpenedMessage),
+                      AppLocalizations.of(context)
+                          .translate(Keys.fieldWorkNotOpenedMessage),
                       style: const TextStyle(fontSize: 16),
                     ),
           actions: [

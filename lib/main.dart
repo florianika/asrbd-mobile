@@ -1,4 +1,3 @@
-
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
@@ -141,6 +140,8 @@ void main() async {
     sl<DwellingRepository>(),
     sl<DownloadRepository>(),
   ));
+
+  await sl<UserService>().initialize();
 
   runApp(const MyApp());
 }

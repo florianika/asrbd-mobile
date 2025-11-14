@@ -1,3 +1,5 @@
+import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
@@ -25,6 +27,7 @@ class _LoginTabletState extends State<LoginTablet> {
   final TextEditingController passwordController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final userService = sl<UserService>();
 
   void _onLogin(BuildContext context) {
     if (_formKey.currentState!.validate()) {
@@ -35,12 +38,106 @@ class _LoginTabletState extends State<LoginTablet> {
     }
   }
 
-  void _onUseOffline(BuildContext context) {
-    // Handle offline mode logic here
-    // You can navigate to offline mode or set offline state
-    // For example:
-    Navigator.pushReplacementNamed(context, RouteManager.downloadedMapList);
-    // Or trigger offline mode in your cubit
+  void showOfflineLoginWarning(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        const primaryColor = Color.fromARGB(255, 58, 64, 90);
+        const lightColor = Color.fromARGB(255, 240, 241, 245);
+        const borderColor = Color.fromARGB(255, 180, 185, 200);
+
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: primaryColor,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Warning',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  color: primaryColor,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'You must login at least one time before using the app offline.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[800],
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: lightColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: borderColor),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: primaryColor,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Please connect to the internet and login first.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _onUseOffline(BuildContext context) async {
+    if (userService.userInfo == null) {
+      // if (mounted) {
+      showOfflineLoginWarning(context);
+      // }
+    } else {
+      Navigator.pushReplacementNamed(context, RouteManager.downloadedMapList);
+    }
   }
 
   @override
@@ -127,7 +224,8 @@ class _LoginTabletState extends State<LoginTablet> {
                                       height: 50.0,
                                       child: OutlinedButton(
                                         onPressed: () => _onUseOffline(context),
-                                        child: Text(AppLocalizations.of(context).translate(Keys.useOffline)),
+                                        child: Text(AppLocalizations.of(context)
+                                            .translate(Keys.useOffline)),
                                       ),
                                     ),
                                   ),
