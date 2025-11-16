@@ -154,6 +154,8 @@ class EntranceUseCases {
 
     entrance.externalEditor = '{${userService.userInfo?.nameId}}';
     entrance.externalEditorDate = DateTime.now();
+    entrance.entLatitude = entrance.coordinates?.latitude;
+    entrance.entLongitude = entrance.coordinates?.longitude;
 
     if (!isOffline) {
       await entranceUseCases._updateEntranceFeatureOnline(entrance);
