@@ -6,6 +6,7 @@ import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'dart:ui';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -21,6 +22,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _glowAnimation;
+  String _version = '';
 
   @override
   void initState() {
@@ -65,6 +67,14 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
     _fadeController.forward();
     _slideController.forward();
     _glowController.repeat(reverse: true);
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
   }
 
   @override
@@ -368,7 +378,7 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               ),
                             ),
                             child: Text(
-                              'Version ${AppConfig.version}',
+                              _version.isNotEmpty ? 'Version $_version' : 'Version ${AppConfig.version}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
