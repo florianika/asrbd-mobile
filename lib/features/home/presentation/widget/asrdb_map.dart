@@ -400,23 +400,23 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 },
               ),
               children: [
-                // TileLayer(
-                //   urlTemplate: state.basemapUrl,
-                //   userAgentPackageName: AppConfig.userAgentPackageName,
-                //   tileProvider: FMTCTileProvider(
-                //     stores: {
-                //       state.storeName: BrowseStoreStrategy.readUpdateCreate
-                //     },
-                //   ),
-                // ),
                 TileLayer(
-                  urlTemplate:
-                      'https://basemap.asig.gov.al/server/rest/services/UAV_Orto_2024_2025/MapServer/WMTS/tile/1.0.0/UAV_Orto_2024_2025/default/default028mm/{z}/{y}/{x}',
-                  subdomains: ['a', 'b', 'c'], // optional
-                  tileSize: 256,
-                  // backgroundColor: Colors.transparent,
-                  tms: false, // depends on WMTS tiling scheme, likely false
+                  urlTemplate: state.basemapUrl,
+                  userAgentPackageName: AppConfig.userAgentPackageName,
+                  tileProvider: FMTCTileProvider(
+                    stores: {
+                      state.storeName: BrowseStoreStrategy.readUpdateCreate
+                    },
+                  ),
                 ),
+                // TileLayer(
+                //   urlTemplate:
+                //       'https://basemap.asig.gov.al/server/rest/services/UAV_Orto_2024_2025/MapServer/WMTS/tile/1.0.0/UAV_Orto_2024_2025/default/default028mm/{z}/{y}/{x}',
+                //   subdomains: ['a', 'b', 'c'], // optional
+                //   tileSize: 256,
+                //   // backgroundColor: Colors.transparent,
+                //   tms: false, // depends on WMTS tiling scheme, likely false
+                // ),
                 MunicipalityMarker(
                   isOffline: state.isOffline,
                   municipalityId: state.download?.municipalityId,
