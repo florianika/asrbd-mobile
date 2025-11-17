@@ -16,8 +16,17 @@ class AuthApi {
     );
   }
 
+  Future<Response> verifyOtp(String userId, String c) async {
+    return await _apiClient.post(
+      ApiEndpoints.verifyOtp,
+      data: {
+        'userId': userId,
+        'code': userId,
+      },
+    );
+  }
+
   Future<Response> refreshToken(RefreshTokenRequest refreshTokenRequest) async {
-    
     return await _apiClient.post(
       ApiEndpoints.refreshToken,
       data: refreshTokenRequest.toJson(),

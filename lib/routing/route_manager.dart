@@ -1,3 +1,4 @@
+import 'package:asrdb/features/auth/presentation/views/otp_view.dart';
 import 'package:asrdb/features/home/presentation/views/view_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map_list.dart';
@@ -16,6 +17,7 @@ class RouteManager {
   static const String downloadMapRoute = '/download-map';
   static const String downloadedMapList = '/download-map-list';
   static const String settingsRoute = '/settings';
+  static const String otpRoute = '/optRoute';
   static const String testRoute = '/test';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -37,6 +39,10 @@ class RouteManager {
 
       case profileRoute:
         return MaterialPageRoute(builder: (_) => const ProfileView());
+
+      case otpRoute:
+        final userId = settings.arguments as String;
+        return MaterialPageRoute( builder: (_) => OtpView(userId: userId));
 
       case testRoute:
         return MaterialPageRoute(

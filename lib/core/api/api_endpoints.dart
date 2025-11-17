@@ -3,7 +3,8 @@ import 'package:asrdb/core/enums/entity_type.dart';
 import 'package:asrdb/core/helpers/esri_condition_helper.dart';
 
 class ApiEndpoints {
-  static const String login = '/auth/login';
+  static const String login = '/auth/2fa/login';
+  static const String verifyOtp = '/auth/2fa/verify';
   static const String loginEsri = '/auth/gis/login';
   static const String refreshToken = '/auth/refreshToken';
   static const String checkAutomatic = '/qms/check/automatic';
@@ -155,7 +156,8 @@ class ApiEndpoints {
         'distance': '',
         'units': 'esriSRUnit_Foot',
         'relationParam': '',
-        'outFields': 'GlobalID,OBJECTID,EntQuality,EntBldGlobalID,EntEntranceNumber',
+        'outFields':
+            'GlobalID,OBJECTID,EntQuality,EntBldGlobalID,EntEntranceNumber',
         'returnGeometry': 'true',
         'maxAllowableOffset': '',
         'geometryPrecision': '',

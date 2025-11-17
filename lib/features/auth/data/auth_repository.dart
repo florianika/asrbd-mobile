@@ -1,5 +1,6 @@
 import 'package:asrdb/core/models/auth/auth_esri_response.dart';
 import 'package:asrdb/core/models/auth/auth_response.dart';
+import 'package:asrdb/core/models/auth/auth_response2.dart';
 import 'package:asrdb/core/services/auth_service.dart';
 
 class AuthRepository {
@@ -8,8 +9,12 @@ class AuthRepository {
   AuthRepository(this.authService);
 
   // Login method
-  Future<AuthResponse> login(String email, String password) async {
+  Future<AuthResponse2> login(String email, String password) async {
     return await authService.login(email, password);
+  }
+
+  Future<AuthResponse> verifyOtp(String userId, String otp) async {
+    return await authService.verifyOtp(userId, otp);
   }
 
   Future<AuthEsriResponse> loginEsri() async {

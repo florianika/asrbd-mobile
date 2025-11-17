@@ -167,7 +167,10 @@ class _LoginTabletState extends State<LoginTablet> {
                     if (state is AuthAuthenticated) {
                       // Navigate to the next screen on successful login
                       Navigator.pushReplacementNamed(
-                          context, RouteManager.homeRoute);
+                        context,
+                        RouteManager.otpRoute,
+                        arguments: state.userId,
+                      );
                     } else if (state is AuthError) {
                       // Show error message
                       ScaffoldMessenger.of(context).showSnackBar(

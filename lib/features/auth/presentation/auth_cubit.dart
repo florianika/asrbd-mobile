@@ -9,9 +9,14 @@ abstract class AuthState {}
 
 class AuthInitial extends AuthState {}
 
+class AuthOtpVerified extends AuthState {}
+
 class AuthLoading extends AuthState {}
 
-class AuthAuthenticated extends AuthState {}
+class AuthAuthenticated extends AuthState {
+  final String userId;
+  AuthAuthenticated(this.userId);
+}
 
 class AuthError extends AuthState {
   final String message;
@@ -28,14 +33,9 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       final success = await authUseCases.login(email, password);
-      final user = await sl<UserService>().initialize();
-      if (user != null) {
-        await sl<StreetService>().clearAllStreets();
-        final streets = await sl<StreetService>().getStreets(user.municipality);
-        sl<StreetService>().saveStreets(streets);
-      }
-      if (success.accessToken != '' && user != null) {
-        emit(AuthAuthenticated());
+
+      if (success.userId != '') {
+        emit(AuthAuthenticated(success.userId));
       } else {
         emit(AuthError("Invalid credentials"));
       }
@@ -50,6 +50,46 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       await authUseCases.logout();
       emit(AuthInitial());
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> verifyOtp(String userId, String pin) async {
+    emit(AuthLoading());
+    try {
+      final success = await authUseCases.verifyOtp(userId, pin);
+      final user = await sl<UserService>().initialize();
+      if (user != null) {
+        await sl<StreetService>().clearAllStreets();
+        final streets = await sl<StreetService>().getStreets(user.municipality);
+        sl<StreetService>().saveStreets(streets);
+      }
+      if (success.accessToken != '' && user != null) {
+        emit(AuthAuthenticated(userId));
+      } else {
+        emit(AuthError("Invalid credentials"));
+      }
+    } catch (e) {
+      emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> resendOtp() async {
+    emit(AuthLoading());
+    try {
+      // final success = await authUseCases.login(email, password);
+      final user = await sl<UserService>().initialize();
+      if (user != null) {
+        await sl<StreetService>().clearAllStreets();
+        final streets = await sl<StreetService>().getStreets(user.municipality);
+        sl<StreetService>().saveStreets(streets);
+      }
+      // if (success.accessToken != '' && user != null) {
+      //   emit(AuthAuthenticated());
+      // } else {
+      //   emit(AuthError("Invalid credentials"));
+      // }
     } catch (e) {
       emit(AuthError(e.toString()));
     }

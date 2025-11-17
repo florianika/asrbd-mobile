@@ -65,7 +65,8 @@ class Keys {
   static const String successUpdateBuilding = 'successUpdateBuilding';
   static const String successAddEntrance = 'successAddEntrance';
   static const String successUpdateEntrance = 'successUpdateEntrance';
-  static const String entranceDistanceValidationError = 'entranceDistanceValidationError';
+  static const String entranceDistanceValidationError =
+      'entranceDistanceValidationError';
   static const String successAddDwelling = 'successAddDwelling';
   static const String successUpdateDwelling = 'successUpdateDwelling';
   static const String invalidShape = 'invalidShape';
@@ -82,7 +83,7 @@ class Keys {
   static const String loadingMapOverlay = 'loadingMapOverlay';
   static const String errorLoadingOverlay = 'errorLoadingOverlay';
   static const String noImageDataAvailable = 'noImageDataAvailable';
-  
+
   // Settings page keys
   static const String settings = 'settings';
   static const String dataManagement = 'dataManagement';
@@ -93,11 +94,12 @@ class Keys {
   static const String updateSchemaFilesDesc = 'updateSchemaFilesDesc';
   static const String information = 'information';
   static const String settingsInfoText = 'settingsInfoText';
-  static const String jsonAttributesUpdatedSuccess = 'jsonAttributesUpdatedSuccess';
+  static const String jsonAttributesUpdatedSuccess =
+      'jsonAttributesUpdatedSuccess';
   static const String jsonAttributesUpdateFailed = 'jsonAttributesUpdateFailed';
   static const String schemaFilesUpdatedSuccess = 'schemaFilesUpdatedSuccess';
   static const String schemaFilesUpdateFailed = 'schemaFilesUpdateFailed';
-  
+
   // Logout keys
   static const String logout = 'logout';
   static const String logoutSubtitle = 'logoutSubtitle';
@@ -106,7 +108,7 @@ class Keys {
   static const String logoutSuccess = 'logoutSuccess';
   static const String fieldRequired = 'fieldRequired';
   static const String logoutError = 'logoutError';
-  
+
   // Side menu keys
   static const String homeTitle = 'homeTitle';
   static const String homeSubtitle = 'homeSubttle';
@@ -136,7 +138,7 @@ class Keys {
   static const String helpSupportSubtitle = 'helpSupportSubtitle';
   static const String fieldWorkOverview = 'fieldWorkOverview';
   static const String fieldWorkOverviewSubtitle = 'fieldWorkOverviewSubtitle';
-  
+
   // Add/View/Edit form titles
   static const String add = 'add';
   static const String view = 'view';
@@ -157,7 +159,7 @@ class Keys {
   static const String sectionTitle = 'sectionTitle';
   static const String sectionIdentification = 'sectionIdentification';
   static const String sectionDescription = 'sectionDescription';
-  
+
   // Offline map translations
   static const String ok = 'ok';
   static const String delete = 'delete';
@@ -211,4 +213,12 @@ class Keys {
   static const String buildingCreationMode = 'buildingCreationMode';
   static const String buildingEditMode = 'buildingEditMode';
   static const String useOffline = 'useOffline';
+  static const String invalidPin = 'invalidPin';
+  static const String enterOtp = 'enterOtp';
+  static const String resend = 'resend';
+  static const String submit = 'submit';
+  static const String backToLogin = 'backToLogin';
+  static const String verify = 'verify';
+  static const String resendIn = 'resendIn';
+  static const String otp = 'otp';
 }

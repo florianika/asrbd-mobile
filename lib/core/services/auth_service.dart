@@ -2,6 +2,7 @@ import 'package:asrdb/core/api/auth_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/auth/auth_esri_response.dart';
 import 'package:asrdb/core/models/auth/auth_response.dart';
+import 'package:asrdb/core/models/auth/auth_response2.dart';
 import 'package:asrdb/core/models/auth/refresh_token_request.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
@@ -12,9 +13,9 @@ class AuthService {
   final StorageService _storage = StorageService();
   final JsonFileService _jsonFileService = JsonFileService();
 
-  Future<AuthResponse> login(String email, String password) async {
+  Future<AuthResponse> verifyOtp(String userId, String otp) async {
     try {
-      final response = await authApi.login(email, password);
+      final response = await authApi.verifyOtp(userId, otp);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -25,9 +26,35 @@ class AuthService {
             key: StorageKeys.refreshToken, value: authResponse.refreshToken);
         await _storage.saveString(
             key: StorageKeys.idhToken, value: authResponse.idToken);
- 
+
         await loginEsri();
         await _saveJsonFilesIfNeeded();
+
+        return authResponse;
+      } else {
+        throw Exception('Failed to login');
+      }
+    } catch (e) {
+      throw Exception('Login failed: $e');
+    }
+  }
+
+  Future<AuthResponse2> login(String email, String password) async {
+    try {
+      final response = await authApi.login(email, password);
+
+      // Here you would parse the response and handle tokens, errors, etc.
+      if (response.statusCode == 200) {
+        AuthResponse2 authResponse = AuthResponse2.fromJson(response.data);
+        // await _storage.saveString(
+        //     key: StorageKeys.accessToken, value: authResponse.accessToken);
+        // await _storage.saveString(
+        //     key: StorageKeys.refreshToken, value: authResponse.refreshToken);
+        // await _storage.saveString(
+        //     key: StorageKeys.idhToken, value: authResponse.idToken);
+
+        // await loginEsri();
+        // await _saveJsonFilesIfNeeded();
 
         return authResponse;
       } else {
@@ -105,19 +132,17 @@ class AuthService {
     }
   }
 
-
   Future<void> _saveJsonFilesIfNeeded() async {
     try {
       final filesExist = await _jsonFileService.areJsonFilesExist();
 
-      if (!filesExist) {  
+      if (!filesExist) {
         await _jsonFileService.saveJsonFiles();
       }
     } catch (e) {
       // Don't throw here as login should still succeed even if JSON saving fails
     }
   }
-
 
   Future<void> saveJsonFiles() async {
     try {
