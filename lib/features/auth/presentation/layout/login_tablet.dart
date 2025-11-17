@@ -13,6 +13,7 @@ import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class LoginTablet extends StatefulWidget {
   const LoginTablet({super.key});
@@ -27,6 +28,7 @@ class _LoginTabletState extends State<LoginTablet> {
   final TextEditingController passwordController = TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String _version = '';
   final userService = sl<UserService>();
 
   void _onLogin(BuildContext context) {
@@ -146,6 +148,14 @@ class _LoginTabletState extends State<LoginTablet> {
 
     emailController.text = dotenv.env['TEST_USERNAME'] ?? "";
     passwordController.text = dotenv.env['TEST_PASSWORD'] ?? "";
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _version = packageInfo.version;
+    });
   }
 
   @override
@@ -257,6 +267,20 @@ class _LoginTabletState extends State<LoginTablet> {
               right: 16,
               child: LanguageSelector(
                 onLanguageSelected,
+              ),
+            ),
+            Positioned(
+              bottom: 16,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  _version.isNotEmpty ? 'Version $_version' : '',
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
               ),
             ),
           ],
