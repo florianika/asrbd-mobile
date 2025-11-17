@@ -200,6 +200,15 @@ class _ViewMapState extends State<ViewMap> {
       }
 
       if (mounted) {
+        context.read<AttributesCubit>().showEntranceAttributes(
+              entrance.globalId,
+              entrance.entBldGlobalID,
+              isOffline,
+              download?.id,
+            );
+      }
+
+      if (mounted) {
         NotifierService.showMessage(
           context,
           message:
@@ -268,19 +277,17 @@ class _ViewMapState extends State<ViewMap> {
       );
 
       if (!isOffline && mounted) {
-        // bool hasErrorOrWarning = false;
         await context
             .read<OutputLogsCubit>()
             .checkAutomatic(building.globalId!.removeCurlyBraces()!);
+      }
 
-        // if (hasErrorOrWarning && mounted) {
-        //   NotifierService.showMessage(
-        //     context,
-        //     message:
-        //         'Validation errors or warnings detected for this building.',
-        //     type: response.success ? MessageType.success : MessageType.error,
-        //   );
-        // }
+      if (mounted) {
+        context.read<AttributesCubit>().showBuildingAttributes(
+              building.globalId!,
+              isOffline,
+              download?.id,
+            );
       }
 
       if (mounted) {
