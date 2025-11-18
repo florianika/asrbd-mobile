@@ -141,7 +141,7 @@ void main() async {
     sl<DownloadRepository>(),
   ));
 
-  await sl<UserService>().initialize();
+  // await sl<UserService>().initialize();
 
   runApp(const MyApp());
 }

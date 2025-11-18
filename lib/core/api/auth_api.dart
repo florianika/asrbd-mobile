@@ -16,12 +16,12 @@ class AuthApi {
     );
   }
 
-  Future<Response> verifyOtp(String userId, String c) async {
+  Future<Response> verifyOtp(String userId, String pin) async {
     return await _apiClient.post(
       ApiEndpoints.verifyOtp,
       data: {
         'userId': userId,
-        'code': userId,
+        'code': pin,
       },
     );
   }

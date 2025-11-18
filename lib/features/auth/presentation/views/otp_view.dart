@@ -38,8 +38,7 @@ class _OtpViewState extends State<OtpView> {
   }
 
   Future<void> _onVerify(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      // trigger verification in cubit; UI updates come from BlocConsumer listener
+    if (_formKey.currentState!.validate()) {    
       await context.read<AuthCubit>().verifyOtp(
             widget.userId,
             otpController.text.trim(),
@@ -86,8 +85,7 @@ class _OtpViewState extends State<OtpView> {
               setState(() => isLoading = false);
             }
 
-            if (state is AuthAuthenticated) {
-              // Replace with your target route or widget
+            if (state is AuthAuthenticated) {            
               Navigator.of(context)
                   .pushReplacementNamed(RouteManager.homeRoute);
             }

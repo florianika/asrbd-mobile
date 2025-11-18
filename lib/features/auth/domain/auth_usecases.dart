@@ -11,7 +11,7 @@ class AuthUseCases {
 
   // Use case for logging in
   Future<AuthResponse2> login(String email, String password) async {
-    await _storageRepository.clear();
+    // await _storageRepository.clear();
     AuthResponse2 authResponse = await _authRepository.login(email, password);
     // await _authRepository.loginEsri();
 
@@ -19,7 +19,7 @@ class AuthUseCases {
   }
 
   Future<AuthResponse> verifyOtp(String userId, String otp) async {
-    await _storageRepository.clear();
+   
     AuthResponse authResponse = await _authRepository.verifyOtp(userId, otp);
     await _authRepository.loginEsri();
 
