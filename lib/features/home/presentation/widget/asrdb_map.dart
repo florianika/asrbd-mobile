@@ -341,6 +341,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
             (widget.mapController.camera.zoom +
                     widget.mapController.camera.zoom * 0.1)
                 .clamp(0.0, 20.5));
+
+                if (mounted) {
+         context
+            .read<OutputLogsCubit>()
+            .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces()!);
+      }
       }
     } catch (e) {
       NotifierService.showMessage(
