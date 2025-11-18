@@ -78,6 +78,12 @@ class EventButtonAttribute extends StatelessWidget {
         if (buildingCubit.currentBuildingGlobalId != null) {
           await validateCubit.checkBuildings(
               buildingCubit.currentBuildingGlobalId.removeCurlyBraces()!);
+
+          context.read<AttributesCubit>().showBuildingAttributes(
+                buildingCubit.currentBuildingGlobalId,
+                false,
+                null,
+              );
         }
       } finally {
         loadingCubit.hide();
@@ -262,7 +268,8 @@ class EventButtonAttribute extends StatelessWidget {
                               onTap: () => validateData(),
                             ),
                           if (selectedShapeType == ShapeType.polygon &&
-                              (bldReview == 5 || bldReview == 6) && fieldWorkStatus.isFieldworkTime)
+                              (bldReview == 5 || bldReview == 6) &&
+                              fieldWorkStatus.isFieldworkTime)
                             SpeedDialChild(
                               child: const Icon(Icons.start),
                               backgroundColor: Colors.orange,
@@ -278,7 +285,11 @@ class EventButtonAttribute extends StatelessWidget {
                               onTap: () => startReviewing(
                                   fieldWorkStatus.isFieldworkTime),
                             ),
-                          if (selectedShapeType == ShapeType.polygon && (bldReview == 5 || bldReview == 4|| bldReview == 6) && fieldWorkStatus.isFieldworkTime) 
+                          if (selectedShapeType == ShapeType.polygon &&
+                              (bldReview == 5 ||
+                                  bldReview == 4 ||
+                                  bldReview == 6) &&
+                              fieldWorkStatus.isFieldworkTime)
                             SpeedDialChild(
                               child: const Icon(Icons.stop),
                               backgroundColor: Colors.orange,
