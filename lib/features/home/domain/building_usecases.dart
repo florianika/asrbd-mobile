@@ -143,34 +143,46 @@ class BuildingUseCases {
     }).toList();
   }
 
+  bool isMultipart(List<List<LatLng>> coords) {
+    return coords.length > 1;
+  }
+
+  List<List<turf.Position>> toTurfCoords(List<List<LatLng>> coords) {
+    return coords
+        .map((ring) => ring
+            .map((latLng) => turf.Position(latLng.longitude, latLng.latitude))
+            .toList())
+        .toList();
+  }
+
   String? intersectsWithOtherBuildings(
     BuildingEntity building,
     List<BuildingEntity> buildings,
   ) {
     if (buildings.isEmpty) return null;
 
+    // Skip: if the NEW building is multi-part
+    if (isMultipart(building.coordinates)) return null;
+
     final buildingsToCheck = buildings.where(
-        (x) => x.globalId!.toLowerCase() != building.globalId!.toLowerCase());
+      (x) => x.globalId!.toLowerCase() != building.globalId!.toLowerCase(),
+    );
 
-    List<List<LatLng>> newBuildingCoordinates =
-        _closePolygon(building.coordinates);
-
-    // Convert LatLng list to turf.Position
-    List<List<turf.Position>> toTurfCoords(List<List<LatLng>> coords) {
-      return coords
-          .map((ring) => ring
-              .map((latLng) => turf.Position(latLng.longitude, latLng.latitude))
-              .toList())
-          .toList();
+    List<List<LatLng>> newCoords = _closePolygon(building.coordinates);
+    if (isMultipart(newCoords)) {
+      return null; // After closing, still multi-part → skip
     }
 
-    final geom1 =
-        turf.Polygon(coordinates: toTurfCoords(newBuildingCoordinates));
+    final geom1 = turf.Polygon(coordinates: toTurfCoords(newCoords));
 
     for (final b in buildingsToCheck) {
-      List<List<LatLng>> bCoordinates = _closePolygon(b.coordinates);
+      final closed = _closePolygon(b.coordinates);
 
-      final geom2 = turf.Polygon(coordinates: toTurfCoords(bCoordinates));
+      // Skip other buildings that are multi-part
+      if (isMultipart(closed)) continue;
+
+      final geom2 = turf.Polygon(coordinates: toTurfCoords(closed));
+
       if (turf.booleanIntersects(geom1, geom2)) {
         return b.globalId;
       }
