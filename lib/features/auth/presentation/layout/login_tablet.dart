@@ -13,6 +13,7 @@ import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginTablet extends StatefulWidget {
   const LoginTablet({super.key});
@@ -130,6 +131,67 @@ class _LoginTabletState extends State<LoginTablet> {
     );
   }
 
+  Future<void> _onFirstTimeLogin(BuildContext context) async {
+    final localizations = AppLocalizations.of(context);
+    final urlString = dotenv.env['FIRST_TIME_LOGIN_URL'];
+    
+    if (urlString == null || urlString.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.translate(Keys.firstTimeLoginUrlNotConfigured)),
+          ),
+        );
+      }
+      return;
+    }
+
+    Uri url;
+    try {
+      url = Uri.parse(urlString);
+      if (!url.hasScheme) {
+        // If no scheme, assume https
+        url = Uri.parse('https://$urlString');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              localizations.translate(Keys.invalidUrl).replaceFirst('{url}', urlString),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      final launched = await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(localizations.translate(Keys.couldNotLaunchUrl)),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              localizations.translate(Keys.errorOpeningUrl).replaceFirst('{error}', e.toString()),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _onUseOffline(BuildContext context) async {
     if (userService.userInfo == null) {
       // if (mounted) {
@@ -245,6 +307,15 @@ class _LoginTabletState extends State<LoginTablet> {
                                     ),
                                   ),
                                 ],
+                              ),
+                              const SizedBox(height: 12),
+                              // First Time Login Button
+                              Center(
+                                child: TextButton(
+                                  onPressed: () => _onFirstTimeLogin(context),
+                                  child: Text(AppLocalizations.of(context)
+                                      .translate(Keys.firstTimeLogin)),
+                                ),
                               ),
                             ],
                           ),

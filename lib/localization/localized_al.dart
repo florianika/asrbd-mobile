@@ -217,5 +217,18 @@ class LocalizedAl {
     Keys.buildingCreationMode: 'Modaliteti i Krijimit të Ndërtesës',
     Keys.buildingEditMode: 'Modaliteti i Redaktimit të Ndërtesës',
     Keys.useOffline: 'Përdor Offline',
+    Keys.firstTimeLogin: 'Hyrje për Herë të Parë',
+    Keys.firstTimeLoginUrlNotConfigured: 'URL-ja e hyrjes për herë të parë nuk është konfiguruar',
+    Keys.invalidUrl: 'URL e pavlefshme: {url}',
+    Keys.couldNotLaunchUrl: 'Nuk u arrit të hapej URL-ja',
+    Keys.errorOpeningUrl: 'Gabim gjatë hapjes së URL-së: {error}',
+    Keys.otp: 'Pin një perdorimësh',
+    Keys.enterOtp: 'Vendosni pin-in një perdorimësh',
+    Keys.resend: 'Ridergoni',
+    Keys.submit: 'Dërgo',
+    Keys.backToLogin: 'Kthehu te Hyrja',
+    Keys.verify: 'Verifiko',
+    Keys.resendIn: 'Përsendoni pas {seconds} sekondash',
+   
   };
 }

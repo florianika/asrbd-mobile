@@ -213,6 +213,11 @@ class Keys {
   static const String buildingCreationMode = 'buildingCreationMode';
   static const String buildingEditMode = 'buildingEditMode';
   static const String useOffline = 'useOffline';
+  static const String firstTimeLogin = 'firstTimeLogin';
+  static const String firstTimeLoginUrlNotConfigured = 'firstTimeLoginUrlNotConfigured';
+  static const String invalidUrl = 'invalidUrl';
+  static const String couldNotLaunchUrl = 'couldNotLaunchUrl';
+  static const String errorOpeningUrl = 'errorOpeningUrl';
   static const String invalidPin = 'invalidPin';
   static const String enterOtp = 'enterOtp';
   static const String resend = 'resend';

@@ -225,5 +225,17 @@ class LocalizedEn {
     Keys.buildingCreationMode: 'Building Creation Mode',
     Keys.buildingEditMode: 'Building Edit Mode',
     Keys.useOffline: 'Use Offline',
+    Keys.firstTimeLogin: 'First Time Login',
+    Keys.firstTimeLoginUrlNotConfigured: 'First time login URL is not configured',
+    Keys.invalidUrl: 'Invalid URL: {url}',
+    Keys.couldNotLaunchUrl: 'Could not launch the URL',
+    Keys.errorOpeningUrl: 'Error opening URL: {error}',
+    Keys.otp: 'One time pin',
+    Keys.enterOtp: 'Enter one time pin',
+    Keys.resend: 'Resend',
+    Keys.submit: 'Submit',
+    Keys.backToLogin: 'Back to Login',
+    Keys.verify: 'Verify',
+    Keys.resendIn: 'Resend in {seconds} seconds',
   };
 }
