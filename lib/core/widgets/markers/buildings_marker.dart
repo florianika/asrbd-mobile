@@ -205,8 +205,8 @@ class BuildingsMarker extends StatelessWidget {
     return Polygon(
       hitValue: basePolygon.hitValue,
       points: basePolygon.points,
-      borderStrokeWidth: 1.0,
-      color: isSatellite ? Colors.transparent : fillColor,
+      borderStrokeWidth: isSatellite ? 4.0 : 1.0,
+      color: isSatellite ? fillColor.withOpacity(0.15) : fillColor,
       borderColor: isSatellite ? fillColor : Color.fromRGBO(130, 127, 0, 1),
     );
   }
