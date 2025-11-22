@@ -78,18 +78,21 @@ class ApiClient {
   }
 
   /// GET request
-  Future<Response> get(String endpoint, {Map<String, dynamic>? params}) async {
+  Future<Response> get(String endpoint,
+      {Map<String, dynamic>? params, Options? options}) async {
     try {
-      return await dio.get(endpoint, queryParameters: params);
+      return await dio.get(endpoint,
+          queryParameters: params, options: options);
     } catch (e) {
       throw ApiExceptions.handleError(e);
     }
   }
 
   /// POST request
-  Future<Response> post(String endpoint, {dynamic data}) async {
+  Future<Response> post(String endpoint,
+      {dynamic data, Options? options}) async {
     try {
-      return await dio.post(endpoint, data: data);
+      return await dio.post(endpoint, data: data, options: options);
     } catch (e) {
       throw ApiExceptions.handleError(e);
     }

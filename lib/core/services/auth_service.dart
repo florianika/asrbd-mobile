@@ -23,7 +23,6 @@ class AuthService {
     try {
       final response = await authApi.verifyOtp(userId, otp);
 
-      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
         AuthResponse authResponse = AuthResponse.fromJson(response.data);
         await _secureStorage.write(
@@ -49,19 +48,8 @@ class AuthService {
     try {
       final response = await authApi.login(email, password);
 
-      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
         AuthResponse2 authResponse = AuthResponse2.fromJson(response.data);
-        // await _storage.saveString(
-        //     key: StorageKeys.accessToken, value: authResponse.accessToken);
-        // await _storage.saveString(
-        //     key: StorageKeys.refreshToken, value: authResponse.refreshToken);
-        // await _storage.saveString(
-        //     key: StorageKeys.idhToken, value: authResponse.idToken);
-
-        // await loginEsri();
-        // await _saveJsonFilesIfNeeded();
-
         return authResponse;
       } else {
         throw Exception('Failed to login');
@@ -79,7 +67,6 @@ class AuthService {
 
       final response = await authApi.loginEsri(accessToken);
 
-      // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
         AuthEsriResponse authResponse =
             AuthEsriResponse.fromJson(response.data);
@@ -102,19 +89,9 @@ class AuthService {
 
   void _scheduleTokenRefresh(int expires) {
     _refreshTimer?.cancel();
-    // Assuming expires is a timestamp in milliseconds or seconds. 
-    // If it's duration in minutes/seconds, logic changes.
-    // Common ArcGIS pattern: expires is epoch in milliseconds.
-    // User said: "Token is valid for a configurable duration (e.g., 30 minutes, 1 hour)."
-    // And "Track expires timestamp from token response."
-    
-    // Let's assume expires is a timestamp (epoch ms) for now, as is standard for Esri.
-    // If it's a duration, we would add it to current time.
-    // Safest bet: Check if it's a large number (timestamp) or small (duration).
-    // Or just assume timestamp as per "expires timestamp" wording.
     
     final now = DateTime.now().millisecondsSinceEpoch;
-    final expiresMs = expires; // Assuming input is ms
+    final expiresMs = expires;
     
     // Refresh 5 minutes before expiry
     final refreshTime = expiresMs - (5 * 60 * 1000);
@@ -199,13 +176,26 @@ class AuthService {
       // Clear all stored tokens
       await _secureStorage.deleteAll();
       _refreshTimer?.cancel();
-      // await _storage.remove(key: StorageKeys.accessToken);
-      // await _storage.remove(key: StorageKeys.refreshToken);
-      // await _storage.remove(key: StorageKeys.idhToken);
-      // await _storage.remove(key: StorageKeys.esriAccessToken);
       await _storage.remove(key: StorageKeys.userProfile);
     } catch (e) {
       throw Exception('Logout failed: $e');
     }
+  }
+
+  Future<bool> isLoggedIn() async {
+    final token = await _secureStorage.read(key: StorageKeys.accessToken);
+    return token != null;
+  }
+
+  Future<String?> getUserId() async {
+    final idToken = await _secureStorage.read(key: StorageKeys.idhToken);
+    if (idToken != null) {
+      try {
+        return idToken;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 }

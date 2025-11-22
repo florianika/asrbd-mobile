@@ -211,6 +211,7 @@ class _LoginTabletState extends State<LoginTablet> {
     emailController.text = dotenv.env['TEST_USERNAME'] ?? "";
     passwordController.text = dotenv.env['TEST_PASSWORD'] ?? "";
     _loadVersion();
+    context.read<AuthCubit>().checkAuthStatus();
   }
 
   Future<void> _loadVersion() async {
@@ -236,12 +237,18 @@ class _LoginTabletState extends State<LoginTablet> {
                 key: _formKey,
                 child: BlocConsumer<AuthCubit, AuthState>(
                   listener: (context, state) {
-                    if (state is AuthAuthenticated) {
-                      // Navigate to the next screen on successful login
+                    if (state is AuthOtpRequired) {
+                      // Navigate to OTP screen
                       Navigator.pushReplacementNamed(
                         context,
                         RouteManager.otpRoute,
                         arguments: state.userId,
+                      );
+                    } else if (state is AuthAuthenticated) {
+                      // Navigate directly to Home (Auto-login)
+                      Navigator.pushReplacementNamed(
+                        context,
+                        RouteManager.homeRoute,
                       );
                     } else if (state is AuthError) {
                       // Show error message

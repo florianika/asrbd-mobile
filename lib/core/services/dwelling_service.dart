@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:asrdb/data/dto/dwelling_dto.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 
@@ -11,13 +11,13 @@ class DwellingService {
   final DwellingApi dwellingApi;
   DwellingService(this.dwellingApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
 //
   Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
 
       if (esriToken == null) throw Exception('Login failed:');
 
@@ -54,7 +54,7 @@ class DwellingService {
       List<String> entranceGlobalIds) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
 
       if (esriToken == null) throw Exception('Login failed:');
 
@@ -90,7 +90,7 @@ class DwellingService {
   Future<List<FieldSchema>> getDwellingAttributes() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await dwellingApi.getDwellingAttributes(esriToken);
@@ -115,7 +115,7 @@ class DwellingService {
   Future<DwellingEntity> getDwellingDetails(int objectId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -151,7 +151,7 @@ class DwellingService {
   Future<String> addDwellingFeature(DwellingEntity dwelling) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -192,7 +192,7 @@ class DwellingService {
   Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =

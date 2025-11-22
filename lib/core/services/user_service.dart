@@ -1,14 +1,14 @@
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/auth/decoded_jwt.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UserService {
   DecodedJwt? userInfo;
   Future<DecodedJwt?> initialize() async {
     try {
-      StorageService storageService = StorageService();
-      final token = await storageService.getString(key: StorageKeys.idhToken);
+      SecureStorageService secureStorage = SecureStorageService();
+      final token = await secureStorage.read(key: StorageKeys.idhToken);
       if (token == null) return null;
 
       Map<String, dynamic> decoded = JwtDecoder.decode(token);

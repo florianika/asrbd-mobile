@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
@@ -23,6 +24,7 @@ class FieldWorkCubit extends Cubit<FieldWorkStatus> {
   bool _shouldReconnect = true;
 
   final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   FieldWorkCubit({required this.wsUri}) : super(FieldWorkStatus.initial()) {
     _initialize();
@@ -71,7 +73,7 @@ class FieldWorkCubit extends Cubit<FieldWorkStatus> {
     await _closeConnection();
 
     try {
-      final token = await _storage.getString(key: StorageKeys.accessToken);
+      final token = await _secureStorage.read(key: StorageKeys.accessToken);
       if (token == null) {
         // print('No token found in storage.');
         _updateStatusWithError('Unauthorized');

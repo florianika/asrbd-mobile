@@ -31,7 +31,6 @@ class EsriApiClient {
       ),
     );
 
-    // Add token interceptor
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await _secureStorage.read(key: StorageKeys.esriAccessToken);
@@ -48,11 +47,7 @@ class EsriApiClient {
 
             final refreshed = await authService.refreshToken();
             final options = error.requestOptions;
-
-            // Clone request with updated token
-            // options.headers['Authorization'] = 'Bearer ${refreshed.accessToken}';
             
-            // For Esri, we need the Esri token, which should have been updated by refreshToken() -> loginEsri()
             final newEsriToken = await _secureStorage.read(key: StorageKeys.esriAccessToken);
             if (newEsriToken != null) {
                options.queryParameters['token'] = newEsriToken;

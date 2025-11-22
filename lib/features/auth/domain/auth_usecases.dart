@@ -31,4 +31,12 @@ class AuthUseCases {
     await _authRepository.logout();
     await _storageRepository.clear();
   }
+
+  Future<bool> isLoggedIn() async {
+    return await _authRepository.isLoggedIn();
+  }
+
+  Future<String?> getLoggedInUserId() async {
+    return await _authRepository.getLoggedInUserId();
+  }
 }

@@ -107,7 +107,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
         AppConfig.buildingMinZoom,
         isOffline
             ? (download?.municipalityId ?? 0)
-            : userService.userInfo!.municipality,
+            : (userService.userInfo?.municipality ?? 0),
         isOffline,
         download?.id);
 
@@ -148,7 +148,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       if (mounted) {
         await context
             .read<OutputLogsCubit>()
-            .outputLogsBuildings(entrance.entBldGlobalID.removeCurlyBraces()!);
+            .outputLogsBuildings(entrance.entBldGlobalID.removeCurlyBraces() ?? "");
       }
     } catch (e) {
       if (mounted) {
@@ -345,7 +345,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 if (mounted) {
          context
             .read<OutputLogsCubit>()
-            .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces()!);
+            .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces() ?? "");
       }
       }
     } catch (e) {
@@ -378,9 +378,11 @@ class _AsrdbMapState extends State<AsrdbMap> {
               mapController: widget.mapController,
               options: MapOptions(
                 onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
-                initialCenter: state.isOffline
-                    ? (LatLng(
-                        state.download!.centerLat!, state.download!.centerLng!))
+                initialCenter: (state.isOffline &&
+                        state.download?.centerLat != null &&
+                        state.download?.centerLng != null)
+                    ? LatLng(
+                        state.download!.centerLat!, state.download!.centerLng!)
                     : currentPosition,
                 initialZoom: AppConfig.initZoom,
                 onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
@@ -398,7 +400,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                       false, // hasGesture = false, since user stopped
                       state.isOffline
                           ? (state.download?.municipalityId ?? 0)
-                          : userService.userInfo!.municipality,
+                          : (userService.userInfo?.municipality ?? 0),
                       state.isOffline,
                       state.download?.id,
                     );
@@ -431,7 +433,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   MarkerLayer(
                     markers: [
                       Marker(
-                        point: _userLocation!,
+                        point: _userLocation ?? currentPosition,
                         width: 40,
                         height: 40,
                         child: const Icon(

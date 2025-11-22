@@ -4,7 +4,7 @@ import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/api/dwelling_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 
 class JsonFetchService {
   final BuildingApi buildingApi;
@@ -14,13 +14,13 @@ class JsonFetchService {
 
   JsonFetchService(this.buildingApi, this.entranceApi, this.dwellingApi, this.schemaApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
 
   Future<String> getBuildingJson() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.getBuildingAttributes(esriToken);
@@ -41,7 +41,7 @@ class JsonFetchService {
   Future<String> getEntranceJson() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await entranceApi.getEntranceAttributes(esriToken);
@@ -62,7 +62,7 @@ class JsonFetchService {
   Future<String> getDwellingJson() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await dwellingApi.getDwellingAttributes(esriToken);

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:asrdb/core/api/building_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:asrdb/data/dto/building_dto.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -11,13 +11,13 @@ class BuildingService {
   final BuildingApi buildingApi;
   BuildingService(this.buildingApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   Future<List<BuildingEntity>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
       if (esriToken == null) throw Exception('Login failed:');
@@ -49,7 +49,7 @@ class BuildingService {
   Future<List<FieldSchema>> getBuildingAttributes() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.getBuildingAttributes(esriToken);
@@ -76,7 +76,7 @@ class BuildingService {
   Future<String> addBuildingFeature(BuildingEntity building) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -119,7 +119,7 @@ class BuildingService {
   Future<bool> updateBuildingFeature(BuildingEntity building) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       BuildingDto buildingDto = BuildingDto.fromEntity(building);
@@ -165,7 +165,7 @@ class BuildingService {
   Future<BuildingEntity> getBuildingDetails(String globalId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -201,7 +201,7 @@ class BuildingService {
   Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -226,7 +226,7 @@ class BuildingService {
   Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
       if (esriToken == null) throw Exception('Login failed: missing token');

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:asrdb/core/api/entrance_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:asrdb/data/dto/entrance_dto.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 
@@ -10,13 +10,13 @@ class EntranceService {
   final EntranceApi entranceApi;
   EntranceService(this.entranceApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   Future<List<EntranceEntity>> getEntrancesByBuildingId(
       String buildingGlobalId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -55,7 +55,7 @@ class EntranceService {
       List<String> entBldGlobalID) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -92,7 +92,7 @@ class EntranceService {
   Future<EntranceEntity> getEntranceDetails(String globalId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -128,7 +128,7 @@ class EntranceService {
   Future<List<FieldSchema>> getEntranceAttributes() async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await entranceApi.getEntranceAttributes(esriToken);
@@ -155,7 +155,7 @@ class EntranceService {
   Future<String> addEntranceFeature(EntranceEntity entrance) async {
     try {
       final esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Missing Esri token');
 
       final response = await entranceApi.addEntranceFeature(
@@ -199,7 +199,7 @@ class EntranceService {
   Future<bool> updateEntranceFeature(EntranceEntity entrance) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =
@@ -242,7 +242,7 @@ class EntranceService {
   Future<bool> deleteEntranceFeature(String objectId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response =

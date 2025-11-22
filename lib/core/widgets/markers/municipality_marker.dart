@@ -26,8 +26,8 @@ class _MunicipalityMarkerState extends State<MunicipalityMarker> {
     super.initState();
     context.read<MunicipalityCubit>().getMunicipality(
           widget.isOffline
-              ? widget.municipalityId!
-              : userService.userInfo!.municipality,
+              ? (widget.municipalityId ?? 0)
+              : (userService.userInfo?.municipality ?? 0),
           widget.isOffline ? ServiceMode.offline : ServiceMode.online,
         );
   }

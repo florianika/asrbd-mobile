@@ -5,6 +5,7 @@ import 'package:asrdb/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 class EntrancesMarker extends StatefulWidget {
   final String attributeLegend;
@@ -55,7 +56,7 @@ class _EntrancesMarkerState extends State<EntrancesMarker> {
                 return Marker(
                   width: markerSize,
                   height: markerSize,
-                  point: entrance.coordinates!,
+                  point: entrance.coordinates ?? const LatLng(0, 0),
                   child: GestureDetector(
                     onTap: () => widget.onTap(entrance),
                     onLongPress: () => widget.onLongPress(entrance),

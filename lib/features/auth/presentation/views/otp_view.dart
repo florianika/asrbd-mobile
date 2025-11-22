@@ -167,7 +167,9 @@ class _OtpViewState extends State<OtpView> {
                                     child: SizedBox(
                                       height: 48,
                                       child: ElevatedButton(
-                                        onPressed: () => _onVerify(context),
+                                        onPressed: isLoading
+                                            ? null
+                                            : () => _onVerify(context),
                                         child: Text(AppLocalizations.of(context)
                                             .translate(Keys.verify)),
                                       ),

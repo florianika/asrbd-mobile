@@ -11,6 +11,11 @@ class AuthInitial extends AuthState {}
 
 class AuthOtpVerified extends AuthState {}
 
+class AuthOtpRequired extends AuthState {
+  final String userId;
+  AuthOtpRequired(this.userId);
+}
+
 class AuthLoading extends AuthState {}
 
 class AuthAuthenticated extends AuthState {
@@ -35,7 +40,7 @@ class AuthCubit extends Cubit<AuthState> {
       final success = await authUseCases.login(email, password);
 
       if (success.userId != '') {
-        emit(AuthAuthenticated(success.userId));
+        emit(AuthOtpRequired(success.userId));
       } else {
         emit(AuthError("Invalid credentials"));
       }
@@ -92,6 +97,29 @@ class AuthCubit extends Cubit<AuthState> {
       // }
     } catch (e) {
       emit(AuthError(e.toString()));
+    }
+  }
+
+  Future<void> checkAuthStatus() async {
+    emit(AuthLoading());
+    try {
+      final userId = await authUseCases.getLoggedInUserId();
+      if (userId != null) {
+        // Also initialize user service and street service as in verifyOtp
+        final user = await sl<UserService>().initialize();
+        if (user != null) {
+          await sl<StreetService>().clearAllStreets();
+          final streets = await sl<StreetService>().getStreets(user.municipality);
+          sl<StreetService>().saveStreets(streets);
+          emit(AuthAuthenticated(userId));
+        } else {
+          emit(AuthInitial());
+        }
+      } else {
+        emit(AuthInitial());
+      }
+    } catch (e) {
+      emit(AuthInitial());
     }
   }
 }

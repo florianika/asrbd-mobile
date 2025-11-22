@@ -38,7 +38,9 @@ class AuthApi {
       "Authorization": 'Bearer $authToken'
     };
 
-    _apiClient.setHeaders(authHeader);
-    return await _apiClient.get(ApiEndpoints.loginEsri);
+    return await _apiClient.get(
+      ApiEndpoints.loginEsri,
+      options: Options(headers: authHeader),
+    );
   }
 }

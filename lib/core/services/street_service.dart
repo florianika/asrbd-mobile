@@ -3,18 +3,18 @@ import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/street/street.dart';
 import 'package:asrdb/core/models/street/street_api_response.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 
 class StreetService {
   final StreetApi buildingApi;
   StreetService(this.buildingApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   Future<List<Street>> getStreets(int municipalityId) async {
     try {
       String? esriToken =
-          await _storage.getString(key: StorageKeys.esriAccessToken);
+          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       if (esriToken == null) throw Exception('Login failed:');
 
       final response = await buildingApi.getStreets(esriToken, municipalityId);

@@ -1,18 +1,18 @@
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/note/note_response.dart';
-import 'package:asrdb/core/services/storage_service.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
 
 class NoteService {
   final NoteApi noteApi;
   NoteService(this.noteApi);
 
-  final StorageService _storage = StorageService();
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   Future<NoteApiResponse> getNotes(String buildingGlobalId) async {
     try {
       String? accessToken =
-          await _storage.getString(key: StorageKeys.accessToken);
+          await _secureStorage.read(key: StorageKeys.accessToken);
       if (accessToken == null) throw Exception('Access token missing');
       final response = await noteApi.getNotes(accessToken, buildingGlobalId);
       if (response.statusCode == 200) {
@@ -29,7 +29,7 @@ class NoteService {
       String createdUser, String userId) async {
     try {
       String? accessToken =
-          await _storage.getString(key: StorageKeys.accessToken);
+          await _secureStorage.read(key: StorageKeys.accessToken);
       if (accessToken == null) throw Exception('Access token missing');
       final response = await noteApi.postNote(
           accessToken, buildingGlobalId, noteText, createdUser, userId);
