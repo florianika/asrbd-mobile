@@ -3,11 +3,15 @@ import 'package:dio/dio.dart';
 import 'package:asrdb/core/api/auth_api.dart';
 import 'package:asrdb/core/services/auth_service.dart';
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/services/secure_storage_service.dart';
+import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'api_exceptions.dart';
 
 class EsriApiClient {
   static EsriApiClient? _instance;
   late Dio dio;
+  final SecureStorageService _secureStorage = SecureStorageService();
 
   factory EsriApiClient() {
     _instance ??= EsriApiClient._internal();
@@ -27,8 +31,15 @@ class EsriApiClient {
       ),
     );
 
-    // Add refresh token interceptor
+    // Add token interceptor
     dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) async {
+        final token = await _secureStorage.read(key: StorageKeys.esriAccessToken);
+        if (token != null) {
+          options.queryParameters['token'] = token;
+        }
+        return handler.next(options);
+      },
       onError: (DioException error, ErrorInterceptorHandler handler) async {
         if (error.response?.statusCode == 401) {
           try {
@@ -39,8 +50,13 @@ class EsriApiClient {
             final options = error.requestOptions;
 
             // Clone request with updated token
-            options.headers['Authorization'] =
-                'Bearer ${refreshed.accessToken}';
+            // options.headers['Authorization'] = 'Bearer ${refreshed.accessToken}';
+            
+            // For Esri, we need the Esri token, which should have been updated by refreshToken() -> loginEsri()
+            final newEsriToken = await _secureStorage.read(key: StorageKeys.esriAccessToken);
+            if (newEsriToken != null) {
+               options.queryParameters['token'] = newEsriToken;
+            }
 
             final retryResponse = await dio.fetch(options);
             return handler.resolve(retryResponse);
