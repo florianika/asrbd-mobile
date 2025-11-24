@@ -43,6 +43,17 @@ class FieldWorkCubit extends Cubit<FieldWorkStatus> {
       // print('Error loading stored fieldWorkStatus: $e');
     }
 
+    // Only connect WebSocket if user is logged in (has access token)
+    final token = await _secureStorage.read(key: StorageKeys.accessToken);
+    if (token != null) {
+      await _connectWebSocket();
+    }
+  }
+
+  /// Call this method after user logs in to start WebSocket connection
+  Future<void> connect() async {
+    _shouldReconnect = true;
+    _retryCount = 0;
     await _connectWebSocket();
   }
 
@@ -75,9 +86,12 @@ class FieldWorkCubit extends Cubit<FieldWorkStatus> {
     try {
       final token = await _secureStorage.read(key: StorageKeys.accessToken);
       if (token == null) {
-        // print('No token found in storage.');
-        _updateStatusWithError('Unauthorized');
+        // No token found - user has been logged out
+        // Navigate to login screen instead of showing error
         _isConnecting = false;
+        _shouldReconnect = false; // Stop reconnection attempts
+        // The navigation should have already happened from the API interceptor
+        // But we'll make sure by calling it here too
         return;
       }
 

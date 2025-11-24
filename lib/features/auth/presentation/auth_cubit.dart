@@ -1,5 +1,6 @@
 import 'package:asrdb/core/services/street_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/features/auth/domain/auth_usecases.dart';
@@ -71,6 +72,13 @@ class AuthCubit extends Cubit<AuthState> {
         sl<StreetService>().saveStreets(streets);
       }
       if (success.accessToken != '' && user != null) {
+        // Connect WebSocket after successful login
+        try {
+          final fieldWorkCubit = sl<FieldWorkCubit>();
+          await fieldWorkCubit.connect();
+        } catch (e) {
+          // Ignore if FieldWorkCubit is not registered or fails
+        }
         emit(AuthAuthenticated(userId));
       } else {
         emit(AuthError("Invalid credentials"));

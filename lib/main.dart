@@ -127,6 +127,10 @@ void main() async {
       entranceCubit: sl<EntranceGeometryCubit>(),
       buildingCubit: sl<BuildingGeometryCubit>()));
 
+  // Register FieldWorkCubit as singleton so it can be accessed after login
+  sl.registerLazySingleton<FieldWorkCubit>(
+      () => FieldWorkCubit(wsUri: Uri.parse(AppConfig.fieldWorkWebSocket)));
+
   initAuthModule(sl);
   initEntranceModule(sl);
   initBuildingModule(sl);
@@ -171,9 +175,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<GeometryEditorCubit>()),
         BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
-        BlocProvider(
-            create: (context) =>
-                FieldWorkCubit(wsUri: Uri.parse(AppConfig.fieldWorkWebSocket))),
+        BlocProvider(create: (context) => sl<FieldWorkCubit>()),
       ],
       child: BlocBuilder<LangCubit, String>(
         builder: (context, langCode) {
