@@ -11,19 +11,13 @@ class BuildingService {
   final BuildingApi buildingApi;
   BuildingService(this.buildingApi);
 
-  final SecureStorageService _secureStorage = SecureStorageService();
-
   Future<List<BuildingEntity>> getBuildings(
       LatLngBounds bounds, double zoom, int municipalityId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
-      if (esriToken == null) throw Exception('Login failed:');
 
-      final response =
-          await buildingApi.getBuildings(esriToken, bbox, municipalityId);
+      final response = await buildingApi.getBuildings(bbox, municipalityId);
 
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
@@ -48,11 +42,7 @@ class BuildingService {
 
   Future<List<FieldSchema>> getBuildingAttributes() async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response = await buildingApi.getBuildingAttributes(esriToken);
+      final response = await buildingApi.getBuildingAttributes();
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -75,12 +65,7 @@ class BuildingService {
 
   Future<String> addBuildingFeature(BuildingEntity building) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response =
-          await buildingApi.addBuildingFeature(esriToken, building);
+      final response = await buildingApi.addBuildingFeature(building);
 
       if (response.statusCode == 200) {
         // Ensure response data is decoded
@@ -118,14 +103,9 @@ class BuildingService {
 
   Future<bool> updateBuildingFeature(BuildingEntity building) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       BuildingDto buildingDto = BuildingDto.fromEntity(building);
 
-      final response =
-          await buildingApi.updateBuildingFeature(esriToken, buildingDto);
+      final response = await buildingApi.updateBuildingFeature(buildingDto);
 
       if (response.statusCode == 200) {
         // Ensure response data is decoded
@@ -164,12 +144,7 @@ class BuildingService {
 
   Future<BuildingEntity> getBuildingDetails(String globalId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response =
-          await buildingApi.getBuildingDetails(esriToken, globalId);
+      final response = await buildingApi.getBuildingDetails(globalId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -200,12 +175,7 @@ class BuildingService {
 
   Future<bool> getBuildingIntersections(Map<String, dynamic> geometry) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response =
-          await buildingApi.getBuildingIntersection(esriToken, geometry);
+      final response = await buildingApi.getBuildingIntersection(geometry);
 
       if (response.statusCode == 200) {
         var mapData = response.data as Map<String, dynamic>;
@@ -225,14 +195,10 @@ class BuildingService {
 
   Future<int> getBuildingsCount(LatLngBounds bounds, int municipalityId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
       final bbox =
           '${bounds.west},${bounds.south},${bounds.east},${bounds.north}';
-      if (esriToken == null) throw Exception('Login failed: missing token');
 
-      final response =
-          await buildingApi.getBuildingsCount(esriToken, bbox, municipalityId);
+      final response = await buildingApi.getBuildingsCount(bbox, municipalityId);
 
       if (response.statusCode == 200) {
         final data = response.data;

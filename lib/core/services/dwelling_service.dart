@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:asrdb/core/api/dwelling_api.dart';
-import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:asrdb/data/dto/dwelling_dto.dart';
 import 'package:asrdb/domain/entities/dwelling_entity.dart';
 
@@ -11,18 +9,10 @@ class DwellingService {
   final DwellingApi dwellingApi;
   DwellingService(this.dwellingApi);
 
-  final SecureStorageService _secureStorage = SecureStorageService();
-
-//
   Future<List<DwellingEntity>> getDwellings(String? entranceGlobalId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await dwellingApi.getDwellings(esriToken, entranceGlobalId);
+          await dwellingApi.getDwellings(entranceGlobalId);
       if (response.statusCode == 200) {
         var mapData = response.data as Map<String, dynamic>;
         if (mapData.keys.contains('error')) {
@@ -53,13 +43,8 @@ class DwellingService {
   Future<List<DwellingEntity>> getDwellingsByEntrancesList(
       List<String> entranceGlobalIds) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response = await dwellingApi.getDwellingsFromEntrancesList(
-          esriToken, entranceGlobalIds);
+          entranceGlobalIds);
       if (response.statusCode == 200) {
         var mapData = response.data as Map<String, dynamic>;
         if (mapData.keys.contains('error')) {
@@ -89,11 +74,7 @@ class DwellingService {
 
   Future<List<FieldSchema>> getDwellingAttributes() async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response = await dwellingApi.getDwellingAttributes(esriToken);
+      final response = await dwellingApi.getDwellingAttributes();
       if (response.statusCode == 200) {
         final data = response.data;
         if (data['fields'] == null) {
@@ -114,12 +95,8 @@ class DwellingService {
 
   Future<DwellingEntity> getDwellingDetails(int objectId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await dwellingApi.getDwellingDetails(esriToken, objectId);
+          await dwellingApi.getDwellingDetails(objectId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -150,12 +127,8 @@ class DwellingService {
 
   Future<String> addDwellingFeature(DwellingEntity dwelling) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await dwellingApi.addDwellingFeature(esriToken, dwelling);
+          await dwellingApi.addDwellingFeature(dwelling);
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;
@@ -191,12 +164,8 @@ class DwellingService {
 
   Future<bool> updateDwellingFeature(DwellingEntity dwelling) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await dwellingApi.updateDwellingFeature(esriToken, dwelling);
+          await dwellingApi.updateDwellingFeature(dwelling);
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;

@@ -5,8 +5,7 @@ import 'api_endpoints.dart';
 class StreetApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getStreets(String esriToken, int municipalityId) async {
-    return await _apiClient
-        .get('${ApiEndpoints.getEsriStreets(municipalityId)}&token=$esriToken');
+  Future<Response> getStreets(int municipalityId) async {
+    return await _apiClient.get(ApiEndpoints.getEsriStreets(municipalityId));
   }
 }

@@ -1,8 +1,6 @@
 import 'dart:convert';
 import 'package:asrdb/core/api/entrance_api.dart';
-import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
-import 'package:asrdb/core/services/secure_storage_service.dart';
 import 'package:asrdb/data/dto/entrance_dto.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 
@@ -10,17 +8,11 @@ class EntranceService {
   final EntranceApi entranceApi;
   EntranceService(this.entranceApi);
 
-  final SecureStorageService _secureStorage = SecureStorageService();
-
   Future<List<EntranceEntity>> getEntrancesByBuildingId(
       String buildingGlobalId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await entranceApi.getEntrancesByBuildingId(esriToken, buildingGlobalId);
+          await entranceApi.getEntrancesByBuildingId(buildingGlobalId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -54,12 +46,8 @@ class EntranceService {
   Future<List<EntranceEntity>> getEntrances(
       List<String> entBldGlobalID) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await entranceApi.getEntrances(esriToken, entBldGlobalID);
+          await entranceApi.getEntrances(entBldGlobalID);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -91,12 +79,8 @@ class EntranceService {
 
   Future<EntranceEntity> getEntranceDetails(String globalId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await entranceApi.getEntranceDetails(esriToken, globalId);
+          await entranceApi.getEntranceDetails(globalId);
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -127,11 +111,7 @@ class EntranceService {
 
   Future<List<FieldSchema>> getEntranceAttributes() async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
-      final response = await entranceApi.getEntranceAttributes(esriToken);
+      final response = await entranceApi.getEntranceAttributes();
 
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
@@ -154,14 +134,7 @@ class EntranceService {
 
   Future<String> addEntranceFeature(EntranceEntity entrance) async {
     try {
-      final esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Missing Esri token');
-
-      final response = await entranceApi.addEntranceFeature(
-        esriToken,
-        entrance,
-      );
+      final response = await entranceApi.addEntranceFeature(entrance);
 
       if (response.statusCode == 200) {
         // Ensure response data is decoded
@@ -198,12 +171,8 @@ class EntranceService {
 
   Future<bool> updateEntranceFeature(EntranceEntity entrance) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await entranceApi.updateEntranceFeature(esriToken, entrance);
+          await entranceApi.updateEntranceFeature(entrance);
       if (response.statusCode == 200) {
         // Ensure response data is decoded
         final dynamic rawData = response.data;
@@ -241,12 +210,8 @@ class EntranceService {
 
   Future<bool> deleteEntranceFeature(String objectId) async {
     try {
-      String? esriToken =
-          await _secureStorage.read(key: StorageKeys.esriAccessToken);
-      if (esriToken == null) throw Exception('Login failed:');
-
       final response =
-          await entranceApi.deleteEntranceFeature(esriToken, objectId);
+          await entranceApi.deleteEntranceFeature(objectId);
       if (response.statusCode == 200) {
         return true;
       } else {

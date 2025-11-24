@@ -10,37 +10,35 @@ import 'api_endpoints.dart';
 class BuildingApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getBuildings(
-      String esriToken, String geometry, int municipalityId) async {
+  Future<Response> getBuildings(String geometry, int municipalityId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriBulding(geometry, municipalityId)}&token=$esriToken');
+        ApiEndpoints.getEsriBulding(geometry, municipalityId));
   }
 
   Future<Response> getBuildingsCount(
-      String esriToken, String geometry, int municipalityId) async {
+      String geometry, int municipalityId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriBuildingsCount(geometry, municipalityId)}&token=$esriToken');
+        ApiEndpoints.getEsriBuildingsCount(geometry, municipalityId));
   }
 
   Future<Response> getBuildingIntersection(
-      String esriToken, Map<String, dynamic> geometry) async {
+      Map<String, dynamic> geometry) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriBuildingInteresections(geometry)}&token=$esriToken');
+        ApiEndpoints.getEsriBuildingInteresections(geometry));
   }
 
-  Future<Response> getBuildingDetails(String esriToken, String globalId) async {
+  Future<Response> getBuildingDetails(String globalId) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriBuildingByGlobalId(globalId)}&token=$esriToken');
+        ApiEndpoints.getEsriBuildingByGlobalId(globalId));
   }
 
-  Future<Response> getBuildingAttributes(String esriToken) async {
+  Future<Response> getBuildingAttributes() async {
     return await _apiClient.get(
-        '${ApiEndpoints.esriBaseUri.toString()}/1?f=json&token=$esriToken');
+        '${ApiEndpoints.esriBaseUri.toString()}/1?f=json');
   }
 
 
-  Future<Response> addBuildingFeature(
-      String esriToken, BuildingEntity building) async {
+  Future<Response> addBuildingFeature(BuildingEntity building) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -51,7 +49,6 @@ class BuildingApi {
       'f': 'json',
       'features': jsonEncode([buildingDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
-      'token': esriToken
     };
 
     _apiClient.clearHeaders();
@@ -61,8 +58,7 @@ class BuildingApi {
         data: payload);
   }
 
-  Future<Response> updateBuildingFeature(
-      String esriToken, BuildingDto building) async {
+  Future<Response> updateBuildingFeature(BuildingDto building) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -71,7 +67,6 @@ class BuildingApi {
       'f': 'pjson',
       'features': jsonEncode([building.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
-      'token': esriToken
     };
 
     _apiClient.clearHeaders();

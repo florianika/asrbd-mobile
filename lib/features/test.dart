@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:asrdb/core/api/esri_api_client.dart';
+import 'package:dio/dio.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
@@ -16,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:dio/dio.dart';
 
 enum BldReviewFilter {
   all,
@@ -33,7 +34,7 @@ class TiranaImageOverlayWidget extends StatefulWidget {
 
 class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
   final StorageService _storage = StorageService();
-  final Dio _dio = Dio();
+  final EsriApiClient _apiClient = EsriApiClient();
   final MapController _mapController = MapController();
   LatLng? _userLocation;
 
@@ -178,14 +179,12 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
     );
 
     try {
-      final token = await _storage.getString(key: StorageKeys.esriAccessToken);
-
-      final res = await _dio.get(
+      // EsriApiClient automatically injects the token and handles refresh
+      final res = await _apiClient.dio.get(
         url,
         options: Options(
           responseType: ResponseType.json,
           headers: {
-            if (token != null) 'Authorization': 'Bearer $token',
             'Accept': 'application/json',
           },
         ),

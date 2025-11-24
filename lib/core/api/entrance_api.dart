@@ -10,30 +10,25 @@ import 'api_endpoints.dart';
 class EntranceApi {
   final EsriApiClient _apiClient = EsriApiClient();
 
-  Future<Response> getEntrances(
-      String esriToken, List<String> entBldGlobalID) async {
-    return await _apiClient.get(
-        '${ApiEndpoints.getEsriEntrance(entBldGlobalID)}&token=$esriToken');
+  Future<Response> getEntrances(List<String> entBldGlobalID) async {
+    return await _apiClient.get(ApiEndpoints.getEsriEntrance(entBldGlobalID));
   }
 
-  Future<Response> getEntrancesByBuildingId(
-      String esriToken, String entBldGlobalID) async {
+  Future<Response> getEntrancesByBuildingId(String entBldGlobalID) async {
     return await _apiClient.get(
-        '${ApiEndpoints.getEsriEntrancesByGlobalId(entBldGlobalID)}&token=$esriToken');
+        ApiEndpoints.getEsriEntrancesByGlobalId(entBldGlobalID));
   }
 
-  Future<Response> getEntranceDetails(String esriToken, String globalId) async {
-    return await _apiClient.get(
-        '${ApiEndpoints.getEsriEntranceByGlobalId(globalId)}&token=$esriToken');
+  Future<Response> getEntranceDetails(String globalId) async {
+    return await _apiClient.get(ApiEndpoints.getEsriEntranceByGlobalId(globalId));
   }
 
-  Future<Response> getEntranceAttributes(String esriToken) async {
+  Future<Response> getEntranceAttributes() async {
     return await _apiClient.get(
-        '${ApiEndpoints.esriBaseUri.toString()}/0?f=json&token=$esriToken');
+        '${ApiEndpoints.esriBaseUri.toString()}/0?f=json');
   }
 
-  Future<Response> addEntranceFeature(
-      String esriToken, EntranceEntity entrance) async {
+  Future<Response> addEntranceFeature(EntranceEntity entrance) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -44,7 +39,6 @@ class EntranceApi {
       'f': 'pjson',
       'features': jsonEncode([entranceDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
-      'token': esriToken
     };
 
     _apiClient.clearHeaders();
@@ -54,8 +48,7 @@ class EntranceApi {
         data: payload);
   }
 
-  Future<Response> updateEntranceFeature(
-      String esriToken, EntranceEntity entrance) async {
+  Future<Response> updateEntranceFeature(EntranceEntity entrance) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -66,7 +59,6 @@ class EntranceApi {
       'f': 'pjson',
       'features': jsonEncode([entranceDto.toGeoJsonFeature()]),
       'rollbackOnFailure': 'true',
-      'token': esriToken
     };
 
     _apiClient.clearHeaders();
@@ -76,8 +68,7 @@ class EntranceApi {
         data: payload);
   }
 
-  Future<Response> deleteEntranceFeature(
-      String esriToken, String objectId) async {
+  Future<Response> deleteEntranceFeature(String objectId) async {
     Map<String, String> contentType = <String, String>{
       'Content-Type': 'application/x-www-form-urlencoded'
     };
@@ -93,7 +84,6 @@ class EntranceApi {
       'returnDeleteResults': 'false',
       'async': 'false',
       'f': 'pjson',
-      'token': esriToken
     };
 
     _apiClient.clearHeaders();
