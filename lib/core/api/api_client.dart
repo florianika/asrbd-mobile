@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:asrdb/core/api/auth_api.dart';
 import 'package:asrdb/core/services/auth_service.dart';
+import 'package:asrdb/core/services/navigation_service.dart';
 import 'package:asrdb/core/config/app_config.dart';
 import 'api_exceptions.dart';
 
@@ -51,6 +52,17 @@ class ApiClient {
             final retryResponse = await dio.fetch(options);
             return handler.resolve(retryResponse);
           } catch (e) {
+            // Refresh token has expired or refresh failed
+            // Logout user and navigate to login screen
+            try {
+              AuthApi authApi = AuthApi();
+              AuthService authService = AuthService(authApi);
+              await authService.logout();
+              NavigationService.navigateToLogin();
+            } catch (_) {
+              // Even if logout fails, still navigate to login
+              NavigationService.navigateToLogin();
+            }
             return handler.next(error);
           }
         }
