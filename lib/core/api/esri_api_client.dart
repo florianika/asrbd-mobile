@@ -12,6 +12,9 @@ class EsriApiClient {
   static EsriApiClient? _instance;
   late Dio dio;
   final SecureStorageService _secureStorage = SecureStorageService();
+  
+  // Lazy cache - populated on first request, reused for subsequent requests
+  String? _cachedToken;
 
   factory EsriApiClient() {
     _instance ??= EsriApiClient._internal();
@@ -33,9 +36,11 @@ class EsriApiClient {
 
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final token = await _secureStorage.read(key: StorageKeys.esriAccessToken);
-        if (token != null) {
-          options.queryParameters['token'] = token;
+        // Lazy caching: read from secure storage only if cache is empty
+        _cachedToken ??= await _secureStorage.read(key: StorageKeys.esriAccessToken);
+        
+        if (_cachedToken != null) {
+          options.queryParameters['token'] = _cachedToken;
         }
         return handler.next(options);
       },
@@ -48,9 +53,10 @@ class EsriApiClient {
             final refreshed = await authService.refreshToken();
             final options = error.requestOptions;
             
-            final newEsriToken = await _secureStorage.read(key: StorageKeys.esriAccessToken);
-            if (newEsriToken != null) {
-               options.queryParameters['token'] = newEsriToken;
+            // Update cache with new token
+            _cachedToken = await _secureStorage.read(key: StorageKeys.esriAccessToken);
+            if (_cachedToken != null) {
+               options.queryParameters['token'] = _cachedToken;
             }
 
             final retryResponse = await dio.fetch(options);
@@ -91,6 +97,11 @@ class EsriApiClient {
   /// Optional: Reset entire header set
   void clearHeaders() {
     dio.options.headers.clear();
+  }
+
+  /// Invalidate token cache (call on logout)
+  void invalidateCache() {
+    _cachedToken = null;
   }
 
   /// GET request

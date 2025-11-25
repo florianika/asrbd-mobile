@@ -7,6 +7,7 @@ import 'package:asrdb/core/models/auth/refresh_token_request.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/json_file_service.dart';
 import 'package:asrdb/core/services/secure_storage_service.dart';
+import 'package:asrdb/core/api/esri_api_client.dart';
 import 'dart:async';
 
 class AuthService {
@@ -177,6 +178,9 @@ class AuthService {
       await _secureStorage.deleteAll();
       _refreshTimer?.cancel();
       await _storage.remove(key: StorageKeys.userProfile);
+      
+      // Invalidate cached token so next login reads fresh token
+      EsriApiClient().invalidateCache();
     } catch (e) {
       throw Exception('Logout failed: $e');
     }
