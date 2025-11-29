@@ -63,11 +63,18 @@ class _AsrdbMapState extends State<AsrdbMap> {
   bool _entranceOutsideVisibleArea = false;
 
   LatLng? _userLocation;
-  // String? _selectedBuildingGlobalId;
-  // String? _highlightBuildingGlobalId;
+  String? _previousBasemapUrl;
 
   Timer? _debounce;
   StorageService storageService = sl<StorageService>();
+
+  /// Get the minimum zoom level for loading buildings based on the current basemap
+  double _getBuildingMinZoom(String basemapUrl) {
+    if (basemapUrl == AppConfig.basemapAsigSatellite2025Url) {
+      return 9.0;
+    }
+    return AppConfig.buildingMinZoom;
+  }
 
   @override
   void dispose() {
@@ -75,41 +82,34 @@ class _AsrdbMapState extends State<AsrdbMap> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _selectedBuildingGlobalId = widget.selectedBuildingGlobalId;
-  // }
-
-  // @override
-  // void didUpdateWidget(covariant AsrdbMap oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-
-  //   if (oldWidget.selectedBuildingGlobalId != widget.selectedBuildingGlobalId) {
-  //     setState(() {
-  //       _selectedBuildingGlobalId = widget.selectedBuildingGlobalId;
-  //     });
-  //   }
-  // }
-
   void _onMapReady() async {
+    final initialZoom = context.read<TileCubit>().initZoom;
     final location = await LocationService.getCurrentLocation();
-    widget.mapController.move(location, AppConfig.initZoom);
-
+    
     if (!mounted) return;
+    
+    widget.mapController.move(location, initialZoom);
 
     bool isOffline = context.read<TileCubit>().isOffline;
     DownloadEntity? download = context.read<TileCubit>().download;
+    final tileState = context.read<TileCubit>().state;
     final userService = sl<UserService>();
+    
+    final buildingMinZoom = _getBuildingMinZoom(tileState.basemapUrl);
+    final currentZoom = widget.mapController.camera.zoom;
 
-    context.read<BuildingCubit>().getBuildings(
-        widget.mapController.camera.visibleBounds,
-        AppConfig.buildingMinZoom,
-        isOffline
-            ? (download?.municipalityId ?? 0)
-            : userService.userInfo!.municipality,
-        isOffline,
-        download?.id);
+    if (currentZoom >= buildingMinZoom) {
+      context.read<BuildingCubit>().getBuildings(
+          widget.mapController.camera.visibleBounds,
+          currentZoom,
+          isOffline
+              ? (download?.municipalityId ?? 0)
+              : userService.userInfo!.municipality,
+          isOffline,
+          download?.id,
+          minZoom: buildingMinZoom,
+      );
+    }
 
     setState(() {
       _userLocation = location;
@@ -206,18 +206,19 @@ class _AsrdbMapState extends State<AsrdbMap> {
       final debounceMs = isOffline ? 0 : 800; // Much longer delay for offline
 
       _debounce = Timer(Duration(milliseconds: debounceMs), () {
-        if (camera.zoom >= AppConfig.buildingMinZoom) {
+        final tileState = context.read<TileCubit>().state;
+        final buildingMinZoom = _getBuildingMinZoom(tileState.basemapUrl);
+        
+        if (camera.zoom >= buildingMinZoom) {
           context.read<BuildingCubit>().getBuildings(
                 camera.visibleBounds,
                 camera.zoom,
                 municipalityId,
                 isOffline,
                 downloadId,
+                minZoom: buildingMinZoom,
               );
         } else {
-          // setState(() {
-          //   _selectedBuildingGlobalId = null;
-          // });
           context.read<BuildingCubit>().clearBuildings();
           context.read<AttributesCubit>().clearSelections();
         }
@@ -259,11 +260,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<AttributesCubit>().setPersistentBuilding(null);
       context.read<AttributesCubit>().setPersistentEntrance(null);
       context.read<EntranceCubit>().clearEntrances();
-
-      // setState(() {
-      //   _selectedBuildingGlobalId = null;
-      //   _highlightBuildingGlobalId = null;
-      // });
 
       if (geometryEditor.isEditing) {
         if (geometryEditor.selectedType == EntityType.entrance) {
@@ -315,6 +311,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<AttributesCubit>().setPersistentEntrance(null);
       context.read<EntranceCubit>().clearEntrances();
       final buildingList = context.read<BuildingCubit>().buildings;
+
+      final maxZoom = context.read<TileCubit>().maxZoom;
       final buildingFound =
           PolygonHitDetector.getBuildingByTapLocation(buildingList, position);
 
@@ -340,13 +338,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
             center,
             (widget.mapController.camera.zoom +
                     widget.mapController.camera.zoom * 0.1)
-                .clamp(0.0, 20.5));
+                .clamp(0.0, maxZoom));
 
-                if (mounted) {
-         context
-            .read<OutputLogsCubit>()
-            .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces()!);
-      }
+        if (mounted) {
+          context
+              .read<OutputLogsCubit>()
+              .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces()!);
+        }
       }
     } catch (e) {
       NotifierService.showMessage(
@@ -369,7 +367,23 @@ class _AsrdbMapState extends State<AsrdbMap> {
     final userService = sl<UserService>();
 
     return BlocConsumer<TileCubit, TileState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          // Clamp zoom level when switching to ASIG satellite (maxZoom = 9)
+          final isSwitchingToAsig = state.basemapUrl == AppConfig.basemapAsigSatellite2025Url &&
+              _previousBasemapUrl != AppConfig.basemapAsigSatellite2025Url;
+          
+          if (isSwitchingToAsig) {
+            final currentZoom = widget.mapController.camera.zoom;
+            if (currentZoom > state.maxZoom) {
+              // Clamp zoom to maxZoom
+              final clampedZoom = state.maxZoom;
+              final currentCenter = widget.mapController.camera.center;
+              widget.mapController.move(currentCenter, clampedZoom);
+            }
+          }
+          
+          _previousBasemapUrl = state.basemapUrl;
+        },
         builder: (context, state) {
           return BlocListener<AttributesCubit, AttributesState>(
             listener: (context, attributesState) {},
@@ -377,12 +391,19 @@ class _AsrdbMapState extends State<AsrdbMap> {
               key: mapKey,
               mapController: widget.mapController,
               options: MapOptions(
+                crs: state.csr,
+                maxZoom: state.maxZoom,
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all,
+                ),
+                minZoom: 0.0,
+                // initialZoom: 7.0,
                 onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
                 initialCenter: state.isOffline
                     ? (LatLng(
                         state.download!.centerLat!, state.download!.centerLng!))
                     : currentPosition,
-                initialZoom: AppConfig.initZoom,
+                initialZoom: state.initialZoom,
                 onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
                   latlng,
                   state.isOffline,
@@ -409,20 +430,13 @@ class _AsrdbMapState extends State<AsrdbMap> {
                 TileLayer(
                   urlTemplate: state.basemapUrl,
                   userAgentPackageName: AppConfig.userAgentPackageName,
+                  tileSize: 256,
                   tileProvider: FMTCTileProvider(
                     stores: {
                       state.storeName: BrowseStoreStrategy.readUpdateCreate
                     },
                   ),
                 ),
-                // TileLayer(
-                //   urlTemplate:
-                //       'https://basemap.asig.gov.al/server/rest/services/UAV_Orto_2024_2025/MapServer/WMTS/tile/1.0.0/UAV_Orto_2024_2025/default/default028mm/{z}/{y}/{x}',
-                //   subdomains: ['a', 'b', 'c'], // optional
-                //   tileSize: 256,
-                //   // backgroundColor: Colors.transparent,
-                //   tms: false, // depends on WMTS tiling scheme, likely false
-                // ),
                 MunicipalityMarker(
                   isOffline: state.isOffline,
                   municipalityId: state.download?.municipalityId,

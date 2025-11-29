@@ -109,7 +109,9 @@ class _MapAppBarState extends State<MapAppBar> {
                       onSelected: (String result) {
                         context.read<TileCubit>().setBasemap(result == "terrain"
                             ? AppConfig.basemapTerrainUrl
-                            : AppConfig.basemapSatelliteUrl);
+                            : result == "esriSatellite"
+                                ? AppConfig.basemapEsriSatelliteUrl
+                                : AppConfig.basemapAsigSatellite2025Url);
                       },
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<String>>[
@@ -125,13 +127,24 @@ class _MapAppBarState extends State<MapAppBar> {
                           ),
                         ),
                         PopupMenuItem<String>(
-                          value: 'satellite',
+                          value: 'esriSatellite',
                           child: Row(
                             children: [
                               Icon(Icons.satellite, color: Colors.grey[600]),
                               const SizedBox(width: 12),
                               Text(AppLocalizations.of(context)
-                                  .translate(Keys.basemapSatellite)),
+                                  .translate(Keys.basemapEsriSatellite)),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<String>(
+                          value: 'asigSatellite2025',
+                          child: Row(
+                            children: [
+                              Icon(Icons.satellite, color: Colors.grey[600]),
+                              const SizedBox(width: 12),
+                              Text(AppLocalizations.of(context)
+                                  .translate(Keys.basemapAsig2025)),
                             ],
                           ),
                         ),

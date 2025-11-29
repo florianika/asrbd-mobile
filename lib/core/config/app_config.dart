@@ -6,6 +6,8 @@ class AppConfig {
 
   static const String defaultLanguage = 'sq';
 
+  static const double maxZoom = 21.0;
+
   // API configurations
   static String apiBaseUrl = dotenv.env['API_URL'] ?? "";
   static String fieldWorkWebSocket = dotenv.env['API_SOCKET_URL'] ?? "";
@@ -30,6 +32,7 @@ class AppConfig {
 
   //initial zoom level for the map
   static const double initZoom = 19.0;
+  static const double initZoomAsig = 7.0;
 
   //minimum zoom level for the map in order to load entrances
   static const double entranceMinZoom = 19.5;
@@ -49,11 +52,14 @@ class AppConfig {
 
   //map store name to be used by FMTCStore to use basemap.
   static const String mapTerrainStoreName = "mapStoreTerrain";
-  static const String mapSatelliteStoreName = "mapStoreSatellite";
+  static const String mapEsriSatelliteStoreName = "mapStoreEsriSatellite";
+  static const String mapAsigSatellite2025StoreName = "mapStoreAsigSatellite2025";
 
-  static const String basemapSatelliteUrl =
+  static const String basemapEsriSatelliteUrl =
       "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-
+      
+    static const String basemapAsigSatellite2025Url =
+      "https://di-albania-satellite1.img.arcgis.com/arcgis/rest/services/rgb/Albania_2025_L1/MapServer/WMTS/tile/1.0.0/rgb_Albania_2025_L1/default/default028mm/{z}/{y}/{x}";
   static const String basemapTerrainUrl =
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 

@@ -1,7 +1,9 @@
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/csr/epsg_6870_csr.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 class TileState extends Equatable {
   final bool isOffline;
@@ -9,6 +11,9 @@ class TileState extends Equatable {
   final String basemapUrl;
   final bool isSatellite;
   final String storeName;
+  final Crs csr;
+  final double maxZoom;
+  final double initialZoom;
 
   const TileState({
     required this.isOffline,
@@ -16,6 +21,9 @@ class TileState extends Equatable {
     this.basemapUrl = AppConfig.basemapTerrainUrl,
     this.isSatellite = false,
     this.storeName = AppConfig.basemapTerrainUrl,
+    this.csr = const Epsg3857(),
+    this.maxZoom = AppConfig.maxZoom,
+    this.initialZoom = AppConfig.initZoom,
   });
 
   TileState copyWith({
@@ -24,6 +32,9 @@ class TileState extends Equatable {
     String? basemapUrl,
     bool? isSatellite,
     String? storeName,
+    Crs? csr,
+    double? maxZoom,
+    double? initialZoom,
   }) {
     return TileState(
       isOffline: isOffline ?? this.isOffline,
@@ -31,6 +42,9 @@ class TileState extends Equatable {
       basemapUrl: basemapUrl ?? this.basemapUrl,
       isSatellite: isSatellite ?? this.isSatellite,
       storeName: storeName ?? this.storeName,
+      csr: csr ?? this.csr,
+      maxZoom: maxZoom ?? this.maxZoom,
+      initialZoom: initialZoom ?? this.initialZoom,
     );
   }
 
@@ -76,11 +90,21 @@ class TileCubit extends Cubit<TileState> {
   }
 
   /// Update only the basemap (URL + satellite flag), keeping other state
-  Future<void> setBasemap(String url) async {
+  void setBasemap(String url) {
     emit(state.copyWith(
       basemapUrl: url,
-      isSatellite: url == AppConfig.basemapSatelliteUrl,
+      csr: url == AppConfig.basemapAsigSatellite2025Url
+          ? Epsg6870Crs.crs
+          : const Epsg3857(),
+      isSatellite: url == AppConfig.basemapEsriSatelliteUrl ||
+          url == AppConfig.basemapAsigSatellite2025Url,
       storeName: _getStoreName(url),
+      maxZoom: url == AppConfig.basemapAsigSatellite2025Url
+          ? Epsg6870Crs.maxZoom
+          : AppConfig.maxZoom,
+      initialZoom: url == AppConfig.basemapAsigSatellite2025Url
+          ? AppConfig.initZoomAsig
+          : AppConfig.initZoom,
     ));
   }
 
@@ -89,11 +113,15 @@ class TileCubit extends Cubit<TileState> {
   String get basemapUrl => state.basemapUrl;
   bool get isSatellite => state.isSatellite;
   String get storeName => state.storeName;
+  double get maxZoom => state.maxZoom;
+  double get initZoom => state.initialZoom;
 
   /// Utility: derive a unique store name from basemap URL
   static String _getStoreName(String url) {
-    if (url == AppConfig.basemapSatelliteUrl) {
-      return AppConfig.mapSatelliteStoreName;
+    if (url == AppConfig.basemapEsriSatelliteUrl) {
+      return AppConfig.mapEsriSatelliteStoreName;
+    } else if (url == AppConfig.basemapAsigSatellite2025Url) {
+      return AppConfig.mapAsigSatellite2025StoreName;
     } else {
       return AppConfig.mapTerrainStoreName;
     }

@@ -65,7 +65,8 @@ void main() async {
 
   await FMTCObjectBoxBackend().initialise();
   await FMTCStore(AppConfig.mapTerrainStoreName).manage.create();
-  await FMTCStore(AppConfig.mapSatelliteStoreName).manage.create();
+  await FMTCStore(AppConfig.mapEsriSatelliteStoreName).manage.create();
+  await FMTCStore(AppConfig.mapAsigSatellite2025StoreName).manage.create();
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,

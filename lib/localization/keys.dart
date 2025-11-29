@@ -22,7 +22,8 @@ class Keys {
   static const String dwellingAdded = 'dwellingAdded';
   static const String dwellingCouldNotAdd = 'dwellingCouldNotAdd';
   static const String basemapTerrain = 'basemaTerrain';
-  static const String basemapSatellite = 'basemapSatellite';
+  static const String basemapEsriSatellite = 'basemapSatellite';
+  static const String basemapAsig2025 = 'basemapAsig2025';
   static const String download = 'download';
   static const String startReviewingTitle = 'startReviewingTitle';
   static const String startReviewingContent = 'startReviewingContent';

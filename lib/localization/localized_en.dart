@@ -26,7 +26,8 @@ class LocalizedEn {
     Keys.dwellingCouldNotAdd:
         'Dwelling could not be added. Check your input and try again.',
     Keys.basemapTerrain: 'Terrein',
-    Keys.basemapSatellite: 'Satellite',
+    Keys.basemapEsriSatellite: 'ESRI Satellite',
+    Keys.basemapAsig2025: 'ASIG 2025 Satellite',
     Keys.download: 'Download',
     Keys.startReviewingTitle: 'Start Reviewing',
     Keys.startReviewingContent:

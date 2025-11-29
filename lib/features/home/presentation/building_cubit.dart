@@ -76,8 +76,9 @@ class BuildingCubit extends Cubit<BuildingState> {
     double zoom,
     int municipalityId,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    double? minZoom,
+  }) async {
     emit(BuildingLoading());
     try {
       final buildings = await buildingUseCases.getBuildings(
@@ -86,6 +87,7 @@ class BuildingCubit extends Cubit<BuildingState> {
         municipalityId,
         isOffline,
         downloadId,
+        minZoom: minZoom,
       );
       _allBuildings = List.from(buildings);
       _buildings = _applyFilters(_allBuildings); 

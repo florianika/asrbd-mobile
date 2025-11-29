@@ -22,7 +22,8 @@ class LocalizedAl {
     Keys.dwellingCouldNotUpdated:
         'Nuk u arrit të shtohet njësia e banimit. Ju lutemi, provoni përsëri',
     Keys.basemapTerrain: 'Terren',
-    Keys.basemapSatellite: 'Satelit',
+    Keys.basemapEsriSatellite: 'ESRISatelit',
+    Keys.basemapAsig2025: 'ASIG 2025 Satelit',
     Keys.download: 'Shkarko',
     Keys.startReviewingTitle: 'Fillo Rishikimin',
     Keys.startReviewingContent:

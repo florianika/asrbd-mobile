@@ -31,13 +31,15 @@ class BuildingUseCases {
     double zoom,
     int municipalityId,
     bool isOffline,
-    int? downloadId,
-  ) async {
+    int? downloadId, {
+    double? minZoom,
+  }) async {
     if (bounds == null) {
       return [];
     }
 
-    if (zoom < AppConfig.buildingMinZoom) {
+    final buildingMinZoom = minZoom ?? AppConfig.buildingMinZoom;
+    if (zoom < buildingMinZoom) {
       return [];
     }
 
