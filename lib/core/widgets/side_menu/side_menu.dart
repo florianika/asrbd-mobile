@@ -310,8 +310,8 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               _buildMenuItem(
                                 context,
                                 icon: Icons.person_outline,
-                                title: AppLocalizations.of(context)
-                                    .translate(Keys.fieldWorkOverview),//"Fieldwork Overview",
+                                title: AppLocalizations.of(context).translate(Keys
+                                    .fieldWorkOverview), //"Fieldwork Overview",
                                 subtitle: AppLocalizations.of(context)
                                     .translate(Keys.fieldWorkOverviewSubtitle),
                                 onTap: () {
@@ -378,7 +378,9 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                               ),
                             ),
                             child: Text(
-                              _version.isNotEmpty ? 'Version $_version' : 'Version ${AppConfig.version}',
+                              _version.isNotEmpty
+                                  ? 'Version $_version'
+                                  : 'Version ${AppConfig.version}',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
