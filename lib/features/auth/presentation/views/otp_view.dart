@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +39,7 @@ class _OtpViewState extends State<OtpView> {
   }
 
   Future<void> _onVerify(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {    
+    if (_formKey.currentState!.validate()) {
       await context.read<AuthCubit>().verifyOtp(
             widget.userId,
             otpController.text.trim(),
@@ -85,7 +86,9 @@ class _OtpViewState extends State<OtpView> {
               setState(() => isLoading = false);
             }
 
-            if (state is AuthAuthenticated) {            
+            if (state is AuthAuthenticated) {
+              // Reconnect WebSocket with fresh token after successful authentication
+              context.read<FieldWorkCubit>().reconnectWithFreshToken();
               Navigator.of(context)
                   .pushReplacementNamed(RouteManager.homeRoute);
             }

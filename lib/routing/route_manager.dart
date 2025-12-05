@@ -1,3 +1,6 @@
+import 'package:asrdb/features/auth/presentation/forgot_password_cubit.dart';
+import 'package:asrdb/features/auth/presentation/views/auth_gate.dart';
+import 'package:asrdb/features/auth/presentation/views/forgot_password_view.dart';
 import 'package:asrdb/features/auth/presentation/views/otp_view.dart';
 import 'package:asrdb/features/home/presentation/views/view_map.dart';
 import 'package:asrdb/features/offline/presentation/views/offline_map.dart';
@@ -6,9 +9,12 @@ import 'package:asrdb/features/settings/presentation/views/settings_view.dart';
 import 'package:asrdb/features/profile/presentation/views/profile_view.dart';
 import 'package:asrdb/features/test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/features/auth/presentation/views/login_view.dart';
+import 'package:asrdb/features/auth/domain/auth_usecases.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
+import 'package:asrdb/main.dart';
 
 class RouteManager {
   static const String homeRoute = '/';
@@ -19,6 +25,8 @@ class RouteManager {
   static const String settingsRoute = '/settings';
   static const String otpRoute = '/optRoute';
   static const String testRoute = '/test';
+  static const String authGateRoute = '/auth-gate';
+  static const String forgotPasswordRoute = '/forgot-password';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -42,11 +50,22 @@ class RouteManager {
 
       case otpRoute:
         final userId = settings.arguments as String;
-        return MaterialPageRoute( builder: (_) => OtpView(userId: userId));
+        return MaterialPageRoute(builder: (_) => OtpView(userId: userId));
 
       case testRoute:
         return MaterialPageRoute(
             builder: (_) => const TiranaImageOverlayWidget());
+
+      case authGateRoute:
+        return MaterialPageRoute(builder: (_) => AuthGate());
+
+      case forgotPasswordRoute:
+        final email = settings.arguments as String?;
+        return MaterialPageRoute(
+            builder: (_) => BlocProvider(
+                  create: (context) => ForgotPasswordCubit(sl<AuthUseCases>()),
+                  child: ForgotPasswordView(initialEmail: email),
+                ));
 
       default:
         return _errorRoute();

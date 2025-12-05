@@ -142,8 +142,6 @@ void main() async {
     sl<DownloadRepository>(),
   ));
 
-  // await sl<UserService>().initialize();
-
   runApp(const MyApp());
 }
 
@@ -192,7 +190,7 @@ class _MyAppState extends State<MyApp> {
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
             ],
-            initialRoute: RouteManager.loginRoute,
+            initialRoute: RouteManager.authGateRoute,
           );
         },
       ),

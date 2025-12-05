@@ -27,6 +27,7 @@ class AuthApi {
   }
 
   Future<Response> refreshToken(RefreshTokenRequest refreshTokenRequest) async {
+   
     return await _apiClient.post(
       ApiEndpoints.refreshToken,
       data: refreshTokenRequest.toJson(),
@@ -40,5 +41,14 @@ class AuthApi {
 
     _apiClient.setHeaders(authHeader);
     return await _apiClient.get(ApiEndpoints.loginEsri);
+  }
+
+  Future<Response> forgotPassword(String email) async {
+    return await _apiClient.post(
+      ApiEndpoints.forgotPassword,
+      data: {
+        'email': email,
+      },
+    );
   }
 }

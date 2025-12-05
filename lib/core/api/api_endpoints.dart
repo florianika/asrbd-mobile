@@ -7,6 +7,7 @@ class ApiEndpoints {
   static const String verifyOtp = '/auth/2fa/verify';
   static const String loginEsri = '/auth/gis/login';
   static const String refreshToken = '/auth/refreshToken';
+  static const String forgotPassword = '/auth/forget-password';
   static const String checkAutomatic = '/qms/check/automatic';
   static const String checkBuilding = '/qms/check/buildings';
   static const String outputLogs = '/qms/outputlogs/buildings';

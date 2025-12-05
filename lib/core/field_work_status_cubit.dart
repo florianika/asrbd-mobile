@@ -210,6 +210,15 @@ class FieldWorkCubit extends Cubit<FieldWorkStatus> {
     await _connectWebSocket();
   }
 
+  // Public method to reconnect with fresh token (e.g., after authentication)
+  Future<void> reconnectWithFreshToken() async {
+    // print('Reconnecting with fresh token');
+    _retryCount = 0;
+    _shouldReconnect = true;
+    await _closeConnection();
+    await _connectWebSocket();
+  }
+
   @override
   Future<void> close() async {
     _shouldReconnect = false;

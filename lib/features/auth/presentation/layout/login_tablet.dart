@@ -13,7 +13,6 @@ import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/routing/route_manager.dart';
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class LoginTablet extends StatefulWidget {
@@ -134,64 +133,14 @@ class _LoginTabletState extends State<LoginTablet> {
   }
 
   Future<void> _onFirstTimeLogin(BuildContext context) async {
-    final localizations = AppLocalizations.of(context);
-    final urlString = dotenv.env['FIRST_TIME_LOGIN_URL'];
-    
-    if (urlString == null || urlString.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(localizations.translate(Keys.firstTimeLoginUrlNotConfigured)),
-          ),
-        );
-      }
-      return;
-    }
-
-    Uri url;
-    try {
-      url = Uri.parse(urlString);
-      if (!url.hasScheme) {
-        // If no scheme, assume https
-        url = Uri.parse('https://$urlString');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              localizations.translate(Keys.invalidUrl).replaceFirst('{url}', urlString),
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
-    try {
-      final launched = await launchUrl(
-        url,
-        mode: LaunchMode.externalApplication,
-      );
-      
-      if (!launched && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(localizations.translate(Keys.couldNotLaunchUrl)),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              localizations.translate(Keys.errorOpeningUrl).replaceFirst('{error}', e.toString()),
-            ),
-          ),
-        );
-      }
-    }
+    // Navigate to forgot password view with current email if available
+    Navigator.pushNamed(
+      context,
+      RouteManager.forgotPasswordRoute,
+      arguments: emailController.text.trim().isNotEmpty
+          ? emailController.text.trim()
+          : null,
+    );
   }
 
   Future<void> _onUseOffline(BuildContext context) async {
@@ -352,7 +301,10 @@ class _LoginTabletState extends State<LoginTablet> {
                   _version.isNotEmpty ? 'Version $_version' : '',
                   style: TextStyle(
                     fontSize: 12.0,
-                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.6),
                   ),
                 ),
               ),

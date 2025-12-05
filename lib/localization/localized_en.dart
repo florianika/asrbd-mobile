@@ -226,7 +226,7 @@ class LocalizedEn {
     Keys.buildingCreationMode: 'Building Creation Mode',
     Keys.buildingEditMode: 'Building Edit Mode',
     Keys.useOffline: 'Use Offline',
-    Keys.firstTimeLogin: 'First Time Login',
+    Keys.firstTimeLogin: 'First Login / Forgot Password',
     Keys.firstTimeLoginUrlNotConfigured: 'First time login URL is not configured',
     Keys.invalidUrl: 'Invalid URL: {url}',
     Keys.couldNotLaunchUrl: 'Could not launch the URL',
@@ -238,5 +238,9 @@ class LocalizedEn {
     Keys.backToLogin: 'Back to Login',
     Keys.verify: 'Verify',
     Keys.resendIn: 'Resend in {seconds} seconds',
+    Keys.forgotPasswordTitle: 'Reset Password',
+    Keys.forgotPasswordDescription: 'Enter your email address to receive a password reset link.',
+    Keys.forgotPasswordSuccess: 'Password reset email sent successfully!',
+    Keys.invalidEmail: 'Please enter a valid email address.',
   };
 }

@@ -61,6 +61,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   equatable: ^2.0.5
+  flutter_secure_storage: ^9.2.2
   geodesy: ^0.10.2
   shared_preferences: ^2.5.3
   web_socket_channel: ^3.0.3

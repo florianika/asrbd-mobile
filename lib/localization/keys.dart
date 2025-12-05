@@ -227,4 +227,8 @@ class Keys {
   static const String verify = 'verify';
   static const String resendIn = 'resendIn';
   static const String otp = 'otp';
+  static const String forgotPasswordTitle = 'forgotPasswordTitle';
+  static const String forgotPasswordDescription = 'forgotPasswordDescription';
+  static const String forgotPasswordSuccess = 'forgotPasswordSuccess';
+  static const String invalidEmail = 'invalidEmail';
 }

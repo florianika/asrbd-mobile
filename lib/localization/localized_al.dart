@@ -218,7 +218,7 @@ class LocalizedAl {
     Keys.buildingCreationMode: 'Modaliteti i Krijimit të Ndërtesës',
     Keys.buildingEditMode: 'Modaliteti i Redaktimit të Ndërtesës',
     Keys.useOffline: 'Përdor Offline',
-    Keys.firstTimeLogin: 'Hyrje për Herë të Parë',
+    Keys.firstTimeLogin: 'Hyrja e Parë / Harrova Fjalëkalimin',
     Keys.firstTimeLoginUrlNotConfigured: 'URL-ja e hyrjes për herë të parë nuk është konfiguruar',
     Keys.invalidUrl: 'URL e pavlefshme: {url}',
     Keys.couldNotLaunchUrl: 'Nuk u arrit të hapej URL-ja',
@@ -230,6 +230,10 @@ class LocalizedAl {
     Keys.backToLogin: 'Kthehu te Hyrja',
     Keys.verify: 'Verifiko',
     Keys.resendIn: 'Përsendoni pas {seconds} sekondash',
+    Keys.forgotPasswordTitle: 'Rivendosni Fjalëkalimin',
+    Keys.forgotPasswordDescription: 'Vendosni adresën tuaj të email-it për të marrë linkun e rivendosjes së fjalëkalimit.',
+    Keys.forgotPasswordSuccess: 'Email-i për rivendosjen e fjalëkalimit u dërgua me sukses!',
+    Keys.invalidEmail: 'Ju lutemi, vendosni një adresë të vlefshme email.',
    
   };
 }

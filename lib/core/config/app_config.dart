@@ -11,7 +11,7 @@ class AppConfig {
   // API configurations
   static String apiBaseUrl = dotenv.env['API_URL'] ?? "";
   static String fieldWorkWebSocket = dotenv.env['API_SOCKET_URL'] ?? "";
-  static const int apiTimeout = 300; // seconds
+  static const int apiTimeout = 30; // seconds
 
   static String esriUriPath = dotenv.env['ESRI_API_PATH'] ?? "";
   static String esriUriScheme = dotenv.env['ESRI_API_SCHEME'] ?? "";
@@ -53,12 +53,13 @@ class AppConfig {
   //map store name to be used by FMTCStore to use basemap.
   static const String mapTerrainStoreName = "mapStoreTerrain";
   static const String mapEsriSatelliteStoreName = "mapStoreEsriSatellite";
-  static const String mapAsigSatellite2025StoreName = "mapStoreAsigSatellite2025";
+  static const String mapAsigSatellite2025StoreName =
+      "mapStoreAsigSatellite2025";
 
   static const String basemapEsriSatelliteUrl =
       "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-      
-    static const String basemapAsigSatellite2025Url =
+
+  static const String basemapAsigSatellite2025Url =
       "https://di-albania-satellite1.img.arcgis.com/arcgis/rest/services/rgb/Albania_2025_L1/MapServer/WMTS/tile/1.0.0/rgb_Albania_2025_L1/default/default028mm/{z}/{y}/{x}";
   static const String basemapTerrainUrl =
       "https://tile.openstreetmap.org/{z}/{x}/{y}.png";

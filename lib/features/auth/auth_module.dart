@@ -16,7 +16,7 @@ void initAuthModule(GetIt sl) {
 
   // Register repository
   sl.registerLazySingleton<AuthRepository>(
-      () => AuthRepository(sl<AuthService>()));
+      () => AuthRepository(sl<AuthService>(), sl<AuthApi>()));
 
   // Register use cases
   sl.registerLazySingleton<AuthUseCases>(

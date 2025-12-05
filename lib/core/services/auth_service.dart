@@ -46,15 +46,6 @@ class AuthService {
       // Here you would parse the response and handle tokens, errors, etc.
       if (response.statusCode == 200) {
         AuthResponse2 authResponse = AuthResponse2.fromJson(response.data);
-        // await _storage.saveString(
-        //     key: StorageKeys.accessToken, value: authResponse.accessToken);
-        // await _storage.saveString(
-        //     key: StorageKeys.refreshToken, value: authResponse.refreshToken);
-        // await _storage.saveString(
-        //     key: StorageKeys.idhToken, value: authResponse.idToken);
-
-        // await loginEsri();
-        // await _saveJsonFilesIfNeeded();
 
         return authResponse;
       } else {
@@ -115,13 +106,13 @@ class AuthService {
         await _storage.saveString(
             key: StorageKeys.idhToken, value: authResponse.idToken);
 
-        final esriResponse = await authApi.loginEsri(accessToken);
+        final esriResponse = await authApi.loginEsri(authResponse.accessToken);
         if (esriResponse.statusCode == 200) {
-          AuthEsriResponse authResponse =
-              AuthEsriResponse.fromJson(response.data);
+          AuthEsriResponse esriAuthResponse =
+              AuthEsriResponse.fromJson(esriResponse.data);
           await _storage.saveString(
               key: StorageKeys.esriAccessToken,
-              value: authResponse.accessToken);
+              value: esriAuthResponse.accessToken);
         }
         return authResponse;
       } else {

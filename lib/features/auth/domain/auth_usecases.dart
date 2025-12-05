@@ -31,4 +31,9 @@ class AuthUseCases {
     await _authRepository.logout();
     await _storageRepository.clear();
   }
+
+  // Use case for forgot password
+  Future<void> forgotPassword(String email) async {
+    await _authRepository.forgotPassword(email);
+  }
 }
