@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;
 
 /// EPSG:6870 (Albania TM 2010) Coordinate Reference System configuration
-/// 
+///
 /// This class provides all necessary configuration for using EPSG:6870 CRS
 /// with flutter_map, including projection, resolutions, bounds, and CRS instance.
 class Epsg6870Crs {
@@ -13,8 +13,7 @@ class Epsg6870Crs {
   static final proj4.Projection projection = proj4.Projection.add(
     'EPSG:6870',
     '+proj=tmerc +lat_0=0 +lon_0=20 +k=1 +x_0=500000 +y_0=0 '
-        '+ellps=GRS80 +towgs84=565.04,49.91,465.84,1.9848,-1.7439,9.0587,4.0772 '
-        '+units=m +no_defs +type=crs',
+        '+ellps=GRS80 +units=m +no_defs +type=crs',
   );
 
   /// Calculate resolutions from scale denominators
@@ -39,7 +38,8 @@ class Epsg6870Crs {
   );
 
   /// Top-left corner origin from WMTS GetCapabilities
-  static final Point<double> topLeftOrigin = const Point<double>(-5123200.0, 10002100.0);
+  static final Point<double> topLeftOrigin =
+      const Point<double>(-5123200.0, 10002100.0);
 
   /// Custom CRS instance for EPSG:6870
   /// This handles ALL tile coordinate transformations automatically!
@@ -52,5 +52,5 @@ class Epsg6870Crs {
   );
 
   /// Maximum zoom level based on available resolutions
-  static final double maxZoom = 9.0;// (resolutions.length - 1).toDouble();
+  static final double maxZoom = 9.0; // (resolutions.length - 1).toDouble();
 }
