@@ -182,6 +182,7 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                   }
                 },
                 onClose: () => widget.onClose(),
+                onEdit: widget.onEdit,
                 onCancel: widget.onCancel,
                 globalId: widget.initialData['GlobalID'],
                 startReviewingBuilding: widget.startReviewing,

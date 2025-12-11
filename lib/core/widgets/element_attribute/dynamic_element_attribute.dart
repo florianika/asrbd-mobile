@@ -270,16 +270,6 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               ),
             ),
           ),
-          if (widget.formContext.showEditButton && widget.onEdit != null)
-            TextButton.icon(
-              onPressed: widget.onEdit,
-              icon: const Icon(Icons.edit, size: 18),
-              label: Text(AppLocalizations.of(context).translate(Keys.edit)),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-            ),
         ],
       ),
     );
