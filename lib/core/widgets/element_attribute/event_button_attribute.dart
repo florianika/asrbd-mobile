@@ -22,6 +22,7 @@ class EventButtonAttribute extends StatelessWidget {
   final Function? onClose;
   final ShapeType selectedShapeType;
   final Function openDwelling;
+  final void Function()? onEdit;
   final Function? onValidateData;
   final Function? onViewValidationResult;
   final Function? startReviewingBuilding;
@@ -36,6 +37,7 @@ class EventButtonAttribute extends StatelessWidget {
     required this.onClose,
     required this.selectedShapeType,
     required this.openDwelling,
+    this.onEdit,
     this.onValidateData,
     this.onViewValidationResult,
     this.globalId,
@@ -236,6 +238,22 @@ class EventButtonAttribute extends StatelessWidget {
                         overlayColor: Colors.grey,
                         overlayOpacity: 0.2,
                         children: [
+                          if (formContext == FormContext.view &&
+                              onEdit != null)
+                            SpeedDialChild(
+                              child: const Icon(Icons.edit),
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.edit),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: onEdit,
+                            ),
                           if (selectedShapeType == ShapeType.point)
                             SpeedDialChild(
                               child: const Icon(Icons.home_work),
