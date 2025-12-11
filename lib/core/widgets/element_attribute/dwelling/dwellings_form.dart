@@ -32,7 +32,6 @@ class _DwellingFormState extends State<DwellingForm> {
   List<FieldSchema> _dwellingSchema = [];
   bool _showDwellingForm = false;
   final Map<String, dynamic> _initialData = {};
-  final Set<int> _expandedDwellings = {}; // Track which dwellings are expanded
   final Set<String> _expandedFloors = {}; // Track which floors are expanded
 
   late Map<String, String> _columnLabels;
@@ -317,8 +316,7 @@ class _DwellingFormState extends State<DwellingForm> {
     );
   }
 
-  Widget _buildExpandableDwellingItem(DwellingEntity dwelling, int index) {
-    final isExpanded = _expandedDwellings.contains(index);
+  Widget _buildExpandableDwellingItem(DwellingEntity dwelling) {
     final localizations = AppLocalizations.of(context);
     final apartNumber = dwelling.dwlApartNumber?.toString();
     final trimmedApartmentNumber = apartNumber?.trim();
@@ -333,103 +331,69 @@ class _DwellingFormState extends State<DwellingForm> {
     final qualityInfo = _getQualityInfo(quality);
 
     return Card(
-      elevation: isExpanded ? 3 : 1,
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         children: [
-          // Header - Always visible
-          InkWell(
-            onTap: () => _toggleExpansion(index),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  // Apartment info
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.home,
-                          color: Colors.grey[600],
-                          size: 18,
+          Container(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                // Apartment info
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.home,
+                        color: Colors.grey[600],
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        apartmentLabel,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          apartmentLabel,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
+                ),
 
-                  // Quality status icon
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: qualityInfo['color'].withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          qualityInfo['icon'],
-                          color: qualityInfo['color'],
-                          size: 14,
-                        ),
-                        // const SizedBox(width: 4),
-                        // Text(
-                        //   quality,
-                        //   style: TextStyle(
-                        //     color: qualityInfo['color'],
-                        //     fontWeight: FontWeight.bold,
-                        //     fontSize: 11,
-                        //   ),
-                        // ),
-                      ],
-                    ),
+                // Quality status icon
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
                   ),
-
-                  const SizedBox(width: 8),
-
-                  // Expand/collapse icon
-                  AnimatedRotation(
-                    turns: isExpanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: Colors.grey[600],
-                    ),
+                  decoration: BoxDecoration(
+                    color: qualityInfo['color'].withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ],
-              ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        qualityInfo['icon'],
+                        color: qualityInfo['color'],
+                        size: 14,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // Expanded content
-          AnimatedCrossFade(
-            firstChild: const SizedBox.shrink(),
-            secondChild: _buildExpandedContent(dwelling, index),
-            crossFadeState: isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-            duration: const Duration(milliseconds: 200),
-          ),
+          // Always show content and action button
+          _buildExpandedContent(dwelling),
         ],
       ),
     );
   }
 
-  Widget _buildExpandedContent(DwellingEntity dwelling, int index) {
+  Widget _buildExpandedContent(DwellingEntity dwelling) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Column(
@@ -763,11 +727,9 @@ class _DwellingFormState extends State<DwellingForm> {
           const SizedBox(height: 6),
           ...dwellings.asMap().entries.map((entry) {
             final dwelling = entry.value;
-            final dwellingIndex = _dwellingRows
-                .indexWhere((d) => d.globalId == dwelling.globalId);
             return Padding(
               padding: const EdgeInsets.only(bottom: 6),
-              child: _buildExpandableDwellingItem(dwelling, dwellingIndex),
+              child: _buildExpandableDwellingItem(dwelling),
             );
           }),
         ],
@@ -779,31 +741,8 @@ class _DwellingFormState extends State<DwellingForm> {
     setState(() {
       if (_expandedFloors.contains(floor)) {
         _expandedFloors.remove(floor);
-        // Also collapse all dwellings in this floor
-        for (final dwelling in _dwellingRows) {
-          final dwellingFloorValue = dwelling.dwlFloor?.toString();
-          final matchesFloor =
-              dwellingFloorValue != null && dwellingFloorValue == floor;
-          final isUnknownFloor =
-              (dwellingFloorValue == null || dwellingFloorValue.isEmpty) &&
-                  floor == _unknownFloorKey;
-          if (matchesFloor || isUnknownFloor) {
-            final index = _dwellingRows.indexOf(dwelling);
-            _expandedDwellings.remove(index);
-          }
-        }
       } else {
         _expandedFloors.add(floor);
-      }
-    });
-  }
-
-  void _toggleExpansion(int index) {
-    setState(() {
-      if (_expandedDwellings.contains(index)) {
-        _expandedDwellings.remove(index);
-      } else {
-        _expandedDwellings.add(index);
       }
     });
   }

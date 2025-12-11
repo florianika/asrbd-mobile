@@ -38,7 +38,7 @@ class LocalizedEn {
     Keys.manageDwellings: 'Manage Dwellings',
     Keys.dwellings: 'Dwellings',
     Keys.floor: 'Floor',
-    Keys.noApartment: 'No Apartment',
+    Keys.noApartment: 'No Number',
     Keys.goBack: 'Go Back',
     Keys.dwellingTotalLabel: '{count} total',
     Keys.dwellingCountSingle: '{count} dwelling',

@@ -34,7 +34,7 @@ class LocalizedAl {
     Keys.manageDwellings: 'Menaxho Banesat',
     Keys.dwellings: 'Banesat',
     Keys.floor: 'Kati',
-    Keys.noApartment: 'Pa apartament',
+    Keys.noApartment: 'Pa Numer',
     Keys.goBack: 'Kthehu',
     Keys.dwellingTotalLabel: '{count} gjithsej',
     Keys.dwellingCountSingle: '{count} banesë',
