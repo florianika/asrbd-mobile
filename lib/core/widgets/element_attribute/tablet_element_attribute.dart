@@ -124,8 +124,9 @@ class _TabletElementAttributeViewState extends State<TabletElementAttribute> {
                                   .toValidationResults(useAlbanianMessage: true)
                                   .where((x) {
                                 final xId = normalizeId(x.id);
-                                if (xId == null || targetId == null)
+                                if (xId == null || targetId == null) {
                                   return false;
+                                }
 
                                 final matchesEntity = x.entityType ==
                                     (widget.selectedShapeType ==
