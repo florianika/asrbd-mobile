@@ -75,7 +75,7 @@ class ApiEndpoints {
       path: '${esriBaseUri.path}/${AppConfig.buildingLayerId}/query',
       queryParameters: {
         'where':
-            'BldMunicipality = $municipalityId AND BldStatus <> 6', // Exclude deleted buildings
+            'BldMunicipality = $municipalityId', // Include all buildings including demolished (BldStatus = 6)
         'geometry': geometry,
         'geometryType': 'esriGeometryEnvelope',
         'inSR': '4326',
