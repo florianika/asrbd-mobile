@@ -56,13 +56,15 @@ class AppConfig {
   static const String mapAsigSatellite2025StoreName =
       "mapStoreAsigSatellite2025";
 
-  static const String basemapEsriSatelliteUrl =
-      "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+  static String basemapEsriSatelliteUrl =
+      dotenv.env['BASEMAP_ESRI_SATELLITE_URL'] ?? "";
 
-  static const String basemapAsigSatellite2025Url =
-      "https://di-albania-satellite1.img.arcgis.com/arcgis/rest/services/rgb/Albania_2025_L1/MapServer/WMTS/tile/1.0.0/rgb_Albania_2025_L1/default/default028mm/{z}/{y}/{x}";
-  static const String basemapTerrainUrl =
-      "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  static String basemapAsigSatellite2025Url =
+      dotenv.env['BASEMAP_ASIG_SATELLITE_2025_URL'] ?? "";
+  static String basemapTerrainUrl = dotenv.env['BASEMAP_TERRAIN_URL'] ?? "";
+
+  static String esriMapServerExportUrl =
+      dotenv.env['MAPSERVER_EXPORT_URL'] ?? "";
 
   //this agent is used while consumin open street map. do not remove it in order to not get blocked by open street map
   static const String userAgentPackageName = "com.asrdb.al";

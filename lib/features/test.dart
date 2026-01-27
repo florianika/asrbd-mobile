@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/local_storage/storage_keys.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
@@ -37,8 +38,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
   final MapController _mapController = MapController();
   LatLng? _userLocation;
 
-  final String serverBase =
-      'https://salstatstaging.tddev.it/arcgis/rest/services/SALSTAT/asrbd/MapServer/export';
+  final String serverBase = AppConfig.esriMapServerExportUrl;
 
   final double fallbackXmin = 19.779516666666666;
   final double fallbackYmin = 41.293399999999998;
@@ -502,8 +502,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
               ),
               children: [
                 TileLayer(
-                  urlTemplate:
-                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: AppConfig.basemapTerrainUrl,
                   subdomains: const ['a', 'b', 'c'],
                 ),
                 OverlayImageLayer(

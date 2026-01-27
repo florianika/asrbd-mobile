@@ -73,7 +73,9 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  await dotenv.load();
+  const envFile =
+      String.fromEnvironment('ENV_FILE', defaultValue: '.env');
+  await dotenv.load(fileName: envFile);
 
   sl.registerLazySingleton<StreetApi>(() => StreetApi());
 
