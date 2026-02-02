@@ -234,6 +234,7 @@ class LocalizedAl {
     Keys.forgotPasswordDescription: 'Vendosni adresën tuaj të email-it për të marrë linkun e rivendosjes së fjalëkalimit.',
     Keys.forgotPasswordSuccess: 'Email-i për rivendosjen e fjalëkalimit u dërgua me sukses!',
     Keys.invalidEmail: 'Ju lutemi, vendosni një adresë të vlefshme email.',
-   
+    Keys.shareBuilding: 'Ndaje Ndërtesën',
+    Keys.buildingId: 'ID e Ndërtesës',
   };
 }

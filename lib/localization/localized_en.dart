@@ -242,5 +242,7 @@ class LocalizedEn {
     Keys.forgotPasswordDescription: 'Enter your email address to receive a password reset link.',
     Keys.forgotPasswordSuccess: 'Password reset email sent successfully!',
     Keys.invalidEmail: 'Please enter a valid email address.',
+    Keys.shareBuilding: 'Share Building',
+    Keys.buildingId: 'Building ID',
   };
 }

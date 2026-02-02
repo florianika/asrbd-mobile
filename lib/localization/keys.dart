@@ -231,4 +231,8 @@ class Keys {
   static const String forgotPasswordDescription = 'forgotPasswordDescription';
   static const String forgotPasswordSuccess = 'forgotPasswordSuccess';
   static const String invalidEmail = 'invalidEmail';
+  
+  // Share building keys
+  static const String shareBuilding = 'shareBuilding';
+  static const String buildingId = 'buildingId';
 }

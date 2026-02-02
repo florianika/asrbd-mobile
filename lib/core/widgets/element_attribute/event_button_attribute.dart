@@ -7,6 +7,7 @@ import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/models/field_work_status.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/widgets/dialog_box.dart';
+import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
@@ -16,6 +17,7 @@ import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:share_plus/share_plus.dart';
 
 class EventButtonAttribute extends StatelessWidget {
   final void Function() onSave;
@@ -148,6 +150,40 @@ class EventButtonAttribute extends StatelessWidget {
       }
     }
 
+    Future<void> shareBuilding() async {
+      if (globalId == null || globalId!.isEmpty) {
+        NotifierService.showMessage(
+          context,
+          message: 'Building ID cannot be empty',
+          type: MessageType.warning,
+        );
+        return;
+      }
+
+      // Compose the share URL
+      final baseUrl = AppConfig.shareBaseUrl;
+
+      final encodedGlobalId = Uri.encodeComponent(globalId!);
+
+      final shareUrl =
+          '$baseUrl/al/#/dashboard/register/details/BUILDING/$encodedGlobalId';
+
+      // Open native share dialog
+      try {
+        await Share.share(
+          shareUrl,
+          subject:
+              '${AppLocalizations.of(context).translate(Keys.building)} - $globalId',
+        );
+      } catch (e) {
+        NotifierService.showMessage(
+          context,
+          message: 'Error sharing building: $e',
+          type: MessageType.error,
+        );
+      }
+    }
+
     return SafeArea(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -238,8 +274,7 @@ class EventButtonAttribute extends StatelessWidget {
                         overlayColor: Colors.grey,
                         overlayOpacity: 0.2,
                         children: [
-                          if (formContext == FormContext.view &&
-                              onEdit != null)
+                          if (formContext == FormContext.view && onEdit != null)
                             SpeedDialChild(
                               child: const Icon(Icons.edit),
                               backgroundColor: Colors.blue,
@@ -321,6 +356,21 @@ class EventButtonAttribute extends StatelessWidget {
                                 fontSize: 14,
                               ),
                               onTap: () => finishReviewing(),
+                            ),
+                          if (selectedShapeType == ShapeType.polygon)
+                            SpeedDialChild(
+                              child: const Icon(Icons.share),
+                              backgroundColor: Colors.purple,
+                              foregroundColor: Colors.white,
+                              label: AppLocalizations.of(context)
+                                  .translate(Keys.shareBuilding),
+                              labelBackgroundColor: Colors.white,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                                fontSize: 14,
+                              ),
+                              onTap: () => shareBuilding(),
                             ),
                         ],
                       );

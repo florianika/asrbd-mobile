@@ -66,6 +66,8 @@ class AppConfig {
   static String esriMapServerExportUrl =
       dotenv.env['MAPSERVER_EXPORT_URL'] ?? "";
 
+  static String shareBaseUrl = dotenv.env['SHARE_BASE_URL'] ?? "";
+
   //this agent is used while consumin open street map. do not remove it in order to not get blocked by open street map
   static const String userAgentPackageName = "com.asrdb.al";
 }
