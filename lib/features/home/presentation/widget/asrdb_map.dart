@@ -387,10 +387,12 @@ class _AsrdbMapState extends State<AsrdbMap> {
         builder: (context, state) {
           return BlocListener<AttributesCubit, AttributesState>(
             listener: (context, attributesState) {},
-            child: FlutterMap(
-              key: mapKey,
-              mapController: widget.mapController,
-              options: MapOptions(
+            child: KeyedSubtree(
+              key: ValueKey(state.basemapUrl),
+              child: FlutterMap(
+                key: mapKey,
+                mapController: widget.mapController,
+                options: MapOptions(
                 crs: state.csr,
                 maxZoom: state.maxZoom,
                 interactionOptions: const InteractionOptions(
@@ -426,80 +428,81 @@ class _AsrdbMapState extends State<AsrdbMap> {
                   }
                 },
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: state.basemapUrl,
-                  userAgentPackageName: AppConfig.userAgentPackageName,
-                  tileSize: 256,
-                  tileProvider: FMTCTileProvider(
-                    stores: {
-                      state.storeName: BrowseStoreStrategy.readUpdateCreate
+                children: [
+                  TileLayer(
+                    urlTemplate: state.basemapUrl,
+                    userAgentPackageName: AppConfig.userAgentPackageName,
+                    tileSize: 256,
+                    tileProvider: FMTCTileProvider(
+                      stores: {
+                        state.storeName: BrowseStoreStrategy.readUpdateCreate
+                      },
+                    ),
+                  ),
+                  MunicipalityMarker(
+                    isOffline: state.isOffline,
+                    municipalityId: state.download?.municipalityId,
+                  ),
+                  if (_showLocationMarker)
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: _userLocation!,
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.my_location,
+                            color: Colors.blueAccent,
+                            size: 30,
+                          ),
+                        ),
+                      ],
+                    ),
+                  BuildingsMarker(
+                    attributeLegend: widget.attributeLegend,
+                    mapController: widget.mapController,
+                    isSatellite: state.isSatellite,
+                  ),
+                  BlocBuilder<AttributesCubit, AttributesState>(
+                    builder: (context, state) {
+                      return SelectedBuildingMarker(
+                        selectedBuildingGlobalId: state is Attributes &&
+                                ((state.shapeType == ShapeType.polygon &&
+                                    state.showAttributes))
+                            ? state.buildingGlobalId
+                            : null,
+                        highlightBuildingGlobalId: (state is Attributes &&
+                                ((state.shapeType != ShapeType.polygon &&
+                                        state.showAttributes) ||
+                                    (state.shapeType == ShapeType.noShape &&
+                                        state.viewDwelling) ||
+                                    context
+                                        .read<GeometryEditorCubit>()
+                                        .isEditing))
+                            ? state.buildingGlobalId
+                            : null,
+                      );
                     },
                   ),
-                ),
-                MunicipalityMarker(
-                  isOffline: state.isOffline,
-                  municipalityId: state.download?.municipalityId,
-                ),
-                if (_showLocationMarker)
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: _userLocation!,
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.my_location,
-                          color: Colors.blueAccent,
-                          size: 30,
-                        ),
-                      ),
-                    ],
+                  EntrancesMarker(
+                    onTap: _handleEntranceTap,
+                    onLongPress: _onLongTapEntrance,
+                    attributeLegend: widget.attributeLegend,
+                    mapController: widget.mapController,
                   ),
-                BuildingsMarker(
-                  attributeLegend: widget.attributeLegend,
-                  mapController: widget.mapController,
-                  isSatellite: state.isSatellite,
-                ),
-                BlocBuilder<AttributesCubit, AttributesState>(
-                  builder: (context, state) {
-                    return SelectedBuildingMarker(
-                      selectedBuildingGlobalId: state is Attributes &&
-                              ((state.shapeType == ShapeType.polygon &&
-                                  state.showAttributes))
-                          ? state.buildingGlobalId
-                          : null,
-                      highlightBuildingGlobalId: (state is Attributes &&
-                              ((state.shapeType != ShapeType.polygon &&
-                                      state.showAttributes) ||
-                                  (state.shapeType == ShapeType.noShape &&
-                                      state.viewDwelling) ||
-                                  context
-                                      .read<GeometryEditorCubit>()
-                                      .isEditing))
-                          ? state.buildingGlobalId
-                          : null,
-                    );
-                  },
-                ),
-                EntrancesMarker(
-                  onTap: _handleEntranceTap,
-                  onLongPress: _onLongTapEntrance,
-                  attributeLegend: widget.attributeLegend,
-                  mapController: widget.mapController,
-                ),
-                EditBuildingMarker(
-                  mapKey: mapKey,
-                  mapController: widget.mapController,
-                ),
-                EditEntranceMarker(
-                  mapKey: mapKey,
-                  mapController: widget.mapController,
-                ),
-                Center(
-                  child: LocationTagMarker(isActive: true),
-                ),
-              ],
+                  EditBuildingMarker(
+                    mapKey: mapKey,
+                    mapController: widget.mapController,
+                  ),
+                  EditEntranceMarker(
+                    mapKey: mapKey,
+                    mapController: widget.mapController,
+                  ),
+                  Center(
+                    child: LocationTagMarker(isActive: true),
+                  ),
+                ],
+              ),
             ),
           );
         });

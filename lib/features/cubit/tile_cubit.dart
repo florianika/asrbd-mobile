@@ -15,16 +15,18 @@ class TileState extends Equatable {
   final double maxZoom;
   final double initialZoom;
 
-  const TileState({
+  TileState({
     required this.isOffline,
     this.download,
-    this.basemapUrl = AppConfig.basemapTerrainUrl,
+    String? basemapUrl,
     this.isSatellite = false,
-    this.storeName = AppConfig.basemapTerrainUrl,
+    String? storeName,
     this.csr = const Epsg3857(),
     this.maxZoom = AppConfig.maxZoom,
     this.initialZoom = AppConfig.initZoom,
-  });
+  })  : basemapUrl = basemapUrl ?? AppConfig.basemapTerrainUrl,
+        storeName = storeName ?? AppConfig.mapTerrainStoreName;
+
 
   TileState copyWith({
     bool? isOffline,
@@ -55,6 +57,9 @@ class TileState extends Equatable {
         basemapUrl,
         isSatellite,
         storeName,
+      csr,
+      maxZoom,
+      initialZoom,
       ];
 }
 
