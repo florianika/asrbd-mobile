@@ -262,6 +262,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
       context.read<EntranceCubit>().clearEntrances();
 
       if (geometryEditor.isEditing) {
+        // Disable tap-to-add vertices for buildings
+        // Only allow drag-to-add vertices
         if (geometryEditor.selectedType == EntityType.entrance) {
           final attributeCubit = context.read<AttributesCubit>();
           final buildingGlobalId = attributeCubit.currentBuildingGlobalId;
@@ -289,8 +291,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
           } else {
             geometryEditor.onMapTap(position);
           }
-        } else {
-          geometryEditor.onMapTap(position);
         }
       } else {
         _handleBuildingOnTap(position, isOffline, downloadId);

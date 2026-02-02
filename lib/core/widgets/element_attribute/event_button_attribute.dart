@@ -12,6 +12,7 @@ import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
 import 'package:asrdb/features/home/presentation/loading_cubit.dart';
 import 'package:asrdb/features/home/presentation/output_logs_cubit.dart';
+import 'package:asrdb/features/auth/presentation/lang_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
@@ -162,11 +163,12 @@ class EventButtonAttribute extends StatelessWidget {
 
       // Compose the share URL
       final baseUrl = AppConfig.shareBaseUrl;
+      final currentLanguage = context.read<LangCubit>().state;
 
       final encodedGlobalId = Uri.encodeComponent(globalId!);
 
       final shareUrl =
-          '$baseUrl/al/#/dashboard/register/details/BUILDING/$encodedGlobalId';
+          '$baseUrl/$currentLanguage/#/dashboard/register/details/BUILDING/$encodedGlobalId';
 
       // Open native share dialog
       try {

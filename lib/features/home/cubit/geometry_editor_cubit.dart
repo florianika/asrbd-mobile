@@ -151,9 +151,8 @@ class GeometryEditorCubit extends Cubit<GeometryEditorState> {
       if (_selectedType == EntityType.entrance) {
         entranceCubit.addPoint(point);
         finishCreation();
-      } else if (_selectedType == EntityType.building) {
-        buildingCubit.addPoint(point);
       }
+      // Building vertices are now only added by dragging, not by tapping
     }
   }
 

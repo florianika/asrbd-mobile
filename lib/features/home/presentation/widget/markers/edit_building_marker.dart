@@ -120,7 +120,8 @@ class EditBuildingMarker extends StatelessWidget {
     }).toList();
   }
 
-  // Create markers for midpoints between existing points (for adding new points)
+  // Midpoint markers functionality disabled - users can only add vertices by dragging
+  /*
   List<Marker> _buildMidpointMarkers(
       List<LatLng> points, BuildContext context) {
     if (points.length < 2) return [];
@@ -177,6 +178,7 @@ class EditBuildingMarker extends StatelessWidget {
 
     return midpointMarkers;
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -249,13 +251,11 @@ class EditBuildingMarker extends StatelessWidget {
                           // Main point markers
                           MarkerLayer(markers: _buildMarkers(points, context)),
 
-                          // Midpoint markers for adding new points (only if more than 2 points)
-                          // if (points.length >= 3 &&
-                          //     !geometryEditor.buildingCubit.isMovingPoint)
-                          if (points.length >= 3)
-                            MarkerLayer(
-                                markers:
-                                    _buildMidpointMarkers(points, context)),
+                          // Midpoint markers for adding new points disabled
+                          // Users can only add vertices by dragging, not by tapping
+                          // if (points.length >= 3)
+                          //   MarkerLayer(
+                          //       markers: _buildMidpointMarkers(points, context)),
                         ],
                       );
                     },
