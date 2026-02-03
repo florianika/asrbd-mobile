@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:asrdb/core/constants/default_data.dart';
+import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';
 import 'package:asrdb/core/enums/form_context.dart';
 import 'package:asrdb/core/enums/legent_type.dart';
 import 'package:asrdb/core/enums/message_type.dart';
@@ -77,6 +78,7 @@ class _ViewMapState extends State<ViewMap> {
   @override
   void dispose() {
     _debounce?.cancel();
+    context.read<LocationAccuracyCubit>().stopListening();
     super.dispose();
   }
 
@@ -89,6 +91,9 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttributes();
     context.read<EntranceCubit>().getEntranceAttributes();
+    
+    // Start GPS location streaming
+    context.read<LocationAccuracyCubit>().startListening();
 
     buildingLegends = {
       'quality':

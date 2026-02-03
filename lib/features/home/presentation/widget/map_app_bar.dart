@@ -1,4 +1,5 @@
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
@@ -76,6 +77,87 @@ class _MapAppBarState extends State<MapAppBar> {
             },
           ),
           actions: [
+            BlocBuilder<LocationAccuracyCubit, LocationAccuracyState>(
+              builder: (context, locationState) {
+                if (locationState is LocationAccuracyUpdated) {
+                  final isAccurate = locationState.isAccurate;
+                  final color = isAccurate ? Colors.green : Colors.orange;
+                  return Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          color.withOpacity(0.95),
+                          color.withOpacity(0.75),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: color.withOpacity(0.35),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.gps_fixed,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${locationState.accuracy.toStringAsFixed(1)}m',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (locationState is LocationAccuracyError) {
+                  return Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(
+                          Icons.gps_off,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          'GPS',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             Badge(
               child: IconButton(
                 icon: Icon(

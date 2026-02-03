@@ -1,6 +1,7 @@
 import 'package:asrdb/core/api/note_api.dart';
 import 'package:asrdb/core/api/schema_api.dart';
 import 'package:asrdb/core/api/street_api.dart';
+import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';
 import 'package:asrdb/core/db/street_database.dart';
 import 'package:asrdb/core/field_work_status_cubit.dart';
 import 'package:asrdb/core/services/database_service.dart';
@@ -172,6 +173,7 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => sl<GeometryEditorCubit>()),
         BlocProvider(create: (_) => LoadingCubit()),
         BlocProvider(create: (context) => LangCubit()),
+        BlocProvider(create: (_) => LocationAccuracyCubit()),
         BlocProvider(
             create: (context) =>
                 FieldWorkCubit(wsUri: Uri.parse(AppConfig.fieldWorkWebSocket))),

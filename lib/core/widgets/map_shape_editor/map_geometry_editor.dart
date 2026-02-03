@@ -1,5 +1,4 @@
-import 'package:asrdb/core/config/app_config.dart';
-import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/config/app_config.dart';import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
@@ -23,6 +22,7 @@ class MapGeometryEditor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final attributeContext = context.watch<AttributesCubit>();
+    
     return Stack(
       children: [
         Positioned(
@@ -101,6 +101,7 @@ class MapGeometryEditor extends StatelessWidget {
           child: Builder(
             builder: (context) {
               final geometryEditor = context.watch<GeometryEditorCubit>();
+              final locationState = context.watch<LocationAccuracyCubit>().state;
               final isEditingEntrance =
                   geometryEditor.selectedType == EntityType.entrance;
               final hasBuildingSelected =
@@ -108,11 +109,21 @@ class MapGeometryEditor extends StatelessWidget {
                       attributeContext.shapeType == ShapeType.polygon &&
                       attributeContext.isShowingAttributes;
 
-              final isEnabled = isEditingEntrance || hasBuildingSelected;
+              // Check GPS accuracy
+              final hasAccurateGPS = locationState is LocationAccuracyUpdated &&
+                  locationState.isAccurate;
+
+              final isEnabled = (isEditingEntrance || hasBuildingSelected) && hasAccurateGPS;
 
               String tooltip;
-              if (!isEnabled) {
+              if (!hasBuildingSelected && !isEditingEntrance) {
                 tooltip = 'Select a building first to add entrance';
+              } else if (!hasAccurateGPS) {
+                if (locationState is LocationAccuracyUpdated) {
+                  tooltip = 'GPS accuracy too low (${locationState.accuracy.toStringAsFixed(1)}m). Need ≤10m';
+                } else {
+                  tooltip = 'Waiting for GPS signal...';
+                }
               } else {
                 tooltip = 'Add Entrance';
               }

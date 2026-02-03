@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';
 import 'package:asrdb/core/db/hive_boxes.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
@@ -59,10 +60,8 @@ class _AsrdbMapState extends State<AsrdbMap> {
   double zoom = 0;
   String? _selectedGlobalId;
 
-  bool _showLocationMarker = false;
   bool _entranceOutsideVisibleArea = false;
 
-  LatLng? _userLocation;
   String? _previousBasemapUrl;
 
   Timer? _debounce;
@@ -110,11 +109,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
           minZoom: buildingMinZoom,
       );
     }
-
-    setState(() {
-      _userLocation = location;
-      _showLocationMarker = true;
-    });
   }
 
   Future<void> _handleEntranceTap(EntranceEntity entrance) async {
@@ -443,21 +437,85 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     isOffline: state.isOffline,
                     municipalityId: state.download?.municipalityId,
                   ),
-                  if (_showLocationMarker)
-                    MarkerLayer(
-                      markers: [
-                        Marker(
-                          point: _userLocation!,
-                          width: 40,
-                          height: 40,
-                          child: const Icon(
-                            Icons.my_location,
-                            color: Colors.blueAccent,
-                            size: 30,
-                          ),
-                        ),
-                      ],
-                    ),
+                  BlocBuilder<LocationAccuracyCubit, LocationAccuracyState>(
+                    builder: (context, locationState) {
+                      if (locationState is LocationAccuracyUpdated) {
+                        return MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: locationState.position,
+                              width: 56,
+                              height: 56,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  // Soft glow
+                                  Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: (locationState.isAccurate
+                                                  ? Colors.green
+                                                  : Colors.orange)
+                                              .withOpacity(0.35),
+                                          blurRadius: 16,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Accuracy circle
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: (locationState.isAccurate
+                                              ? Colors.green
+                                              : Colors.orange)
+                                          .withOpacity(0.18),
+                                      border: Border.all(
+                                        color: locationState.isAccurate
+                                            ? Colors.green
+                                            : Colors.orange,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  // Center pin
+                                  Container(
+                                    width: 22,
+                                    height: 22,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.white,
+                                      border: Border.all(
+                                        color: locationState.isAccurate
+                                            ? Colors.green
+                                            : Colors.orange,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.navigation,
+                                      size: 12,
+                                      color: locationState.isAccurate
+                                          ? Colors.green
+                                          : Colors.orange,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                   BuildingsMarker(
                     attributeLegend: widget.attributeLegend,
                     mapController: widget.mapController,
