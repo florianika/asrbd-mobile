@@ -52,7 +52,7 @@ class LocalizedAl {
     Keys.dwellingQualityDeleted: 'E fshirë',
     Keys.validateData: 'Valido të Dhënat',
     Keys.validateDataUntestedData:
-        'Validimi nuk mund te kryhet. Te dhenat jane te pa testuara (BldQuality != 9).',
+        'Validimi nuk mund të kryhet. Ndërtesa është validuar më parë (BldQuality != 9).',
     Keys.startReviewing: 'Fillo Rishikimin',
     Keys.finishReviewing: 'Përfundo Rishikimin',
     Keys.finishReviewingSuccess: 'Mbyllja e rishikimit perfundoi me sukses',

@@ -56,7 +56,7 @@ class LocalizedEn {
     Keys.dwellingQualityDeleted: 'Deleted',
     Keys.validateData: 'Validate Data',
     Keys.validateDataUntestedData:
-        'Validation cannot be performed. The data is untested (BldQuality != 9).',
+        'Validation cannot be performed. The building has already been validated (BldQuality ≠ 9).',
     Keys.startReviewing: 'Start Reviewing',
     Keys.finishReviewing: 'Finish Reviewing',
     Keys.legend: 'Legend',
