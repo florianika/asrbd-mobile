@@ -173,6 +173,42 @@ class BuildingGeometryCubit extends Cubit<BuildingGeometryState> {
     _emitCurrentState();
   }
 
+  /// Delete a point by index from the polygon
+  /// Returns true if deletion was successful, false if polygon would have < 4 points
+  bool deletePointByIndex(int index, {bool saveToUndo = true}) {
+    // Polygon must have at least 4 points (minimum is 3 for a valid polygon + 1 closing point)
+    if (_points.length <= 4) {
+      return false;
+    }
+
+    if (index < 0 || index >= _points.length) {
+      return false;
+    }
+
+    if (saveToUndo) {
+      _pushToUndo();
+      _redoStack.clear();
+    }
+
+    _points.removeAt(index);
+    _emitCurrentState();
+    return true;
+  }
+
+  /// Delete a point by position (LatLng) from the polygon
+  /// Returns true if deletion was successful, false if polygon would have < 4 points or point not found
+  bool deletePointByPosition(LatLng position, {bool saveToUndo = true}) {
+    final index = _points.indexWhere((point) =>
+        (point.latitude - position.latitude).abs() < 0.0001 &&
+        (point.longitude - position.longitude).abs() < 0.0001);
+
+    if (index == -1) {
+      return false; // Point not found
+    }
+
+    return deletePointByIndex(index, saveToUndo: saveToUndo);
+  }
+
   void updatePointPosition(int index, LatLng newPosition,
       {bool saveToUndo = true}) {
     if (index < 0 || index >= _points.length) return;

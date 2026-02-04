@@ -235,4 +235,10 @@ class Keys {
   // Share building keys
   static const String shareBuilding = 'shareBuilding';
   static const String buildingId = 'buildingId';
+  
+  // Point deletion keys
+  static const String polygonMinPointsError = 'polygonMinPointsError';
+  static const String deletePointTitle = 'deletePointTitle';
+  static const String deletePointConfirmation = 'deletePointConfirmation';
+  static const String cannotDeletePointError = 'cannotDeletePointError';
 }

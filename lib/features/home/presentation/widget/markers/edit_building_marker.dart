@@ -1,5 +1,7 @@
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/cubit/building_geometry_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -28,96 +30,157 @@ class EditBuildingMarker extends StatelessWidget {
         width: 32,
         height: 32,
         point: point,
-        child: Draggable<MapDragData>(
-          data: MapDragData(index: index, point: point),
-          onDragStarted: () {
-            // Set moving state through GeometryEditorCubit
-            final geometryEditor = context.read<GeometryEditorCubit>();
-            geometryEditor.setBuildingMoving(true);
+        child: GestureDetector(
+          onLongPress: () {
+            _showDeletePointMenu(context, index, points.length);
           },
-          onDragEnd: (details) {
-            // Reset moving state through GeometryEditorCubit
-            final geometryEditor = context.read<GeometryEditorCubit>();
-            geometryEditor.setBuildingMoving(false);
-          },
-          feedback: Transform.translate(
-            offset: const Offset(0, -60),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                width: draggedMarkerSize,
-                height: draggedMarkerSize,
-                decoration: BoxDecoration(
-                  color: isFirstPoint
-                      ? const Color(0xFF2196F3).withValues(alpha: opacity)
-                      : const Color(0xFF4CAF50).withValues(alpha: opacity),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
+          child: Draggable<MapDragData>(
+            data: MapDragData(index: index, point: point),
+            onDragStarted: () {
+              // Set moving state through GeometryEditorCubit
+              final geometryEditor = context.read<GeometryEditorCubit>();
+              geometryEditor.setBuildingMoving(true);
+            },
+            onDragEnd: (details) {
+              // Reset moving state through GeometryEditorCubit
+              final geometryEditor = context.read<GeometryEditorCubit>();
+              geometryEditor.setBuildingMoving(false);
+            },
+            feedback: Transform.translate(
+              offset: const Offset(0, -60),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: draggedMarkerSize,
+                  height: draggedMarkerSize,
+                  decoration: BoxDecoration(
+                    color: isFirstPoint
+                        ? const Color(0xFF2196F3).withValues(alpha: opacity)
+                        : const Color(0xFF4CAF50).withValues(alpha: opacity),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 3,
                     ),
-                  ],
-                ),
-                child: Icon(
-                  isFirstPoint ? Icons.flag : Icons.circle,
-                  color: Colors.white.withValues(alpha: opacity),
-                  size: isFirstPoint ? 20 : 16,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    isFirstPoint ? Icons.flag : Icons.circle,
+                    color: Colors.white.withValues(alpha: opacity),
+                    size: isFirstPoint ? 20 : 16,
+                  ),
                 ),
               ),
             ),
-          ),
-          feedbackOffset: const Offset(0, 0),
-          childWhenDragging: Container(
-            decoration: BoxDecoration(
-              color: (isFirstPoint
-                      ? const Color(0xFF2196F3).withValues(alpha: opacity)
-                      : const Color(0xFF4CAF50).withValues(alpha: opacity))
-                  .withValues(alpha: 0.3),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.5),
-                width: 2,
-              ),
-            ),
-            child: Icon(
-              isFirstPoint ? Icons.flag : Icons.circle,
-              color: Colors.white.withValues(alpha: opacity),
-              size: isFirstPoint ? 16 : 12,
-            ),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isFirstPoint
-                  ? const Color(0xFF2196F3).withValues(alpha: opacity)
-                  : const Color(0xFF4CAF50).withValues(alpha: opacity),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
+            feedbackOffset: const Offset(0, 0),
+            childWhenDragging: Container(
+              decoration: BoxDecoration(
+                color: (isFirstPoint
+                        ? const Color(0xFF2196F3).withValues(alpha: opacity)
+                        : const Color(0xFF4CAF50).withValues(alpha: opacity))
+                    .withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.5),
+                  width: 2,
                 ),
-              ],
+              ),
+              child: Icon(
+                isFirstPoint ? Icons.flag : Icons.circle,
+                color: Colors.white.withValues(alpha: opacity),
+                size: isFirstPoint ? 16 : 12,
+              ),
             ),
-            child: Icon(
-              isFirstPoint ? Icons.flag : Icons.circle,
-              color: Colors.white.withValues(alpha: opacity),
-              size: isFirstPoint ? 16 : 12,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isFirstPoint
+                    ? const Color(0xFF2196F3).withValues(alpha: opacity)
+                    : const Color(0xFF4CAF50).withValues(alpha: opacity),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                isFirstPoint ? Icons.flag : Icons.circle,
+                color: Colors.white.withValues(alpha: opacity),
+                size: isFirstPoint ? 16 : 12,
+              ),
             ),
           ),
         ),
       );
     }).toList();
+  }
+
+  void _showDeletePointMenu(BuildContext context, int pointIndex, int totalPoints) {
+    final localizations = AppLocalizations.of(context);
+    
+    // Polygon must have at least 4 points to allow deletion
+    if (totalPoints <= 4) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.translate(Keys.polygonMinPointsError)),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizations.translate(Keys.deletePointTitle)),
+          content: Text(localizations.translate(Keys.deletePointConfirmation)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(localizations.translate(Keys.cancel)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                
+                // Get the geometry editor and delete the point
+                final geometryEditor = context.read<GeometryEditorCubit>();
+                final buildingCubit = geometryEditor.buildingCubit;
+                
+                // deletePointByIndex will return false if polygon would have < 4 points
+                final success = buildingCubit.deletePointByIndex(pointIndex, saveToUndo: true);
+                
+                if (!success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(localizations.translate(Keys.cannotDeletePointError)),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: Text(localizations.translate(Keys.delete)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Midpoint markers functionality disabled - users can only add vertices by dragging

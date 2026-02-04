@@ -244,5 +244,11 @@ class LocalizedEn {
     Keys.invalidEmail: 'Please enter a valid email address.',
     Keys.shareBuilding: 'Share Building',
     Keys.buildingId: 'Building ID',
+    
+    // Point deletion
+    Keys.polygonMinPointsError: 'Polygon must have at least 4 points to delete a point.',
+    Keys.deletePointTitle: 'Delete Point?',
+    Keys.deletePointConfirmation: 'Are you sure you want to delete this point? This action can be undone.',
+    Keys.cannotDeletePointError: 'Cannot delete point: polygon must have at least 4 points',
   };
 }

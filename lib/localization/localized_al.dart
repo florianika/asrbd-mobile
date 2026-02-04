@@ -235,6 +235,10 @@ class LocalizedAl {
     Keys.forgotPasswordSuccess: 'Email-i për rivendosjen e fjalëkalimit u dërgua me sukses!',
     Keys.invalidEmail: 'Ju lutemi, vendosni një adresë të vlefshme email.',
     Keys.shareBuilding: 'Ndaje Ndërtesën',
-    Keys.buildingId: 'ID e Ndërtesës',
-  };
+    Keys.buildingId: 'ID e Ndërtesës',    
+    // Point deletion
+    Keys.polygonMinPointsError: 'Poligoni duhet të ketë të paktën 4 pika për të fshirë një pikë.',
+    Keys.deletePointTitle: 'Fshi Pikën?',
+    Keys.deletePointConfirmation: 'Jeni i sigurt që doni të fshini këtë pikë? Ky veprim mund të zhbëhet.',
+    Keys.cannotDeletePointError: 'Nuk mund të fshihet pika: poligoni duhet të ketë të paktën 4 pika',  };
 }
