@@ -113,17 +113,13 @@ class MapGeometryEditor extends StatelessWidget {
               final hasAccurateGPS = locationState is LocationAccuracyUpdated &&
                   locationState.isAccurate;
 
-              final isEnabled = (isEditingEntrance || hasBuildingSelected) && hasAccurateGPS;
+              // Button is enabled when a building is selected, regardless of GPS accuracy
+              // GPS accuracy may be needed when placing the point, but not for initial button activation
+              final isEnabled = isEditingEntrance || hasBuildingSelected;
 
               String tooltip;
               if (!hasBuildingSelected && !isEditingEntrance) {
                 tooltip = 'Select a building first to add entrance';
-              } else if (!hasAccurateGPS) {
-                if (locationState is LocationAccuracyUpdated) {
-                  tooltip = 'GPS accuracy too low (${locationState.accuracy.toStringAsFixed(1)}m). Need ≤10m';
-                } else {
-                  tooltip = 'Waiting for GPS signal...';
-                }
               } else {
                 tooltip = 'Add Entrance';
               }
