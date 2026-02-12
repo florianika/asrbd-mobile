@@ -16,6 +16,8 @@ abstract class IDwellingRepository {
 
   Future<int> deleteUnmodified(int downloadId);
 
+  Future<int> deleteByDownloadId(int downloadId);
+
   Future<Dwelling> getDwellingDetailsByObjectId(int objectId, int downloadId);
 
   Future<void> updateDwellingOffline(DwellingsCompanion dwelling);

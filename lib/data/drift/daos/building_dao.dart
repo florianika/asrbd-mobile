@@ -31,6 +31,11 @@ class BuildingDao extends DatabaseAccessor<AppDatabase>
         .go();
   }
 
+  Future<int> deleteBuildingsByDownloadId(int downloadId) {
+    return (delete(buildings)..where((b) => b.downloadId.equals(downloadId)))
+        .go();
+  }
+
   Future<List<Building>> getBuildingsByDownloadId(int? downloadId) {
     if (downloadId == null) {
       return Future.value([]);

@@ -19,6 +19,8 @@ abstract class IBuildingRepository {
 
   Future<int> deleteUnmodified(int downloadId);
 
+  Future<int> deleteByDownloadId(int downloadId);
+
   Future<void> insertBuilding(BuildingsCompanion building);
 
   Future<void> insertBuildings(List<BuildingsCompanion> buildings);

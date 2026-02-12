@@ -379,8 +379,13 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                             ),
                             child: Text(
                               _version.isNotEmpty
-                                  ? 'Version $_version'
-                                  : 'Version ${AppConfig.version}',
+                                ? AppLocalizations.of(context)
+                                  .translate(Keys.versionLabel)
+                                  .replaceAll('{version}', _version)
+                                : AppLocalizations.of(context)
+                                  .translate(Keys.versionLabel)
+                                  .replaceAll(
+                                    '{version}', AppConfig.version),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,

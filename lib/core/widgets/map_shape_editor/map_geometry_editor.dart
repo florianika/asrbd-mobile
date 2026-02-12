@@ -1,8 +1,12 @@
-import 'package:asrdb/core/config/app_config.dart';import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';import 'package:asrdb/core/enums/shape_type.dart';
+import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/cubit/location_accuracy_cubit.dart';
+import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/widgets/button/floating_button.dart';
 import 'package:asrdb/features/home/cubit/geometry_editor_cubit.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -70,13 +74,16 @@ class MapGeometryEditor extends StatelessWidget {
               final isIdle = geometryEditor.mode == EditorMode.view;
               final isEnabled = isIdle && !hasOpenForm;
 
+              final localizations = AppLocalizations.of(context);
               String tooltip;
               if (!isIdle) {
-                tooltip = 'Finish the current edit before adding a new building';
+                tooltip =
+                    localizations.translate(Keys.tooltipFinishEdit);
               } else if (hasOpenForm) {
-                tooltip = 'Close the current form before adding a new building';
+                tooltip =
+                    localizations.translate(Keys.tooltipCloseForm);
               } else {
-                tooltip = 'Add Building';
+                tooltip = localizations.translate(Keys.tooltipAddBuilding);
               }
 
               return FloatingButton(
@@ -117,11 +124,13 @@ class MapGeometryEditor extends StatelessWidget {
               // GPS accuracy may be needed when placing the point, but not for initial button activation
               final isEnabled = isEditingEntrance || hasBuildingSelected;
 
+              final localizations = AppLocalizations.of(context);
               String tooltip;
               if (!hasBuildingSelected && !isEditingEntrance) {
-                tooltip = 'Select a building first to add entrance';
+                tooltip =
+                    localizations.translate(Keys.tooltipSelectBuildingForEntrance);
               } else {
-                tooltip = 'Add Entrance';
+                tooltip = localizations.translate(Keys.tooltipAddEntrance);
               }
 
               return FloatingButton(

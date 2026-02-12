@@ -61,9 +61,9 @@ class _LoginTabletState extends State<LoginTablet> {
                 size: 28,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Warning',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).translate(Keys.warningTitle),
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 18,
                   color: primaryColor,
@@ -76,7 +76,8 @@ class _LoginTabletState extends State<LoginTablet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'You must login at least one time before using the app offline.',
+                AppLocalizations.of(context)
+                    .translate(Keys.offlineLoginRequired),
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[800],
@@ -91,7 +92,7 @@ class _LoginTabletState extends State<LoginTablet> {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: borderColor),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -101,7 +102,8 @@ class _LoginTabletState extends State<LoginTablet> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Please connect to the internet and login first.',
+                        AppLocalizations.of(context)
+                            .translate(Keys.offlineLoginConnect),
                         style: TextStyle(
                           fontSize: 14,
                           color: primaryColor,
@@ -117,9 +119,9 @@ class _LoginTabletState extends State<LoginTablet> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text(
-                'OK',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context).translate(Keys.ok),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: primaryColor,
@@ -298,7 +300,11 @@ class _LoginTabletState extends State<LoginTablet> {
               right: 0,
               child: Center(
                 child: Text(
-                  _version.isNotEmpty ? 'Version $_version' : '',
+                  _version.isNotEmpty
+                      ? AppLocalizations.of(context)
+                          .translate(Keys.versionLabel)
+                          .replaceAll('{version}', _version)
+                      : '',
                   style: TextStyle(
                     fontSize: 12.0,
                     color: Theme.of(context)

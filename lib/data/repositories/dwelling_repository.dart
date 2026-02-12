@@ -112,4 +112,8 @@ class DwellingRepository implements IDwellingRepository {
   @override
   Future<int> deleteUnmodified(int downloadId) =>
       _dao.dwellingDao.deleteUnmodifiedDwellings(downloadId);
+
+  @override
+  Future<int> deleteByDownloadId(int downloadId) =>
+      _dao.dwellingDao.deleteDwellingsByDownloadId(downloadId);
 }

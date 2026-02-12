@@ -103,9 +103,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
       if (!mounted) return;
 
-      NotifierService.showMessage(context,
-          message:
-              'Synchronization completed successfully. ${buildings.length} buildings, ${entrances.length} entrances, and ${dwellings.length} dwellings synchronized.',
+        NotifierService.showMessage(context,
+          message: AppLocalizations.of(context)
+            .translate(Keys.syncCompletedMessage)
+            .replaceAll('{buildings}', buildings.length.toString())
+            .replaceAll('{entrances}', entrances.length.toString())
+            .replaceAll('{dwellings}', dwellings.length.toString()),
           type: MessageType.success);
 
       _loadDownloadedData(); // Refresh the list
@@ -148,10 +151,23 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     );
 
     if (confirmed == true) {
+      final loadingCubit = context.read<LoadingCubit>();
+      final syncUseCase = sl<SyncUseCases>();
+      loadingCubit.show();
       try {
-        // TODO: Implement delete logic here
+        await syncUseCase.deleteOfflineData(data.id);
 
-        _loadDownloadedData(); // Refresh the list
+        if (!mounted) return;
+
+        final tileCubit = context.read<TileCubit>();
+        if (tileCubit.isOffline && tileCubit.download?.id == data.id) {
+          await tileCubit.setOnlineMode(
+            url: tileCubit.basemapUrl,
+            isSatellite: tileCubit.isSatellite,
+          );
+        }
+
+        await _loadDownloadedData(); // Refresh the list
       } catch (e) {
         final localizations = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -162,6 +178,10 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
             backgroundColor: Colors.red,
           ),
         );
+      } finally {
+        if (mounted) {
+          loadingCubit.hide();
+        }
       }
     }
   }
@@ -172,8 +192,9 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
   // Mock function to determine if there are pending items
   bool _hasPendingItems(Download data) {
-    // TODO: Replace with actual logic to check for pending sync items
-    return data.id % 3 == 0; // Mock: every 3rd item has pending sync
+    // // TODO: Replace with actual logic to check for pending sync items
+    // return data.id % 3 == 0; // Mock: every 3rd item has pending sync
+    return false;
   }
 
   Widget _buildSyncStatusIcon(Download data) {
@@ -305,8 +326,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text:
-                                        'Perdoruesi: ${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}\n',
+                                    text: AppLocalizations.of(context)
+                                            .translate(Keys.userDisplayName)
+                                            .replaceAll(
+                                                '{name}',
+                                                '${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}') +
+                                        '\n',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,

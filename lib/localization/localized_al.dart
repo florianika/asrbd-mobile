@@ -196,11 +196,31 @@ class LocalizedAl {
     Keys.showDownloadInfo: 'Shfaq informacionin e shkarkimit',
     Keys.currentZoom: 'Zmadhimi Aktual:',
     Keys.downloadArea: 'Zona e Shkarkimit:',
+    Keys.downloadAreaBounds:
+        '{area} {north}, {west} deri te {south}, {east}',
     Keys.north: 'Veri:',
     Keys.south: 'Jug:',
     Keys.east: 'Lindje:',
     Keys.west: 'Perëndim:',
     Keys.zoomInLevel: 'Zmadho në nivel {level} ose më lart për të zgjedhur zonën e shkarkimit',
+    Keys.zoomLabel: 'Zmadhimi: {zoom}',
+    Keys.downloadInitializing: 'Po inicializohet shkarkimi...',
+    Keys.downloadCompleted: 'Shkarkimi u përfundua me sukses: {name}',
+    Keys.downloadAreaTooLarge: 'Nuk mund të shkarkoni një zonë me më shumë se {max} ndërtesa. Numri aktual është {count}',
+    Keys.errorDownloadBounds: 'Gabim: nuk u arrit të llogariten kufijtë e shkarkimit',
+    Keys.errorCheckingBuildingCount: 'Gabim gjatë kontrollit të numrit të ndërtesave: {error}',
+    Keys.errorDownloadingData: 'Gabim gjatë shkarkimit të të dhënave: {error}',
+    Keys.syncCompletedMessage:
+        'Sinkronizimi u përfundua me sukses. {buildings} ndërtesa, {entrances} hyrje dhe {dwellings} banesa u sinkronizuan.',
+    Keys.userDisplayName: 'Perdoruesi: {name}',
+    Keys.modeLabel: 'Modaliteti: ',
+    Keys.modeOffline: 'OFFLINE',
+    Keys.modeOnline: 'ONLINE',
+    Keys.versionLabel: 'Version {version}',
+    Keys.warningTitle: 'Kujdes',
+    Keys.offlineLoginRequired:
+        'Duhet të hyni të paktën një herë përpara se të përdorni aplikacionin offline.',
+    Keys.offlineLoginConnect: 'Ju lutemi, lidheni me internetin dhe hyni fillimisht.',
     Keys.error: 'Gabim',
     Keys.pageNotFound: 'Faqja nuk u gjet!',
     Keys.fieldWorkActive: 'Puna në Terren Aktive',
@@ -240,5 +260,38 @@ class LocalizedAl {
     Keys.polygonMinPointsError: 'Poligoni duhet të ketë të paktën 4 pika për të fshirë një pikë.',
     Keys.deletePointTitle: 'Fshi Pikën?',
     Keys.deletePointConfirmation: 'Jeni i sigurt që doni të fshini këtë pikë? Ky veprim mund të zhbëhet.',
-    Keys.cannotDeletePointError: 'Nuk mund të fshihet pika: poligoni duhet të ketë të paktën 4 pika',  };
+        Keys.cannotDeletePointError: 'Nuk mund të fshihet pika: poligoni duhet të ketë të paktën 4 pika',
+
+        // Notes
+        Keys.notesToday: 'Sot',
+        Keys.notesEarlier: 'Më herët',
+        Keys.notesHint: 'Shkruaj një shënim rreth kësaj ndërtesë...',
+        Keys.notesEmpty: 'Nuk ka shënime për këtë ndërtesë!',
+        Keys.noteByOn: 'Nga {user} më {date}',
+        Keys.noteCannotBeEmpty: 'Shënimi nuk mund të jetë bosh!',
+        Keys.noteNoBuildingSelected: 'Nuk është zgjedhur asnjë ndërtesë!',
+
+        // Profile
+        Keys.errorLoadingProfile: 'Gabim gjatë ngarkimit të profilit: {error}',
+        Keys.noUserInfoAvailable: 'Nuk ka informacion përdoruesi',
+
+        // Map/editor messages
+        Keys.noBuildingToSave: 'Nuk ka ndërtesë për të ruajtur',
+        Keys.buildingOutsideMunicipality: 'Ju lutemi, sigurohuni që ndërtesa të jetë brenda bashkisë për të cilën jeni të autorizuar',
+        Keys.unsupportedGeometryType: 'Lloj gjeometrie i pambështetur: {type}',
+
+        // Share building
+        Keys.buildingIdCannotBeEmpty: 'ID e ndërtesës nuk mund të jetë bosh',
+        Keys.errorSharingBuilding: 'Gabim gjatë ndarjes së ndërtesës: {error}',
+
+        // Map geometry editor tooltips
+        Keys.tooltipFinishEdit:
+            'Përfundoni redaktimin aktual përpara se të shtoni një ndërtesë të re',
+        Keys.tooltipCloseForm:
+            'Mbyllni formularin aktual përpara se të shtoni një ndërtesë të re',
+        Keys.tooltipAddBuilding: 'Shto Ndërtesë',
+        Keys.tooltipSelectBuildingForEntrance:
+            'Zgjidhni fillimisht një ndërtesë për të shtuar hyrje',
+        Keys.tooltipAddEntrance: 'Shto Hyrje',
+    };
 }

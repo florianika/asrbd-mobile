@@ -126,7 +126,9 @@ class _ViewMapState extends State<ViewMap> {
       } else {
         NotifierService.showMessage(
           context,
-          message: "unsupported geometry type: ${attributes['GeometryType']}",
+          message: AppLocalizations.of(context)
+              .translate(Keys.unsupportedGeometryType)
+              .replaceAll('{type}', attributes['GeometryType'].toString()),
           type: MessageType.error,
         );
         return;

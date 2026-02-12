@@ -185,7 +185,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
       if (building == null) {
         NotifierService.showMessage(
           context,
-          message: 'No building to save',
+          message: AppLocalizations.of(context)
+              .translate(Keys.noBuildingToSave),
           type: MessageType.warning,
         );
         return;
@@ -204,8 +205,8 @@ class _MapActionEventsState extends State<MapActionEvents> {
           loadingCubit.hide();
           NotifierService.showMessage(
             context,
-            message:
-                'Please make sure that the building is within the municipality that you are authorized',
+            message: AppLocalizations.of(context)
+                .translate(Keys.buildingOutsideMunicipality),
             type: MessageType.warning,
           );
           return;

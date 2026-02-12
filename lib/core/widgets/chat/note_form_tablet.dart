@@ -1,6 +1,8 @@
 import 'package:asrdb/core/helpers/string_helper.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/features/home/presentation/attributes_cubit.dart';
+import 'package:asrdb/localization/keys.dart';
+import 'package:asrdb/localization/localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -79,13 +81,15 @@ class _NotesWidgetState extends State<NotesWidget>
     final userId = '${userService.userInfo?.nameId}';
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      _showSnackBar('Note cannot be empty!');
+      _showSnackBar(
+          AppLocalizations.of(context).translate(Keys.noteCannotBeEmpty));
       return;
     }
     final rawId = context.read<AttributesCubit>();
     final buildingGlobalId = rawId.currentBuildingGlobalId;
     if (buildingGlobalId == '' || buildingGlobalId == null) {
-      _showSnackBar('No building selected!');
+      _showSnackBar(
+          AppLocalizations.of(context).translate(Keys.noteNoBuildingSelected));
       return;
     }
     _sendButtonAnimationController
@@ -181,7 +185,9 @@ class _NotesWidgetState extends State<NotesWidget>
                       controller: _effectiveScrollController,
                       children: [
                         if (todayNotes.isNotEmpty) ...[
-                          Text("Today",
+                            Text(
+                              AppLocalizations.of(context)
+                                .translate(Keys.notesToday),
                               style: _sectionHeaderStyle(colorScheme)),
                           const SizedBox(height: 6),
                           ...todayNotes.map((note) => NoteCard(
@@ -191,7 +197,9 @@ class _NotesWidgetState extends State<NotesWidget>
                           const SizedBox(height: 12),
                         ],
                         if (earlierNotes.isNotEmpty) ...[
-                          Text("Earlier",
+                            Text(
+                              AppLocalizations.of(context)
+                                .translate(Keys.notesEarlier),
                               style: _sectionHeaderStyle(colorScheme)),
                           const SizedBox(height: 6),
                           ...earlierNotes.map((note) => NoteCard(
@@ -229,7 +237,8 @@ class _NotesWidgetState extends State<NotesWidget>
                 minLines: 1,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
-                  hintText: 'Shkruaj një shënim rreth kësaj ndërtesë...',
+                    hintText:
+                      AppLocalizations.of(context).translate(Keys.notesHint),
                   hintStyle: TextStyle(
                       color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 15),
@@ -270,7 +279,7 @@ class _NotesWidgetState extends State<NotesWidget>
           Icon(Icons.notes,
               size: 60, color: colorScheme.primary.withValues(alpha: 0.4)),
           const SizedBox(height: 10),
-          Text('Nuk ka shenime per kete ndertese!',
+            Text(AppLocalizations.of(context).translate(Keys.notesEmpty),
               style: TextStyle(
                   fontSize: 16,
                   color: colorScheme.onSurface.withValues(alpha: 0.7))),
@@ -313,12 +322,16 @@ class NoteCard extends StatelessWidget {
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.bottomRight,
-              child: Text(
-                  'By ${note.createdUser} on ${formatDate(note.createdTimestamp)}',
+                child: Text(
+                  AppLocalizations.of(context)
+                    .translate(Keys.noteByOn)
+                    .replaceAll('{user}', note.createdUser)
+                    .replaceAll(
+                      '{date}', formatDate(note.createdTimestamp)),
                   style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7))),
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                    color: colorScheme.onSurface.withValues(alpha: 0.7))),
             )
           ],
         ),

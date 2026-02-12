@@ -155,7 +155,8 @@ class EventButtonAttribute extends StatelessWidget {
       if (globalId == null || globalId!.isEmpty) {
         NotifierService.showMessage(
           context,
-          message: 'Building ID cannot be empty',
+          message: AppLocalizations.of(context)
+              .translate(Keys.buildingIdCannotBeEmpty),
           type: MessageType.warning,
         );
         return;
@@ -180,7 +181,9 @@ class EventButtonAttribute extends StatelessWidget {
       } catch (e) {
         NotifierService.showMessage(
           context,
-          message: 'Error sharing building: $e',
+          message: AppLocalizations.of(context)
+              .translate(Keys.errorSharingBuilding)
+              .replaceAll('{error}', e.toString()),
           type: MessageType.error,
         );
       }

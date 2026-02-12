@@ -96,4 +96,8 @@ class BuildingRepository implements IBuildingRepository {
   @override
   Future<int> deleteUnmodified(int downloadId) =>
       _dao.buildingDao.deleteUnmodifiedBuildings(downloadId);
+
+  @override
+  Future<int> deleteByDownloadId(int downloadId) =>
+      _dao.buildingDao.deleteBuildingsByDownloadId(downloadId);
 }

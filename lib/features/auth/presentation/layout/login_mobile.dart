@@ -151,7 +151,11 @@ class _LoginMobileState extends State<LoginMobile> {
               right: 0,
               child: Center(
                 child: Text(
-                  _version.isNotEmpty ? 'Version $_version' : '',
+                  _version.isNotEmpty
+                      ? AppLocalizations.of(context)
+                          .translate(Keys.versionLabel)
+                          .replaceAll('{version}', _version)
+                      : '',
                   style: TextStyle(
                     fontSize: 12.0,
                     color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),

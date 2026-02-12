@@ -146,4 +146,9 @@ class DwellingsDao extends DatabaseAccessor<AppDatabase>
               e.downloadId.equals(downloadId)))
         .go();
   }
+
+  Future<int> deleteDwellingsByDownloadId(int downloadId) {
+    return (delete(dwellings)..where((d) => d.downloadId.equals(downloadId)))
+        .go();
+  }
 }

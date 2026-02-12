@@ -4,6 +4,8 @@ class AppConfig {
   static const String appName = 'ASRBD';
   static const String version = '1.0.0';
 
+  static String environment = dotenv.env['APP_ENV'] ?? 'production';
+
   static const String defaultLanguage = 'sq';
 
   static const double maxZoom = 21.0;

@@ -101,6 +101,13 @@ class SyncUseCases {
     // });
   }
 
+  Future<void> deleteOfflineData(int downloadId) async {
+    await _dwellingRepository.deleteByDownloadId(downloadId);
+    await _entranceRepository.deleteByDownloadId(downloadId);
+    await _buildingRepository.deleteByDownloadId(downloadId);
+    await _downloadRepository.deleteDownloadById(downloadId);
+  }
+
   Future<void> syncDwellings(
       List<DwellingEntity> dwellings, int downloadId) async {
     if (dwellings.isEmpty) return;

@@ -37,7 +37,9 @@ class _ProfileViewState extends State<ProfileView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error loading profile: $e'),
+            content: Text(AppLocalizations.of(context)
+                .translate(Keys.errorLoadingProfile)
+                .replaceAll('{error}', e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -80,7 +82,8 @@ class _ProfileViewState extends State<ProfileView> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'No user information available',
+                        AppLocalizations.of(context)
+                            .translate(Keys.noUserInfoAvailable),
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.grey[600],

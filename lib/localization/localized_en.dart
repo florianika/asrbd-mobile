@@ -204,11 +204,31 @@ class LocalizedEn {
     Keys.showDownloadInfo: 'Show download info',
     Keys.currentZoom: 'Current Zoom:',
     Keys.downloadArea: 'Download Area:',
+    Keys.downloadAreaBounds:
+        '{area} {north}, {west} to {south}, {east}',
     Keys.north: 'North:',
     Keys.south: 'South:',
     Keys.east: 'East:',
     Keys.west: 'West:',
     Keys.zoomInLevel: 'Zoom in to level {level} or higher to select download area',
+    Keys.zoomLabel: 'Zoom: {zoom}',
+    Keys.downloadInitializing: 'Initializing download...',
+    Keys.downloadCompleted: 'Download completed successfully: {name}',
+    Keys.downloadAreaTooLarge: 'You cannot download an area with more than {max} buildings. Actual number is {count}',
+    Keys.errorDownloadBounds: 'Error: Could not calculate download bounds',
+    Keys.errorCheckingBuildingCount: 'Error checking building count: {error}',
+    Keys.errorDownloadingData: 'Error downloading data: {error}',
+    Keys.syncCompletedMessage:
+        'Synchronization completed successfully. {buildings} buildings, {entrances} entrances, and {dwellings} dwellings synchronized.',
+    Keys.userDisplayName: 'User: {name}',
+    Keys.modeLabel: 'Mode: ',
+    Keys.modeOffline: 'OFFLINE',
+    Keys.modeOnline: 'ONLINE',
+    Keys.versionLabel: 'Version {version}',
+    Keys.warningTitle: 'Warning',
+    Keys.offlineLoginRequired:
+        'You must login at least one time before using the app offline.',
+    Keys.offlineLoginConnect: 'Please connect to the internet and login first.',
     Keys.error: 'Error',
     Keys.pageNotFound: 'Page not found!',
     Keys.fieldWorkActive: 'Field Work Active',
@@ -250,5 +270,34 @@ class LocalizedEn {
     Keys.deletePointTitle: 'Delete Point?',
     Keys.deletePointConfirmation: 'Are you sure you want to delete this point? This action can be undone.',
     Keys.cannotDeletePointError: 'Cannot delete point: polygon must have at least 4 points',
+
+        // Notes
+        Keys.notesToday: 'Today',
+        Keys.notesEarlier: 'Earlier',
+        Keys.notesHint: 'Write a note about this building...',
+        Keys.notesEmpty: 'No notes for this building!',
+        Keys.noteByOn: 'By {user} on {date}',
+        Keys.noteCannotBeEmpty: 'Note cannot be empty!',
+        Keys.noteNoBuildingSelected: 'No building selected!',
+
+        // Profile
+        Keys.errorLoadingProfile: 'Error loading profile: {error}',
+        Keys.noUserInfoAvailable: 'No user information available',
+
+        // Map/editor messages
+        Keys.noBuildingToSave: 'No building to save',
+        Keys.buildingOutsideMunicipality: 'Please make sure that the building is within the municipality that you are authorized',
+        Keys.unsupportedGeometryType: 'Unsupported geometry type: {type}',
+
+        // Share building
+        Keys.buildingIdCannotBeEmpty: 'Building ID cannot be empty',
+        Keys.errorSharingBuilding: 'Error sharing building: {error}',
+
+        // Map geometry editor tooltips
+        Keys.tooltipFinishEdit: 'Finish the current edit before adding a new building',
+        Keys.tooltipCloseForm: 'Close the current form before adding a new building',
+        Keys.tooltipAddBuilding: 'Add Building',
+        Keys.tooltipSelectBuildingForEntrance: 'Select a building first to add entrance',
+        Keys.tooltipAddEntrance: 'Add Entrance',
   };
 }

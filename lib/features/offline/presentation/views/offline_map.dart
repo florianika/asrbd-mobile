@@ -87,7 +87,8 @@ class _OfflineMapState extends State<OfflineMap> {
     if (_downloadBounds == null) {
       NotifierService.showMessage(
         context,
-        message: 'Error: Could not calculate download bounds',
+        message: AppLocalizations.of(context)
+            .translate(Keys.errorDownloadBounds),
         type: MessageType.error,
       );
       return;
@@ -106,8 +107,10 @@ class _OfflineMapState extends State<OfflineMap> {
         if (!mounted) return;
         NotifierService.showMessage(
           context,
-          message:
-              'You cannot download an area with more than ${AppConfig.maxNoBuildings} buildings. Actual number is $noBuildings',
+          message: AppLocalizations.of(context)
+              .translate(Keys.downloadAreaTooLarge)
+              .replaceAll('{max}', AppConfig.maxNoBuildings.toString())
+              .replaceAll('{count}', noBuildings.toString()),
           type: MessageType.warning,
         );
         return;
@@ -131,7 +134,9 @@ class _OfflineMapState extends State<OfflineMap> {
       if (!mounted) return;
       NotifierService.showMessage(
         context,
-        message: 'Error checking building count: $e',
+        message: AppLocalizations.of(context)
+            .translate(Keys.errorCheckingBuildingCount)
+            .replaceAll('{error}', e.toString()),
         type: MessageType.error,
       );
     }
@@ -159,7 +164,7 @@ class _OfflineMapState extends State<OfflineMap> {
               const SizedBox(height: 8),
               Text('• ${localizations.translate(Keys.buildings)} $buildingCount'),
               Text(
-                  '• ${localizations.translate(Keys.area)} ${_downloadBounds!.north.toStringAsFixed(6)}, ${_downloadBounds!.west.toStringAsFixed(6)} to ${_downloadBounds!.south.toStringAsFixed(6)}, ${_downloadBounds!.east.toStringAsFixed(6)}'),
+                  '• ${localizations.translate(Keys.downloadAreaBounds).replaceAll('{area}', localizations.translate(Keys.area)).replaceAll('{north}', _downloadBounds!.north.toStringAsFixed(6)).replaceAll('{west}', _downloadBounds!.west.toStringAsFixed(6)).replaceAll('{south}', _downloadBounds!.south.toStringAsFixed(6)).replaceAll('{east}', _downloadBounds!.east.toStringAsFixed(6))}'),
               const SizedBox(height: 16),
               Text(localizations.translate(Keys.downloadName),
                   style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -168,10 +173,39 @@ class _OfflineMapState extends State<OfflineMap> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   hintText: localizations.translate(Keys.enterDownloadName),
-                  border: const OutlineInputBorder(),
+                  hintStyle: TextStyle(
+                    color: Colors.grey.shade600,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade400,
+                      width: 1,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Colors.grey.shade400,
+                      width: 1,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                      color: Colors.cyan.shade700,
+                      width: 2,
+                    ),
+                  ),
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
+                style: const TextStyle(
+                  color: Colors.black87,
+                ),
+                cursorColor: Colors.black87,
                 autofocus: true,
                 textCapitalization: TextCapitalization.words,
               ),
@@ -217,10 +251,11 @@ class _OfflineMapState extends State<OfflineMap> {
   }
 
   Future<void> _downloadData(String downloadName) async {
+    final localizations = AppLocalizations.of(context);
     setState(() {
       _isDownloading = true;
 
-      _downloadStatus = 'Initializing download...';
+      _downloadStatus = localizations.translate(Keys.downloadInitializing);
     });
 
     try {
@@ -251,14 +286,18 @@ class _OfflineMapState extends State<OfflineMap> {
 
       NotifierService.showMessage(
         context,
-        message: 'Download completed successfully: $downloadName',
+        message: localizations
+            .translate(Keys.downloadCompleted)
+            .replaceAll('{name}', downloadName),
         type: MessageType.success,
       );
     } catch (e) {
       if (mounted) {
         NotifierService.showMessage(
           context,
-          message: 'Error downloading data: $e',
+          message: localizations
+              .translate(Keys.errorDownloadingData)
+              .replaceAll('{error}', e.toString()),
           type: MessageType.error,
         );
       }
@@ -463,7 +502,9 @@ class _OfflineMapState extends State<OfflineMap> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Zoom: ${_currentZoom.toStringAsFixed(2)}',
+                AppLocalizations.of(context)
+                    .translate(Keys.zoomLabel)
+                    .replaceAll('{zoom}', _currentZoom.toStringAsFixed(2)),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,

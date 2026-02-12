@@ -26,6 +26,41 @@ class _MapAppBarState extends State<MapAppBar> {
   bool? _previousFieldWorkStatus;
   final userService = sl<UserService>();
 
+  bool _shouldShowEnvironmentBadge(String environment) {
+    final normalized = environment.trim().toLowerCase();
+    return normalized.isNotEmpty &&
+        normalized != 'production' &&
+        normalized != 'prod';
+  }
+
+  Widget _buildEnvironmentBadge(String environment) {
+    final label = environment.trim().toUpperCase();
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade700,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.orange.shade700.withOpacity(0.3),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FieldWorkCubit, FieldWorkStatus>(
@@ -48,8 +83,12 @@ class _MapAppBarState extends State<MapAppBar> {
                   ),
                   children: [
                     TextSpan(
-                      text:
-                          'Perdoruesi: ${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}\n',
+                      text: AppLocalizations.of(context)
+                              .translate(Keys.userDisplayName)
+                              .replaceAll(
+                                  '{name}',
+                                  '${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}') +
+                          '\n',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
@@ -57,14 +96,19 @@ class _MapAppBarState extends State<MapAppBar> {
                       ),
                     ),
                     TextSpan(
-                      text: 'Modaliteti: ',
+                      text: AppLocalizations.of(context)
+                          .translate(Keys.modeLabel),
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     TextSpan(
-                      text: state.isOffline ? 'OFFLINE' : 'ONLINE',
+                      text: state.isOffline
+                          ? AppLocalizations.of(context)
+                              .translate(Keys.modeOffline)
+                          : AppLocalizations.of(context)
+                              .translate(Keys.modeOnline),
                       style: TextStyle(
                         fontSize: 14,
                         color: state.isOffline ? Colors.red : Colors.green,
@@ -77,6 +121,8 @@ class _MapAppBarState extends State<MapAppBar> {
             },
           ),
           actions: [
+            if (_shouldShowEnvironmentBadge(AppConfig.environment))
+              _buildEnvironmentBadge(AppConfig.environment),
             BlocBuilder<LocationAccuracyCubit, LocationAccuracyState>(
               builder: (context, locationState) {
                 if (locationState is LocationAccuracyUpdated) {

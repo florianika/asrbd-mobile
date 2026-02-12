@@ -13,6 +13,11 @@ class DownloadRepository implements IDownloadRepository {
   }
 
   @override
+  Future<int> deleteDownloadById(int downloadId) async {
+    return _dao.downloadDao.deleteDownloadById(downloadId);
+  }
+
+  @override
   Future<List<Download>> getAllDownloads() async {
     return await _dao.downloadDao.getAllDownloads();
   }
