@@ -379,13 +379,13 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
                             ),
                             child: Text(
                               _version.isNotEmpty
-                                ? AppLocalizations.of(context)
-                                  .translate(Keys.versionLabel)
-                                  .replaceAll('{version}', _version)
-                                : AppLocalizations.of(context)
-                                  .translate(Keys.versionLabel)
-                                  .replaceAll(
-                                    '{version}', AppConfig.version),
+                                  ? AppLocalizations.of(context)
+                                      .translate(Keys.versionLabel)
+                                      .replaceAll('{version}', _version)
+                                  : AppLocalizations.of(context)
+                                      .translate(Keys.versionLabel)
+                                      .replaceAll(
+                                          '{version}', AppConfig.version),
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
@@ -525,28 +525,29 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+  void _showLogoutDialog(BuildContext parentContext) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: parentContext,
+      builder: (dialogContext) {
         return AlertDialog(
-          title: Text(
-              AppLocalizations.of(context).translate(Keys.logoutConfirmation)),
-          content: Text(AppLocalizations.of(context)
+          title: Text(AppLocalizations.of(parentContext)
+              .translate(Keys.logoutConfirmation)),
+          content: Text(AppLocalizations.of(parentContext)
               .translate(Keys.logoutConfirmationMessage)),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(AppLocalizations.of(context).translate(Keys.cancel)),
+              onPressed: () =>
+                  Navigator.of(dialogContext).pop(), // close dialog
+              child: Text(
+                  AppLocalizations.of(parentContext).translate(Keys.cancel)),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                _performLogout(context);
+                Navigator.of(dialogContext).pop(); // close dialog
+                _performLogout(parentContext); // IMPORTANT: parentContext
               },
-              child: Text(AppLocalizations.of(context).translate(Keys.logout)),
+              child: Text(
+                  AppLocalizations.of(parentContext).translate(Keys.logout)),
             ),
           ],
         );
@@ -554,32 +555,27 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
     );
   }
 
-  void _performLogout(BuildContext context) async {
-    // Close the drawer first
+  Future<void> _performLogout(BuildContext context) async {
+    // close the drawer (this context should be from the page, not the dialog)
     Navigator.of(context).pop();
 
     try {
-      // Perform logout
       await context.read<AuthCubit>().logout();
 
-      // Navigate to login screen and clear the navigation stack
-      if (context.mounted) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          RouteManager.loginRoute,
-          (route) => false,
-        );
-      }
+      if (!context.mounted) return;
+      Navigator.of(context, rootNavigator: true)
+          .pushNamedAndRemoveUntil(RouteManager.loginRoute, (route) => false);
     } catch (error) {
-      // Show error message if logout fails
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                '${AppLocalizations.of(context).translate(Keys.logoutError)}: $error'),
-            backgroundColor: Colors.red,
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context).translate(Keys.logoutError)}: $error',
           ),
-        );
-      }
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
