@@ -91,7 +91,7 @@ class _ViewMapState extends State<ViewMap> {
   Future<void> _initialize() async {
     context.read<BuildingCubit>().getBuildingAttributes();
     context.read<EntranceCubit>().getEntranceAttributes();
-    
+
     // Start GPS location streaming
     context.read<LocationAccuracyCubit>().startListening();
 
@@ -245,7 +245,7 @@ class _ViewMapState extends State<ViewMap> {
       final municipalityState =
           context.read<MunicipalityCubit>().state as Municipality;
 
-      if (municipalityState.municipality != null) {
+      if (municipalityState.municipality != null && !isOffline) {
         bool isBuildingWithinMunicipality =
             GeometryHelper.isPolygonWithinMultiPolygon(
                 building.coordinates.first,
@@ -513,8 +513,6 @@ class _ViewMapState extends State<ViewMap> {
         attributesCubit.clearPersistentSelectionsEntrance();
 
         setState(() {
-          // highlightedBuildingIds = attributesCubit.currentBuildingGlobalId;
-          // selectedBuildingIds = attributesCubit.currentBuildingGlobalId;
           highlightMarkersGlobalId = [];
           _currentFormContext = FormContext.view; // Reset to view mode
         });

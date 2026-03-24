@@ -40,99 +40,99 @@ class _LoginTabletState extends State<LoginTablet> {
     }
   }
 
-  void showOfflineLoginWarning(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        const primaryColor = Color.fromARGB(255, 58, 64, 90);
-        const lightColor = Color.fromARGB(255, 240, 241, 245);
-        const borderColor = Color.fromARGB(255, 180, 185, 200);
+  // void showOfflineLoginWarning(BuildContext context) {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       const primaryColor = Color.fromARGB(255, 58, 64, 90);
+  //       const lightColor = Color.fromARGB(255, 240, 241, 245);
+  //       const borderColor = Color.fromARGB(255, 180, 185, 200);
 
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          title: Row(
-            children: [
-              const Icon(
-                Icons.warning_amber_rounded,
-                color: primaryColor,
-                size: 28,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                AppLocalizations.of(context).translate(Keys.warningTitle),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                  color: primaryColor,
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                AppLocalizations.of(context)
-                    .translate(Keys.offlineLoginRequired),
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[800],
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: lightColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: borderColor),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 20,
-                      color: primaryColor,
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .translate(Keys.offlineLoginConnect),
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: primaryColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                AppLocalizations.of(context).translate(Keys.ok),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: primaryColor,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  //       return AlertDialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         title: Row(
+  //           children: [
+  //             const Icon(
+  //               Icons.warning_amber_rounded,
+  //               color: primaryColor,
+  //               size: 28,
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Text(
+  //               AppLocalizations.of(context).translate(Keys.warningTitle),
+  //               style: const TextStyle(
+  //                 fontWeight: FontWeight.w600,
+  //                 fontSize: 18,
+  //                 color: primaryColor,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               AppLocalizations.of(context)
+  //                   .translate(Keys.offlineLoginRequired),
+  //               style: TextStyle(
+  //                 fontSize: 16,
+  //                 color: Colors.grey[800],
+  //                 height: 1.4,
+  //               ),
+  //             ),
+  //             const SizedBox(height: 12),
+  //             Container(
+  //               padding: const EdgeInsets.all(12),
+  //               decoration: BoxDecoration(
+  //                 color: lightColor,
+  //                 borderRadius: BorderRadius.circular(8),
+  //                 border: Border.all(color: borderColor),
+  //               ),
+  //               child: Row(
+  //                 children: [
+  //                   Icon(
+  //                     Icons.info_outline,
+  //                     size: 20,
+  //                     color: primaryColor,
+  //                   ),
+  //                   SizedBox(width: 8),
+  //                   Expanded(
+  //                     child: Text(
+  //                       AppLocalizations.of(context)
+  //                           .translate(Keys.offlineLoginConnect),
+  //                       style: TextStyle(
+  //                         fontSize: 14,
+  //                         color: primaryColor,
+  //                         fontWeight: FontWeight.w500,
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.of(context).pop(),
+  //             child: Text(
+  //               AppLocalizations.of(context).translate(Keys.ok),
+  //               style: const TextStyle(
+  //                 fontSize: 16,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: primaryColor,
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   Future<void> _onFirstTimeLogin(BuildContext context) async {
     // Navigate to forgot password view with current email if available
@@ -146,13 +146,11 @@ class _LoginTabletState extends State<LoginTablet> {
   }
 
   Future<void> _onUseOffline(BuildContext context) async {
-    if (userService.userInfo == null) {
-      // if (mounted) {
-      showOfflineLoginWarning(context);
-      // }
-    } else {
-      Navigator.pushReplacementNamed(context, RouteManager.downloadedMapList);
-    }
+    // if (userService.userInfo == null) {
+    //   showOfflineLoginWarning(context);
+    // } else {
+    Navigator.pushReplacementNamed(context, RouteManager.downloadedMapList);
+    // }
   }
 
   @override

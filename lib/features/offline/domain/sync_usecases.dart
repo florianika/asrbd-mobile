@@ -1,4 +1,5 @@
 import 'package:asrdb/core/config/app_config.dart';
+import 'package:asrdb/core/helpers/geometry_helper.dart';
 import 'package:asrdb/core/models/record_status.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
 import 'package:asrdb/data/mapper/dwelling_mapper.dart';
@@ -12,6 +13,7 @@ import 'package:asrdb/domain/entities/dwelling_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/main.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class SyncUseCases {
   final BuildingRepository _buildingRepository;
@@ -181,14 +183,18 @@ class SyncUseCases {
     // });
   }
 
-  Future<void> syncBuildings(
-      List<BuildingEntity> buildings, int downloadId) async {
+  Future<void> syncBuildings(List<BuildingEntity> buildings,
+      List<List<List<LatLng>>> municipalityCoordinates, int downloadId) async {
     if (buildings.isEmpty) return;
-    // final db = AppDatabase();
 
-    // await db.transaction(() async {
     for (final building in buildings) {
       try {
+        bool isBuildingWithinMunicipality =
+            GeometryHelper.isPolygonWithinMultiPolygon(
+                building.coordinates.first, municipalityCoordinates);
+
+        if (!isBuildingWithinMunicipality) continue;
+
         if (building.recordStatus == RecordStatus.added) {
           final oldGlobalId = building.globalId!;
           final newGlobalId =
@@ -218,6 +224,5 @@ class SyncUseCases {
         print('Failed to sync building ${building.globalId}: $e\n$st');
       }
     }
-    // });
   }
 }

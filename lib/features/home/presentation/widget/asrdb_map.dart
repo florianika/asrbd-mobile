@@ -84,30 +84,30 @@ class _AsrdbMapState extends State<AsrdbMap> {
   void _onMapReady() async {
     final initialZoom = context.read<TileCubit>().initZoom;
     final location = await LocationService.getCurrentLocation();
-    
+
     if (!mounted) return;
-    
+
     widget.mapController.move(location, initialZoom);
 
     bool isOffline = context.read<TileCubit>().isOffline;
     DownloadEntity? download = context.read<TileCubit>().download;
     final tileState = context.read<TileCubit>().state;
     final userService = sl<UserService>();
-    
+
     final buildingMinZoom = _getBuildingMinZoom(tileState.basemapUrl);
     final currentZoom = widget.mapController.camera.zoom;
 
     if (currentZoom >= buildingMinZoom) {
       context.read<BuildingCubit>().getBuildings(
-          widget.mapController.camera.visibleBounds,
-          currentZoom,
-          isOffline
-              ? (download?.municipalityId ?? 0)
-              : userService.userInfo!.municipality,
-          isOffline,
-          download?.id,
-          minZoom: buildingMinZoom,
-      );
+            widget.mapController.camera.visibleBounds,
+            currentZoom,
+            isOffline
+                ? (download?.municipalityId ?? 0)
+                : userService.userInfo!.municipality,
+            isOffline,
+            download?.id,
+            minZoom: buildingMinZoom,
+          );
     }
   }
 
@@ -202,7 +202,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
       _debounce = Timer(Duration(milliseconds: debounceMs), () {
         final tileState = context.read<TileCubit>().state;
         final buildingMinZoom = _getBuildingMinZoom(tileState.basemapUrl);
-        
+
         if (camera.zoom >= buildingMinZoom) {
           context.read<BuildingCubit>().getBuildings(
                 camera.visibleBounds,
@@ -312,10 +312,16 @@ class _AsrdbMapState extends State<AsrdbMap> {
 
       if (buildingFound != null) {
         context.read<AttributesCubit>().showBuildingAttributes(
-            buildingFound.globalId, isOffline, downloadId);
+              buildingFound.globalId,
+              isOffline,
+              downloadId,
+            );
 
         context.read<EntranceCubit>().getEntranceByGlobalId(
-            buildingFound.globalId!, isOffline, downloadId);
+              buildingFound.globalId!,
+              isOffline,
+              downloadId,
+            );
 
         final storageResponsitory = sl<StorageRepository>();
         storageResponsitory.saveString(
@@ -334,7 +340,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
                     widget.mapController.camera.zoom * 0.1)
                 .clamp(0.0, maxZoom));
 
-        if (mounted) {
+        if (mounted && !isOffline) {
           context
               .read<OutputLogsCubit>()
               .outputLogsBuildings(buildingFound.globalId.removeCurlyBraces()!);
@@ -360,209 +366,205 @@ class _AsrdbMapState extends State<AsrdbMap> {
   Widget build(BuildContext context) {
     final userService = sl<UserService>();
 
-    return BlocConsumer<TileCubit, TileState>(
-        listener: (context, state) {
-          // Clamp zoom level when switching to ASIG satellite (maxZoom = 9)
-          final isSwitchingToAsig = state.basemapUrl == AppConfig.basemapAsigSatellite2025Url &&
+    return BlocConsumer<TileCubit, TileState>(listener: (context, state) {
+      // Clamp zoom level when switching to ASIG satellite (maxZoom = 9)
+      final isSwitchingToAsig =
+          state.basemapUrl == AppConfig.basemapAsigSatellite2025Url &&
               _previousBasemapUrl != AppConfig.basemapAsigSatellite2025Url;
-          
-          if (isSwitchingToAsig) {
-            final currentZoom = widget.mapController.camera.zoom;
-            if (currentZoom > state.maxZoom) {
-              // Clamp zoom to maxZoom
-              final clampedZoom = state.maxZoom;
-              final currentCenter = widget.mapController.camera.center;
-              widget.mapController.move(currentCenter, clampedZoom);
-            }
-          }
-          
-          _previousBasemapUrl = state.basemapUrl;
-        },
-        builder: (context, state) {
-          return BlocListener<AttributesCubit, AttributesState>(
-            listener: (context, attributesState) {},
-            child: KeyedSubtree(
-              key: ValueKey(state.basemapUrl),
-              child: FlutterMap(
-                key: mapKey,
-                mapController: widget.mapController,
-                options: MapOptions(
-                crs: state.csr,
-                maxZoom: state.maxZoom,
-                interactionOptions: const InteractionOptions(
-                  flags: InteractiveFlag.all,
-                ),
-                minZoom: 0.0,
-                // initialZoom: 7.0,
-                onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
-                initialCenter: state.isOffline
-                    ? (LatLng(
-                        state.download!.centerLat!, state.download!.centerLng!))
-                    : currentPosition,
-                initialZoom: state.initialZoom,
-                onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
-                  latlng,
-                  state.isOffline,
-                  state.download?.id,
-                ),
-                onMapReady: _onMapReady,
-                onMapEvent: (event) {
-                  if (event is MapEventMoveEnd) {
-                    final camera = widget.mapController.camera;
 
-                    _onPositionChanged(
-                      camera,
-                      false, // hasGesture = false, since user stopped
-                      state.isOffline
-                          ? (state.download?.municipalityId ?? 0)
-                          : userService.userInfo!.municipality,
-                      state.isOffline,
-                      state.download?.id,
-                    );
-                  }
-                },
+      if (isSwitchingToAsig) {
+        final currentZoom = widget.mapController.camera.zoom;
+        if (currentZoom > state.maxZoom) {
+          // Clamp zoom to maxZoom
+          final clampedZoom = state.maxZoom;
+          final currentCenter = widget.mapController.camera.center;
+          widget.mapController.move(currentCenter, clampedZoom);
+        }
+      }
+
+      _previousBasemapUrl = state.basemapUrl;
+    }, builder: (context, state) {
+      return BlocListener<AttributesCubit, AttributesState>(
+        listener: (context, attributesState) {},
+        child: KeyedSubtree(
+          key: ValueKey(state.basemapUrl),
+          child: FlutterMap(
+            key: mapKey,
+            mapController: widget.mapController,
+            options: MapOptions(
+              crs: state.csr,
+              maxZoom: state.maxZoom,
+              interactionOptions: const InteractionOptions(
+                flags: InteractiveFlag.all,
               ),
-                children: [
-                  TileLayer(
-                    urlTemplate: state.basemapUrl,
-                    userAgentPackageName: AppConfig.userAgentPackageName,
-                    tileSize: 256,
-                    tileProvider: FMTCTileProvider(
-                      stores: {
-                        state.storeName: BrowseStoreStrategy.readUpdateCreate
-                      },
-                    ),
-                  ),
-                  MunicipalityMarker(
-                    isOffline: state.isOffline,
-                    municipalityId: state.download?.municipalityId,
-                  ),
-                  BlocBuilder<LocationAccuracyCubit, LocationAccuracyState>(
-                    builder: (context, locationState) {
-                      if (locationState is LocationAccuracyUpdated) {
-                        return MarkerLayer(
-                          markers: [
-                            Marker(
-                              point: locationState.position,
-                              width: 56,
-                              height: 56,
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  // Soft glow
-                                  Container(
-                                    width: 56,
-                                    height: 56,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: (locationState.isAccurate
-                                                  ? Colors.green
-                                                  : Colors.orange)
-                                              .withOpacity(0.35),
-                                          blurRadius: 16,
-                                          spreadRadius: 2,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  // Accuracy circle
-                                  Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
+              minZoom: 0.0,            
+              onLongPress: (tapPosition, point) => _onLongTapBuilding(point),
+              initialCenter: state.isOffline
+                  ? (LatLng(
+                      state.download!.centerLat!, state.download!.centerLng!))
+                  : currentPosition,
+              initialZoom: state.initialZoom,
+              onTap: (TapPosition position, LatLng latlng) => _handleMapTap(
+                latlng,
+                state.isOffline,
+                state.download?.id,
+              ),
+              onMapReady: _onMapReady,
+              onMapEvent: (event) {
+                if (event is MapEventMoveEnd) {
+                  final camera = widget.mapController.camera;
+
+                  _onPositionChanged(
+                    camera,
+                    false, // hasGesture = false, since user stopped
+                    state.isOffline
+                        ? (state.download?.municipalityId ?? 0)
+                        : userService.userInfo!.municipality,
+                    state.isOffline,
+                    state.download?.id,
+                  );
+                }
+              },
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: state.basemapUrl,
+                userAgentPackageName: AppConfig.userAgentPackageName,
+                tileSize: 256,
+                tileProvider: FMTCTileProvider(
+                  stores: {
+                    state.storeName: BrowseStoreStrategy.readUpdateCreate
+                  },
+                ),
+              ),
+              MunicipalityMarker(
+                isOffline: state.isOffline,
+                municipalityId: state.download?.municipalityId,
+              ),
+              BlocBuilder<LocationAccuracyCubit, LocationAccuracyState>(
+                builder: (context, locationState) {
+                  if (locationState is LocationAccuracyUpdated) {
+                    return MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: locationState.position,
+                          width: 56,
+                          height: 56,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Soft glow
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
                                       color: (locationState.isAccurate
                                               ? Colors.green
                                               : Colors.orange)
-                                          .withOpacity(0.18),
-                                      border: Border.all(
-                                        color: locationState.isAccurate
-                                            ? Colors.green
-                                            : Colors.orange,
-                                        width: 2,
-                                      ),
+                                          .withOpacity(0.35),
+                                      blurRadius: 16,
+                                      spreadRadius: 2,
                                     ),
-                                  ),
-                                  // Center pin
-                                  Container(
-                                    width: 22,
-                                    height: 22,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                      border: Border.all(
-                                        color: locationState.isAccurate
-                                            ? Colors.green
-                                            : Colors.orange,
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.navigation,
-                                      size: 12,
-                                      color: locationState.isAccurate
-                                          ? Colors.green
-                                          : Colors.orange,
-                                    ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  BuildingsMarker(
-                    attributeLegend: widget.attributeLegend,
-                    mapController: widget.mapController,
-                    isSatellite: state.isSatellite,
-                  ),
-                  BlocBuilder<AttributesCubit, AttributesState>(
-                    builder: (context, state) {
-                      return SelectedBuildingMarker(
-                        selectedBuildingGlobalId: state is Attributes &&
-                                ((state.shapeType == ShapeType.polygon &&
-                                    state.showAttributes))
-                            ? state.buildingGlobalId
-                            : null,
-                        highlightBuildingGlobalId: (state is Attributes &&
-                                ((state.shapeType != ShapeType.polygon &&
-                                        state.showAttributes) ||
-                                    (state.shapeType == ShapeType.noShape &&
-                                        state.viewDwelling) ||
-                                    context
-                                        .read<GeometryEditorCubit>()
-                                        .isEditing))
-                            ? state.buildingGlobalId
-                            : null,
-                      );
-                    },
-                  ),
-                  EntrancesMarker(
-                    onTap: _handleEntranceTap,
-                    onLongPress: _onLongTapEntrance,
-                    attributeLegend: widget.attributeLegend,
-                    mapController: widget.mapController,
-                  ),
-                  EditBuildingMarker(
-                    mapKey: mapKey,
-                    mapController: widget.mapController,
-                  ),
-                  EditEntranceMarker(
-                    mapKey: mapKey,
-                    mapController: widget.mapController,
-                  ),
-                  Center(
-                    child: LocationTagMarker(isActive: true),
-                  ),
-                ],
+                              // Accuracy circle
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: (locationState.isAccurate
+                                          ? Colors.green
+                                          : Colors.orange)
+                                      .withOpacity(0.18),
+                                  border: Border.all(
+                                    color: locationState.isAccurate
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              // Center pin
+                              Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white,
+                                  border: Border.all(
+                                    color: locationState.isAccurate
+                                        ? Colors.green
+                                        : Colors.orange,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.navigation,
+                                  size: 12,
+                                  color: locationState.isAccurate
+                                      ? Colors.green
+                                      : Colors.orange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
-            ),
-          );
-        });
+              BuildingsMarker(
+                attributeLegend: widget.attributeLegend,
+                mapController: widget.mapController,
+                isSatellite: state.isSatellite,
+              ),
+              BlocBuilder<AttributesCubit, AttributesState>(
+                builder: (context, state) {
+                  return SelectedBuildingMarker(
+                    selectedBuildingGlobalId: state is Attributes &&
+                            ((state.shapeType == ShapeType.polygon &&
+                                state.showAttributes))
+                        ? state.buildingGlobalId
+                        : null,
+                    highlightBuildingGlobalId: (state is Attributes &&
+                            ((state.shapeType != ShapeType.polygon &&
+                                    state.showAttributes) ||
+                                (state.shapeType == ShapeType.noShape &&
+                                    state.viewDwelling) ||
+                                context.read<GeometryEditorCubit>().isEditing))
+                        ? state.buildingGlobalId
+                        : null,
+                  );
+                },
+              ),
+              EntrancesMarker(
+                onTap: _handleEntranceTap,
+                onLongPress: _onLongTapEntrance,
+                attributeLegend: widget.attributeLegend,
+                mapController: widget.mapController,
+              ),
+              EditBuildingMarker(
+                mapKey: mapKey,
+                mapController: widget.mapController,
+              ),
+              EditEntranceMarker(
+                mapKey: mapKey,
+                mapController: widget.mapController,
+              ),
+              Center(
+                child: LocationTagMarker(isActive: true),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }

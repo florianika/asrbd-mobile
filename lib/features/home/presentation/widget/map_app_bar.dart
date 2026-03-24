@@ -43,7 +43,7 @@ class _MapAppBarState extends State<MapAppBar> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.shade700.withOpacity(0.3),
+            color: Colors.orange.shade700.withValues(alpha: 0.3),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -82,19 +82,17 @@ class _MapAppBarState extends State<MapAppBar> {
                     color: Colors.black87,
                   ),
                   children: [
-                    TextSpan(
-                      text: AppLocalizations.of(context)
-                              .translate(Keys.userDisplayName)
-                              .replaceAll(
-                                  '{name}',
-                                  '${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}') +
-                          '\n',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[600],
-                      ),
-                    ),
+                    userService.userInfo != null
+                        ? TextSpan(
+                            text:
+                                '${AppLocalizations.of(context).translate(Keys.userDisplayName).replaceAll('{name}', '${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}')}\n',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                          )
+                        : TextSpan(),
                     TextSpan(
                       text: AppLocalizations.of(context)
                           .translate(Keys.modeLabel),
@@ -135,8 +133,8 @@ class _MapAppBarState extends State<MapAppBar> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          color.withOpacity(0.95),
-                          color.withOpacity(0.75),
+                          color.withValues(alpha: 0.95),
+                          color.withValues(alpha: 0.75),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -144,7 +142,7 @@ class _MapAppBarState extends State<MapAppBar> {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: color.withOpacity(0.35),
+                          color: color.withValues(alpha: 0.35),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -177,7 +175,7 @@ class _MapAppBarState extends State<MapAppBar> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.9),
+                      color: Colors.red.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(

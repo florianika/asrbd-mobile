@@ -2,9 +2,10 @@ import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/loading_indicator.dart';
+import 'package:asrdb/features/home/presentation/municipality_cubit.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
-import 'package:asrdb/data/drift/app_database.dart';
+import 'package:asrdb/data/drift/app_database.dart' hide Municipality;
 import 'package:asrdb/data/mapper/download_mappers.dart';
 import 'package:asrdb/data/repositories/download_repository.dart';
 import 'package:asrdb/domain/entities/building_entity.dart';
@@ -77,9 +78,13 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
     final syncUseCase = sl<SyncUseCases>();
 
     try {
+      final municipalityState =
+          context.read<MunicipalityCubit>().state as Municipality;
+
       List<BuildingEntity> buildings =
           await syncUseCase.getBuildingsToSync(data.id);
-      await syncUseCase.syncBuildings(buildings, data.id);
+      await syncUseCase.syncBuildings(
+          buildings, municipalityState.municipality!.coordinates, data.id);
 
       List<EntranceEntity> entrances =
           await syncUseCase.getEntrancesToSync(data.id);
@@ -103,12 +108,12 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
 
       if (!mounted) return;
 
-        NotifierService.showMessage(context,
+      NotifierService.showMessage(context,
           message: AppLocalizations.of(context)
-            .translate(Keys.syncCompletedMessage)
-            .replaceAll('{buildings}', buildings.length.toString())
-            .replaceAll('{entrances}', entrances.length.toString())
-            .replaceAll('{dwellings}', dwellings.length.toString()),
+              .translate(Keys.syncCompletedMessage)
+              .replaceAll('{buildings}', buildings.length.toString())
+              .replaceAll('{entrances}', entrances.length.toString())
+              .replaceAll('{dwellings}', dwellings.length.toString()),
           type: MessageType.success);
 
       _loadDownloadedData(); // Refresh the list
@@ -328,8 +333,7 @@ class _DownloadedMapsViewerState extends State<DownloadedMapsViewer> {
                                   TextSpan(
                                     text: AppLocalizations.of(context)
                                             .translate(Keys.userDisplayName)
-                                            .replaceAll(
-                                                '{name}',
+                                            .replaceAll('{name}',
                                                 '${userService.userInfo?.uniqueName} ${userService.userInfo?.familyName}') +
                                         '\n',
                                     style: TextStyle(
