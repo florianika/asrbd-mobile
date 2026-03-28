@@ -3,6 +3,7 @@ import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:asrdb/features/auth/presentation/auth_cubit.dart';
+import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'dart:ui';
@@ -556,26 +557,25 @@ class _SideMenuState extends State<SideMenu> with TickerProviderStateMixin {
   }
 
   Future<void> _performLogout(BuildContext context) async {
-    // close the drawer (this context should be from the page, not the dialog)
+    // Capture references before closing the drawer — the drawer context becomes
+    // unmounted once the drawer is popped, so we cannot use context.read or
+    // context.mounted reliably after that point.
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final authCubit = context.read<AuthCubit>();
+    final tileCubit = context.read<TileCubit>();
+
+    // Close the drawer.
     Navigator.of(context).pop();
 
     try {
-      await context.read<AuthCubit>().logout();
-
-      if (!context.mounted) return;
-      Navigator.of(context, rootNavigator: true)
-          .pushNamedAndRemoveUntil(RouteManager.loginRoute, (route) => false);
-    } catch (error) {
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${AppLocalizations.of(context).translate(Keys.logoutError)}: $error',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
+      await authCubit.logout();
+    } catch (_) {
+      // Continue even if auth cleanup fails (e.g. offline mode).
     }
+
+    // Reset offline mode so the next session starts fresh.
+    await tileCubit.setOnlineMode(url: AppConfig.basemapTerrainUrl);
+
+    navigator.pushNamedAndRemoveUntil(RouteManager.loginRoute, (route) => false);
   }
 }
