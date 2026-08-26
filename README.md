@@ -26,4 +26,10 @@ Examples:
 - Default: `flutter run`
 - Prod: `flutter run --dart-define=ENV_FILE=.env.prod`
 
+Production APK:
+
+```bash
+flutter build apk --dart-define=ENV_FILE=.env.prod
+```
+
 Make sure the selected file exists in the project root.

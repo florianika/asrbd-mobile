@@ -109,6 +109,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - .env
+     - .env.prod
+     - .env.staging
      - assets/legend/building_legend_config.json
      - assets/img/empty_tile.png
   #   - images/a_dot_ham.jpeg
