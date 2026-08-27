@@ -56,4 +56,6 @@ arcgis_maps_core/*
 dropbox_upload.py
 info.txt
 .env
+.env.*
+!.env.example
 android/gradle.properties

@@ -17,9 +17,17 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Environment Configuration
 
-This project uses `.env` files for runtime configuration. By default, the app
-loads `.env`. You can select a different file at run/build time with
-`--dart-define`.
+This project uses `.env` files for runtime configuration. Copy
+`.env.example` to the file you need and fill in the values:
+
+```bash
+cp .env.example .env
+cp .env.example .env.prod
+cp .env.example .env.staging
+```
+
+By default, the app loads `.env`. You can select a different file at
+run/build time with `--dart-define`.
 
 Examples:
 
@@ -32,4 +40,5 @@ Production APK:
 flutter build apk --dart-define=ENV_FILE=.env.prod
 ```
 
-Make sure the selected file exists in the project root.
+Make sure the selected file exists in the project root. `.env*` files
+are gitignored except `.env.example`.
