@@ -29,7 +29,7 @@ class AuthService {
             key: StorageKeys.idhToken, value: authResponse.idToken);
 
         await loginEsri();
-        await _saveJsonFilesIfNeeded();
+        await _refreshJsonFiles();
 
         return authResponse;
       } else {
@@ -124,13 +124,15 @@ class AuthService {
     }
   }
 
-  Future<void> _saveJsonFilesIfNeeded() async {
+  Future<void> _refreshJsonFiles() async {
     try {
-      final filesExist = await _jsonFileService.areJsonFilesExist();
-
-      if (!filesExist) {
-        await _jsonFileService.saveJsonFiles();
-      }
+      // Refresh on every login rather than only when the files are absent.
+      // Coded-value domains change server-side (dm_quality gained statuses 2,
+      // 4 and 5), and the previous "only if missing" check meant an existing
+      // install would keep a stale copy forever and never render the new
+      // codes. saveAllFiles leaves the cached files in place if the fetch
+      // fails, so a flaky network still yields a usable login.
+      await _jsonFileService.saveAllFiles();
     } catch (e) {
       // Don't throw here as login should still succeed even if JSON saving fails
     }

@@ -409,12 +409,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
       fillColor: isReadOnly ? Colors.grey[200] : Colors.white,
       suffixIcon: validationResult != null
           ? Icon(
-              Icons.priority_high,
-              color: validationResult.level == ValidationLevel.error
-                  ? Colors.red
-                  : validationResult.level == ValidationLevel.info
-                      ? Colors.green
-                      : Colors.orange,
+              validationResult.level.icon,
+              color: validationResult.level.color,
               size: 20,
             )
           : null,
@@ -422,11 +418,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
           color: validationResult != null
-              ? (validationResult.level == ValidationLevel.error
-                  ? Colors.red
-                  : validationResult.level == ValidationLevel.info
-                      ? Colors.green
-                      : Colors.orange)
+              ? validationResult.level.color
               : (isEditMode ? Colors.grey[700]! : Colors.grey[300]!),
           width: validationResult != null ? 1.5 : (isEditMode ? 2 : 1),
         ),
@@ -435,11 +427,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
           color: validationResult != null
-              ? (validationResult.level == ValidationLevel.error
-                  ? Colors.red
-                  : validationResult.level == ValidationLevel.info
-                      ? Colors.green
-                      : Colors.orange)
+              ? validationResult.level.color
               : (isEditMode ? Colors.grey[700]! : Colors.grey[300]!),
           width: validationResult != null ? 1.5 : (isEditMode ? 2 : 1),
         ),
@@ -448,9 +436,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
           color: validationResult != null
-              ? (validationResult.level == ValidationLevel.error
-                  ? Colors.red
-                  : Colors.orange)
+              ? validationResult.level.color
               : (isEditMode ? Colors.grey[800]! : Colors.grey[600]!),
           width: 1.5,
         ),
@@ -517,14 +503,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: Icon(
-                              Icons.priority_high,
-                              color: validationResult.level ==
-                                      ValidationLevel.error
-                                  ? Colors.red
-                                  : validationResult.level ==
-                                          ValidationLevel.info
-                                      ? Colors.green
-                                      : Colors.orange,
+                              validationResult.level.icon,
+                              color: validationResult.level.color,
                               size: 16,
                             ),
                           ),
@@ -715,16 +695,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               child: Row(
                 children: [
                   Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : validationResult.level == ValidationLevel.info
-                            ? Icons.info_outline
-                            : Icons.warning_amber_outlined,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : validationResult.level == ValidationLevel.info
-                            ? Colors.green
-                            : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -732,11 +704,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     child: Text(
                       validationResult.message,
                       style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : validationResult.level == ValidationLevel.info
-                                ? Colors.green
-                                : Colors.orange,
+                        color: validationResult.level.color,
                         fontSize: 12,
                       ),
                     ),
@@ -812,14 +780,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: Icon(
-                              Icons.priority_high,
-                              color: validationResult.level ==
-                                      ValidationLevel.error
-                                  ? Colors.red
-                                  : validationResult.level ==
-                                          ValidationLevel.info
-                                      ? Colors.green
-                                      : Colors.orange,
+                              validationResult.level.icon,
+                              color: validationResult.level.color,
                               size: 16,
                             ),
                           ),
@@ -1000,16 +962,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               child: Row(
                 children: [
                   Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : validationResult.level == ValidationLevel.info
-                            ? Icons.info_outline
-                            : Icons.warning_amber_outlined,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : validationResult.level == ValidationLevel.info
-                            ? Colors.green
-                            : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1017,11 +971,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     child: Text(
                       validationResult.message,
                       style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : validationResult.level == ValidationLevel.info
-                                ? Colors.green
-                                : Colors.orange,
+                        color: validationResult.level.color,
                         fontSize: 12,
                       ),
                     ),
@@ -1147,16 +1097,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               child: Row(
                 children: [
                   Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : validationResult.level == ValidationLevel.info
-                            ? Icons.info_outline
-                            : Icons.warning_amber_outlined,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : validationResult.level == ValidationLevel.info
-                            ? Colors.green
-                            : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1164,11 +1106,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     child: Text(
                       validationResult.message,
                       style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : validationResult.level == ValidationLevel.info
-                                ? Colors.green
-                                : Colors.orange,
+                        color: validationResult.level.color,
                         fontSize: 12,
                       ),
                     ),
@@ -1244,12 +1182,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                 ),
                 if (validationResult != null)
                   Icon(
-                    Icons.priority_high,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : validationResult.level == ValidationLevel.info
-                            ? Colors.green
-                            : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
               ],
@@ -1261,16 +1195,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               child: Row(
                 children: [
                   Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : validationResult.level == ValidationLevel.info
-                            ? Icons.info_outline
-                            : Icons.warning_amber_outlined,
-                    color: validationResult.level == ValidationLevel.error
-                        ? Colors.red
-                        : validationResult.level == ValidationLevel.info
-                            ? Colors.green
-                            : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1278,11 +1204,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     child: Text(
                       validationResult.message,
                       style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : validationResult.level == ValidationLevel.info
-                                ? Colors.green
-                                : Colors.orange,
+                        color: validationResult.level.color,
                         fontSize: 12,
                       ),
                     ),
@@ -1327,12 +1249,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                 color: Colors.grey[50],
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                      color: validationResult != null
-                      ? (validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : validationResult.level == ValidationLevel.info
-                              ? Colors.green
-                              : Colors.orange)
+                  color: validationResult != null
+                      ? validationResult.level.color
                       : Colors.grey[200]!,
                   width: validationResult != null ? 1.5 : 1,
                 ),
@@ -1362,10 +1280,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                   ),
                   if (validationResult != null)
                     Icon(
-                      Icons.priority_high,
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
+                      validationResult.level.icon,
+                      color: validationResult.level.color,
                       size: 16,
                     ),
                 ],
@@ -1377,14 +1293,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                 child: Row(
                   children: [
                     Icon(
-                      validationResult.level == ValidationLevel.error
-                          ? Icons.error_outline
-                          : validationResult.level == ValidationLevel.info
-                              ? Icons.info_outline
-                              : Icons.warning_amber_outlined,
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
+                      validationResult.level.icon,
+                      color: validationResult.level.color,
                       size: 16,
                     ),
                     const SizedBox(width: 6),
@@ -1392,9 +1302,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                       child: Text(
                         validationResult.message,
                         style: TextStyle(
-                          color: validationResult.level == ValidationLevel.error
-                              ? Colors.red
-                              : Colors.orange,
+                          color: validationResult.level.color,
                           fontSize: 12,
                         ),
                       ),
@@ -1508,14 +1416,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                 child: Row(
                   children: [
                     Icon(
-                      validationResult.level == ValidationLevel.error
-                          ? Icons.error_outline
-                          : validationResult.level == ValidationLevel.info
-                              ? Icons.info_outline
-                              : Icons.warning_amber_outlined,
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : Colors.orange,
+                      validationResult.level.icon,
+                      color: validationResult.level.color,
                       size: 16,
                     ),
                     const SizedBox(width: 6),
@@ -1523,9 +1425,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                       child: Text(
                         validationResult.message,
                         style: TextStyle(
-                          color: validationResult.level == ValidationLevel.error
-                              ? Colors.red
-                              : Colors.orange,
+                          color: validationResult.level.color,
                           fontSize: 12,
                         ),
                       ),
@@ -1584,16 +1484,8 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
               child: Row(
                 children: [
                   Icon(
-                    validationResult.level == ValidationLevel.error
-                        ? Icons.error_outline
-                        : validationResult.level == ValidationLevel.info
-                            ? Icons.info_outline
-                            : Icons.warning_amber_outlined,
-                      color: validationResult.level == ValidationLevel.error
-                          ? Colors.red
-                          : validationResult.level == ValidationLevel.info
-                              ? Colors.green
-                              : Colors.orange,
+                    validationResult.level.icon,
+                    color: validationResult.level.color,
                     size: 16,
                   ),
                   const SizedBox(width: 6),
@@ -1601,11 +1493,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                     child: Text(
                       validationResult.message,
                       style: TextStyle(
-                        color: validationResult.level == ValidationLevel.error
-                            ? Colors.red
-                            : validationResult.level == ValidationLevel.info
-                                ? Colors.green
-                                : Colors.orange,
+                        color: validationResult.level.color,
                         fontSize: 12,
                       ),
                     ),

@@ -43,9 +43,15 @@ class Keys {
   static const String issues = 'issues';
   static const String noDwellingsFound = 'noDwellingsFound';
   static const String addFirstDwellingPrompt = 'addFirstDwellingPrompt';
-  static const String dwellingQualityComplete = 'dwellingQualityComplete';
-  static const String dwellingQualityIncomplete = 'dwellingQualityIncomplete';
-  static const String dwellingQualityConflicted = 'dwellingQualityConflicted';
+  static const String dwellingQualityErrorFree = 'dwellingQualityErrorFree';
+  static const String dwellingQualityStatisticalErrorFree =
+      'dwellingQualityStatisticalErrorFree';
+  static const String dwellingQualityStatisticalGaps =
+      'dwellingQualityStatisticalGaps';
+  static const String dwellingQualityStatisticalInconsistent =
+      'dwellingQualityStatisticalInconsistent';
+  static const String dwellingQualityNotReadyForStatistics =
+      'dwellingQualityNotReadyForStatistics';
   static const String dwellingQualityUntested = 'dwellingQualityUntested';
   static const String dwellingQualityDeleted = 'dwellingQualityDeleted';
   static const String validateData = 'validateData';
@@ -198,22 +204,22 @@ class Keys {
   static const String east = 'east';
   static const String west = 'west';
   static const String zoomInLevel = 'zoomInLevel';
-    static const String zoomLabel = 'zoomLabel';
-    static const String downloadInitializing = 'downloadInitializing';
-    static const String downloadCompleted = 'downloadCompleted';
-    static const String downloadAreaTooLarge = 'downloadAreaTooLarge';
-    static const String errorDownloadBounds = 'errorDownloadBounds';
-    static const String errorCheckingBuildingCount = 'errorCheckingBuildingCount';
-    static const String errorDownloadingData = 'errorDownloadingData';
-    static const String syncCompletedMessage = 'syncCompletedMessage';
-    static const String userDisplayName = 'userDisplayName';
-    static const String modeLabel = 'modeLabel';
-    static const String modeOffline = 'modeOffline';
-    static const String modeOnline = 'modeOnline';
-    static const String versionLabel = 'versionLabel';
-    static const String warningTitle = 'warningTitle';
-    static const String offlineLoginRequired = 'offlineLoginRequired';
-    static const String offlineLoginConnect = 'offlineLoginConnect';
+  static const String zoomLabel = 'zoomLabel';
+  static const String downloadInitializing = 'downloadInitializing';
+  static const String downloadCompleted = 'downloadCompleted';
+  static const String downloadAreaTooLarge = 'downloadAreaTooLarge';
+  static const String errorDownloadBounds = 'errorDownloadBounds';
+  static const String errorCheckingBuildingCount = 'errorCheckingBuildingCount';
+  static const String errorDownloadingData = 'errorDownloadingData';
+  static const String syncCompletedMessage = 'syncCompletedMessage';
+  static const String userDisplayName = 'userDisplayName';
+  static const String modeLabel = 'modeLabel';
+  static const String modeOffline = 'modeOffline';
+  static const String modeOnline = 'modeOnline';
+  static const String versionLabel = 'versionLabel';
+  static const String warningTitle = 'warningTitle';
+  static const String offlineLoginRequired = 'offlineLoginRequired';
+  static const String offlineLoginConnect = 'offlineLoginConnect';
   static const String error = 'error';
   static const String pageNotFound = 'pageNotFound';
   static const String fieldWorkActive = 'fieldWorkActive';
@@ -232,7 +238,8 @@ class Keys {
   static const String buildingEditMode = 'buildingEditMode';
   static const String useOffline = 'useOffline';
   static const String firstTimeLogin = 'firstTimeLogin';
-  static const String firstTimeLoginUrlNotConfigured = 'firstTimeLoginUrlNotConfigured';
+  static const String firstTimeLoginUrlNotConfigured =
+      'firstTimeLoginUrlNotConfigured';
   static const String invalidUrl = 'invalidUrl';
   static const String couldNotLaunchUrl = 'couldNotLaunchUrl';
   static const String errorOpeningUrl = 'errorOpeningUrl';
@@ -248,44 +255,45 @@ class Keys {
   static const String forgotPasswordDescription = 'forgotPasswordDescription';
   static const String forgotPasswordSuccess = 'forgotPasswordSuccess';
   static const String invalidEmail = 'invalidEmail';
-  
+
   // Share building keys
   static const String shareBuilding = 'shareBuilding';
   static const String buildingId = 'buildingId';
-  
+
   // Point deletion keys
   static const String polygonMinPointsError = 'polygonMinPointsError';
   static const String deletePointTitle = 'deletePointTitle';
   static const String deletePointConfirmation = 'deletePointConfirmation';
   static const String cannotDeletePointError = 'cannotDeletePointError';
 
-    // Notes
-    static const String notesToday = 'notesToday';
-    static const String notesEarlier = 'notesEarlier';
-    static const String notesHint = 'notesHint';
-    static const String notesEmpty = 'notesEmpty';
-    static const String noteByOn = 'noteByOn';
-    static const String noteCannotBeEmpty = 'noteCannotBeEmpty';
-    static const String noteNoBuildingSelected = 'noteNoBuildingSelected';
+  // Notes
+  static const String notesToday = 'notesToday';
+  static const String notesEarlier = 'notesEarlier';
+  static const String notesHint = 'notesHint';
+  static const String notesEmpty = 'notesEmpty';
+  static const String noteByOn = 'noteByOn';
+  static const String noteCannotBeEmpty = 'noteCannotBeEmpty';
+  static const String noteNoBuildingSelected = 'noteNoBuildingSelected';
 
-    // Profile
-    static const String errorLoadingProfile = 'errorLoadingProfile';
-    static const String noUserInfoAvailable = 'noUserInfoAvailable';
+  // Profile
+  static const String errorLoadingProfile = 'errorLoadingProfile';
+  static const String noUserInfoAvailable = 'noUserInfoAvailable';
 
-    // Map/editor messages
-    static const String noBuildingToSave = 'noBuildingToSave';
-    static const String buildingOutsideMunicipality = 'buildingOutsideMunicipality';
-    static const String unsupportedGeometryType = 'unsupportedGeometryType';
+  // Map/editor messages
+  static const String noBuildingToSave = 'noBuildingToSave';
+  static const String buildingOutsideMunicipality =
+      'buildingOutsideMunicipality';
+  static const String unsupportedGeometryType = 'unsupportedGeometryType';
 
-    // Share building
-    static const String buildingIdCannotBeEmpty = 'buildingIdCannotBeEmpty';
-    static const String errorSharingBuilding = 'errorSharingBuilding';
+  // Share building
+  static const String buildingIdCannotBeEmpty = 'buildingIdCannotBeEmpty';
+  static const String errorSharingBuilding = 'errorSharingBuilding';
 
-    // Map geometry editor tooltips
-    static const String tooltipFinishEdit = 'tooltipFinishEdit';
-    static const String tooltipCloseForm = 'tooltipCloseForm';
-    static const String tooltipAddBuilding = 'tooltipAddBuilding';
-    static const String tooltipSelectBuildingForEntrance =
-        'tooltipSelectBuildingForEntrance';
-    static const String tooltipAddEntrance = 'tooltipAddEntrance';
+  // Map geometry editor tooltips
+  static const String tooltipFinishEdit = 'tooltipFinishEdit';
+  static const String tooltipCloseForm = 'tooltipCloseForm';
+  static const String tooltipAddBuilding = 'tooltipAddBuilding';
+  static const String tooltipSelectBuildingForEntrance =
+      'tooltipSelectBuildingForEntrance';
+  static const String tooltipAddEntrance = 'tooltipAddEntrance';
 }

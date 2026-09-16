@@ -1,3 +1,5 @@
+import 'package:asrdb/core/constants/default_data.dart';
+
 class DwellingHelper {
   static Map<String, List<Map<String, dynamic>>> groupDwellingsByFloor(
       List<Map<String, dynamic>> dwellingRows) {
@@ -27,8 +29,10 @@ class DwellingHelper {
 
   static bool floorHasErrors(List<Map<String, dynamic>> dwellings) {
     return dwellings.any((dwelling) {
-      final quality = dwelling['DwlQuality']?.toString() ?? '0';
-      return quality == '2' || quality == '3'; // Missing data or Contradictory
+      final raw = dwelling['DwlQuality'];
+      final quality = raw is int ? raw : int.tryParse(raw?.toString() ?? '');
+      // Statuses 3, 4 and 5: missing, inconsistent or not ready for statistics.
+      return DefaultData.qualityProblemCodes.contains(quality);
     });
   }
 }

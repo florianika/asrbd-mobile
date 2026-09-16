@@ -1,3 +1,4 @@
+import 'package:asrdb/core/constants/default_data.dart';
 import 'package:asrdb/core/enums/shape_type.dart';
 import 'package:asrdb/core/models/attributes/field_schema.dart';
 import 'package:asrdb/core/services/schema_service.dart';
@@ -592,10 +593,9 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   bool _floorHasErrors(List<DwellingEntity> dwellings) {
-    return dwellings.any((dwelling) {
-      final quality = dwelling.dwlQuality?.toString() ?? '0';
-      return quality == '2' || quality == '3'; // Missing data or Contradictory
-    });
+    // Statuses 3, 4 and 5: missing, inconsistent or not ready for statistics.
+    return dwellings.any((dwelling) =>
+        DefaultData.qualityProblemCodes.contains(dwelling.dwlQuality));
   }
 
   Widget _buildFloorGroup(String floor, List<DwellingEntity> dwellings) {
@@ -750,37 +750,60 @@ class _DwellingFormState extends State<DwellingForm> {
   Map<String, dynamic> _getQualityInfo(String quality) {
     final localizations = AppLocalizations.of(context);
 
+    // Colours mirror assets/legend/building_legend_config.json so a dwelling
+    // reads the same here as its building does on the map.
     switch (quality) {
       case '1':
         return {
-          'color': Colors.green,
+          'color': const Color(0xFF2E7D32),
           'icon': Icons.check_circle,
-          'label': localizations.translate(Keys.dwellingQualityComplete),
+          'label': localizations.translate(Keys.dwellingQualityErrorFree),
         };
       case '2':
         return {
-          'color': Colors.orange,
-          'icon': Icons.warning,
-          'label': localizations.translate(Keys.dwellingQualityIncomplete),
+          'color': const Color(0xFF66BB6A),
+          'icon': Icons.check_circle_outline,
+          'label':
+              localizations.translate(Keys.dwellingQualityStatisticalErrorFree),
         };
       case '3':
         return {
-          'color': Colors.red,
+          'color': const Color(0xFFFFA503),
+          'icon': Icons.warning,
+          'label': localizations.translate(Keys.dwellingQualityStatisticalGaps),
+        };
+      case '4':
+        return {
+          'color': const Color(0xFFEE0000),
           'icon': Icons.error,
-          'label': localizations.translate(Keys.dwellingQualityConflicted),
+          'label': localizations
+              .translate(Keys.dwellingQualityStatisticalInconsistent),
+        };
+      case '5':
+        return {
+          'color': const Color(0xFF8E0000),
+          'icon': Icons.report_problem,
+          'label': localizations
+              .translate(Keys.dwellingQualityNotReadyForStatistics),
         };
       case '9':
         return {
-          'color': Colors.blue,
+          'color': const Color(0xFF42A5F5),
           'icon': Icons.help_outline,
           'label': localizations.translate(Keys.dwellingQualityUntested),
         };
       case '0':
-      default:
         return {
-          'color': Colors.grey,
+          'color': const Color(0xFF9E9E9E),
           'icon': Icons.delete_outline,
           'label': localizations.translate(Keys.dwellingQualityDeleted),
+        };
+      default:
+        // An unrecognised code must not claim the dwelling was deleted.
+        return {
+          'color': Colors.grey,
+          'icon': Icons.help_outline,
+          'label': localizations.translate(Keys.unknown),
         };
     }
   }

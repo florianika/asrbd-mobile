@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:asrdb/core/enums/validation_level.dart';
 import 'package:asrdb/core/models/validation/process_output_log_response.dart';
+import 'package:asrdb/core/models/validation/process_output_log_response_extension.dart';
 import 'package:asrdb/features/home/data/storage_repository.dart';
 import 'package:asrdb/features/home/domain/check_usecases.dart';
 import 'package:asrdb/features/home/domain/output_logs_usecases.dart';
@@ -87,13 +89,11 @@ class OutputLogsCubit extends Cubit<OutputLogsState> {
       ProcessOutputLogResponse response = ProcessOutputLogResponse(
           processOutputLogDto: validationResult.processOutputLogDto);
 
-      bool hasErrorOrWarning = validationResult.processOutputLogDto.any(
-        (item) =>
-            item.errorLevel == 'ERR' ||
-            item.errorLevel == 'WARN' ||
-            item.errorLevel == 'MISS' ||
-            item.errorLevel == 'OWN',
-      );
+      // Severity lives in qualityAction; errorLevel is constant in practice.
+      // AUT and ADR are annotations, so they must not raise a warning here.
+      final hasErrorOrWarning = validationResult
+          .toValidationResults()
+          .any((result) => result.level.isProblem);
 
       await storageRepository.saveString(
         key: buildingGlobalId,

@@ -4,17 +4,29 @@
       "color": "#2E7D32",
       "value": 1
     },
-    "Mungesa në të dhënat": {
-      "color": "#0000FF",
+    "Të dhëna statistikore pa gabime": {
+      "color": "#66BB6A",
       "value": 2
     },
-    "Të dhëna kontradiktore": {
-      "color": "#EE0000",
+    "Mungesa në të dhënat statistikore": {
+      "color": "#FFA503",
       "value": 3
     },
+    "Të dhëna statistikore kontradiktore": {
+      "color": "#EE0000",
+      "value": 4
+    },
+    "Të dhëna jo të gatshme për statistika": {
+      "color": "#8E0000",
+      "value": 5
+    },
     "Të dhëna të patestuara": {
-      "color": "#ffa503",
+      "color": "#42A5F5",
       "value": 9
+    },
+    "Të dhëna të fshira": {
+      "color": "#9E9E9E",
+      "value": 0
     }
   },
   "review": {
