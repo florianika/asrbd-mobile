@@ -59,3 +59,8 @@ info.txt
 .env.*
 !.env.example
 android/gradle.properties
+
+# Flutter desktop ephemeral (generated)
+**/macos/Flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
