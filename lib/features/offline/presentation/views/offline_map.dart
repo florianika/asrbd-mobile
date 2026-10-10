@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
@@ -23,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'dart:math' as math;
 import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 
 class OfflineMap extends StatefulWidget {
@@ -37,7 +34,6 @@ class _OfflineMapState extends State<OfflineMap> {
   final MapController _mapController = MapController();
   final TextEditingController _nameController = TextEditingController();
 
-  final double squareSize = 200;
   double _currentZoom = 19;
   bool _mapReady = false;
 
@@ -48,32 +44,14 @@ class _OfflineMapState extends State<OfflineMap> {
 
   void _calculateDownloadBounds() {
     try {
-      final camera = _mapController.camera;
-      final mapSize = MediaQuery.of(context).size;
-      final center = Offset(mapSize.width / 2, mapSize.height / 2);
-
-      final topLeft =
-          Offset(center.dx - squareSize / 2, center.dy - squareSize / 2);
-      final bottomRight =
-          Offset(center.dx + squareSize / 2, center.dy + squareSize / 2);
-
-      // Convert pixel coordinates to LatLng using the camera
-      final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
-      final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
-
-      // Ensure proper bounds ordering
-      final north = math.max(nw.latitude, se.latitude);
-      final south = math.min(nw.latitude, se.latitude);
-      final east = math.max(nw.longitude, se.longitude);
-      final west = math.min(nw.longitude, se.longitude);
-
-      _downloadBounds = LatLngBounds.fromPoints([
-        LatLng(north, west), // Northwest
-        LatLng(south, east), // Southeast
-      ]);
+      // The download area is the map as it is shown: what is on screen when
+      // the user presses download is what gets saved.
+      final bounds = _mapController.camera.visibleBounds;
+      _downloadBounds = bounds;
 
       print('=== DOWNLOAD BOUNDS ===');
-      print('North: $north, South: $south, East: $east, West: $west');
+      print('North: ${bounds.north}, South: ${bounds.south}, '
+          'East: ${bounds.east}, West: ${bounds.west}');
     } catch (e) {
       print('Error calculating download bounds: $e');
       _downloadBounds = null;
@@ -347,37 +325,6 @@ class _OfflineMapState extends State<OfflineMap> {
     await dwellingRepository.insertDwellings(dwellingsDao);
   }
 
-  /// Get polygon points for the download bounds to display on map
-  List<LatLng> _getBoundsPolygon() {
-    try {
-      if (!_mapReady) return [];
-
-      final camera = _mapController.camera;
-      final mapSize = MediaQuery.of(context).size;
-      final center = Offset(mapSize.width / 2, mapSize.height / 2);
-
-      final topLeft =
-          Offset(center.dx - squareSize / 2, center.dy - squareSize / 2);
-      final bottomRight =
-          Offset(center.dx + squareSize / 2, center.dy + squareSize / 2);
-
-      // Convert pixel coordinates to LatLng using the camera
-      final nw = camera.pointToLatLng(Point(topLeft.dx, topLeft.dy));
-      final se = camera.pointToLatLng(Point(bottomRight.dx, bottomRight.dy));
-
-      return [
-        nw, // Northwest
-        LatLng(nw.latitude, se.longitude), // Northeast
-        se, // Southeast
-        LatLng(se.latitude, nw.longitude), // Southwest
-        nw, // Close the polygon
-      ];
-    } catch (e) {
-      print('Error calculating bounds polygon: $e');
-      return [];
-    }
-  }
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -476,20 +423,20 @@ class _OfflineMapState extends State<OfflineMap> {
                       ),
                     );
                   }),
-              // Show download area as polygon overlay that updates dynamically
-              if (_mapReady && _currentZoom >= AppConfig.minZoomDownload)
-                PolygonLayer(
-                  polygons: [
-                    Polygon(
-                      points: _getBoundsPolygon(),
-                      color: Colors.cyan.withValues(alpha: .2),
-                      borderColor: Colors.cyan,
-                      borderStrokeWidth: 2.0,
-                    ),
-                  ],
-                ),
             ],
           ),
+
+          // The whole visible map is the download area, so frame the map
+          if (_mapReady && _currentZoom >= AppConfig.minZoomDownload)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.cyan, width: 3),
+                  ),
+                ),
+              ),
+            ),
 
           // Zoom level indicator
           Positioned(
