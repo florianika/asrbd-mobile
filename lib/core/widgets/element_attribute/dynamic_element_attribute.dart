@@ -159,6 +159,18 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
     return townOption['name'].toString();
   }
 
+  // The service lists coded values in the order they were added to the
+  // domain, so newer codes come last. Dropdowns show them by ascending code.
+  List<Map<String, dynamic>> _sortedByCode(
+      List<Map<String, dynamic>> codedValues) {
+    return [...codedValues]..sort((a, b) {
+        final codeA = a['code'];
+        final codeB = b['code'];
+        if (codeA is num && codeB is num) return codeA.compareTo(codeB);
+        return codeA.toString().compareTo(codeB.toString());
+      });
+  }
+
   String _getLocalizedLabel(dynamic attribute) {
     if (_currentLanguage == 'sq') {
       return attribute.label.al;
@@ -1371,7 +1383,7 @@ class DynamicElementAttributeState extends State<DynamicElementAttribute> {
                         ? intendedValue
                         : null;
                   }(),
-                  items: elementFound.codedValues!
+                  items: _sortedByCode(elementFound.codedValues!)
                       .map<DropdownMenuItem<Object?>>(
                           (code) => DropdownMenuItem<Object?>(
                                 key: ValueKey(
