@@ -90,7 +90,10 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _initialize() async {
-    context.read<BuildingCubit>().getBuildingAttributes();
+    // The building cubit outlives this screen. Start with an empty, unfiltered
+    // list: a legend filter left over from the previous map would otherwise
+    // keep hiding buildings here, with nothing in the legend to show for it.
+    context.read<BuildingCubit>().clearBuildings();
     context.read<EntranceCubit>().getEntranceAttributes();
 
     // Start GPS location streaming

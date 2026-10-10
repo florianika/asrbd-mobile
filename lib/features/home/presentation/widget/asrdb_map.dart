@@ -82,8 +82,16 @@ class _AsrdbMapState extends State<AsrdbMap> {
   }
 
   void _onMapReady() async {
-    final initialZoom = context.read<TileCubit>().initZoom;
-    final location = await LocationService.getCurrentLocation();
+    final tileCubit = context.read<TileCubit>();
+    final initialZoom = tileCubit.initZoom;
+
+    // An applied offline zone opens on the zone itself: the device can be far
+    // outside the downloaded area, so its position is only used online.
+    final zoneLat = tileCubit.download?.centerLat;
+    final zoneLng = tileCubit.download?.centerLng;
+    final location = tileCubit.isOffline && zoneLat != null && zoneLng != null
+        ? LatLng(zoneLat, zoneLng)
+        : await LocationService.getCurrentLocation();
 
     if (!mounted) return;
 

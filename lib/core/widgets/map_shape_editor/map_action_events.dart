@@ -65,7 +65,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
         download?.id,
       );
 
-      if (mounted) {
+      if (!isOffline && mounted) {
         await context
             .read<OutputLogsCubit>()
             .checkAutomatic(entrance.entBldGlobalID!.removeCurlyBraces()!);
@@ -226,7 +226,7 @@ class _MapActionEventsState extends State<MapActionEvents> {
 
       final userService = sl<UserService>();
 
-      if (mounted) {
+      if (!isOffline && mounted) {
         await context
             .read<OutputLogsCubit>()
             .checkAutomatic(response.data.removeCurlyBraces()!);
