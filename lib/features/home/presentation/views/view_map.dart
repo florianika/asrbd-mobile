@@ -61,6 +61,7 @@ class _ViewMapState extends State<ViewMap> {
   String attributeLegend = 'review';
   LatLng currentPosition = const LatLng(40.534406, 19.6338131);
   bool isLoading = false;
+  bool _isSaving = false;
   LatLngBounds? visibleBounds;
   double zoom = 0;
 
@@ -108,9 +109,14 @@ class _ViewMapState extends State<ViewMap> {
   }
 
   Future<void> _onSave(Map<String, dynamic> attributes) async {
+    // The loading overlay only blocks taps once it is on screen, so a second
+    // tap on Save can still get here and would save the same entity twice.
+    if (_isSaving) return;
+
     final loadingCubit = context.read<LoadingCubit>();
     DownloadEntity? download = context.read<TileCubit>().download;
 
+    _isSaving = true;
     loadingCubit.show();
 
     try {
@@ -139,6 +145,7 @@ class _ViewMapState extends State<ViewMap> {
     } catch (e) {
       _handleSaveError(e);
     } finally {
+      _isSaving = false;
       loadingCubit.hide();
     }
   }
@@ -158,30 +165,41 @@ class _ViewMapState extends State<ViewMap> {
         download?.id,
       );
 
-      if (mounted && !isOffline) {
-        await context.read<OutputLogsCubit>().checkAutomatic(
-            attributeCubit.currentBuildingGlobalId!.removeCurlyBraces()!);
-      }
+      try {
+        // A missing building ID must not turn into an error: fall back to the
+        // building of the dwelling's entrance.
+        final buildingGlobalId = (attributeCubit.currentBuildingGlobalId ??
+                attributeCubit.currentEntrance?.entBldGlobalID)
+            .removeCurlyBraces();
 
-      if (mounted) {
-        NotifierService.showMessage(
-          context,
-          message:
-              '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
-          type: response.success ? MessageType.success : MessageType.error,
-        );
-
-        if (response.success) {
-          attributeCubit.showAttributes(false);
-
-          await dwellingCubit.getDwellings(
-            attributeCubit.currentEntranceGlobalId,
-            isOffline,
-            download?.id,
+        if (mounted && !isOffline && buildingGlobalId != null) {
+          await context
+              .read<OutputLogsCubit>()
+              .checkAutomatic(buildingGlobalId);
+        }
+      } finally {
+        // The dwelling is saved by now, so the form has to close whatever the
+        // check did: left open, every further Save would add it again.
+        if (mounted) {
+          NotifierService.showMessage(
+            context,
+            message:
+                '${AppLocalizations.of(context).translate(response.key)} ${response.data != null ? '- Referenca: ${response.data}' : ''}',
+            type: response.success ? MessageType.success : MessageType.error,
           );
+
+          if (response.success) {
+            attributeCubit.showAttributes(false);
+
+            await dwellingCubit.getDwellings(
+              attributeCubit.currentEntranceGlobalId,
+              isOffline,
+              download?.id,
+            );
+          }
         }
       }
-    } on Exception catch (e) {
+    } catch (e) {
       if (!mounted) return;
       NotifierService.showMessage(
         context,

@@ -251,8 +251,6 @@ class _AsrdbMapState extends State<AsrdbMap> {
   void _handleMapTap(LatLng position, bool isOffline, int? downloadId) async {
     try {
       final geometryEditor = context.read<GeometryEditorCubit>();
-      context.read<AttributesCubit>().setPersistentBuilding(null);
-      context.read<AttributesCubit>().setPersistentEntrance(null);
       context.read<EntranceCubit>().clearEntrances();
 
       if (geometryEditor.isEditing) {
@@ -287,6 +285,10 @@ class _AsrdbMapState extends State<AsrdbMap> {
           }
         }
       } else {
+        // Only a plain tap deselects. While editing, the tap places a point
+        // and the building it belongs to has to stay selected.
+        context.read<AttributesCubit>().setPersistentBuilding(null);
+        context.read<AttributesCubit>().setPersistentEntrance(null);
         _handleBuildingOnTap(position, isOffline, downloadId);
       }
     } catch (e) {

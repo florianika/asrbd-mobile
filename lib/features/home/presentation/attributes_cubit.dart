@@ -134,11 +134,13 @@ class AttributesCubit extends Cubit<AttributesState> {
   }
 
   Future<void> showDwellingAttributes2(bool showDwellingsAttributes) async {
+    // Read before the loading state replaces the one holding these IDs: the
+    // building may only be known from the state (e.g. after a map tap).
+    final preservedBuildingId = currentBuildingGlobalId;
+    final preservedEntranceId = currentEntranceGlobalId;
+
     if (showLoading) emit(AttributesLoading());
     try {
-      final preservedBuildingId = _persistentBuilding?.globalId;
-      final preservedEntranceId = _persistentEntrance?.globalId;
-
       emit(Attributes(
         const [],
         const {},
@@ -157,14 +159,18 @@ class AttributesCubit extends Cubit<AttributesState> {
 //deprecated
   Future<void> showDwellingAttributes(
       int? dwellingObjectID, bool isOffline, int? downloadId) async {
+    // Preserve building and entrance IDs when navigating to dwelling
+    // This keeps the entrance selected when viewing dwelling.
+    // Read before the loading state replaces the one holding these IDs.
+    final preservedBuildingId = currentBuildingGlobalId;
+    final preservedEntranceId = currentEntranceGlobalId;
+
     if (showLoading) emit(AttributesLoading());
     try {
       final schema = await dwellingUseCases.getDwellingAttibutes();
       if (dwellingObjectID == null) {
         // Clear persistent dwelling when showing attributes for new dwelling
         _persistentDwelling = null;
-        final preservedBuildingId = _persistentBuilding?.globalId;
-        final preservedEntranceId = _persistentEntrance?.globalId;
 
         emit(Attributes(
           schema,
@@ -188,11 +194,6 @@ class AttributesCubit extends Cubit<AttributesState> {
 
       // Store permanently
       _persistentDwelling = dwelling;
-
-      // Preserve building and entrance IDs when navigating to dwelling
-      // This keeps the entrance selected when viewing dwelling
-      final preservedBuildingId = _persistentBuilding?.globalId;
-      final preservedEntranceId = _persistentEntrance?.globalId;
 
       emit(Attributes(
         schema,
