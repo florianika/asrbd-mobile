@@ -42,7 +42,7 @@ class DefaultData {
   static const int dwlStatusExisting = 4;
 
   //DwlType, "name": "9 | Lloj i banesës i panjohur"
-  static const int dwlTypeUnknown = 4;
+  static const int dwlTypeUnknown = 9;
 
   //DwlOwnership, "name": "99 | Pronësia e panjohur"
   static const int dwlOwnershipUnknown = 99;
