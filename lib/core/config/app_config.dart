@@ -13,7 +13,7 @@ class AppConfig {
   // API configurations
   static String apiBaseUrl = dotenv.env['API_URL'] ?? "";
   static String fieldWorkWebSocket = dotenv.env['API_SOCKET_URL'] ?? "";
-  static const int apiTimeout = 30; // seconds
+  static const int apiTimeout = 120; // seconds
 
   static String esriUriPath = dotenv.env['ESRI_API_PATH'] ?? "";
   static String esriUriScheme = dotenv.env['ESRI_API_SCHEME'] ?? "";
