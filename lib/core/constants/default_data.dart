@@ -112,10 +112,10 @@ class DefaultData {
   //"9 | Të dhëna të patestuara"
   static const int qualityUntested = 9;
 
-  /// Quality codes that mean the data still needs work before it can be used
-  /// for statistics (statuses 3, 4 and 5).
+  /// Quality codes that mean the data is wrong: inconsistent or not ready for
+  /// statistics (statuses 4 and 5). Missing data (status 3) is incomplete
+  /// rather than wrong, so it is not a problem.
   static const List<int> qualityProblemCodes = [
-    qualityStatisticalGaps,
     qualityStatisticalInconsistent,
     qualityNotReadyForStatistics,
   ];

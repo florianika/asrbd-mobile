@@ -31,7 +31,7 @@ class DwellingHelper {
     return dwellings.any((dwelling) {
       final raw = dwelling['DwlQuality'];
       final quality = raw is int ? raw : int.tryParse(raw?.toString() ?? '');
-      // Statuses 3, 4 and 5: missing, inconsistent or not ready for statistics.
+      // Statuses 4 and 5: inconsistent or not ready for statistics.
       return DefaultData.qualityProblemCodes.contains(quality);
     });
   }

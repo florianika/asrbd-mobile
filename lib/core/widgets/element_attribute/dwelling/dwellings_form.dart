@@ -593,7 +593,7 @@ class _DwellingFormState extends State<DwellingForm> {
   }
 
   bool _floorHasErrors(List<DwellingEntity> dwellings) {
-    // Statuses 3, 4 and 5: missing, inconsistent or not ready for statistics.
+    // Statuses 4 and 5: inconsistent or not ready for statistics.
     return dwellings.any((dwelling) =>
         DefaultData.qualityProblemCodes.contains(dwelling.dwlQuality));
   }
