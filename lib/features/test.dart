@@ -503,7 +503,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
               children: [
                 TileLayer(
                   urlTemplate: AppConfig.basemapTerrainUrl,
-                  subdomains: const ['a', 'b', 'c'],
+                  userAgentPackageName: AppConfig.userAgentPackageName,
                 ),
                 OverlayImageLayer(
                   overlayImages: [
