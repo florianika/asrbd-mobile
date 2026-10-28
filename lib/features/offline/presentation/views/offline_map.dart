@@ -2,6 +2,7 @@ import 'package:asrdb/core/config/app_config.dart';
 import 'package:asrdb/core/enums/message_type.dart';
 import 'package:asrdb/core/services/notifier_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
+import 'package:asrdb/core/widgets/osm_attribution.dart';
 import 'package:asrdb/localization/keys.dart';
 import 'package:asrdb/localization/localization.dart';
 import 'package:asrdb/data/mapper/building_mappers.dart';
@@ -423,6 +424,13 @@ class _OfflineMapState extends State<OfflineMap> {
                       ),
                     );
                   }),
+              // Bottom-left so it does not sit under the download button
+              BlocBuilder<TileCubit, TileState>(
+                builder: (context, state) => OsmAttribution(
+                  urlTemplate: state.basemapUrl,
+                  alignment: AttributionAlignment.bottomLeft,
+                ),
+              ),
             ],
           ),
 

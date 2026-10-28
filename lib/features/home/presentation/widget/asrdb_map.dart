@@ -15,6 +15,7 @@ import 'package:asrdb/core/widgets/markers/buildings_marker.dart';
 import 'package:asrdb/core/widgets/markers/entrances_marker.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
 import 'package:asrdb/core/widgets/markers/selected_building_marker.dart';
+import 'package:asrdb/core/widgets/osm_attribution.dart';
 import 'package:asrdb/domain/entities/download_entity.dart';
 import 'package:asrdb/domain/entities/entrance_entity.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
@@ -571,6 +572,7 @@ class _AsrdbMapState extends State<AsrdbMap> {
               Center(
                 child: LocationTagMarker(isActive: true),
               ),
+              OsmAttribution(urlTemplate: state.basemapUrl),
             ],
           ),
         ),

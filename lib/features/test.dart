@@ -7,6 +7,7 @@ import 'package:asrdb/core/services/location_service.dart';
 import 'package:asrdb/core/services/storage_service.dart';
 import 'package:asrdb/core/services/user_service.dart';
 import 'package:asrdb/core/widgets/markers/municipality_marker.dart';
+import 'package:asrdb/core/widgets/osm_attribution.dart';
 import 'package:asrdb/core/widgets/side_menu/side_menu.dart';
 import 'package:asrdb/features/cubit/tile_cubit.dart';
 import 'package:asrdb/main.dart';
@@ -16,6 +17,7 @@ import 'package:asrdb/routing/route_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_tile_caching/flutter_map_tile_caching.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:dio/dio.dart';
 
@@ -504,6 +506,12 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
                 TileLayer(
                   urlTemplate: AppConfig.basemapTerrainUrl,
                   userAgentPackageName: AppConfig.userAgentPackageName,
+                  tileProvider: FMTCTileProvider(
+                    stores: {
+                      AppConfig.mapTerrainStoreName:
+                          BrowseStoreStrategy.readUpdateCreate
+                    },
+                  ),
                 ),
                 OverlayImageLayer(
                   overlayImages: [
@@ -537,6 +545,7 @@ class _TiranaImageOverlayWidgetState extends State<TiranaImageOverlayWidget> {
                         municipalityId: state.download?.municipalityId,
                       );
                     }),
+                OsmAttribution(urlTemplate: AppConfig.basemapTerrainUrl),
               ],
             );
           },
